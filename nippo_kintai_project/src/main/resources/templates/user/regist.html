@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>ユーザー管理画面</title>
+</head>
+
+<body>
+
+	<form method="post">
+		<fieldset>
+			<label for="userName">ユーザー名</label>
+			<input type="text" name="userName" />
+			<input type="submit" name="searchForUserName" value="検索" />
+			<input type="hidden" name="userName" />
+		</fieldset>
+	</form>
+
+	<form method="post">
+		<label for="userId">ユーザーID</label>
+		<text>12345</text>
+		
+		<labal for="password">パスワード</labal>
+		<input type="password" name="password" />
+
+		<label for="role">権限</label>
+		<select>
+			<option>管理者</option>
+			<option>社員</option>
+		</select>
+
+		<label for="useStartDate">利用開始日</label>
+		<input type="date" name="useStartDate" />
+
+		<input type="submit" name="completeUserRegistForm" value="登録" />
+		<input type="hidden" name="userName" />
+		<input type="hidden" name="userId" />
+		<input type="hidden" name="password" />
+		<input type="hidden" name="role" />
+		<input type="hidden" name="useStartDate" />
+	</form>
+
+
+</body>
+
+</html>
