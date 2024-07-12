@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+	<meta charset="UTF-8" />
+	<title>ログイン画面</title>
+	<link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
+
 <body>
 
+	<div class="test">
+		<div>
+			<div>
+				<label for="userId">ユーザーID </label>
+				<input type="text" name="userName" class="blue">
+			</div>
+			<br>
+			<div>
+				<label for="password">パスワード</label>
+				<input type="password" name="password" class="blue">
+			</div>
+			<br>
+			<div>
+				<button type="submit" class="blue">ログイン1</button>
+				<!-- <input type="submit" value="ログイン2" class="blue">-->
+			</div>
+		</div>
+	</div>
+
 </body>
+
 </html>

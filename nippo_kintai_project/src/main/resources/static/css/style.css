@@ -1,1 +1,28 @@
 @charset "UTF-8";
+
+.test {
+	/*	ボックスの幅*/
+	width: 500px;
+	/*	テキストと枠の間の余白*/
+	padding: 50px;
+	/*	枠のスタイル*/
+	border: 1px solid black;
+	/*	枠を中央寄せ*/
+	margin: 0 auto;
+	/*	高さ*/
+	height: 150px;
+	/*	文字を中央寄せ 横*/
+	text-align: center;
+}
+
+
+.blue {
+	border: 1px solid blue;
+}
+
+
+.btn {
+	text-align: center;
+	border: 1px solid blue;
+	background-color: yellow;
+}
