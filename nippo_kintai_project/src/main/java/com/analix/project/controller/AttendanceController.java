@@ -1,4 +1,4 @@
-package com.analix.project.Controller;
+package com.analix.project.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
