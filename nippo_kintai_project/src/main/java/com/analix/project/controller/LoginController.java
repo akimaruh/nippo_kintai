@@ -1,7 +1,10 @@
 package com.analix.project.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class LoginController {
@@ -9,11 +12,18 @@ public class LoginController {
 	// 初期画面
 	@RequestMapping(path = "")
 	public String index() {
-		return "common/login";
+		// 現在のユーザーの認証情報を取得
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// ユーザーがログインしている場合
+		
+//		if (authentication != null && authentication.isAuthenticated()) {
+//			return "redirect:/attendance/regist";
+//		}
+		return "common/login"; // ユーザーがログインしていない場合、"/login"にリダイレクする
 	}
 
 	// ログインボタン押下
-	@RequestMapping("/login")
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login() {
 		return "common/login";
 	}
