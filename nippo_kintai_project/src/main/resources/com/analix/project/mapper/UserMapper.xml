@@ -4,15 +4,23 @@
 	<select id="findUserDataByUserName"
 		resultType="com.analix.project.entity.Users">
 		SELECT
+		name,
 		id,
 		password,
 		role,
 		start_date
 		FROM users
-		WHERE name = #{name}
+		WHERE name
+		= #{name}
 	</select>
 
-	<update id="updateUserDate"
+	<select id="createNewId" resultType="integer">
+		SELECT MAX(id)
+		FROM
+		users
+	</select>
+
+	<update id="updateUserData"
 		parameterType="com.analix.project.entity.Users">
 		UPDATE users
 		SET password =
@@ -22,7 +30,7 @@
 		start_date =
 		#{users.startDate}
 		WHERE
-		id = #{users.userId}
+		id = #{users.id}
 	</update>
 	<insert id="insertUserData" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.Users">
@@ -30,4 +38,9 @@
 		users(name,password,role,start_date)
 		values(#{users.name},#{users.password},#{users.role},#{users.startDate})
 	</insert>
+	
+	<delete id="deleteUserData">
+	DELETE FROM users
+	WHERE id = #{id}
+	</delete>
 </mapper>

@@ -10,7 +10,12 @@ public interface UserMapper {
 	
 	Users findUserDataByUserName (@Param("name") String name);
 	
-	Boolean updateUserData (@Param("users") Users users);
+	Integer createNewId ();
 	
-	Boolean insertUserData (@Param("users") Users users);
+	Boolean updateUserData (@Param("users") Users registUser);
+	
+	Boolean insertUserData (@Param("users") Users registUser);
+	
+	Boolean deleteUserData (@Param("id") Integer id);
+	
 }

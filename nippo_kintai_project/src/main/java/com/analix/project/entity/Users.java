@@ -1,7 +1,5 @@
 package com.analix.project.entity;
 
-import java.sql.Date;
-
 public class Users {
 
 	private int id;
@@ -9,7 +7,7 @@ public class Users {
 	private String name;
 	private String role;
 	private int departmentId;
-	private Date startDate;
+	private String startDate;
 
 	public int getId() {
 		return id;
@@ -51,11 +49,11 @@ public class Users {
 		this.departmentId = departmentId;
 	}
 
-	public Date getStartDate() {
+	public String getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(String startDate) {
 		this.startDate = startDate;
 	}
 
