@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.analix.project.mapper.UserMapper">
+	<select id="findUserDataByUserName"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		id,
+		password,
+		role,
+		start_date
+		FROM users
+		WHERE name = #{name}
+	</select>
+
+	<update id="updateUserDate"
+		parameterType="com.analix.project.entity.Users">
+		UPDATE users
+		SET password =
+		#{users.password},
+		role =
+		#{users.role},
+		start_date =
+		#{users.startDate}
+		WHERE
+		id = #{users.userId}
+	</update>
+	<insert id="insertUserData" useGeneratedKeys="true"
+		keyProperty="id" parameterType="com.analix.project.entity.Users">
+		INSERT INTO
+		users(name,password,role,start_date)
+		values(#{users.name},#{users.password},#{users.role},#{users.startDate})
+	</insert>
+</mapper>

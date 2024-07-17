@@ -15,30 +15,31 @@
 <body>
 	<h1 class="mb-4 text-center">ユーザー新規登録</h1>
 	<div class="container mt-3">
-		<form th:action="@{/user/regist/search}" th:method="post" >
+		<form th:action="@{/user/regist/search}" th:method="post" th:object="${userData}">
 			<div class="mb-3">
-				<label for="userName">ユーザー名：</label>
-				<input type="text" name="userName" class="form-control" />
+				<label for="name">ユーザー名：</label>
+				<input type="text" name="name" class="form-control" th:value="*{name}"/>
 			</div>
 			<input type="submit" name="searchForUserName" value="検索" class="btn btn-info" />
-			<input type="hidden" name="userName" />
+			<input type="hidden" name="name" th:value="*{name}"/>
 		</form>
 		
 		
 		<form th:action="@{/user/regist/complete}" method="post">
 			<div class="mb-3">
 				<label for="userId">ユーザーID：</label>
-				<input type="text" class="form-control-plaintext" value="123456789"></input>
+				<th:text class="form-control-plaintext" th:value="*{id}"></input>
 			</div>
 
 			<div class="mb-3">
 				<labal for="password">パスワード：</labal>
-				<input type="password" name="password" class="form-control" />
+				
+				<input type="password" name="password" class="form-control" th:value="*{password}"/>
 			</div>
 
 			<div class="mb-3">
 				<label for="role">権限：</label>
-				<select id="role" name="role" class="form-select">
+				<select id="role" name="role" class="form-select" th:value="*{role}">
 					<option value="Admin">Admin</option>
 					<option value="UnitManager">UnitManager</option>
 					<option value="Manager">Manager</option>
@@ -47,16 +48,14 @@
 			</div>
 
 			<div class="mb-3">
-				<label for="useStartDate">利用開始日：</label>
-				<input type="date" name="useStartDate" class="form-control" />
+				<label for="startDate">利用開始日：</label>
+				<input type="date" name="startDate" class="form-control" th:value="*{startDate}"/>
 			</div>
 
 			<input type="submit" name="completeUserRegistForm" value="登録" class="btn btn-info" />
-			<input type="hidden" name="userName" />
-			<input type="hidden" name="userId" />
-			<input type="hidden" name="password" />
-			<input type="hidden" name="role" />
-			<input type="hidden" name="useStartDate" />
+			<span th:if="${param.id != null}">
+			<input type="hidden" name="id" th:value="*{id}"/>
+			
 
 		</form>
 
