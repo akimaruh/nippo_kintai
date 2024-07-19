@@ -2,18 +2,18 @@ package com.analix.project.entity;
 
 public class Users {
 
-	private int id;
+	private Integer id;
 	private String password;
 	private String name;
 	private String role;
-	private int departmentId;
+	private Integer departmentId;
 	private String startDate;
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -41,11 +41,11 @@ public class Users {
 		this.role = role;
 	}
 
-	public int getDepartmentId() {
+	public Integer getDepartmentId() {
 		return departmentId;
 	}
 
-	public void setDepartmentId(int departmentId) {
+	public void setDepartmentId(Integer departmentId) {
 		this.departmentId = departmentId;
 	}
 
