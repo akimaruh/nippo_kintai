@@ -3,15 +3,90 @@
 
 <head>
 	<meta charset="UTF-8">
+	<!--	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"-->
+	<!--            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"-->
+	<!--            crossorigin="anonymous"></script>-->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 	<title>勤怠登録画面</title>
 </head>
 
 <body>
 
-	ユーザー名：XXXXXXXXXXX　　ユーザーID：XXXXXXXXXXX
-	<br>
-	表示年月：yyyy年mm月　表示
+	<div class="mb-3">
+		<label for="name">ユーザー名：</label>
+		<span>●●</span>
+		<!--    <span th:text="${session.name}"></span>-->
+		<label for="id">ユーザーID：</label>
+		<span>1111111111111111</span>
+		<!--    <span th;text="${session.id}"></span>-->
+		<label for="status">ステータス：</label>
+		<span th:text="未承認"></span>
 
+	</div>
+
+	<div class="mb-3">
+		<form action="" method="get">
+			<label for="displayYearMonth">表示年月：</label>
+			<input type="text" />年
+			<input type="text" />月
+			<input type="submit" class="btn btn-info" value="表示" />
+		</form>
+		
+
+	</div>
+
+	<div class="mb-3">
+		<input type="submit" class="btn btn-info" value="却下" />
+		<input type="submit" class="btn btn-info" value="承認" />
+		<input type="submit" class="btn btn-info" value="承認申請" />
+		<input type="submit" class="btn btn-info" value="登録" />
+	</div>
+
+	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
+		aria-describedby="user-table_info">
+		<thead>
+			<tr>
+				<th>承認申請者</th>
+				<th>申請対象年月</th>
+				<th>申請日</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!--       <tr th:each="${}"></tr>-->
+			<tr>
+				<td>●●</td>
+				<td>2024年7月</td>
+				<td>2024年7月31日</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
+		aria-describedby="user-table_info">
+		<thead>
+			<tr>
+				<th>日付</th>
+				<th>曜日</th>
+				<th>勤務状況</th>
+				<th>出勤時間</th>
+				<th>退勤時間</th>
+				<th>備考</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<!--       <tr th:each="${}"></tr>-->
+				<td>7/17</td>
+				<td>水</td>
+				<td>出勤</td>
+				<td>9:00</td>
+				<td>18:00</td>
+				<td>ああああ</td>
+			</tr>
+
+		</tbody>
+	</table>
 </body>
 
 </html>

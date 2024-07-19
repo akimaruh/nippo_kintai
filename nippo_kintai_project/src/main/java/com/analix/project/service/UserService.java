@@ -3,12 +3,14 @@ package com.analix.project.service;
 import org.springframework.stereotype.Service;
 
 import com.analix.project.entity.Users;
+import com.analix.project.form.RegistUserForm;
 import com.analix.project.mapper.UserMapper;
 
 @Service
 public class UserService {
 
 	private final UserMapper userMapper;
+	
 
 	public UserService(UserMapper userMapper) {
 		this.userMapper = userMapper;
@@ -39,29 +41,51 @@ public class UserService {
 	 * @param users
 	 * @return 反映結果
 	 */
-	public Boolean registUserData(Users users,Integer id) {
-		String startDate = users.getStartDate(); 
+	public Boolean registUserData(RegistUserForm registUserForm,Integer id) {
+
+		System.out.println("サービスクラス入り");
+		//		Date startDate = users.getStartDate();
+		//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		//		String stringTypeStartDate = dateFormat.format(startDate); 
+
+		System.out.println("Date処理完了");
+
 		Users registUser = new Users();
-		registUser.setPassword(users.getPassword());
-		registUser.setRole(users.getRole());
 		
-		registUser.setStartDate(users.getStartDate());
-		System.out.println("サービスクラス"+ registUser.getStartDate());
-		if (id == null) {
+		registUser.setPassword(registUserForm.getPassword());
+		registUser.setRole(registUserForm.getRole());
+
+		registUser.setStartDate(registUserForm.getStartDate());
+		System.out.println("サービスクラス" + registUser.getStartDate());
+
+		Boolean userCheck= userMapper.isUserDataById(id);
+		System.out.println(id);
+				System.out.println(userCheck);
+		if (userCheck == null) {
 			System.out.println("新規登録処理");
-			registUser.setName(users.getName());
+			System.out.println(registUserForm.getName());
+			registUser.setName(registUserForm.getName());
 			return userMapper.insertUserData(registUser);
 
 		}
-		
-		else if(startDate=="9999/99/99") {
-			return userMapper.deleteUserData(id);
-			
+		if (userCheck == true) {
+			System.out.println("更新登録処理");
+			System.out.println(registUser.getPassword());
+
+			registUser.setId(id);
 		}
-		System.out.println(registUser.getPassword());
-		
-		registUser.setId(users.getId());
+
 		return userMapper.updateUserData(registUser);
+	}
+
+	/**
+	 * ユーザー削除
+	 * @param id
+	 * @return 反映結果
+	 */
+	public Boolean deleteUser(Integer id) {
+		return userMapper.deleteUserData(id);
+
 	}
 
 }

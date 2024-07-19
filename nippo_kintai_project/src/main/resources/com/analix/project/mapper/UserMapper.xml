@@ -20,6 +20,10 @@
 		users
 	</select>
 
+	<select id="isUserDataById" resultType="boolean">
+		SELECT * FROM users WHERE id = #{id};
+	</select>
+
 	<update id="updateUserData"
 		parameterType="com.analix.project.entity.Users">
 		UPDATE users
@@ -38,9 +42,9 @@
 		users(name,password,role,start_date)
 		values(#{users.name},#{users.password},#{users.role},#{users.startDate})
 	</insert>
-	
+
 	<delete id="deleteUserData">
-	DELETE FROM users
-	WHERE id = #{id}
+		DELETE FROM users
+		WHERE id = #{id}
 	</delete>
 </mapper>

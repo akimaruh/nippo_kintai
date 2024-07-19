@@ -1,5 +1,10 @@
 package com.analix.project.entity;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+
 public class Users {
 
 	private int id;
@@ -7,7 +12,8 @@ public class Users {
 	private String name;
 	private String role;
 	private int departmentId;
-	private String startDate;
+	 @DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date startDate;
 
 	public int getId() {
 		return id;
@@ -49,11 +55,11 @@ public class Users {
 		this.departmentId = departmentId;
 	}
 
-	public String getStartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(String startDate) {
+	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
 

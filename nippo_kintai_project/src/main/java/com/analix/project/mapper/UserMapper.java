@@ -12,6 +12,8 @@ public interface UserMapper {
 	
 	Integer createNewId ();
 	
+	Boolean isUserDataById (@Param("id") Integer id);
+	
 	Boolean updateUserData (@Param("users") Users registUser);
 	
 	Boolean insertUserData (@Param("users") Users registUser);

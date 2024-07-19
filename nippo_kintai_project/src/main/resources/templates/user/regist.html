@@ -1,71 +1,147 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-
 <head>
-	<meta charset="UTF-8">
-	<!--	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"-->
-	<!--            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"-->
-	<!--            crossorigin="anonymous"></script>-->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-	<title>ユーザー管理画面</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <title>ユーザー管理画面</title>
 </head>
 
 <body>
-	<h1 class="mb-4 text-center">ユーザー新規登録</h1>
-	<div class="container mt-3" th:object="${userData}">
-		<form th:action="@{/user/regist/search}" th:method="post">
-			<div class="mb-3">
-				<label for="name">ユーザー名：</label>
-				<input type="text" name="name" class="form-control" th:value="*{name == null ? '' : name}" />
-			</div>
-			<input type="submit" name="searchForUserName" value="検索" class="btn btn-info" />
-			
-		</form>
+<h1 class="mb-4 text-center">ユーザー登録</h1>
+<div class="container mt-3">
+    <!-- 検索フォーム -->
+    <form th:action="@{/user/regist/search}" th:method="post" id="search-form">
+        <div class="mb-3">
+            <label for="search-name">ユーザー名：</label>
+            <input type="text" name="name" class="form-control" th:value="${userData != null ? userData.name : ''}" id="search-name" />
+        </div>
+        <input type="submit" name="searchForUserName" value="検索" class="btn btn-info" />
+       
+    </form>
 
+    <!-- 登録フォーム -->
+    <form th:object="${userData}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
+<!--        <div class="mb-3">-->
+<!--            <label for="regist-name">ユーザー名：</label>-->
+<!--            <input type="text" name="name" class="form-control" th:field="*{name}" id="regist-name" />-->
+<!--            <div id="nameError" class="text-danger"></div>-->
+<!--        </div>-->
 
-		<form th:action="@{/user/regist/complete}" method="post">
-			<div class="mb-3">
-				<label for="id">ユーザーID：</label>
-				<span th:text="*{id == null ? '' : id}" class="form-control-plaintext" name="id"></span>
-			</div>
+        <div class="mb-3">
+            <label for="regist-id">ユーザーID：</label>
+            <span th:text="*{id}" class="form-control-plaintext" id="regist-id"></span>
+        </div>
 
-			<div class="mb-3">
-				<labal for="password">パスワード：</labal>
+        <div class="mb-3">
+            <label for="regist-password">パスワード：</label>
+            <input type="text" name="password" class="form-control" th:field="*{password}" id="regist-password" />
+            <div id="passwordError" class="text-danger"></div>
+        </div>
 
-				<input type="text" name="password" class="form-control"
-					th:value="*{password == null ? '' : password}" />
-			</div>
+        <div class="mb-3">
+            <label for="role">権限：</label>
+            <select id="role" name="role" class="form-select" th:field="*{role}">
+                <option th:value="*{role}">[[*{role}]]</option>
+                <option value="Admin">Admin</option>
+                <option value="UnitManager">UnitManager</option>
+                <option value="Manager">Manager</option>
+                <option value="Regular">Regular</option>
+            </select>
+            <div id="roleError" class="text-danger"></div>
+        </div>
 
-			<div class="mb-3">
-				<label for="role">権限：</label>
-				<select id="role" name="role" class="form-select" th:value="*{role == null ? '' : role}">
-					<option th:value="*{role}">[[*{role}]]</option>
-					<option value="Admin">Admin</option>
-					<option value="UnitManager">UnitManager</option>
-					<option value="Manager">Manager</option>
-					<option value="Regular">Regular</option>
-				</select>
-			</div>
+        <div class="mb-3">
+            <label for="regist-startDate">利用開始日：</label>
+            <input type="text" name="startDate" class="form-control" th:field="*{startDate}" th:value="*{startDate}" id="regist-startDate" />
+            <div id="startDateError" class="text-danger"></div>
+        </div>
+        
+		<input type="hidden" name="name" th:value="*{name}" id="search-name"/>
+        <input type="submit" name="completeUserRegistForm" value="登録" class="btn btn-info" />
+        <input type="hidden" name="id" th:value="*{id}"/>
+    </form>
+</div>
 
-			<div class="mb-3">
-				<label for="startDate">利用開始日：</label>
-<!--				<input type="text" name="date" th:value="*{#dates.format(startDate, 'yyyy年MM月dd日')}" required />-->
-				<input type="text" name="startDate" class="form-control"
-					th:value="*{#dates.format(startDate, 'yyyy/MM/dd')}" />
-			</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
 
-			<input type="submit" name="completeUserRegistForm" value="登録" class="btn btn-info" />
-			
-				<input type="hidden" name="id" th:value="*{id}" />
-			</span>
+<script>
+    // 検索フォームのバリデーションチェック
+    document.getElementById('search-form').addEventListener('submit', function(event) {
+        let name = document.getElementById('search-name').value;
+        let validation = true;
 
+        if (name === "") {
+            document.getElementById('searchNameError').innerHTML = "名前を入力してください";
+            validation = false;
+        } else {
+            document.getElementById('searchNameError').innerHTML = "";
+        }
 
-		</form>
+        if (!validation) {
+            event.preventDefault();
+        }
+    });
 
-	</div>
+    // 登録フォームのバリデーションチェック
+    document.getElementById('regist-form').addEventListener('submit', function(event) {
+        let name = document.getElementById('regist-name').value;
+        let password = document.getElementById('regist-password').value;
+        let role = document.getElementById('role').value;
+        let startDate = document.getElementById('regist-startDate').value;
 
-	</th:block>
+        const MAX_USERNAME_LENGTH = 20;
+        const MAX_PASSWORD_LENGTH = 16;
+        const MAX_STARTDATE_LENGTH = 10;
+
+        let validation = true;
+
+        if (name === "") {
+            document.getElementById('nameError').innerHTML = "名前を入力してください";
+            validation = false;
+        } else if (name.length > MAX_USERNAME_LENGTH) {
+            document.getElementById('nameError').innerHTML = "20文字以内で入力してください";
+            validation = false;
+        } else {
+            document.getElementById('nameError').innerHTML = "";
+        }
+
+        if (password === "") {
+            document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
+            validation = false;
+        } else if (password.length > MAX_PASSWORD_LENGTH) {
+            document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
+            validation = false;
+        } else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
+            document.getElementById('passwordError').innerHTML = "半角で入力してください";
+            validation = false;
+        } else {
+            document.getElementById('passwordError').innerHTML = "";
+        }
+
+        if (role === "") {
+            document.getElementById('roleError').innerHTML = "権限を選択してください";
+            validation = false;
+        } else {
+            document.getElementById('roleError').innerHTML = "";
+        }
+
+        if (startDate === "") {
+            document.getElementById('startDateError').innerHTML = "利用開始日を入力してください";
+            validation = false;
+        } else if (startDate.length > MAX_STARTDATE_LENGTH) {
+            document.getElementById('startDateError').innerHTML = "10文字以内で入力してください";
+            validation = false;
+        } else {
+            document.getElementById('startDateError').innerHTML = "";
+        }
+
+        if (!validation) {
+            event.preventDefault();
+        }
+    });
+</script>
 </body>
-
 </html>
