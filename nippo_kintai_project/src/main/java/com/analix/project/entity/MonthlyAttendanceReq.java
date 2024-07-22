@@ -4,25 +4,25 @@ import java.sql.Date;
 
 public class MonthlyAttendanceReq {
 
-	private int id;
-	private int userId;
+	private Integer id;
+	private Integer userId;
 	private Date targetYearMonth;
 	private Date date;
 	private byte status;
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	public int getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
 

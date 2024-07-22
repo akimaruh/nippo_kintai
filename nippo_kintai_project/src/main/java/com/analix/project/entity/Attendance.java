@@ -5,27 +5,27 @@ import java.sql.Time;
 
 public class Attendance {
 
-	private int id;
-	private int userId;
+	private Integer id;
+	private Integer userId;
 	private byte status;
 	private Date date;
 	private Time startTime;
 	private Time endTime;
 	private String remarks;
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	public int getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
 

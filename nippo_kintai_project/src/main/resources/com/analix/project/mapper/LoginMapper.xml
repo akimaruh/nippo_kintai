@@ -8,11 +8,5 @@
 		SELECT * FROM users
 		WHERE  id = #{id} AND password = #{password}
 	</select>	
-
-<!--	<select id="findByIdAndPassword"-->
-<!--		resultType="com.analix.project.entity.Users">-->
-<!--		SELECT * FROM users-->
-<!--		WHERE  id = #{id}-->
-<!--	</select>	-->
 	
 </mapper>

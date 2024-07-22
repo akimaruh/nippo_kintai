@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.analix.project.entity.Users;
 import com.analix.project.service.LoginService;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class LoginController {
 
@@ -23,12 +25,26 @@ public class LoginController {
 	}
 	
 	@PostMapping("/login")
-	public String login(@RequestParam Integer id, @RequestParam String password, Model model) {
+	public String login(@RequestParam Integer id, @RequestParam String password, HttpSession session, Model model) {
 		Users user = loginService.findByIdAndPassword(id, password);
-		if(user != null) {
-			 model.addAttribute("user", user);
-			 return "redirect:/attendance/regist";
-		}else {
+
+		if (user != null) {
+			session.setAttribute("loginUser",user );
+			String role = user.getRole();
+
+			// 権限がadminの場合ユーザー管理画面へ遷移
+			if ("Admin".equals(role)) {
+				return "redirect:/user/regist";
+				// 権限がuserの場合勤怠登録画面へ遷移
+			} else if ("UnitManager".equals(role) || "Manager".equals(role) || "Regular".equals(role)) {
+				return "redirect:/attendance/regist";
+				// その他の場合にはエラー処理などを行う
+			} else {
+				model.addAttribute("error", "ログインに失敗しました。");
+				return "common/login";
+			}
+
+		} else {
 			model.addAttribute("error", "ユーザーIDまたはパスワードが正しくありません");
 			return "common/login";
 		}

@@ -7,8 +7,7 @@ import com.analix.project.entity.Users;
 
 @Mapper
 public interface LoginMapper {
-	
+
 	Users findByIdAndPassword(@Param("id") Integer id, @Param("password") String password);
 
-//	Users findByIdAndPassword(@Param("id") Integer id);
 }

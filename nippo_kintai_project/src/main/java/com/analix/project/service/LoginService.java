@@ -17,6 +17,7 @@ public class LoginService {
 		return loginMapper.findByIdAndPassword(id, password);
 	}
 	
+	
 //	// パスワードをハッシュ化
 //	private String hashPassword(String password) {
 //		 return new BCryptPasswordEncoder().encode(password);
