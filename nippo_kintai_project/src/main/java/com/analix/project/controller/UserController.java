@@ -38,7 +38,7 @@ public class UserController {
 	public String showUserRegist(Model model) {
 		Users userData = userService.getUserDataByUserName(null);
 		model.addAttribute("userData", userData);
-//		model.addAttribute("userData", new Users());
+		//		model.addAttribute("userData", new Users());
 
 		return "user/regist";
 	}
@@ -54,31 +54,41 @@ public class UserController {
 	}
 
 	@RequestMapping(path = "/regist/complete")
-	public String completeUserRegist(@Validated RegistUserForm registUserForm, BindingResult result, Integer id,String name, Model model) {
-		
+	public String completeUserRegist(@Validated RegistUserForm registUserForm, BindingResult result, Integer id,
+			String name, Model model) {
+
 		// 日付形式を定義
 		Date startDate = registUserForm.getStartDate();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		String stringTypeStartDate = dateFormat.format(startDate);
-		System.out.println("stringTypeStartDate" + startDate);
-		if ("9999/99/99".equals(startDate)) {
-			System.out.println("削除します");
-			userService.deleteUser(id);
-			model.addAttribute("message", "無効な日付が入力されたため、データが削除されました。");
-			return "redirect:/user/regist";
-		}
+		System.out.println("stringTypeStartDate" + stringTypeStartDate);
+		//		if ("9999/99/99".equals(stringTypeStartDate)) {
+		//			System.out.println("削除します");
+		//			userService.deleteUser(id);
+		//			model.addAttribute("message", "データが削除されました");
+		//			return "redirect:/user/regist";
 
 		try {
-			dateFormat.parse(stringTypeStartDate);
+			 dateFormat.setLenient(false);
+	            dateFormat.parse(stringTypeStartDate);
+	            userService.registUserData(registUserForm, id,name);
 
 		} catch (ParseException e) {
-			// 他の無効な日付形式の場合
-			result.rejectValue("startDate", "error.userData", "無効な日付形式です。");
-			return "redirect:/user/regist";
+			if ("9999/99/99".equals(stringTypeStartDate)) {
+				System.out.println("削除します");
+				userService.deleteUser(id);
+				model.addAttribute("message", "データが削除されました");
+				return "redirect:/user/regist";
+			} else {
+				// 他の無効な日付形式の場合
+				model.addAttribute("message", "無効な日付です");
+				//			result.rejectValue("startDate", "error.userData", "無効な日付形式です。");
+				return "redirect:/user/regist";
+			}
 		}
 
-		userService.registUserData(registUserForm,id);
 		return "redirect:/user/regist";
+
 	}
 
 }
