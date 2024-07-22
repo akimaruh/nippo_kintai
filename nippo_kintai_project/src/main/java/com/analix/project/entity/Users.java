@@ -2,8 +2,6 @@ package com.analix.project.entity;
 
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 
 public class Users {
 
@@ -13,7 +11,7 @@ public class Users {
 	private String name;
 	private String role;
 	private Integer departmentId;
-	 @DateTimeFormat(pattern = "yyyy-MM-dd")
+//	 @DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date startDate;
 
 	

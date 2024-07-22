@@ -41,7 +41,7 @@ public class UserService {
 	 * @param users
 	 * @return 反映結果
 	 */
-	public Boolean registUserData(RegistUserForm registUserForm,Integer id) {
+	public Boolean registUserData(RegistUserForm registUserForm,Integer id,String name) {
 
 		System.out.println("サービスクラス入り");
 		//		Date startDate = users.getStartDate();
@@ -54,7 +54,7 @@ public class UserService {
 		
 		registUser.setPassword(registUserForm.getPassword());
 		registUser.setRole(registUserForm.getRole());
-
+		registUser.setName(name);
 		registUser.setStartDate(registUserForm.getStartDate());
 		System.out.println("サービスクラス" + registUser.getStartDate());
 
@@ -63,14 +63,15 @@ public class UserService {
 				System.out.println(userCheck);
 		if (userCheck == null) {
 			System.out.println("新規登録処理");
-			System.out.println(registUserForm.getName());
-			registUser.setName(registUserForm.getName());
+			System.out.println(name);
+			
 			return userMapper.insertUserData(registUser);
 
 		}
 		if (userCheck == true) {
 			System.out.println("更新登録処理");
-			System.out.println(registUser.getPassword());
+			System.out.println(name);
+			
 
 			registUser.setId(id);
 		}

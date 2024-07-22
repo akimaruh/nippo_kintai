@@ -14,7 +14,7 @@
     <form th:action="@{/user/regist/search}" th:method="post" id="search-form">
         <div class="mb-3">
             <label for="search-name">ユーザー名：</label>
-            <input type="text" name="name" class="form-control" th:value="${userData != null ? userData.name : ''}" id="search-name" />
+            <input type="text" name="name" class="form-control" th:value="${userData != null ? userData.name : ''}" id="regist-name" />
         </div>
         <input type="submit" name="searchForUserName" value="検索" class="btn btn-info" />
        
@@ -22,11 +22,11 @@
 
     <!-- 登録フォーム -->
     <form th:object="${userData}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
-<!--        <div class="mb-3">-->
-<!--            <label for="regist-name">ユーザー名：</label>-->
-<!--            <input type="text" name="name" class="form-control" th:field="*{name}" id="regist-name" />-->
-<!--            <div id="nameError" class="text-danger"></div>-->
-<!--        </div>-->
+        <div class="mb-3">
+            <label for="regist-name">ユーザー名：</label>
+            <input type="text" name="name" class="form-control" th:field="*{name}" id="regist-name" />
+            <div id="nameError" class="text-danger"></div>
+        </div>
 
         <div class="mb-3">
             <label for="regist-id">ユーザーID：</label>
@@ -57,7 +57,7 @@
             <div id="startDateError" class="text-danger"></div>
         </div>
         
-		<input type="hidden" name="name" th:value="*{name}" id="search-name"/>
+		<input type="hidden" name="name" th:value="*{name}"/>
         <input type="submit" name="completeUserRegistForm" value="登録" class="btn btn-info" />
         <input type="hidden" name="id" th:value="*{id}"/>
     </form>

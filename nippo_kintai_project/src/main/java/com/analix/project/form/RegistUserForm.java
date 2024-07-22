@@ -15,7 +15,7 @@ public class RegistUserForm {
 	private String name;
 	private String role;
 	private int departmentId;
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private Date startDate;
 
 	
