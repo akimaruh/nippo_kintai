@@ -9,12 +9,13 @@
 
 <body>
 <h1 class="mb-4 text-center">ユーザー登録</h1>
-<div class="container mt-3">
+<div class="container mt-3" id="regist">
     <!-- 検索フォーム -->
     <form th:action="@{/user/regist/search}" th:method="post" id="search-form">
         <div class="mb-3">
-            <label for="search-name">ユーザー名：</label>
-            <input type="text" name="name" class="form-control" th:value="${userData != null ? userData.name : ''}" id="regist-name" />
+            <label for="regist-name">ユーザー名：</label>
+            <input type="text" name="name" class="form-control" th:field="${userData.name}" id="regist-name"/>
+            <div id="nameError" class="text-danger"></div>
         </div>
         <input type="submit" name="searchForUserName" value="検索" class="btn btn-info" />
        
@@ -22,11 +23,7 @@
 
     <!-- 登録フォーム -->
     <form th:object="${userData}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
-        <div class="mb-3">
-            <label for="regist-name">ユーザー名：</label>
-            <input type="text" name="name" class="form-control" th:field="*{name}" id="regist-name" />
-            <div id="nameError" class="text-danger"></div>
-        </div>
+
 
         <div class="mb-3">
             <label for="regist-id">ユーザーID：</label>
@@ -57,7 +54,7 @@
             <div id="startDateError" class="text-danger"></div>
         </div>
         
-		<input type="hidden" name="name" th:value="*{name}"/>
+		<input type="hidden" name="name" id="hidden-name" />
         <input type="submit" name="completeUserRegistForm" value="登録" class="btn btn-info" />
         <input type="hidden" name="id" th:value="*{id}"/>
     </form>
@@ -68,26 +65,19 @@
         crossorigin="anonymous"></script>
 
 <script>
-    // 検索フォームのバリデーションチェック
-    document.getElementById('search-form').addEventListener('submit', function(event) {
-        let name = document.getElementById('search-name').value;
-        let validation = true;
-
-        if (name === "") {
-            document.getElementById('searchNameError').innerHTML = "名前を入力してください";
-            validation = false;
-        } else {
-            document.getElementById('searchNameError').innerHTML = "";
-        }
-
-        if (!validation) {
-            event.preventDefault();
-        }
+	
+	document.getElementById("regist-form").addEventListener('submit', function(event) {
+        const username = document.getElementById("regist-name").value;
+        document.getElementById("hidden-name").value = username;
+        return true;
     });
+    // 検索フォームのバリデーションチェック
+   
 
     // 登録フォームのバリデーションチェック
     document.getElementById('regist-form').addEventListener('submit', function(event) {
-        let name = document.getElementById('regist-name').value;
+        
+		let name = document.getElementById('regist-name').value;
         let password = document.getElementById('regist-password').value;
         let role = document.getElementById('role').value;
         let startDate = document.getElementById('regist-startDate').value;
@@ -98,7 +88,7 @@
 
         let validation = true;
 
-        if (name === "") {
+      if (name === "") {
             document.getElementById('nameError').innerHTML = "名前を入力してください";
             validation = false;
         } else if (name.length > MAX_USERNAME_LENGTH) {
@@ -141,6 +131,8 @@
         if (!validation) {
             event.preventDefault();
         }
+        
+       
     });
 </script>
 </body>
