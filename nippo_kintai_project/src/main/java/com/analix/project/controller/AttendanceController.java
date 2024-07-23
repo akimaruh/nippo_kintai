@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.service.AttendanceService;
 
@@ -31,6 +32,9 @@ public class AttendanceController {
 	 */
 	@RequestMapping(path = "/attendance/regist")
 	public String attendanceRegist(Model model) {
+		
+		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
+		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
 
 		Calendar cal = Calendar.getInstance();
 		int currentYear = cal.get(Calendar.YEAR);
