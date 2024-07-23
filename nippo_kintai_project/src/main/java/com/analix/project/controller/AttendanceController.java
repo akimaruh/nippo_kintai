@@ -33,9 +33,11 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist")
 	public String attendanceRegist(Model model) {
 		
+		
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
-
+		
+		
 		Calendar cal = Calendar.getInstance();
 		int currentYear = cal.get(Calendar.YEAR);
 		int currentMonth = cal.get(Calendar.MONTH);
