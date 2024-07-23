@@ -6,7 +6,7 @@
 	<select id="findByIdAndPassword"
 		resultType="com.analix.project.entity.Users">
 		SELECT * FROM users
-		WHERE  id = #{id} AND password = #{password}
+		WHERE id = #{id} AND password = #{password}
 	</select>	
 	
 </mapper>
