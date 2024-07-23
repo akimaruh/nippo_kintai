@@ -54,7 +54,7 @@ public class UserService {
 		
 		registUser.setPassword(registUserForm.getPassword());
 		registUser.setRole(registUserForm.getRole());
-		registUser.setName(name);
+		registUser.setName(registUserForm.getName());
 		registUser.setStartDate(registUserForm.getStartDate());
 		System.out.println("サービスクラス" + registUser.getStartDate());
 
@@ -70,7 +70,7 @@ public class UserService {
 		}
 		if (userCheck == true) {
 			System.out.println("更新登録処理");
-			System.out.println(name);
+			System.out.println(registUserForm.getName());
 			
 
 			registUser.setId(id);

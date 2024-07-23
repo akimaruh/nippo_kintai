@@ -1,20 +1,21 @@
-package com.analix.project.entity;
-
-
-
+package com.analix.project.form;
 
 import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.Month;
 
-public class Attendance {
-
+public class DailyAttendanceForm {
+	
 	private Integer id;
 	private Integer userId;
 	private byte status;
-	private Date date;
+//	private Date date;
+	private LocalDate date;
 	private Time startTime;
 	private Time endTime;
 	private String remarks;
+	private int year;
+	private Month month;
 
 	public Integer getId() {
 		return id;
@@ -40,12 +41,12 @@ public class Attendance {
 		this.status = status;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(java.util.Date date2) {
-		this.date = date2;
+	public void setDate(LocalDate date) {
+		this.date = date;
 	}
 
 	public Time getStartTime() {
@@ -71,5 +72,24 @@ public class Attendance {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
+	
+	public int getYear() {
+		return year;
+	}
+	
+	public void setYear(int year) {
+		this.year = year;
+	}
+	
+	public Month getMonth() {
+		return month;
+	}
+	
+	public void setMonth(Month month) {
+		this.month = month;
+	}
+	
+	
+
 
 }

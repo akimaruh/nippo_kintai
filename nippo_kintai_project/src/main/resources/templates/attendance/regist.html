@@ -15,21 +15,48 @@
 
 	<div class="mb-3">
 		<label for="name">ユーザー名：</label>
-		<span th:text="${session.loginUser.name}"></span>
+		<!--		<span th:text="${session.loginUser.name}"></span>-->
 		<label for="id">ユーザーID：</label>
-		<span th:text="${session.loginUser.id}"></span>
+		<!--		<span th:text="${session.loginUser.id}"></span>-->
 		<label for="status">ステータス：</label>
 		<span th:text="未承認"></span>
 
 	</div>
 
 	<div class="mb-3">
-		<form action="" method="get">
+		<form th:action="@{/attendance/display}" method="get">
 			<label for="displayYearMonth">表示年月：</label>
-			<input type="text" />年
-			<input type="text" />月
-			<input type="submit" class="btn btn-info" value="表示" />
+			<select name="year" id="id_year"></select>年
+			<select name="month" id="id_month"></select>月
+			<input type="submit" class="btn btn-info" value="表示" id="display" />
 		</form>
+
+		<script>
+			var optionLoop, this_day, this_month, this_year, today;
+			today = new Date();
+			this_year = today.getFullYear();
+			this_month = today.getMonth() + 1;
+			this_day = today.getDate();
+
+			/*
+	ループ処理（スタート数字、終了数字、表示id名、デフォルト数字）
+   */
+			optionLoop = function (start, end, id, this_day) {
+				var i, opt;
+
+				opt = null;
+				for (i = start; i <= end; i++) {
+					if (i === this_day) {
+						opt += "<option value='" + i + "' selected>" + i + "</option>";
+					} else {
+						opt += "<option value='" + i + "'>" + i + "</option>";
+					}
+				}
+				return document.getElementById(id).innerHTML = opt;
+			};
+			optionLoop(2000, this_year, 'id_year', this_year);
+			optionLoop(1, 12, 'id_month', this_month);
+		</script>
 
 
 	</div>
@@ -38,7 +65,7 @@
 		<input type="submit" class="btn btn-info" value="却下" />
 		<input type="submit" class="btn btn-info" value="承認" />
 		<input type="submit" class="btn btn-info" value="承認申請" />
-		<input type="submit" class="btn btn-info" value="登録" />
+		<input type="submit" class="btn btn-info" value="登録" id="attendance-form" />
 	</div>
 
 	<!--	<th:block="${session.users.role == Manager}">-->
@@ -58,126 +85,78 @@
 
 	<!--	</th:block>-->
 
-	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
-		aria-describedby="user-table_info">
-		<div id="calendar">
-			<button id="prev-month">前月</button>
-			<button id="next-month">翌月</button>
+	<form th:action="@{/attendances/regist/complete}" method="post" id="attendance-form">
+		<input type="hidden" name="employeeId" th:value="${employeeId}">
+		<table>
 			<thead>
 				<tr>
-					<th>日付</th>
-					<th>曜日</th>
-					<th>勤務状況</th>
-					<th>出勤時間</th>
-					<th>退勤時間</th>
-					<th>備考</th>
+					<th class="w-10">日付</th>
+					<th class="w-10">曜日</th>
+					<th class="w-10">勤務状況</th>
+					<th class="w-10">出勤時間</th>
+					<th class="w-10">退勤時間</th>
+					<th class="w-10">備考</th>
 				</tr>
 			</thead>
-			<tbody id="calendar-body">
-				<script th:inline="javascript">
-					/* サーバーサイドから現在の月と年を渡す */
-					const initialMonth = /*[[${currentMonth}]]*/ 0;
-					const initialYear = /*[[${currentYear}]]*/ 0;
+			<tbody>
+				<tr th:each="DailyAttendance : ${DailyAttendanceList}">
+					<td class="w-10" th:text="${#temporals.format(DailyAttendance.date, 'M/d')}"></td>
+					<td class="w-10" th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(DailyAttendance.date.dayOfWeek)}"></td>
+					<td class="w-10">
+						<!--                        <select  name="statuses" class="status-dropdown form-select" th:field="${DailyAttendance.status}" >-->
+						<select name="statuses" class="status-dropdown form-select"></select>
 
-				</script>
+
+					</td>
+					<td class="w-10">
+						<!--                        <input type="datetime-local" name="startTime" th:field="${DailyAttendanceList.startTime}">-->
+						<input type="time" name="startTime">
+
+					</td>
+					<td class="w-10">
+						<!--                        <input type="datetime-local" name="endTime" th:field="${DailyAttendanceList.endTime}">-->
+						<input type="time" name="endTime">
+					</td>
+					<td class="w-10">
+						<!--						<input type="text" name="remarks" th:field="${DailyAttendanceList.remarks}">-->
+						<input type="text" name="remarks">
+					</td>
+					<!--					<input type="hidden" name="dates" th:value="${DailyAttendanceList}">-->
+					<input type="hidden" name="dates">
+				</tr>
 			</tbody>
-	</table>
-	</div>
+		</table>
 
-
-
-
-	<!--	<script th:src="@{/js/attendance.js}">-->
+	</form>
 	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			const calendarBody = document.getElementById('calendar-body');
-			const prevMonthButton = document.getElementById('prev-month');
-			const nextMonthButton = document.getElementById('next-month');
+		var statusList = {
+			0: "通常出勤",
+			1: "休日",
+			2: "祝日",
+			3: "遅刻",
+			4: "有給",
+			5: "欠勤",
+			6: "早退",
+			7: "時間外勤務",
+			8: "振替出勤",
+			9: "振替休日",
+			10: "代替出勤",
+			11: "代替休日"
+		};
 
-
-			let currentMonth = initialMonth !== 0 ? initialMonth - 1 : new Date().getMonth();
-			let currentYear = initialYear !== 0 ? initialYear : new Date().getFullYear();
-
-			function generateCalendar(month, year) {
-				calendarBody.innerHTML = ''; // カレンダーをリセット
-				let daysInMonth = new Date(year, month + 1, 0).getDate();
-
-				// カレンダーの行を生成
-				for (let date = 1; date <= daysInMonth; date++) {
-					let row = document.createElement('tr');
-
-					// 日付セル
-					let dateCell = document.createElement('td');
-					dateCell.appendChild(document.createTextNode(`${year}-${month + 1}-${date}`));
-					row.appendChild(dateCell);
-
-					// 曜日セル
-					let dayOfWeek = new Date(year, month, date).getDay();
-					let dayOfWeekCell = document.createElement('td');
-					dayOfWeekCell.appendChild(document.createTextNode(['日', '月', '火', '水', '木', '金', '土'][dayOfWeek]));
-					row.appendChild(dayOfWeekCell);
-
-					// 勤務状況セル
-					let workStatusCell = document.createElement('td');
-					let workStatusSelect = document.createElement('select');
-					['出勤', '休日', '休暇', '病欠', 'その他'].forEach(status => {
-						let option = document.createElement('option');
-						option.value = status;
-						option.text = status;
-						workStatusSelect.appendChild(option);
-					});
-
-					workStatusCell.appendChild(workStatusSelect);
-					row.appendChild(workStatusCell);
-
-					// 出勤時間セル
-					let startTimeCell = document.createElement('td');
-					let startTimeInput = document.createElement('input');
-					startTimeInput.type = 'time';
-					startTimeCell.appendChild(startTimeInput);
-					row.appendChild(startTimeCell);
-
-					// 退勤時間セル
-					let endTimeCell = document.createElement('td');
-					let endTimeInput = document.createElement('input');
-					endTimeInput.type = 'time';
-					endTimeCell.appendChild(endTimeInput);
-					row.appendChild(endTimeCell);
-
-					// 備考セル
-					let noteCell = document.createElement('td');
-					let noteInput = document.createElement('input');
-					noteInput.type = 'text';
-					noteCell.appendChild(noteInput);
-					row.appendChild(noteCell);
-
-					calendarBody.appendChild(row);
+		function populateStatusDropdown() {
+			var dropdowns = document.getElementsByClassName('status-dropdown');
+			for (var i = 0; i < dropdowns.length; i++) {
+				var dropdown = dropdowns[i];
+				var options = '';
+				for (var key in statusList) {
+					options += "<option value='" + key + "'>" + statusList[key] + "</option>";
 				}
+				dropdown.innerHTML = options;
 			}
+		}
 
-			prevMonthButton.addEventListener('click', function () {
-				if (currentMonth === 0) {
-					currentMonth = 11;
-					currentYear--;
-				} else {
-					currentMonth--;
-				}
-				generateCalendar(currentMonth, currentYear);
-			});
-
-			nextMonthButton.addEventListener('click', function () {
-				if (currentMonth === 11) {
-					currentMonth = 0;
-					currentYear++;
-				} else {
-					currentMonth++;
-				}
-				generateCalendar(currentMonth, currentYear);
-			});
-
-			generateCalendar(currentMonth, currentYear);
-		});
-
+		window.onload = populateStatusDropdown;
 	</script>
 </body>
 

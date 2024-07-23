@@ -65,14 +65,12 @@
         crossorigin="anonymous"></script>
 
 <script>
-	
+	//検索フォーム内のユーザー名を登録フォームにコピー
 	document.getElementById("regist-form").addEventListener('submit', function(event) {
         const username = document.getElementById("regist-name").value;
         document.getElementById("hidden-name").value = username;
         return true;
-    });
-    // 検索フォームのバリデーションチェック
-   
+    });   
 
     // 登録フォームのバリデーションチェック
     document.getElementById('regist-form').addEventListener('submit', function(event) {
