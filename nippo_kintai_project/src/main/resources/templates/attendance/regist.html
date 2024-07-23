@@ -78,7 +78,13 @@
 				<th>申請日</th>
 			</tr>
 		</thead>
+
 		<tbody>
+			<tr th:each="MonthlyAttendanceReq : ${monthlyAttendanceReqList}">
+				<td th:text="${MonthlyAttendanceReq.name}"></td>
+				<td th:text="${MonthlyAttendanceReq.targetYearMonth}"></td>
+				<td th:text="${MonthlyAttendanceReq.date}"></td>
+			</tr>
 
 		</tbody>
 	</table>
@@ -158,6 +164,8 @@
 
 		window.onload = populateStatusDropdown;
 	</script>
+
+	
 </body>
 
 </html>

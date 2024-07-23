@@ -45,7 +45,7 @@ public class LoginController {
 			}
 
 		} else {
-			model.addAttribute("error", "ユーザーIDまたはパスワードが正しくありません");
+			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 			return "common/login";
 		}
 	}
