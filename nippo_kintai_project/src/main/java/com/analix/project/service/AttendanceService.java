@@ -10,15 +10,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
 import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.mapper.AttendanceMapper;
+import com.analix.project.mapper.MonthlyAttendanceReqMapper;
 
 @Service
 public class AttendanceService {
 	
 	@Autowired
 	private AttendanceMapper attendanceMapper;
+	@Autowired
+	private MonthlyAttendanceReqMapper monthlyAttendanceMapper;
 
 	
 	/**
@@ -33,6 +37,14 @@ public class AttendanceService {
 	return attendanceMapper.findAllDailyAttendance(userId, year, month);
 		
 	}
+	
+	/**
+	 * 承認申請取得
+	 * @return
+	 */
+		public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq(){
+			return monthlyAttendanceMapper.findAll();
+		}
 	
 	/**
 	 * 勤怠登録

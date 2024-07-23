@@ -15,9 +15,9 @@
 
 	<div class="mb-3">
 		<label for="name">ユーザー名：</label>
-		<!--		<span th:text="${session.loginUser.name}"></span>-->
+		<span th:text="${session.loginUser.name}"></span>
 		<label for="id">ユーザーID：</label>
-		<!--		<span th:text="${session.loginUser.id}"></span>-->
+		<span th:text="${session.loginUser.id}"></span>
 		<label for="status">ステータス：</label>
 		<span th:text="未承認"></span>
 
@@ -72,14 +72,16 @@
 	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 		aria-describedby="user-table_info">
 		<thead>
-			<tr>
-				<th>承認申請者</th>
-				<th>申請対象年月</th>
-				<th>申請日</th>
-			</tr>
-		</thead>
+			<thead>
+				<tr>
+					<th>承認申請者</th>
+					<th>申請対象年月</th>
+					<th>申請日</th>
+				</tr>
 
+		</thead>
 		<tbody>
+
 			<tr th:each="MonthlyAttendanceReq : ${monthlyAttendanceReqList}">
 				<td th:text="${MonthlyAttendanceReq.name}"></td>
 				<td th:text="${MonthlyAttendanceReq.targetYearMonth}"></td>
@@ -107,7 +109,9 @@
 			<tbody>
 				<tr th:each="DailyAttendance : ${DailyAttendanceList}">
 					<td class="w-10" th:text="${#temporals.format(DailyAttendance.date, 'M/d')}"></td>
-					<td class="w-10" th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(DailyAttendance.date.dayOfWeek)}"></td>
+					<td class="w-10"
+						th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(DailyAttendance.date.dayOfWeek)}">
+					</td>
 					<td class="w-10">
 						<!--                        <select  name="statuses" class="status-dropdown form-select" th:field="${DailyAttendance.status}" >-->
 						<select name="statuses" class="status-dropdown form-select"></select>
@@ -164,8 +168,6 @@
 
 		window.onload = populateStatusDropdown;
 	</script>
-
-	
 </body>
 
 </html>
