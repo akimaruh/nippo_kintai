@@ -19,5 +19,7 @@ public class MonthlyAttendanceReqDto {
 	private byte status;
 	/** 氏名 */
 	private String name;
+//	/** 勤怠リスト */ //Param userId, year, month
+//	private List<Attendance> attendanceList;
 
 }

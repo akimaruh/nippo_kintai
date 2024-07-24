@@ -3,11 +3,25 @@
 <mapper namespace="com.analix.project.mapper.MonthlyAttendanceReqMapper">
 
 	<!-- 全件取得 -->
-	<select id="findAll"
+	<select id="findAllMonthlyAttendanceReq"
 		resultType="com.analix.project.dto.MonthlyAttendanceReqDto">
 		SELECT * FROM monthly_attendance_req
 		JOIN users
 		ON monthly_attendance_req.user_id = users.id
 	</select>
 		
-	</mapper>
+	<!-- 承認 -->
+	<update id="updateStatusApprove" parameterType="Integer">
+		UPDATE monthly_attendance_req
+		SET status = 2
+		WHERE id = #{id}
+	</update>
+		
+	<!-- 却下 -->
+	<update id="updateStatusReject" parameterType="Integer">
+		UPDATE monthly_attendance_req
+		SET status = 3
+		WHERE id = #{id}
+	</update>
+
+</mapper>

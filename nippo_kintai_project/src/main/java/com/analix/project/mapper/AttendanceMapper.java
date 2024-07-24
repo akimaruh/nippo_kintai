@@ -26,6 +26,10 @@ public interface AttendanceMapper {
 	 */
 	public Boolean updateDailyAttendance(@Param("attendance") Attendance attendance);
 	
+	/*
+	 * 承認申請情報取得
+	 */
+
 	
 	
 	
