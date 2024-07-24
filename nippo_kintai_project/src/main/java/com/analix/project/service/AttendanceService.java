@@ -77,7 +77,7 @@ public class AttendanceService {
 	 * @return
 	 */
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq() {
-		return monthlyAttendanceReqMapper.findAll();
+		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
 	}
 	
 	/**

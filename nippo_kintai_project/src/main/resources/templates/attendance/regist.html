@@ -98,10 +98,10 @@
 			</thead>
 		<tbody>
 
-			<tr th:each="MonthlyAttendanceReq : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
-				<td th:text="${MonthlyAttendanceReq.name}"></td>
-				<td th:text="${MonthlyAttendanceReq.targetYearMonth}"></td>
-				<td th:text="${MonthlyAttendanceReq.date}"></td>
+			<tr th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
+				<td th:text="${MonthlyList.name}"></td>
+				<td th:text="${MonthlyList.targetYearMonth}"></td>
+				<td th:text="${MonthlyList.date}"></td>
 			</tr>
 
 		</tbody>
