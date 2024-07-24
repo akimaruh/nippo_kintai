@@ -1,7 +1,6 @@
 package com.analix.project.entity;
 
-import java.util.Date;
-
+import java.sql.Date;
 
 public class Users {
 

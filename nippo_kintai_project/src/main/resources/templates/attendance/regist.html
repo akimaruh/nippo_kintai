@@ -24,11 +24,12 @@
 	</div>
 
 	<div class="mb-3">
-		<form th:action="@{/attendance/display}" method="get">
+		<form th:action="@{/attendance/display}" method="post">
 			<label for="displayYearMonth">表示年月：</label>
 			<select name="year" id="id_year"></select>年
 			<select name="month" id="id_month"></select>月
 			<input type="submit" class="btn btn-info" value="表示" id="display" />
+			<input type="hidden" name="yearMonth" id="yearMonth" />
 		</form>
 
 		<script>
@@ -38,9 +39,7 @@
 			this_month = today.getMonth() + 1;
 			this_day = today.getDate();
 
-			/*
-	ループ処理（スタート数字、終了数字、表示id名、デフォルト数字）
-   */
+			//ループ処理（スタート数字、終了数字、表示id名、デフォルト数字
 			optionLoop = function (start, end, id, this_day) {
 				var i, opt;
 
@@ -56,6 +55,23 @@
 			};
 			optionLoop(2000, this_year, 'id_year', this_year);
 			optionLoop(1, 12, 'id_month', this_month);
+
+			/* yearとmonthを結合*/
+			document.querySelector('form').addEventListener('submit', function (event) {
+				var year = document.getElementById('id_year').value;
+				var month = document.getElementById('id_month').value;
+
+				// 月を2桁にフォーマット
+				if (month.length < 2) {
+					month = '0' + month;
+				}
+
+				var yearMonth = year + '-' + month;
+
+				// hidden inputを更新
+				var hiddenInput = document.getElementById('yearMonth');
+				hiddenInput.value = yearMonth;
+			});
 		</script>
 
 
@@ -79,10 +95,10 @@
 					<th>申請日</th>
 				</tr>
 
-		</thead>
+			</thead>
 		<tbody>
 
-			<tr th:each="MonthlyAttendanceReq : ${monthlyAttendanceReqList}">
+			<tr th:each="MonthlyAttendanceReq : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
 				<td th:text="${MonthlyAttendanceReq.name}"></td>
 				<td th:text="${MonthlyAttendanceReq.targetYearMonth}"></td>
 				<td th:text="${MonthlyAttendanceReq.date}"></td>
@@ -107,29 +123,30 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="DailyAttendance : ${DailyAttendanceList}">
-					<td class="w-10" th:text="${#temporals.format(DailyAttendance.date, 'M/d')}"></td>
+				<tr th:each="dailyAttendance: *{dailyAttendanceList}">
+					<td class="w-10" th:text="${#temporals.format(dailyAttendance.date, 'M/d')}"></td>
 					<td class="w-10"
-						th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(DailyAttendance.date.dayOfWeek)}">
+						th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendance.date.dayOfWeek)}">
 					</td>
 					<td class="w-10">
-						<!--                        <select  name="statuses" class="status-dropdown form-select" th:field="${DailyAttendance.status}" >-->
-						<select name="statuses" class="status-dropdown form-select"></select>
+
+						<select name="statuses" class="status-dropdown form-select"
+							th:data-status="${dailyAttendance.status}"></select>
 
 
 					</td>
 					<td class="w-10">
-						<!--                        <input type="datetime-local" name="startTime" th:field="${DailyAttendanceList.startTime}">-->
-						<input type="time" name="startTime">
+
+						<input type="time" name="startTime" th:value="${dailyAttendance.startTime}">
 
 					</td>
 					<td class="w-10">
-						<!--                        <input type="datetime-local" name="endTime" th:field="${DailyAttendanceList.endTime}">-->
-						<input type="time" name="endTime">
+
+						<input type="time" name="endTime" th:value="${dailyAttendance.endTime}">
 					</td>
 					<td class="w-10">
-						<!--						<input type="text" name="remarks" th:field="${DailyAttendanceList.remarks}">-->
-						<input type="text" name="remarks">
+
+						<input type="text" name="remarks" th:value="${dailyAttendance.remarks}">
 					</td>
 					<!--					<input type="hidden" name="dates" th:value="${DailyAttendanceList}">-->
 					<input type="hidden" name="dates">
@@ -158,9 +175,11 @@
 			var dropdowns = document.getElementsByClassName('status-dropdown');
 			for (var i = 0; i < dropdowns.length; i++) {
 				var dropdown = dropdowns[i];
+				var selectedStatus = dropdown.getAttribute('data-status'); // th:data-status 属性から値を取得
 				var options = '';
 				for (var key in statusList) {
-					options += "<option value='" + key + "'>" + statusList[key] + "</option>";
+					var selected = (key == selectedStatus) ? ' selected' : '';
+					options += "<option value='" + key + "'" + selected + ">" + statusList[key] + "</option>";
 				}
 				dropdown.innerHTML = options;
 			}

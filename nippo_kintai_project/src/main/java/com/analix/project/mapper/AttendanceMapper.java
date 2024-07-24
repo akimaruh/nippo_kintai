@@ -1,6 +1,5 @@
 package com.analix.project.mapper;
 
-import java.time.Month;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -14,7 +13,7 @@ public interface AttendanceMapper {
 	/*
 	 * 勤怠一覧取得マッパー
 	 */
-	public List<Attendance> findAllDailyAttendance(@Param("userId") Integer userId, @Param("year") int year,@Param("month") Month month);
+	public List<Attendance> findAllDailyAttendance(@Param("userId") Integer userId, @Param("yearMonth") String yearMonth);
 	
 	/*
 	 * 勤怠登録

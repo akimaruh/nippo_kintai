@@ -3,6 +3,8 @@ package com.analix.project.form;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
+
 
 public class DailyAttendanceForm {
 	
@@ -14,7 +16,7 @@ public class DailyAttendanceForm {
 	private Time startTime;
 	private Time endTime;
 	private String remarks;
-	private int year;
+	private Year year;
 	private Month month;
 
 	public Integer getId() {
@@ -73,11 +75,11 @@ public class DailyAttendanceForm {
 		this.remarks = remarks;
 	}
 	
-	public int getYear() {
+	public Year getYear() {
 		return year;
 	}
 	
-	public void setYear(int year) {
+	public void setYear(Year year) {
 		this.year = year;
 	}
 	

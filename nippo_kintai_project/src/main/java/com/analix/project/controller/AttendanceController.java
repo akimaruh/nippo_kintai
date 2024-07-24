@@ -1,8 +1,5 @@
 package com.analix.project.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +10,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
+import com.analix.project.entity.Users;
 import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.service.AttendanceService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AttendanceController {
 
 	@Autowired
 	public AttendanceService attendanceService;
+	
+	
+	//	@Autowired
+	//	private Attendance attendance;
 
 	/**
 	 * 初期表示
@@ -31,30 +35,38 @@ public class AttendanceController {
 	 * @return
 	 */
 	@RequestMapping(path = "/attendance/regist")
-	public String attendanceRegist(Model model) {
+	public String attendanceRegist(Model model,HttpSession session) {
 		
 		
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
 		
+//		Integer userId = (Integer) session.getAttribute("id");
 		
-		Calendar cal = Calendar.getInstance();
-		int currentYear = cal.get(Calendar.YEAR);
-		int currentMonth = cal.get(Calendar.MONTH);
-
-		List<LocalDate> dateList = attendanceService.generateMonthDates(currentYear, currentMonth);
-		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
-
-		for (LocalDate date : dateList) {
-
-			DailyAttendanceForm dailyAttendance = new DailyAttendanceForm();
-			dailyAttendance.setDate(date);
-			dailyAttendanceList.add(dailyAttendance);
-
-		}
-
-		model.addAttribute("DailyAttendanceList", dailyAttendanceList);
-		System.out.println(dailyAttendanceList);
+		
+//		// 現在の年と月を取得
+//        Calendar cal = Calendar.getInstance();
+//        int currentYear = cal.get(Calendar.YEAR);
+//        int currentMonth = cal.get(Calendar.MONTH) + 1;
+//
+//        // yearMonth文字列を作成
+//        String yearMonth = String.format("%d-%02d", currentYear, currentMonth);
+//		
+//
+//		List<LocalDate> dateList = attendanceService.generateMonthDates(yearMonth);
+//		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
+//
+//		for (LocalDate date : dateList) {
+//
+//			DailyAttendanceForm dailyAttendance = new DailyAttendanceForm();
+//			dailyAttendance.setUserId(userId);
+//			dailyAttendance.setDate(date);
+//			dailyAttendanceList.add(dailyAttendance);
+//
+//		}
+//
+//		model.addAttribute("dailyAttendanceList", dailyAttendanceList);
+//		System.out.println(dailyAttendanceList);
 		
 
 		return "/attendance/regist";
@@ -63,20 +75,30 @@ public class AttendanceController {
 	/*
 	 * 『表示』ボタン押下後
 	 */
-	@RequestMapping(path = "/attendance/display", method = RequestMethod.GET)
-	public String attendanceDisplay(@RequestParam(required = false) Integer userId, @RequestParam("year") int year,
-			@RequestParam("month") int month, Model model) {
+	@RequestMapping(path = "/attendance/display", method = RequestMethod.POST)
+	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
+		Model model,HttpSession session) {
+		System.out.println("コントローラクラス"+yearMonth);
+		Users loginUser = (Users)session.getAttribute("loginUser");
+		Integer userId = loginUser.getId();
+		System.out.println(loginUser.getId());
+    
+//		List<LocalDate> dateList = attendanceService.generateMonthDates(yearMonth);
+		List<DailyAttendanceForm> dailyAttendanceList = attendanceService.getFindAllDailyAttendance(userId,yearMonth);
+		
+//		for (LocalDate date : dateList) {
+//			if()
+//			DailyAttendanceForm dailyAttendance = new DailyAttendanceForm();
+//			dailyAttendance.setUserId(userId);
+//			dailyAttendance.setDate(date);
+//			dailyAttendanceList.add(dailyAttendance);
+//
+//		}
+		model.addAttribute("yearMonth", yearMonth);
+		model.addAttribute("dailyAttendanceList", dailyAttendanceList);
 
-		List<LocalDate> dateList = attendanceService.generateMonthDates(year, month);
-		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
-		for (LocalDate date : dateList) {
-			DailyAttendanceForm dailyAttendance = new DailyAttendanceForm();
-			dailyAttendance.setDate(date);
-			dailyAttendanceList.add(dailyAttendance);
+		
 
-		}
-
-		model.addAttribute("DailyAttendanceList", dailyAttendanceList);
 
 		return "/attendance/regist";
 

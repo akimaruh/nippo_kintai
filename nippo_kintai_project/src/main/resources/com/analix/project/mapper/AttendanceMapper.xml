@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.analix.project.mapper.AttendanceMapper">
-	<select id="findAllDailyAttendance"
-		resultType="com.analix.project.entity.Attendance">
-		SELECT *
-		FROM attendance
-		WHERE 
-		user_id = #{userId}
-		DATE_FORMAT(date, '%m') = '#{month}';
-	</select>
 	
+	<select id="findAllDailyAttendance" resultType="com.analix.project.entity.Attendance">
+		SELECT *
+		FROM
+		attendance
+		WHERE
+		user_id = #{userId}
+		AND DATE_FORMAT(date, '%Y-%m') =
+		#{yearMonth}
+	</select>
+
 	<insert id="registDailyAttendance" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.Attendance">
 		INSERT INTO
 		attendance(user_id,status,date,start_time,end_time,remarks)
 		values(#{attendance.userId},#{attendance.status},#{attendance.startTime},#{attendance.endTime},#{attendance.remarks})
 	</insert>
-	
-	
+
+
 	<update id="updateDailyAttendance"
 		parameterType="com.analix.project.entity.Attendance">
 		UPDATE attendance
-		SET status = 
+		SET status =
 		#{attendance.status},
 		start_time =
 		#{attendance.startTime},
@@ -30,9 +32,10 @@
 		WHERE
 		id = #{attendance.id}
 		user_id = #{attendance.user_id}
-		date = #{attendance.date}
-		
-		
+		date =
+		#{attendance.date}
+
+
 	</update>
-	
-	</mapper>
+
+</mapper>

@@ -5,15 +5,19 @@ import org.springframework.stereotype.Service;
 import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
 import com.analix.project.mapper.UserMapper;
+import com.analix.project.util.CustomDateUtil;
 
 @Service
 public class UserService {
-
+	
+	
 	private final UserMapper userMapper;
+	private final CustomDateUtil customDateUtil;
 	
 
 	public UserService(UserMapper userMapper) {
 		this.userMapper = userMapper;
+		this.customDateUtil = new CustomDateUtil();
 	}
 
 	/**
@@ -52,6 +56,7 @@ public class UserService {
 
 		Users registUser = new Users();
 		
+		
 		registUser.setPassword(registUserForm.getPassword());
 		registUser.setRole(registUserForm.getRole());
 		registUser.setName(registUserForm.getName());
@@ -78,6 +83,8 @@ public class UserService {
 
 		return userMapper.updateUserData(registUser);
 	}
+	
+	
 
 	/**
 	 * ユーザー削除
@@ -88,5 +95,7 @@ public class UserService {
 		return userMapper.deleteUserData(id);
 
 	}
+	
+	
 
 }

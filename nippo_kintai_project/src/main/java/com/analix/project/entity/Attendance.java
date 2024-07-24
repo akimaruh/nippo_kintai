@@ -3,8 +3,9 @@ package com.analix.project.entity;
 
 
 
+import java.sql.Date;
 import java.sql.Time;
-import java.util.Date;
+
 
 public class Attendance {
 
@@ -44,8 +45,8 @@ public class Attendance {
 		return date;
 	}
 
-	public void setDate(java.util.Date date2) {
-		this.date = date2;
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public Time getStartTime() {
