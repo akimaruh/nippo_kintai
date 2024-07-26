@@ -12,14 +12,12 @@ public class MonthlyAttendanceReqDto {
 	/** 申請者のユーザーID */
 	private Integer userId;
 	/** 申請対象年月 */
-	private Date targetYearMonth;
+	private String targetYearMonth;
 	/** 申請日 */
 	private Date date;
 	/** ステータス */
 	private byte status;
 	/** 氏名 */
 	private String name;
-//	/** 勤怠リスト */ //Param userId, year, month
-//	private List<Attendance> attendanceList;
 
 }

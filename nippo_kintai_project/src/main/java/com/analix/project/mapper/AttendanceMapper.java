@@ -26,8 +26,9 @@ public interface AttendanceMapper {
 	public Boolean updateDailyAttendance(@Param("attendance") Attendance attendance);
 	
 	/*
-	 * 承認申請情報取得
+	 * 承認申請者情報取得
 	 */
+	public List<Attendance> findByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
 
 	
 	

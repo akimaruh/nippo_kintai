@@ -5,11 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
+import com.analix.project.entity.Attendance;
 import com.analix.project.entity.Users;
 import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.service.AttendanceService;
@@ -98,10 +100,44 @@ public class AttendanceController {
 		model.addAttribute("dailyAttendanceList", dailyAttendanceList);
 
 		
-
-
 		return "/attendance/regist";
 
 	}
+	
+	/*
+	 * 『承認申請者』リンク押下後
+	 */
+	@GetMapping("/attedance/approveRequests")
+	public String showApproveRequests(@RequestParam("userId") Integer userId, @RequestParam("targetYearMonth") String targetYearMonth, Model model) {
+	    System.out.println("UserId: " + userId);
+	    System.out.println("Original targetYearMonth: " + targetYearMonth);
+	    
+	    String yearMonth = targetYearMonth.substring(0, 7); // String型に変換　/2024-01/-01
+	    
+		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, yearMonth);
+		
+		// デバッグ用: attendanceListの内容を確認
+		System.out.println("Attendance List Size: " + attendanceList.size());
+	    for (Attendance a : attendanceList) {
+	        System.out.println(a);
+	    }
+	    
+		model.addAttribute("attendanceList", attendanceList);
+
+		return "/attendance/regist";
+		
+	}
+	
+//	//	↓作成中↓
+//	/*
+//	 * 『承認』ボタン押下後
+//	 */
+//	@PostMapping("/attedance/update")
+//	public String updateStatus(@RequestParam("id") Integer id) {
+//		attendanceService.updateStatusApprove(id);
+//		return "redirect:/attendance/regist";
+//		
+//	}
+//	//	↑作成中↑
 
 }
