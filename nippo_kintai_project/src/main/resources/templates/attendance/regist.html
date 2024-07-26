@@ -24,7 +24,7 @@
 	</div>
 
 	<div class="mb-3">
-		<form th:action="@{/attendance/display}" method="post">
+		<form th:action="@{/attendance/regist/display}" method="post">
 			<label for="displayYearMonth">表示年月：</label>
 			<select name="year" id="id_year"></select>年
 			<select name="month" id="id_month"></select>月
@@ -81,11 +81,11 @@
 		<input type="submit" class="btn btn-info" value="却下" />
 		<input type="submit" class="btn btn-info" value="承認" />
 		<input type="submit" class="btn btn-info" value="承認申請" />
-		<input type="submit" class="btn btn-info" value="登録" id="attendance-form" />
+		<input type="submit" class="btn btn-info" value="登録" form="attendance-form" />
 	</div>
-	
 
-	<!--	<th:block="${session.users.role == Manager}">-->
+
+	<!--	<span th:if="${session.loginUser.role == Manager}">-->
 	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 		aria-describedby="user-table_info">
 		<thead>
@@ -110,10 +110,10 @@
 		</tbody>
 	</table>
 
-	<!--	</th:block>-->
+	<!--	</span>-->
 
-	<form th:action="@{/attendances/regist/complete}" method="post" id="attendance-form">
-		<input type="hidden" name="employeeId" th:value="${employeeId}">
+	<form th:action="@{/attendance/regist/complete}" method="post" id="attendance-form">
+
 		<table>
 			<thead>
 				<tr>
@@ -126,39 +126,43 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="dailyAttendance: *{dailyAttendanceList}">
-					<td class="w-10" th:text="${#temporals.format(dailyAttendance.date, 'M/d')}"></td>
-					<td class="w-10"
-						th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendance.date.dayOfWeek)}">
-					</td>
-					<td class="w-10">
 
-						<select name="statuses" class="status-dropdown form-select"
-							th:data-status="${dailyAttendance.status}"></select>
+				<th:block th:each="dailyAttendance, stat: ${attendanceFormList}">
+					<th:block>
+						<input type="hidden" name="userId" th:value="${session.loginUser.id}">
+						<input type="hidden" th:name="|attendanceFormList[${stat.index}].date|"
+							th:value="${dailyAttendance.date}">
+					</th:block>
 
 
-					</td>
-					<td class="w-10">
-
-						<input type="time" name="startTime" th:value="${dailyAttendance.startTime}">
-
-					</td>
-					<td class="w-10">
-
-						<input type="time" name="endTime" th:value="${dailyAttendance.endTime}">
-					</td>
-					<td class="w-10">
-
-						<input type="text" name="remarks" th:value="${dailyAttendance.remarks}">
-					</td>
-					<!--					<input type="hidden" name="dates" th:value="${DailyAttendanceList}">-->
-					<input type="hidden" name="dates">
-				</tr>
+					<tr>
+						<td class="w-10" th:text="${#temporals.format(dailyAttendance.date, 'M/d')}"></td>
+						<td class="w-10"
+							th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendance.date.dayOfWeek)}">
+						</td>
+						<td class="w-10">
+							<select th:name="|attendanceFormList[${stat.index}].status|"
+								class="status-dropdown form-select" th:data-status="${dailyAttendance.status}">
+							</select>
+						</td>
+						<td class="w-10">
+							<input type="text" th:name="|attendanceFormList[${stat.index}].startTime2|"
+								th:value="${dailyAttendance.startTime2}">
+						</td>
+						<td class="w-10">
+							<input type="text" th:name="|attendanceFormList[${stat.index}].endTime2|"
+								th:value="${dailyAttendance.endTime2}">
+						</td>
+						<td class="w-10">
+							<input type="text" th:name="|attendanceFormList[${stat.index}].remarks|"
+								th:value="${dailyAttendance.remarks}">
+						</td>
+					</tr>
+				</th:block>
 			</tbody>
 		</table>
-
 	</form>
-	
+
 	<!--「承認申請者」押下後 -->
 	<table class="table table-hover sortabletable dataTable no-footer" id="attendance-table" role="grid"
 		aria-describedby="attendance-table_info">
@@ -175,17 +179,23 @@
 		<tbody>
 			<tr th:each="attendanceReq : ${attendanceList}">
 				<td th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}"></td>
-				<td th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}"></td>
+				<td
+					th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}">
+				</td>
 				<td id="status-${attendanceReq.id}" th:text="${attendanceReq.status}"></td>
-				<td th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime.toLocalTime(), 'HH:mm') : '-'}"></td>
-				<td th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}"></td>
+				<td
+					th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime.toLocalTime(), 'HH:mm') : '-'}">
+				</td>
+				<td
+					th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}">
+				</td>
 				<td th:text="${attendanceReq.remarks}"></td>
 			</tr>
 		</tbody>
 	</table>
 	<!--(申請情報)-->
-	
-	
+
+
 	<script>
 		var statusList = {
 			0: "通常出勤",
@@ -218,7 +228,7 @@
 
 		window.onload = populateStatusDropdown;
 
-		// 申請情報確認時に仕様
+		// 申請情報確認時に使用
 		document.addEventListener('DOMContentLoaded', function () {
 			// テーブル内のすべてのstatusセルを取得
 			var statusCells = document.querySelectorAll('td[id^="status-"]');

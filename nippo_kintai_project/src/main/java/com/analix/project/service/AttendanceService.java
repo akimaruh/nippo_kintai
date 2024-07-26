@@ -60,8 +60,6 @@ public class AttendanceService {
 		for (LocalDate date : dateList) {
 			DailyAttendanceForm dailyAttendance = new DailyAttendanceForm();
 
-
-
 			dailyAttendance.setId(userId);
 			dailyAttendance.setDate(date);
 			System.out.println(date);
@@ -73,7 +71,7 @@ public class AttendanceService {
 				dailyAttendance.setStatus(attendance.getStatus());
 				String newStartTime = new SimpleDateFormat("HH:mm").format(attendance.getStartTime());
 				dailyAttendance.setStartTime2(newStartTime);
-				
+
 				String newEndTime = new SimpleDateFormat("HH:mm").format(attendance.getEndTime());
 				dailyAttendance.setEndTime2(newEndTime);
 				dailyAttendance.setRemarks(attendance.getRemarks());
@@ -112,6 +110,14 @@ public class AttendanceService {
 	public void updateStatusReject(Integer id) {
 		monthlyAttendanceReqMapper.updateStatusReject(id);
 	}
+	/**
+	 * 承認申請者情報取得
+	 */
+	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth){
+		System.out.println("Service: " +  targetYearMonth);
+		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
+	}
+	/**
 
 	/**
 	 * 勤怠登録
@@ -122,8 +128,7 @@ public class AttendanceService {
 
 		System.out.println("サービス入った");
 		System.out.println(attendanceFormList);
-		
-		
+
 		List<Attendance> registAttendanceList = new ArrayList<Attendance>();
 		for (DailyAttendanceForm dailyAttendance : attendanceFormList.getAttendanceFormList()) {
 
@@ -131,7 +136,7 @@ public class AttendanceService {
 			Date newDateS = java.sql.Date.valueOf(dailyAttendance.getDate2());
 			Time newStartTime = Time.valueOf(dailyAttendance.getStartTime2());
 			Time newEndTime = Time.valueOf(dailyAttendance.getEndTime2());
-//			Date AttendanceDate = customDateUtil.convertToSqlDate(date);
+			//			Date AttendanceDate = customDateUtil.convertToSqlDate(date);
 
 			registAttendance.setId(dailyAttendance.getId());
 			registAttendance.setUserId(userId);
