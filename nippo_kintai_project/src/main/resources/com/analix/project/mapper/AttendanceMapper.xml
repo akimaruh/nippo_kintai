@@ -37,5 +37,13 @@
 
 
 	</update>
+	
+	<!--承認申請者情報取得-->
+	<select id="findByUserIdAndYearMonth"  parameterType="map" resultType="com.analix.project.entity.Attendance">
+		SELECT id, user_id, date, status, start_time, end_time, remarks
+		FROM attendance
+		WHERE user_id = #{userId}
+		AND DATE_FORMAT(date, '%Y-%m') = #{targetYearMonth}
+	</select>
 
 </mapper>

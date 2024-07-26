@@ -83,6 +83,7 @@
 		<input type="submit" class="btn btn-info" value="承認申請" />
 		<input type="submit" class="btn btn-info" value="登録" id="attendance-form" />
 	</div>
+	
 
 	<!--	<th:block="${session.users.role == Manager}">-->
 	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
@@ -99,9 +100,11 @@
 		<tbody>
 
 			<tr th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
-				<td th:text="${MonthlyList.name}"></td>
-				<td th:text="${MonthlyList.targetYearMonth}"></td>
-				<td th:text="${MonthlyList.date}"></td>
+				<td><a th:href="@{/attedance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
+						th:text="${MonthlyList.name}"></a></td>
+				<!-- <td th:text="${MonthlyList.targetYearMonth}"></td> -->
+				<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM')}"></td>
+				<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
 			</tr>
 
 		</tbody>
@@ -155,6 +158,34 @@
 		</table>
 
 	</form>
+	
+	<!--「承認申請者」押下後 -->
+	<table class="table table-hover sortabletable dataTable no-footer" id="attendance-table" role="grid"
+		aria-describedby="attendance-table_info">
+		<thead>
+			<tr>
+				<th>日付</th>
+				<th>曜日</th>
+				<th>勤務状況</th>
+				<th>出勤時間</th>
+				<th>退勤時間</th>
+				<th>備考</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="attendanceReq : ${attendanceList}">
+				<td th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}"></td>
+				<td th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}"></td>
+				<td id="status-${attendanceReq.id}" th:text="${attendanceReq.status}"></td>
+				<td th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime.toLocalTime(), 'HH:mm') : '-'}"></td>
+				<td th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}"></td>
+				<td th:text="${attendanceReq.remarks}"></td>
+			</tr>
+		</tbody>
+	</table>
+	<!--(申請情報)-->
+	
+	
 	<script>
 		var statusList = {
 			0: "通常出勤",
@@ -186,6 +217,20 @@
 		}
 
 		window.onload = populateStatusDropdown;
+
+		// 申請情報確認時に仕様
+		document.addEventListener('DOMContentLoaded', function () {
+			// テーブル内のすべてのstatusセルを取得
+			var statusCells = document.querySelectorAll('td[id^="status-"]');
+
+			// 各statusセルのテキストを変換
+			statusCells.forEach(function (cell) {
+				var statusCode = parseInt(cell.textContent.trim(), 10);
+				var statusText = statusList[statusCode] || "不明";
+				cell.textContent = statusText;
+			});
+		});
+
 	</script>
 </body>
 
