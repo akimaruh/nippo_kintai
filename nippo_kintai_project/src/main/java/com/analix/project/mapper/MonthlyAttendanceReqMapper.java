@@ -16,14 +16,18 @@ public interface MonthlyAttendanceReqMapper {
 	public List<MonthlyAttendanceReqDto> findAllMonthlyAttendanceReq();
 	
 	/*
+	 * ログインユーザーのstatus取得
+	 */
+	public Integer findStatusByUserId(@Param("userId") Integer userId);
+	
+	/*
 	 * status更新 承認
 	 */
-	public void updateStatusApprove(@Param("id") Integer id);
+	public void updateStatusApprove(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
 	
 	/*
 	 * status更新 却下
 	 */
-	public void updateStatusReject(@Param("id") Integer id);
-	
+	public void updateStatusReject(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
 
 }

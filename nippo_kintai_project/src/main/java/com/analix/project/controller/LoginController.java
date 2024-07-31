@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.analix.project.entity.Users;
+import com.analix.project.service.AttendanceService;
 import com.analix.project.service.LoginService;
 
 import jakarta.servlet.http.HttpSession;
@@ -17,20 +18,27 @@ public class LoginController {
 
 	@Autowired
 	private LoginService loginService;
-	
+	@Autowired
+	private AttendanceService attendanceService;
+
 	@GetMapping("/")
 	public String getLogin(Model model) {
-		model.addAttribute("error", false); 
+		model.addAttribute("error", false);
 		return "common/login";
 	}
-	
+
 	@PostMapping("/login")
-	public String login(@RequestParam Integer id, @RequestParam String password, HttpSession session, Model model) {
+	public String login(@RequestParam("id")Integer id, @RequestParam("password") String password,
+			HttpSession session, Model model) {
 		Users user = loginService.findByIdAndPassword(id, password);
 
 		if (user != null) {
-			session.setAttribute("loginUser",user );
+			session.setAttribute("loginUser", user);
 			String role = user.getRole();
+			
+			Integer userId = user.getId();
+	        Integer status = attendanceService.findStatusByUserId(userId);
+	        session.setAttribute("status", status);
 
 			// 権限がadminの場合ユーザー管理画面へ遷移
 			if ("Admin".equals(role)) {
@@ -49,13 +57,11 @@ public class LoginController {
 			return "common/login";
 		}
 	}
-	
-////	ログアウト処理？
+
+//	// ログアウト処理
 //	@GetMapping("/logout")
 //	public String logout(HttpSession session) {
-//		session.removeAttribute("username");
-//		session.invalidate();
-//		return "redirect:/login";
+//		session.invalidate(); // セッションを無効化
+//		return "redirect:/login"; // ログインページへリダイレクト
 //	}
-	
 }

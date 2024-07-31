@@ -9,19 +9,26 @@
 		JOIN users
 		ON monthly_attendance_req.user_id = users.id
 	</select>
+	
+	<!-- ログインユーザーのstatus取得 -->
+	<select id="findStatusByUserId" parameterType="Integer">
+		SELECT status FROM monthly_attendance_req
+		WHERE user_id = #{userId}
+		LIMIT 1
+	</select>
 		
 	<!-- 承認 -->
-	<update id="updateStatusApprove" parameterType="Integer">
+	<update id="updateStatusApprove" parameterType="map">
 		UPDATE monthly_attendance_req
 		SET status = 2
-		WHERE id = #{id}
+		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
 	</update>
 		
 	<!-- 却下 -->
-	<update id="updateStatusReject" parameterType="Integer">
+	<update id="updateStatusReject" parameterType="map">
 		UPDATE monthly_attendance_req
 		SET status = 3
-		WHERE id = #{id}
+		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
 	</update>
 
 </mapper>

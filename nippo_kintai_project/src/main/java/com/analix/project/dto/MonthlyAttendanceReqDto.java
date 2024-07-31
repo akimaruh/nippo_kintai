@@ -16,8 +16,8 @@ public class MonthlyAttendanceReqDto {
 	/** 申請日 */
 	private Date date;
 	/** ステータス */
-	private byte status;
+	private Integer status;
 	/** 氏名 */
 	private String name;
-
+	
 }
