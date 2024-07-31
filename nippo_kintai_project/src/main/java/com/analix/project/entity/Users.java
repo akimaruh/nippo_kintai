@@ -12,6 +12,7 @@ public class Users {
 	private Integer departmentId;
 //	 @DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date startDate;
+	private Integer status; // ステータスフィールドを追加
 
 	
 	public Integer getId() {
@@ -66,5 +67,17 @@ public class Users {
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
+
+
+	public Integer getStatus() {
+		return status;
+	}
+
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	
+	
 
 }

@@ -1,4 +1,4 @@
-//package com.analix.project.config;
+package com.analix.project.config;
 //
 //import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 //import org.springframework.context.annotation.Bean;
@@ -11,7 +11,7 @@
 //
 //@Configuration // このクラスは設定クラスである
 //@EnableWebSecurity // Webセキュリティを有効にする
-//public class SecurityConfig {
+public class SecurityConfig {
 //
 //	@Bean
 //	public PasswordEncoder passwordEncoder() { // パスワードエンコーダー(パスワードのハッシュ化)を提供するメソッド
@@ -64,4 +64,4 @@
 //		return http.build();
 //	}
 
-//}
+}
