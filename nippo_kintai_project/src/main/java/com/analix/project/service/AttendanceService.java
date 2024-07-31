@@ -31,6 +31,13 @@ public class AttendanceService {
 	private MonthlyAttendanceReqMapper monthlyAttendanceReqMapper;
 	@Autowired
 	private CustomDateUtil customDateUtil;
+	
+	/**
+	 * ヘッダー:ステータス部分
+	 */
+	public Integer findStatusByUserId(Integer userId) {
+		return monthlyAttendanceReqMapper.findStatusByUserId(userId);
+	}
 
 	/**
 	 * 一覧表示
@@ -125,19 +132,19 @@ public class AttendanceService {
 	/**
 	 * status更新 承認・却下
 	 */
-	public void updateStatusApprove(Integer id) {
-		monthlyAttendanceReqMapper.updateStatusApprove(id);
+	public void updateStatusApprove(Integer userId, String targetYearMonth) {
+	    monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonth);
 	}
 
-	public void updateStatusReject(Integer id) {
-		monthlyAttendanceReqMapper.updateStatusReject(id);
+	public void updateStatusReject(Integer userId, String targetYearMonth) {
+	    monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonth);
 	}
 
 	/**
 	 * 承認申請者情報取得
 	 */
-	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth) {
-		System.out.println("Service: " + targetYearMonth);
+	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth){
+		System.out.println("Service: " +  targetYearMonth);
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
 	}
 

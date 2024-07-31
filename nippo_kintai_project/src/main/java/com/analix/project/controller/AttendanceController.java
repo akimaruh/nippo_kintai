@@ -42,9 +42,36 @@ public class AttendanceController {
 	 */
 	@RequestMapping(path = "/attendance/regist")
 	public String attendanceRegist(Model model, HttpSession session) {
-
+		// ヘッダー:ユーザ名、ユーザーID
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
+
+		// ヘッダー:ステータス部分
+		Integer status = (Integer) session.getAttribute("status");
+		String statusFlg;
+		System.out.println("status:" + status);
+
+		if (status == null) {
+			statusFlg = "未申請";
+		} else {
+			switch (status) {
+			case 1:
+				statusFlg = "申請中";
+				break;
+			case 2:
+				statusFlg = "承認済";
+				break;
+			case 3:
+				statusFlg = "却下";
+				break;
+			default:
+				statusFlg = "未申請";
+				break;
+			}
+		}
+
+		model.addAttribute("statusFlg", statusFlg);
+	
 
 		//				Integer userId = (Integer) session.getAttribute("id");
 
@@ -184,17 +211,19 @@ public class AttendanceController {
 	/*
 	 * 『承認申請者』リンク押下後
 	 */
-	@GetMapping("/attedance/approveRequests")
+	@GetMapping("/attendance/approveRequests")
 	public String showApproveRequests(@RequestParam("userId") Integer userId,
-			@RequestParam("targetYearMonth") String targetYearMonth, Model model) {
+			@RequestParam("targetYearMonth") String targetYearMonth, Model model, HttpSession session) {
 		System.out.println("UserId: " + userId);
 		System.out.println("Original targetYearMonth: " + targetYearMonth);
+
+		session.setAttribute("targetYearMonth", targetYearMonth);
 
 		String yearMonth = targetYearMonth.substring(0, 7); // String型に変換　/2024-01/-01
 
 		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, yearMonth);
 
-		// デバッグ用: attendanceListの内容を確認
+		System.out.println(attendanceList.get(0).getDate());
 		System.out.println("Attendance List Size: " + attendanceList.size());
 		for (Attendance a : attendanceList) {
 			System.out.println(a);
@@ -206,16 +235,21 @@ public class AttendanceController {
 
 	}
 
-	//	//	↓作成中↓
-	//	/*
-	//	 * 『承認』ボタン押下後
-	//	 */
-	//	@PostMapping("/attedance/update")
-	//	public String updateStatus(@RequestParam("id") Integer id) {
-	//		attendanceService.updateStatusApprove(id);
-	//		return "redirect:/attendance/regist";
-	//		
-	//	}
-	//	//	↑作成中↑
+	/*
+	 * 『承認』『却下』ボタン押下後
+	 */
+	@GetMapping("/attendance/update")
+	public String updateStatus(@RequestParam("userId") Integer userId,
+			@RequestParam("targetYearMonth") String targetYearMonth, @RequestParam("action") String action) {
+		System.out.println("updateStatusUserId: " + userId);
+		System.out.println("updateStatusTargetYearMonth: " + targetYearMonth);
 
+		if ("approve".equals(action)) {
+			attendanceService.updateStatusApprove(userId, targetYearMonth);
+		} else if ("reject".equals(action)) {
+			attendanceService.updateStatusReject(userId, targetYearMonth);
+		}
+
+		return "redirect:/attendance/regist";
+	}
 }
