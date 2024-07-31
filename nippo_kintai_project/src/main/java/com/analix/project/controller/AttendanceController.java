@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +46,7 @@ public class AttendanceController {
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
 
-		//		Integer userId = (Integer) session.getAttribute("id");
+		//				Integer userId = (Integer) session.getAttribute("id");
 
 		//		// 現在の年と月を取得
 		//        Calendar cal = Calendar.getInstance();
@@ -79,6 +81,7 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.POST)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session) {
+
 		System.out.println("コントローラクラス" + yearMonth);
 		Users loginUser = (Users) session.getAttribute("loginUser");
 		Integer userId = loginUser.getId();
@@ -88,6 +91,7 @@ public class AttendanceController {
 		//		AttendanceFormList attendanceFormList = attendanceService.getFindAllDailyAttendance(userId, yearMonth);
 		List<DailyAttendanceForm> attendanceFormList = attendanceService.getFindAllDailyAttendance(userId, yearMonth);
 
+		//		boolean attendanceNotEnterdFlg = attendanceFormList;
 		System.out.println("表示ボタン押下後" + attendanceFormList);
 
 		model.addAttribute("yearMonth", yearMonth);
@@ -95,57 +99,85 @@ public class AttendanceController {
 
 		return "/attendance/regist";
 	}
+
+	/*
+	 * 『登録』ボタン押下後
+	 */
+	@RequestMapping(path = "/attendance/regist/complete", method = RequestMethod.POST)
+	public String attendanceComplete(HttpServletRequest request, @RequestParam("sessionUserId") Integer userId,
+			@Validated @ModelAttribute AttendanceFormList attendanceFormList, BindingResult result, Model model) {
 		
-		/*
-		 * 『登録』ボタン押下後
-		 */
-		@RequestMapping(path = "/attendance/regist/complete", method = RequestMethod.POST)
-		public String attendanceComplete(HttpServletRequest request, @RequestParam("userId") Integer userId,
-				 @ModelAttribute AttendanceFormList attendanceFormList, Model model) {
+//		System.out.println();
+//		
+//		for(DailyAttendanceForm completeAttendance :attendanceFormList.getAttendanceFormList()) {
+//			//LocalDate型で受け取り
+//			LocalDate newDateString = completeAttendance.getDate();
+//			System.out.println(newDateString);
+//			//String型で受け取り
+//			String newStartTimeString = completeAttendance.getStartTime2();
+//			System.out.println(newStartTimeString);
+//			String newEndTimeString = completeAttendance.getEndTime2();
 			
 			
-			System.out.println(attendanceFormList);
 			
-//			//	@RequestMapping(path = "/attendance/regist/complete", method = RequestMethod.POST)
-//			//	public String attendanceComplete(HttpServletRequest request, @RequestParam("userId") Integer userId,
-//			//			@ModelAttribute ("date") String[] date,
-//			//            @RequestParam("status") byte[] statuses,
-//			//            @RequestParam("startTime") Time startTimes,
-//			//            @RequestParam("endTime") String[] endTimes,
-//			//            @RequestParam("remarks") String[] remarks, Model model) {
-	//
-//			//		System.out.println("登録ボタン押下後" + attendanceFormList.getAttendanceFormList());
-//			//	System.out.println("登録ボタン押下後"+dailyAttendanceList.get(0));
-//			// デバッグ用: リクエストメソッドの出力
-//			System.out.println("Request Method: " + request.getMethod());
-	//
-//			// デバッグ用: 送信されたパラメータをすべて出力
-//			Enumeration<String> parameterNames = request.getParameterNames();
-//			while (parameterNames.hasMoreElements()) {
-//				String paramName = parameterNames.nextElement();
-//				System.out.println(paramName + ": " + request.getParameter(paramName));
+//			LocalDate newDateS = LocalDate.parse(newDateString);			
+//			LocalDate newStartTime = LocalDate.parse(newStartTimeString);
+//			LocalDate  newEndTime = LocalDate.parse(newEndTimeString);
+//			
+//			completeAttendance.setDate(newDateS);
+//			completeAttendance.setStartTimeLocalDate(newStartTime);
+//			completeAttendance.setEndTimeLocalDate(newEndTime);
+//			result = attendanceService.validationForm(attendanceFormList, result);
+//			if (result.hasErrors()) {
+//				return "redirect:/attendance/regist/display";
 //			}
-
-			//	    // デバッグ用: 送信されたパラメータをすべて出力
-			//	    Enumeration<String> parameterNames = request.getParameterNames();
-			//	    while (parameterNames.hasMoreElements()) {
-			//	        String paramName = parameterNames.nextElement();
-			//	        System.out.println(paramName + ": " + request.getParameter(paramName));
-			//	    }
-
-					attendanceService.getRegistDailyAttendance(userId, attendanceFormList);
-					
-
-			//	    for (DailyAttendanceDto attendance : dailyAttendanceList) {
-			//	        System.out.println("Date: " + attendance.getDate());
-			//	        System.out.println("Status: " + attendance.getStatus());
-			//	        System.out.println("Start Time: " + attendance.getStartTime());
-			//	        System.out.println("End Time: " + attendance.getEndTime());
-			//	        System.out.println("Remarks: " + attendance.getRemarks());
-			//	    }
-			return "redirect:/attendance/regist";
+//		}
+//		
+		
 		
 
+		
+
+//		System.out.println(attendanceFormList);
+
+		//			//	@RequestMapping(path = "/attendance/regist/complete", method = RequestMethod.POST)
+		//			//	public String attendanceComplete(HttpServletRequest request, @RequestParam("userId") Integer userId,
+		//			//			@ModelAttribute ("date") String[] date,
+		//			//            @RequestParam("status") byte[] statuses,
+		//			//            @RequestParam("startTime") Time startTimes,
+		//			//            @RequestParam("endTime") String[] endTimes,
+		//			//            @RequestParam("remarks") String[] remarks, Model model) {
+		//
+		//			//		System.out.println("登録ボタン押下後" + attendanceFormList.getAttendanceFormList());
+		//			//	System.out.println("登録ボタン押下後"+dailyAttendanceList.get(0));
+		//			// デバッグ用: リクエストメソッドの出力
+		//			System.out.println("Request Method: " + request.getMethod());
+		//
+		//			// デバッグ用: 送信されたパラメータをすべて出力
+		//			Enumeration<String> parameterNames = request.getParameterNames();
+		//			while (parameterNames.hasMoreElements()) {
+		//				String paramName = parameterNames.nextElement();
+		//				System.out.println(paramName + ": " + request.getParameter(paramName));
+		//			}
+
+		//	    // デバッグ用: 送信されたパラメータをすべて出力
+		//	    Enumeration<String> parameterNames = request.getParameterNames();
+		//	    while (parameterNames.hasMoreElements()) {
+		//	        String paramName = parameterNames.nextElement();
+		//	        System.out.println(paramName + ": " + request.getParameter(paramName));
+		//	    }
+//		String newDateString = dailyAttendanceFormList .getDate2(); 
+//		Date newDateS = java.sql.Date.valueOf((newDateString == "" ? null:newDateString));
+		attendanceService.getRegistDailyAttendance(userId, attendanceFormList);
+
+		//	    for (DailyAttendanceDto attendance : dailyAttendanceList) {
+		//	        System.out.println("Date: " + attendance.getDate());
+		//	        System.out.println("Status: " + attendance.getStatus());
+		//	        System.out.println("Start Time: " + attendance.getStartTime());
+		//	        System.out.println("End Time: " + attendance.getEndTime());
+		//	        System.out.println("Remarks: " + attendance.getRemarks());
+		//	    }
+		return "redirect:/attendance/regist";
 
 	}
 

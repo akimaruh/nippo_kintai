@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.analix.project.mapper.AttendanceMapper">
-	
-	<select id="findAllDailyAttendance" resultType="com.analix.project.entity.Attendance">
+
+	<select id="findAllDailyAttendance"
+		resultType="com.analix.project.entity.Attendance">
 		SELECT *
 		FROM
 		attendance
 		WHERE
 		user_id = #{userId}
-		AND DATE_FORMAT(date, '%Y-%m') =
+		AND
+		DATE_FORMAT(date, '%Y-%m') =
 		#{yearMonth}
 	</select>
 
@@ -16,7 +18,7 @@
 		keyProperty="id" parameterType="com.analix.project.entity.Attendance">
 		INSERT INTO
 		attendance(user_id,status,date,start_time,end_time,remarks)
-		values(#{attendance.userId},#{attendance.status},#{attendance.startTime},#{attendance.endTime},#{attendance.remarks})
+		values(#{attendance.userId},#{attendance.status},#{attendance.date},#{attendance.startTime},#{attendance.endTime},#{attendance.remarks})
 	</insert>
 
 
@@ -28,22 +30,28 @@
 		start_time =
 		#{attendance.startTime},
 		end_time =
-		#{attendance.endTime}
+		#{attendance.endTime},
+		remarks =
+		#{attendance.remarks}
+
 		WHERE
 		id = #{attendance.id}
-		user_id = #{attendance.user_id}
-		date =
+		AND user_id = #{attendance.userId}
+		AND date =
 		#{attendance.date}
 
 
 	</update>
-	
-	<!--承認申請者情報取得-->
-	<select id="findByUserIdAndYearMonth"  parameterType="map" resultType="com.analix.project.entity.Attendance">
-		SELECT id, user_id, date, status, start_time, end_time, remarks
+
+	<!--承認申請者情報取得 -->
+	<select id="findByUserIdAndYearMonth" parameterType="map"
+		resultType="com.analix.project.entity.Attendance">
+		SELECT id, user_id, date, status, start_time, end_time,
+		remarks
 		FROM attendance
 		WHERE user_id = #{userId}
-		AND DATE_FORMAT(date, '%Y-%m') = #{targetYearMonth}
+		AND DATE_FORMAT(date,
+		'%Y-%m') = #{targetYearMonth}
 	</select>
 
 </mapper>

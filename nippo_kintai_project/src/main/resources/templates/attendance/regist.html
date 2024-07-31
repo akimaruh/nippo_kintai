@@ -129,9 +129,14 @@
 
 				<th:block th:each="dailyAttendance, stat: ${attendanceFormList}">
 					<th:block>
-						<input type="hidden" name="userId" th:value="${session.loginUser.id}">
+						<input type="hidden" name="sessionUserId" th:value="${session.loginUser.id}">
 						<input type="hidden" th:name="|attendanceFormList[${stat.index}].date|"
 							th:value="${dailyAttendance.date}">
+							<input type="hidden" th:name="|attendanceFormList[${stat.index}].userId|"
+								th:value="${dailyAttendance.userId != null ? dailyAttendance.userId : ''}">
+								<input type="hidden" th:name="|attendanceFormList[${stat.index}].id|"
+								th:value="${dailyAttendance.id != null ? dailyAttendance.id : null}">
+								
 					</th:block>
 
 
@@ -141,8 +146,27 @@
 							th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendance.date.dayOfWeek)}">
 						</td>
 						<td class="w-10">
-							<select th:name="|attendanceFormList[${stat.index}].status|"
-								class="status-dropdown form-select" th:data-status="${dailyAttendance.status}">
+							<!--							<select th:name="|attendanceFormList[${stat.index}].status|"-->
+							<!--								class="status-dropdown form-select" th:data-status="${dailyAttendance.status}">-->
+							<!--							</select>-->
+							<select th:name="|attendanceFormList[${stat.index}].status|" class="form-select"
+								th:value="${dailyAttendance.status}">
+								<!-- dailyAttendance.statusがnullまたは空の場合に空の選択肢を表示 -->
+								<option th:value=null th:if="${dailyAttendance.status == null}"></option>
+<!--								<option th:value="${dailyAttendance.status}"-->
+<!--									th:unless="${dailyAttendance.status == null}">[[*{dailyAttendance.status}]]</option>-->
+								<option value="0" th:selected="${dailyAttendance.status == 0}">通常出勤</option>
+								<option value="1" th:selected="${dailyAttendance.status == 1}">休日</option>
+								<option value="2" th:selected="${dailyAttendance.status == 2}">祝日</option>
+								<option value="3" th:selected="${dailyAttendance.status == 3}">遅刻</option>
+								<option value="4" th:selected="${dailyAttendance.status == 4}">有給</option>
+								<option value="5" th:selected="${dailyAttendance.status == 5}">欠勤</option>
+								<option value="6" th:selected="${dailyAttendance.status == 6}">早退</option>
+								<option value="7" th:selected="${dailyAttendance.status == 7}">時間外勤務</option>
+								<option value="8" th:selected="${dailyAttendance.status == 8}">振替出勤</option>
+								<option value="9" th:selected="${dailyAttendance.status == 9}">振替休日</option>
+								<option value="10" th:selected="${dailyAttendance.status == 10}">代替出勤</option>
+								<option value="11" th:selected="${dailyAttendance.status == 11}">代替休日</option>
 							</select>
 						</td>
 						<td class="w-10">
@@ -209,19 +233,22 @@
 			8: "振替出勤",
 			9: "振替休日",
 			10: "代替出勤",
-			11: "代替休日"
+			11: "代替休日",
+
 		};
 
 		function populateStatusDropdown() {
 			var dropdowns = document.getElementsByClassName('status-dropdown');
 			for (var i = 0; i < dropdowns.length; i++) {
 				var dropdown = dropdowns[i];
-				var selectedStatus = dropdown.getAttribute('data-status'); // th:data-status 属性から値を取得
+				var selectedStatus = dropdown.getAttribute('data-status');
 				var options = '';
+
 				for (var key in statusList) {
 					var selected = (key == selectedStatus) ? ' selected' : '';
 					options += "<option value='" + key + "'" + selected + ">" + statusList[key] + "</option>";
 				}
+
 				dropdown.innerHTML = options;
 			}
 		}
@@ -235,12 +262,11 @@
 
 			// 各statusセルのテキストを変換
 			statusCells.forEach(function (cell) {
-				var statusCode = parseInt(cell.textContent.trim(), 10);
+				var statusCode = cell.textContent.trim();
 				var statusText = statusList[statusCode] || "不明";
 				cell.textContent = statusText;
 			});
 		});
-
 	</script>
 </body>
 
