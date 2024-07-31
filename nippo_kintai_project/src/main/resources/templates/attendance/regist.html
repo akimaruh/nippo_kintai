@@ -12,18 +12,24 @@
 </head>
 
 <body>
-
-	<div class="mb-3">
-		<label for="name">ユーザー名：</label>
-		<span th:text="${session.loginUser.name}"></span>
-		<label for="id">ユーザーID：</label>
-		<span th:text="${session.loginUser.id}"></span>
-		<label for="status">ステータス：</label>
-		<span th:text="未承認"></span>
-
+	<div class="container mt-3 mb-3">
+		<div class="d-flex align-items-center gap-5">
+			<div>
+				<strong>ユーザー名：</strong>
+				<span th:text="${session.loginUser.name}"></span>
+			</div>
+			<div>
+				<strong>ユーザーID：</strong>
+				<span th:text="${session.loginUser.id}"></span>
+			</div>
+			<div>
+				<strong>ステータス：</strong>
+				<span th:text="${statusFlg}"></span>
+			</div>
+		</div>
 	</div>
-
-	<div class="mb-3">
+	
+	<div class="container mt-3 mb-3">
 		<form th:action="@{/attendance/regist/display}" method="post">
 			<label for="displayYearMonth">表示年月：</label>
 			<select name="year" id="id_year"></select>年
@@ -31,6 +37,7 @@
 			<input type="submit" class="btn btn-info" value="表示" id="display" />
 			<input type="hidden" name="yearMonth" id="yearMonth" />
 		</form>
+	</div>
 
 		<script>
 			var optionLoop, this_day, this_month, this_year, today;
@@ -74,18 +81,16 @@
 			});
 		</script>
 
-
-	</div>
-
-	<div class="mb-3">
-		<input type="submit" class="btn btn-info" value="却下" />
-		<input type="submit" class="btn btn-info" value="承認" />
+	<div class="container mt-3 mb-3" >
+		<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn btn-info">却下</button>
+		<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn btn-info">承認</button>
 		<input type="submit" class="btn btn-info" value="承認申請" />
 		<input type="submit" class="btn btn-info" value="登録" form="attendance-form" />
 	</div>
 
 
 	<!--	<span th:if="${session.loginUser.role == Manager}">-->
+		<div class="container mt-3 mb-3 border">
 	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 		aria-describedby="user-table_info">
 		<thead>
@@ -95,23 +100,22 @@
 					<th>申請対象年月</th>
 					<th>申請日</th>
 				</tr>
-
 			</thead>
 		<tbody>
-
-			<tr th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
-				<td><a th:href="@{/attedance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
-						th:text="${MonthlyList.name}"></a></td>
-				<!-- <td th:text="${MonthlyList.targetYearMonth}"></td> -->
-				<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM')}"></td>
-				<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
-			</tr>
-
+			<th:block th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
+				<tr>
+					<td><a th:href="@{/attendance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
+							th:text="${MonthlyList.name}"></a></td>
+					<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM')}"></td>
+					<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
+				</tr>
+			</th:block>
 		</tbody>
 	</table>
+		</div>
 
 	<!--	</span>-->
-
+		<div class="container mt-3 mb-3 border">	
 	<form th:action="@{/attendance/regist/complete}" method="post" id="attendance-form">
 
 		<table>
@@ -162,8 +166,11 @@
 			</tbody>
 		</table>
 	</form>
-
+	</div>
+	
 	<!--「承認申請者」押下後 -->
+	<div class="container mt-3 mb-3 border">
+	<form id="attendancebtn-form" method="get" th:action="@{/attendance/update}">
 	<table class="table table-hover sortabletable dataTable no-footer" id="attendance-table" role="grid"
 		aria-describedby="attendance-table_info">
 		<thead>
@@ -177,7 +184,11 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="attendanceReq : ${attendanceList}">
+			<input type="hidden" id="attendancebtn-form" name="targetYearMonth" th:value="${session.targetYearMonth}" />
+			<th:block th:each="attendanceReq,stat : ${attendanceList}">
+				<th:block>
+					<input type="hidden" id="attendancebtn-form" name="userId" th:value="${attendanceReq.userId}" />
+				</th:block>
 				<td th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}"></td>
 				<td
 					th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}">
@@ -190,9 +201,12 @@
 					th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}">
 				</td>
 				<td th:text="${attendanceReq.remarks}"></td>
-			</tr>
+				</tr>
+			</th:block>
 		</tbody>
 	</table>
+	</form>
+	</div>
 	<!--(申請情報)-->
 
 
