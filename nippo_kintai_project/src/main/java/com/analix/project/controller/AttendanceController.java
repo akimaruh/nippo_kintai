@@ -1,5 +1,6 @@
 package com.analix.project.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,8 +135,19 @@ public class AttendanceController {
 	public String attendanceComplete(HttpServletRequest request, @RequestParam("sessionUserId") Integer userId,
 			@Validated @ModelAttribute AttendanceFormList attendanceFormList, BindingResult result, Model model) {
 		
-//		System.out.println();
-//		
+		System.out.println("登録ボタン押下後" + attendanceFormList);
+		boolean errorFlg = false;
+		List<String>errorBox = new ArrayList<>();
+//		errorBox= attendanceService.validationForm(attendanceFormList, result);
+		System.out.println();
+		
+		if (result.hasErrors()) {
+			model.addAttribute("errorFlg",errorFlg);
+			model.addAttribute("errorBox",errorBox);
+			return "attendanceForm";
+		}
+		
+		
 //		for(DailyAttendanceForm completeAttendance :attendanceFormList.getAttendanceFormList()) {
 //			//LocalDate型で受け取り
 //			LocalDate newDateString = completeAttendance.getDate();
@@ -159,7 +171,8 @@ public class AttendanceController {
 //				return "redirect:/attendance/regist/display";
 //			}
 //		}
-//		
+		
+		
 		
 		
 
