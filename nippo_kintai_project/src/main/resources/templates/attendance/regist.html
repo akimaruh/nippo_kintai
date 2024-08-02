@@ -62,7 +62,8 @@
 
 		<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 			<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-			<button type="submit" class="btn btn-info">承認申請</button>
+			
+			<button type="submit" class="btn btn-info" th:disabled="doClick == null">承認申請</button>
 		</form>
 
 		
@@ -299,6 +300,38 @@
 <!--		</script>-->
 
 	<script>
+		
+		
+		// 入力チェック
+		document.getElementById('display-form').addEventListener('submit', function (event) {
+			let year = document.getElementById('id_year').value;
+			let month = document.getElementById('id_month').value;
+			let validation = true;
+
+			if (year === "") {
+				document.getElementById('yearError').innerHTML = "年を入力してください";
+				validation = false;
+			} else if (year.length !== 4 || isNaN(year)) {
+				document.getElementById('yearError').innerHTML = "yyyyのフォーマットで入力してください";
+				validation = false;
+			} else {
+				document.getElementById('yearError').innerHTML = "";
+			}
+
+			if (month === "") {
+				document.getElementById('monthError').innerHTML = "月を入力してください";
+				validation = false;
+			} else if (isNaN(month) || month < 1 || month > 12) {
+				document.getElementById('monthError').innerHTML = "mmのフォーマットで入力してください";
+				validation = false;
+			} else {
+				document.getElementById('monthError').innerHTML = "";
+			}
+
+			if (!validation) {
+				event.preventDefault();
+			}
+		});
 		// 入力内容をローカルストレージに保存
 		document.querySelector('#display-form').addEventListener('submit', function (event) {
 			var year = document.getElementById('id_year').value;

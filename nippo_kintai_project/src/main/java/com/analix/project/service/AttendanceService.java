@@ -63,7 +63,12 @@ public class AttendanceService {
 		}
 		return statusFlg;
 	}
-
+	
+	//承認申請ボタン活性化
+	public Boolean applicableCheck(Integer userId, String yearMonth) {
+		return true;
+		
+	}
 	/**
 	 * 一覧表示
 	 * @param userId

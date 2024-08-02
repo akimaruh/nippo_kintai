@@ -54,6 +54,18 @@
 		'%Y-%m') = #{targetYearMonth}
 	</select>
 	
+	<select id="monthRegistrationCount"
+		resultType="integer">
+		SELECT count(*)
+		FROM
+		attendance
+		WHERE
+		user_id = #{userId}
+		AND
+		DATE_FORMAT(date, '%Y-%m') =
+		#{yearMonth}
+	</select>
+	
 <!--	 「承認申請」ボタン押下後 -->
 <!--	<select id="findDateByUserId">-->
 <!--		SELECT date-->

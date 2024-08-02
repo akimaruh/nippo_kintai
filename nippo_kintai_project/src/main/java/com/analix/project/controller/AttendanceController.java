@@ -105,6 +105,7 @@ public class AttendanceController {
 		Users loginUser = (Users) session.getAttribute("loginUser");
 		Integer userId = loginUser.getId();
 		System.out.println(loginUser.getId());
+		
 
 		//		List<LocalDate> dateList = attendanceService.generateMonthDates(yearMonth);
 		//		AttendanceFormList attendanceFormList = attendanceService.getFindAllDailyAttendance(userId, yearMonth);
@@ -112,9 +113,15 @@ public class AttendanceController {
 		 attendanceFormList.getAttendanceFormList().get(0).getDate();
 		//		boolean attendanceNotEnterdFlg = attendanceFormList;
 		System.out.println("表示ボタン押下後" + attendanceFormList);
+		
+		//１か月分登録されると活性化
+		attendanceService.applicableCheck(userId, yearMonth);
+		
+		
 
 		model.addAttribute("yearMonth", yearMonth);
 //		model.addAttribute("attendanceFormList", attendanceFormList);
+	
 
 		return "/attendance/regist";
 	}

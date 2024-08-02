@@ -29,7 +29,11 @@ public interface AttendanceMapper {
 	 * 承認申請者情報取得
 	 */
 	public List<Attendance> findByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
-
+	
+	/*
+	 * １か月の登録件数カウント
+	 */
+	public Integer monthRegistrationCount(@Param("userId") Integer userId, @Param("yearMonth") String yearMonth);
 //	/*
 //	 * 「承認申請」ボタン押下後
 //	 */
