@@ -30,8 +30,10 @@ public interface AttendanceMapper {
 	 */
 	public List<Attendance> findByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
 
-	
-	
+//	/*
+//	 * 「承認申請」ボタン押下後
+//	 */
+//	public Date findDateByUserId
 	
 
 }

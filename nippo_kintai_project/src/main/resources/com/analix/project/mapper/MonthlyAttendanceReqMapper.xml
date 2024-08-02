@@ -16,6 +16,14 @@
 		WHERE user_id = #{userId}
 		LIMIT 1
 	</select>
+	
+	<!-- 「承認申請」ボタン押下後 -->
+	<insert id="insertMonthlyAttendanceReq" useGeneratedKeys="true"
+		keyProperty="id" parameterType="com.analix.project.dto.MonthlyAttendanceReqDto">
+		INSERT INTO monthly_attendance_req
+		(user_id, target_year_month, date, status)
+		VALUES (#{monthlyDto.userId}, #{monthlyDto.targetYearMonth}, #{monthlyDto.date}, #{monthlyDto.status})
+	</insert>
 		
 	<!-- 承認 -->
 	<update id="updateStatusApprove" parameterType="map">
