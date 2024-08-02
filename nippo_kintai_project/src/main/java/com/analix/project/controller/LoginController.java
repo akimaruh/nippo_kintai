@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.analix.project.entity.Users;
-import com.analix.project.service.AttendanceService;
 import com.analix.project.service.LoginService;
 
 import jakarta.servlet.http.HttpSession;
@@ -18,8 +17,6 @@ public class LoginController {
 
 	@Autowired
 	private LoginService loginService;
-	@Autowired
-	private AttendanceService attendanceService;
 
 	@GetMapping("/")
 	public String getLogin(Model model) {
@@ -36,9 +33,9 @@ public class LoginController {
 			session.setAttribute("loginUser", user);
 			String role = user.getRole();
 			
-			Integer userId = user.getId();
-	        Integer status = attendanceService.findStatusByUserId(userId);
-	        session.setAttribute("status", status);
+//			Integer userId = user.getId();
+//	        Integer status = attendanceService.findStatusByUserId(userId);
+//	        session.setAttribute("status", status);
 
 			// 権限がadminの場合ユーザー管理画面へ遷移
 			if ("Admin".equals(role)) {

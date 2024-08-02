@@ -12,7 +12,7 @@ public class MonthlyAttendanceReqDto {
 	/** 申請者のユーザーID */
 	private Integer userId;
 	/** 申請対象年月 */
-	private String targetYearMonth;
+	private Date targetYearMonth;
 	/** 申請日 */
 	private Date date;
 	/** ステータス */

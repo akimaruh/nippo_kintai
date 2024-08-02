@@ -21,6 +21,11 @@ public interface MonthlyAttendanceReqMapper {
 	public Integer findStatusByUserId(@Param("userId") Integer userId);
 	
 	/*
+	 * 「承認申請」ボタン押下後
+	 */
+	public void insertMonthlyAttendanceReq(@Param("monthlyDto") MonthlyAttendanceReqDto monthlyDto);
+	
+	/*
 	 * status更新 承認
 	 */
 	public void updateStatusApprove(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
