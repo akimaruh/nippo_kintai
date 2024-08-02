@@ -1,6 +1,6 @@
 package com.analix.project.controller;
 
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +48,28 @@ public class AttendanceController {
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
 
 		// ヘッダー:ステータス部分
-		Users user = (Users) session.getAttribute("loginUser");
-		String statusFlg = attendanceService.findStatusByUserId(user.getId());
+		Integer status = (Integer) session.getAttribute("status");
+		String statusFlg;
+		System.out.println("status:" + status);
+
+		if (status == null) {
+			statusFlg = "未申請";
+		} else {
+			switch (status) {
+			case 1:
+				statusFlg = "申請中";
+				break;
+			case 2:
+				statusFlg = "承認済";
+				break;
+			case 3:
+				statusFlg = "却下";
+				break;
+			default:
+				statusFlg = "未申請";
+				break;
+			}
+		}
 
 		model.addAttribute("statusFlg", statusFlg);
 	
@@ -89,18 +109,8 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.POST)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session) {
-		
-		// ヘッダーのステータス部分
-		Integer status = (Integer) session.getAttribute("status");
-		Users user = (Users) session.getAttribute("loginUser");
-		String statusFlg = attendanceService.findStatusByUserId(user.getId());
-//		System.out.println("status:" + status);
 
-		model.addAttribute("statusFlg", statusFlg);
-		
-		session.setAttribute("yearMonth", yearMonth);
-
-//		System.out.println("コントローラクラス" + yearMonth);
+		System.out.println("コントローラクラス" + yearMonth);
 		Users loginUser = (Users) session.getAttribute("loginUser");
 		Integer userId = loginUser.getId();
 		System.out.println(loginUser.getId());
@@ -125,8 +135,19 @@ public class AttendanceController {
 	public String attendanceComplete(HttpServletRequest request, @RequestParam("sessionUserId") Integer userId,
 			@Validated @ModelAttribute AttendanceFormList attendanceFormList, BindingResult result, Model model) {
 		
-//		System.out.println();
-//		
+		System.out.println("登録ボタン押下後" + attendanceFormList);
+		boolean errorFlg = false;
+		List<String>errorBox = new ArrayList<>();
+//		errorBox= attendanceService.validationForm(attendanceFormList, result);
+		System.out.println();
+		
+		if (result.hasErrors()) {
+			model.addAttribute("errorFlg",errorFlg);
+			model.addAttribute("errorBox",errorBox);
+			return "attendanceForm";
+		}
+		
+		
 //		for(DailyAttendanceForm completeAttendance :attendanceFormList.getAttendanceFormList()) {
 //			//LocalDate型で受け取り
 //			LocalDate newDateString = completeAttendance.getDate();
@@ -150,7 +171,8 @@ public class AttendanceController {
 //				return "redirect:/attendance/regist/display";
 //			}
 //		}
-//		
+		
+		
 		
 		
 
@@ -198,40 +220,15 @@ public class AttendanceController {
 		return "redirect:/attendance/regist";
 
 	}
-	/*
-	 * 『承認申請』ボタン押下後
-	 */
-	@RequestMapping(path="/attendance/approveRequestComplete", method = RequestMethod.POST)
-	public String approveRequest(HttpSession session, Model model) {
-		String approveYearMonth = (String)session.getAttribute("yearMonth");
-	    System.out.println("Received yearMonth:" + approveYearMonth);
-	    
-		Users user = (Users) session.getAttribute("loginUser");
-		Integer userId = user.getId();
-		
-//		LocalDate attendanceDate = LocalDate.of(2024,07,01); //ここなおす
-		Date attendanceDate = java.sql.Date.valueOf(approveYearMonth + "-01"); // "yyyy-MM-dd" 形式に変換
-		
-        System.out.println("コuserID:" + userId);
-        System.out.println("コattendanceDate:" + attendanceDate);
-		
-        
-		String message = attendanceService.insertMonthlyAttendanceReq(userId, attendanceDate);
-		System.out.println(message);
-	
-//		model.addAttribute(isApprove);
-		
-		return "redirect:/attendance/regist";
-	}
-	
+
 	/*
 	 * 『承認申請者』リンク押下後
 	 */
 	@GetMapping("/attendance/approveRequests")
 	public String showApproveRequests(@RequestParam("userId") Integer userId,
 			@RequestParam("targetYearMonth") String targetYearMonth, Model model, HttpSession session) {
-//		System.out.println("UserId: " + userId);
-//		System.out.println("Original targetYearMonth: " + targetYearMonth);
+		System.out.println("UserId: " + userId);
+		System.out.println("Original targetYearMonth: " + targetYearMonth);
 
 		session.setAttribute("targetYearMonth", targetYearMonth);
 
@@ -239,11 +236,11 @@ public class AttendanceController {
 
 		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, yearMonth);
 
-//		System.out.println(attendanceList.get(0).getDate());
-//		System.out.println("Attendance List Size: " + attendanceList.size());
-//		for (Attendance a : attendanceList) {
-//			System.out.println(a);
-//		}
+		System.out.println(attendanceList.get(0).getDate());
+		System.out.println("Attendance List Size: " + attendanceList.size());
+		for (Attendance a : attendanceList) {
+			System.out.println(a);
+		}
 
 		model.addAttribute("attendanceList", attendanceList);
 
@@ -257,8 +254,8 @@ public class AttendanceController {
 	@GetMapping("/attendance/update")
 	public String updateStatus(@RequestParam("userId") Integer userId,
 			@RequestParam("targetYearMonth") String targetYearMonth, @RequestParam("action") String action) {
-//		System.out.println("updateStatusUserId: " + userId);
-//		System.out.println("updateStatusTargetYearMonth: " + targetYearMonth);
+		System.out.println("updateStatusUserId: " + userId);
+		System.out.println("updateStatusTargetYearMonth: " + targetYearMonth);
 
 		if ("approve".equals(action)) {
 			attendanceService.updateStatusApprove(userId, targetYearMonth);

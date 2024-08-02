@@ -14,6 +14,7 @@ public class DailyAttendanceForm {
 	private LocalDate date;
 	private String date2;
 	private Time startTime;
+	
 	private String startTime2;
 	private LocalDate startTimeLocalDate;
 	private Time endTime;

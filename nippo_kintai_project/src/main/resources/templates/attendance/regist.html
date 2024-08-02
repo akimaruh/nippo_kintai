@@ -28,89 +28,43 @@
 			</div>
 		</div>
 	</div>
-	
-<!--	<div class="container mt-3 mb-3">-->
-<!--		<form th:action="@{/attendance/regist/display}" method="post">-->
-<!--			<label for="displayYearMonth">表示年月：</label>-->
-<!--			<select name="year" id="id_year"></select>年-->
-<!--			<select name="month" id="id_month"></select>月-->
-<!--			<input type="submit" class="btn btn-info" value="表示" id="display" />-->
-<!--			<input type="hidden" name="yearMonth" id="yearMonth" />-->
-<!--		</form>-->
-<!--	</div>-->
 
-		<form th:action="@{/attendance/regist/display}" method="post" id="display-form">
+	<div class="container mt-3 mb-3">
+		<form th:action="@{/attendance/regist/display}" method="post">
 			<label for="displayYearMonth">表示年月：</label>
-			<input type="text" name="year" id="id_year" />年
-			<input type="text" name="month" id="id_month" />月
-			<div id="yearError" class="text-danger"></div>
-			<div id="monthError" class="text-danger"></div>
+			<select name="year" id="id_year"></select>年
+			<select name="month" id="id_month"></select>月
 			<input type="submit" class="btn btn-info" value="表示" id="display" />
 			<input type="hidden" name="yearMonth" id="yearMonth" />
 		</form>
-
-<!--		<script>-->
-<!--			document.getElementById('approve').addEventListener('click', function () {-->
-<!--				var year = document.getElementById('id_year').value;-->
-<!--				var month = document.getElementById('id_month').value;-->
-
-<!--				// 月を2桁にフォーマット-->
-<!--				if (month.length < 2) {-->
-<!--					month = '0' + month;-->
-<!--				}-->
-
-<!--				var yearMonth = year + '-' + month;-->
-
-<!--				// hidden inputを更新-->
-<!--				document.getElementById('yearMonth').value = yearMonth;-->
-<!--			});-->
-<!--		</script>-->
-
-<!--		<script>-->
-<!--			var optionLoop, this_day, this_month, this_year, today;-->
-<!--			today = new Date();-->
-<!--			this_year = today.getFullYear();-->
-<!--			this_month = today.getMonth() + 1;-->
-<!--			this_day = today.getDate();-->
-
-<!--			//ループ処理（スタート数字、終了数字、表示id名、デフォルト数字-->
-<!--			optionLoop = function (start, end, id, this_day) {-->
-<!--				var i, opt;-->
-
-<!--				opt = null;-->
-<!--				for (i = start; i <= end; i++) {-->
-<!--					if (i === this_day) {-->
-<!--						opt += "<option value='" + i + "' selected>" + i + "</option>";-->
-<!--					} else {-->
-<!--						opt += "<option value='" + i + "'>" + i + "</option>";-->
-<!--					}-->
-<!--				}-->
-<!--				return document.getElementById(id).innerHTML = opt;-->
-<!--			};-->
-<!--			optionLoop(2000, this_year, 'id_year', this_year);-->
-<!--			optionLoop(1, 12, 'id_month', this_month);-->
-
-<!--			/* yearとmonthを結合*/-->
-<!--			document.querySelector('form').addEventListener('submit', function (event) {-->
-<!--				var year = document.getElementById('id_year').value;-->
-<!--				var month = document.getElementById('id_month').value;-->
-
-<!--				// 月を2桁にフォーマット-->
-<!--				if (month.length < 2) {-->
-<!--					month = '0' + month;-->
-<!--				}-->
-
-<!--				var yearMonth = year + '-' + month;-->
-
-<!--				// hidden inputを更新-->
-<!--				var hiddenInput = document.getElementById('yearMonth');-->
-<!--				hiddenInput.value = yearMonth;-->
-<!--			});-->
-<!--		</script>-->
+	</div>
 
 	<script>
-		// 入力内容をローカルストレージに保存
-		document.querySelector('#display-form').addEventListener('submit', function (event) {
+		var optionLoop, this_day, this_month, this_year, today;
+		today = new Date();
+		this_year = today.getFullYear();
+		this_month = today.getMonth() + 1;
+		this_day = today.getDate();
+
+		//ループ処理（スタート数字、終了数字、表示id名、デフォルト数字
+		optionLoop = function (start, end, id, this_day) {
+			var i, opt;
+
+			opt = null;
+			for (i = start; i <= end; i++) {
+				if (i === this_day) {
+					opt += "<option value='" + i + "' selected>" + i + "</option>";
+				} else {
+					opt += "<option value='" + i + "'>" + i + "</option>";
+				}
+			}
+			return document.getElementById(id).innerHTML = opt;
+		};
+		optionLoop(2000, this_year, 'id_year', this_year);
+		optionLoop(1, 12, 'id_month', this_month);
+
+		/* yearとmonthを結合*/
+		document.querySelector('form').addEventListener('submit', function (event) {
 			var year = document.getElementById('id_year').value;
 			var month = document.getElementById('id_month').value;
 
@@ -121,203 +75,172 @@
 
 			var yearMonth = year + '-' + month;
 
+			// hidden inputを更新
 			var hiddenInput = document.getElementById('yearMonth');
 			hiddenInput.value = yearMonth;
-
-			localStorage.setItem('year', year);
-			localStorage.setItem('month', month);
-			localStorage.setItem('yearMonth', yearMonth);
-		});
-
-		// ページ読み込み時にローカルストレージから値を取得して設定
-		window.addEventListener('load', function () {
-			var storedYear = localStorage.getItem('year');
-			var storedMonth = localStorage.getItem('month');
-			var storedYearMonth = localStorage.getItem('yearMonth');
-
-			if (storedYear) {
-				document.getElementById('id_year').value = storedYear;
-			}
-			if (storedMonth) {
-				// 月を2桁にフォーマットする
-				if (storedMonth.length < 2) {
-					storedMonth = '0' + storedMonth;
-				}
-				document.getElementById('id_month').value = storedMonth;
-			}
-			if (storedYearMonth) {
-				var hiddenInput = document.getElementById('yearMonth');
-				if (hiddenInput) {
-					hiddenInput.value = storedYearMonth;
-				}
-			}
 		});
 	</script>
 
 	<div class="container mt-3 mb-3">
 		<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn btn-info">却下</button>
 		<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn btn-info">承認</button>
-		<!--		<form id="approval-form"  method="post" th:action="@{attendance/approveRequestComplete}">-->
-		<!--			<input type="submit" class="btn btn-info" value="承認申請" form="approval-form" />-->
-		<!--		</form>-->
-	
-<!--		<button type="submit" form="approval-form" name="apprication" class="btn btn-info">承認申請</button>-->
-
-
-		<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
-			<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-			<button type="submit" class="btn btn-info">承認申請</button>
-		</form>
-
-		
+		<input type="submit" class="btn btn-info" value="承認申請" />
 		<input type="submit" class="btn btn-info" value="登録" form="attendance-form" />
 	</div>
 
 
 	<!--	<span th:if="${session.loginUser.role == Manager}">-->
-		<div class="container mt-3 mb-3 border">
-	<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
-		aria-describedby="user-table_info">
-		<thead>
+	<div class="container mt-3 mb-3 border">
+		<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
+			aria-describedby="user-table_info">
 			<thead>
-				<tr>
-					<th>承認申請者</th>
-					<th>申請対象年月</th>
-					<th>申請日</th>
-				</tr>
-			</thead>
-		<tbody>
-			<th:block th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
-				<tr>
-					<td><a th:href="@{/attendance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
-							th:text="${MonthlyList.name}"></a></td>
-					<!-- <td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM')}"></td>-->
-					<td th:text="${#temporals.format(MonthlyList.targetYearMonth.toLocalDate(), 'yyyy/MM')}"></td>
-					<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
-				</tr>
-			</th:block>
-		</tbody>
-	</table>
-		</div>
-
-	<!--	</span>-->
-		<div class="container mt-3 mb-3 border">	
-	<form th:action="@{/attendance/regist/complete}" method="post" id="attendance-form">
-
-		<table>
-			<thead>
-				<tr>
-					<th class="w-10">日付</th>
-					<th class="w-10">曜日</th>
-					<th class="w-10">勤務状況</th>
-					<th class="w-10">出勤時間</th>
-					<th class="w-10">退勤時間</th>
-					<th class="w-10">備考</th>
-				</tr>
-			</thead>
-			<tbody>
-
-				<th:block th:each="dailyAttendance, stat: ${attendanceFormList}">
-					<th:block>
-						<input type="hidden" name="sessionUserId" th:value="${session.loginUser.id}">
-						<input type="hidden" th:name="|attendanceFormList[${stat.index}].date|"
-							th:value="${dailyAttendance.date}">
-							<input type="hidden" th:name="|attendanceFormList[0].date|"
-							th:value="${dailyAttendance.date}" from="approve-form">
-							<input type="hidden" th:name="|attendanceFormList[${stat.index}].userId|"
-								th:value="${dailyAttendance.userId != null ? dailyAttendance.userId : ''}">
-								<input type="hidden" th:name="|attendanceFormList[${stat.index}].id|"
-								th:value="${dailyAttendance.id != null ? dailyAttendance.id : null}">
-								
-					</th:block>
-
-
+				<thead>
 					<tr>
-						<td class="w-10" th:text="${#temporals.format(dailyAttendance.date, 'M/d')}"></td>
-						<td class="w-10"
-							th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendance.date.dayOfWeek)}">
-						</td>
-						<td class="w-10">
-							<!--							<select th:name="|attendanceFormList[${stat.index}].status|"-->
-							<!--								class="status-dropdown form-select" th:data-status="${dailyAttendance.status}">-->
-							<!--							</select>-->
-							<select th:name="|attendanceFormList[${stat.index}].status|" class="form-select"
-								th:value="${dailyAttendance.status}">
-								<!-- dailyAttendance.statusがnullまたは空の場合に空の選択肢を表示 -->
-								<option th:value=null th:if="${dailyAttendance.status == null}"></option>
-<!--								<option th:value="${dailyAttendance.status}"-->
-<!--									th:unless="${dailyAttendance.status == null}">[[*{dailyAttendance.status}]]</option>-->
-								<option value="0" th:selected="${dailyAttendance.status == 0}">通常出勤</option>
-								<option value="1" th:selected="${dailyAttendance.status == 1}">休日</option>
-								<option value="2" th:selected="${dailyAttendance.status == 2}">祝日</option>
-								<option value="3" th:selected="${dailyAttendance.status == 3}">遅刻</option>
-								<option value="4" th:selected="${dailyAttendance.status == 4}">有給</option>
-								<option value="5" th:selected="${dailyAttendance.status == 5}">欠勤</option>
-								<option value="6" th:selected="${dailyAttendance.status == 6}">早退</option>
-								<option value="7" th:selected="${dailyAttendance.status == 7}">時間外勤務</option>
-								<option value="8" th:selected="${dailyAttendance.status == 8}">振替出勤</option>
-								<option value="9" th:selected="${dailyAttendance.status == 9}">振替休日</option>
-								<option value="10" th:selected="${dailyAttendance.status == 10}">代替出勤</option>
-								<option value="11" th:selected="${dailyAttendance.status == 11}">代替休日</option>
-							</select>
-						</td>
-						<td class="w-10">
-							<input type="text" th:name="|attendanceFormList[${stat.index}].startTime2|"
-								th:value="${dailyAttendance.startTime2}">
-						</td>
-						<td class="w-10">
-							<input type="text" th:name="|attendanceFormList[${stat.index}].endTime2|"
-								th:value="${dailyAttendance.endTime2}">
-						</td>
-						<td class="w-10">
-							<input type="text" th:name="|attendanceFormList[${stat.index}].remarks|"
-								th:value="${dailyAttendance.remarks}">
-						</td>
+						<th>承認申請者</th>
+						<th>申請対象年月</th>
+						<th>申請日</th>
+					</tr>
+				</thead>
+			<tbody>
+				<th:block th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
+					<tr>
+						<td><a th:href="@{/attendance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
+								th:text="${MonthlyList.name}"></a></td>
+						<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM')}"></td>
+						<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
 					</tr>
 				</th:block>
 			</tbody>
 		</table>
-	</form>
 	</div>
-	
+
+	<!--	</span>-->
+	<div class="container mt-3 mb-3 border">
+		<th:block>
+			<th:block th:if="${errorFlg}">
+				<div class="d-flex flex-column" th:each="error : ${errorBox}">
+					<span th:text="'*' + '&nbsp;' + ${error}" class="help-inline error"></span>
+				</div>
+			</th:block>
+		</th:block>
+		<form th:action="@{/attendance/regist/complete}" method="post" id="attendance-form">
+
+			<table>
+				<thead>
+					<tr>
+						<th class="w-10">日付</th>
+						<th class="w-10">曜日</th>
+						<th class="w-10">勤務状況</th>
+						<th class="w-10">出勤時間</th>
+						<th class="w-10">退勤時間</th>
+						<th class="w-10">備考</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					<th:block th:each="dailyAttendanceForm, stat: ${attendanceFormList}">
+						<th:block>
+							<input type="hidden" name="sessionUserId" th:value="${session.loginUser.id}">
+							<input type="hidden" th:name="|attendanceFormList[${stat.index}].date|"
+								th:value="${dailyAttendanceForm.date}">
+							<input type="hidden" th:name="|attendanceFormList[${stat.index}].userId|"
+								th:value="${dailyAttendanceForm.userId != null ? dailyAttendanceForm.userId : ''}">
+							<input type="hidden" th:name="|attendanceFormList[${stat.index}].id|"
+								th:value="${dailyAttendanceForm.id != null ? dailyAttendanceForm.id : null}">
+
+						</th:block>
+
+
+						<tr>
+							<td class="w-10" th:text="${#temporals.format(dailyAttendanceForm.date, 'M/d')}"></td>
+							<td class="w-10"
+								th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendanceForm.date.dayOfWeek)}">
+							</td>
+							<td class="w-10">
+								<!--							<select th:name="|attendanceFormList[${stat.index}].status|"-->
+								<!--								class="status-dropdown form-select" th:data-status="${dailyAttendance.status}">-->
+								<!--							</select>-->
+								<select th:name="|attendanceFormList[${stat.index}].status|" class="form-select"
+									th:value="${dailyAttendanceForm.status}">
+									<!-- dailyAttendance.statusがnullまたは空の場合に空の選択肢を表示 -->
+									<option th:value=null th:if="${dailyAttendanceForm.status == null}"></option>
+
+									<option value="0" th:selected="${dailyAttendanceForm.status == 0}">通常出勤</option>
+									<option value="1" th:selected="${dailyAttendanceForm.status == 1}">休日</option>
+									<option value="2" th:selected="${dailyAttendanceForm.status == 2}">祝日</option>
+									<option value="3" th:selected="${dailyAttendanceForm.status == 3}">遅刻</option>
+									<option value="4" th:selected="${dailyAttendanceForm.status == 4}">有給</option>
+									<option value="5" th:selected="${dailyAttendanceForm.status == 5}">欠勤</option>
+									<option value="6" th:selected="${dailyAttendanceForm.status == 6}">早退</option>
+									<option value="7" th:selected="${dailyAttendanceForm.status == 7}">時間外勤務</option>
+									<option value="8" th:selected="${dailyAttendanceForm.status == 8}">振替出勤</option>
+									<option value="9" th:selected="${dailyAttendanceForm.status == 9}">振替休日</option>
+									<option value="10" th:selected="${dailyAttendanceForm.status == 10}">代替出勤</option>
+									<option value="11" th:selected="${dailyAttendanceForm.status == 11}">代替休日</option>
+								</select>
+
+							</td>
+							<td class="w-10">
+								<input type="text" th:name="|attendanceFormList[${stat.index}].startTime2|"
+									th:value="${dailyAttendanceForm.startTime2}">
+							</td>
+							<td class="w-10">
+								<input type="text" th:name="|attendanceFormList[${stat.index}].endTime2|"
+									th:value="${dailyAttendanceForm.endTime2}">
+							</td>
+							<td class="w-10">
+								<input type="text" th:name="|attendanceFormList[${stat.index}].remarks|"
+									th:value="${dailyAttendanceForm.remarks}">
+									
+								
+							</td>
+						</tr>
+					</th:block>
+				</tbody>
+			</table>
+		</form>
+	</div>
+
 	<!--「承認申請者」押下後 -->
 	<div class="container mt-3 mb-3 border">
-	<form id="attendancebtn-form" method="get" th:action="@{/attendance/update}">
-	<table class="table table-hover sortabletable dataTable no-footer" id="attendance-table" role="grid"
-		aria-describedby="attendance-table_info">
-		<thead>
-			<tr>
-				<th>日付</th>
-				<th>曜日</th>
-				<th>勤務状況</th>
-				<th>出勤時間</th>
-				<th>退勤時間</th>
-				<th>備考</th>
-			</tr>
-		</thead>
-		<tbody>
-			<input type="hidden" id="attendancebtn-form" name="targetYearMonth" th:value="${session.targetYearMonth}" />
-			<th:block th:each="attendanceReq,stat : ${attendanceList}">
-				<th:block>
-					<input type="hidden" id="attendancebtn-form" name="userId" th:value="${attendanceReq.userId}" />
-				</th:block>
-				<td th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}"></td>
-				<td
-					th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}">
-				</td>
-				<td id="status-${attendanceReq.id}" th:text="${attendanceReq.status}"></td>
-				<td
-					th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime.toLocalTime(), 'HH:mm') : '-'}">
-				</td>
-				<td
-					th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}">
-				</td>
-				<td th:text="${attendanceReq.remarks}"></td>
-				</tr>
-			</th:block>
-		</tbody>
-	</table>
-	</form>
+		<form id="attendancebtn-form" method="get" th:action="@{/attendance/update}">
+			<table class="table table-hover sortabletable dataTable no-footer" id="attendance-table" role="grid"
+				aria-describedby="attendance-table_info">
+				<thead>
+					<tr>
+						<th>日付</th>
+						<th>曜日</th>
+						<th>勤務状況</th>
+						<th>出勤時間</th>
+						<th>退勤時間</th>
+						<th>備考</th>
+					</tr>
+				</thead>
+				<tbody>
+					<input type="hidden" id="attendancebtn-form" name="targetYearMonth"
+						th:value="${session.targetYearMonth}" />
+					<th:block th:each="attendanceReq,stat : ${attendanceList}">
+						<th:block>
+							<input type="hidden" id="attendancebtn-form" name="userId"
+								th:value="${attendanceReq.userId}" />
+						</th:block>
+						<td th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}"></td>
+						<td
+							th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}">
+						</td>
+						<td id="status-${attendanceReq.id}" th:text="${attendanceReq.status}"></td>
+						<td
+							th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime.toLocalTime(), 'HH:mm') : '-'}">
+						</td>
+						<td
+							th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}">
+						</td>
+						<td th:text="${attendanceReq.remarks}"></td>
+						</tr>
+					</th:block>
+				</tbody>
+			</table>
+		</form>
 	</div>
 	<!--(申請情報)-->
 
