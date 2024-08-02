@@ -4,15 +4,20 @@ import java.sql.Date;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
@@ -147,63 +152,112 @@ public class AttendanceService {
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
 	}
 
-//	//入力チェック
-//	public List<String> validationForm(AttendanceFormList attendanceFormList, BindingResult result) {
-//		List<String> errorBox = new ArrayList<>();
-//		System.out.println(attendanceFormList);
-//		int i =0;
-//		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
-//			System.out.println("for文入り");
-//			System.out.println(dailyAttendanceForm);
-//			Byte status =dailyAttendanceForm.getStatus();
-//			String startTime = dailyAttendanceForm.getStartTime2();
-//			String endTime = dailyAttendanceForm.getEndTime2();
-//			String remarks = dailyAttendanceForm.getRemarks();
-//			System.out.println(status+""+startTime+""+endTime+""+remarks);
-//			
-//			if(endTime !=null) {
-//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-//            LocalTime endInputTime = LocalTime.parse(endTime, formatter);
-//			}
-//			if(startTime !=null) {
-//				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-//				LocalTime startInputTime = LocalTime.parse(startTime, formatter);
-//				}
-//            LocalTime firstTime = LocalTime.of(0, 0);
-//            LocalTime lastTime = LocalTime.of(23, 59);
-//            
-//           
-//            
-//			if(startTime!="" && startTime.length()!=5) {
-//				System.out.println("startTimeは5文字で答えてね");
-//				result.addError(new FieldError("attendanceFormList","attendanceList[" + i + "].status", "勤怠状況は必須です"));
-//			}
-//			if(startTime.length()==5 && !startTime.contains("HH:dd")) {
-//				System.out.println("!startTime.contains(\"HH:dd\")");
-//			}
-//			if(endTime!="" && endTime.length()!=5) {
-//				System.out.println("endTimeは5文字で答えてね");
-//			}
-//			if(endTime.length() !=5 && !endTime.contains("HH:dd")) {
-//				System.out.println("endTime.contains(\"HH:dd\")");
-//			}
-//			if(remarks.length()>=20) {
-//				System.out.println("20字以内で答えてね");
-//				
-//			}
-//			Pattern pattern = Pattern.compile(regex);
-//			Matcher matcher = pattern.matcher(text);
-//			if(!matcher.find()) {
-//				System.out.println("全角で答えてね");
-//				System.out.println("------------------");
-//				
-//			}
-//			i++;
-//			
-//		}
-//		return errorBox;
+	//	//入力チェック
+	public List<String> validationForm(AttendanceFormList attendanceFormList, BindingResult result) {
+		List<String> errorBox = new ArrayList<>();
+		System.out.println(attendanceFormList);
+		int i = 0;
+		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
+			System.out.println("for文入り");
+			System.out.println(dailyAttendanceForm);
+			Byte status = dailyAttendanceForm.getStatus();
+			String startTime = dailyAttendanceForm.getStartTime2();
+			String endTime = dailyAttendanceForm.getEndTime2();
+			String remarks = dailyAttendanceForm.getRemarks();
+			System.out.println(status + "" + startTime + "" + endTime + "" + remarks);
 
-//	}
+
+			//出勤時刻の形式が不正な場合
+			if (startTime != "") {
+				// HH:mm形式の時刻を検出する正規表現
+				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+
+				// パターンをコンパイル
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(startTime);
+				if (!matcher.find()) {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+									"HH:mm形式で入力して下さい"));
+				}
+			}
+			//退勤時刻の形式が不正な場合
+			if (endTime != "") {
+				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+
+				// パターンをコンパイル
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(endTime);
+				if (!matcher.find()) {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+									"HH:mm形式で入力して下さい"));
+				}
+			}
+			
+			//出勤時間または退勤時間のどちらかが空白の場合
+			if (endTime == "" && startTime != "") {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+								"退勤時間を入力して下さい"));
+			}
+			if (startTime == "" && endTime != "") {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+								"出勤時間を入力して下さい"));
+			}
+			
+			//出勤時間＞退勤時間の場合
+			if (startTime != "" && endTime != "") {
+				
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+				if (startTime.matches("\\d{1}:\\d{2}")) {
+					startTime = "0" + startTime;
+				}
+				if (endTime.matches("\\d{1}:\\d{2}")) {
+					endTime = "0" + endTime;
+				}
+
+				LocalTime startInputTime = LocalTime.parse(startTime, formatter);
+				LocalTime endInputTime = LocalTime.parse(endTime, formatter);
+				if (startInputTime.isAfter(endInputTime)) {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+									"退勤時間は出勤時間より後になるように入力して下さい"));
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+									"退勤時間は出勤時間より後になるように入力して下さい"));
+				}
+
+			}
+			//備考欄
+			if (remarks != "") {
+				String regex = "[^\\x00-\\x7F]";
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(remarks);
+				if (remarks.length() >= 20) {
+					System.out.println("20字以内で答えてね");
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
+									"20字以内で入力して下さい"));
+
+				}
+				if (!matcher.find()) {
+					System.out.println("全角で答えてね");
+					System.out.println("------------------");
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
+									"全角で入力して下さい"));
+
+				}
+
+			}
+
+			i++;
+		}
+		return errorBox;
+
+	}
 
 	/**
 	/**

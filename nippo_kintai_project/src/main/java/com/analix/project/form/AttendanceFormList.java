@@ -9,5 +9,6 @@ import lombok.Data;
 @Data
 public class AttendanceFormList {
 	private List<DailyAttendanceForm> attendanceFormList; 
+	
 
 }

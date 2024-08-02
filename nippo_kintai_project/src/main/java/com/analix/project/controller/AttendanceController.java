@@ -18,7 +18,6 @@ import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
 import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
-import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.service.AttendanceService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +41,7 @@ public class AttendanceController {
 	 * @return
 	 */
 	@RequestMapping(path = "/attendance/regist")
-	public String attendanceRegist(Model model, HttpSession session) {
+	public String attendanceRegist(Model model, HttpSession session,AttendanceFormList attendanceFormList) {
 		// ヘッダー:ユーザ名、ユーザーID
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
@@ -108,7 +107,7 @@ public class AttendanceController {
 	 */
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.POST)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
-			Model model, HttpSession session) {
+			Model model, HttpSession session,AttendanceFormList attendanceFormList) {
 
 		System.out.println("コントローラクラス" + yearMonth);
 		Users loginUser = (Users) session.getAttribute("loginUser");
@@ -117,13 +116,13 @@ public class AttendanceController {
 
 		//		List<LocalDate> dateList = attendanceService.generateMonthDates(yearMonth);
 		//		AttendanceFormList attendanceFormList = attendanceService.getFindAllDailyAttendance(userId, yearMonth);
-		List<DailyAttendanceForm> attendanceFormList = attendanceService.getFindAllDailyAttendance(userId, yearMonth);
-
+		 attendanceFormList.setAttendanceFormList(attendanceService.getFindAllDailyAttendance(userId, yearMonth));
+		 attendanceFormList.getAttendanceFormList().get(0).getDate();
 		//		boolean attendanceNotEnterdFlg = attendanceFormList;
 		System.out.println("表示ボタン押下後" + attendanceFormList);
 
 		model.addAttribute("yearMonth", yearMonth);
-		model.addAttribute("attendanceFormList", attendanceFormList);
+//		model.addAttribute("attendanceFormList", attendanceFormList);
 
 		return "/attendance/regist";
 	}
@@ -138,13 +137,15 @@ public class AttendanceController {
 		System.out.println("登録ボタン押下後" + attendanceFormList);
 		boolean errorFlg = false;
 		List<String>errorBox = new ArrayList<>();
-//		errorBox= attendanceService.validationForm(attendanceFormList, result);
+		errorBox= attendanceService.validationForm(attendanceFormList, result);
 		System.out.println();
 		
 		if (result.hasErrors()) {
 			model.addAttribute("errorFlg",errorFlg);
 			model.addAttribute("errorBox",errorBox);
-			return "attendanceForm";
+			model.addAttribute("attendanceFormList",attendanceFormList);
+			
+			return "/attendance/regist";
 		}
 		
 		
@@ -226,7 +227,7 @@ public class AttendanceController {
 	 */
 	@GetMapping("/attendance/approveRequests")
 	public String showApproveRequests(@RequestParam("userId") Integer userId,
-			@RequestParam("targetYearMonth") String targetYearMonth, Model model, HttpSession session) {
+			@RequestParam("targetYearMonth") String targetYearMonth, Model model, HttpSession session,AttendanceFormList attendanceFormList) {
 		System.out.println("UserId: " + userId);
 		System.out.println("Original targetYearMonth: " + targetYearMonth);
 
