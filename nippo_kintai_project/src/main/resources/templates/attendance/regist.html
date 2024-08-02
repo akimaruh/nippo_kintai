@@ -28,12 +28,23 @@
 			</div>
 		</div>
 	</div>
-
+	
+<!--	<div class="container mt-3 mb-3">-->
+<!--		<form th:action="@{/attendance/regist/display}" method="post">-->
+<!--			<label for="displayYearMonth">表示年月：</label>-->
+<!--			<select name="year" id="id_year"></select>年-->
+<!--			<select name="month" id="id_month"></select>月-->
+<!--			<input type="submit" class="btn btn-info" value="表示" id="display" />-->
+<!--			<input type="hidden" name="yearMonth" id="yearMonth" />-->
+<!--		</form>-->
+<!--	</div>-->
 	<div class="container mt-3 mb-3">
-		<form th:action="@{/attendance/regist/display}" method="post">
+		<form th:action="@{/attendance/regist/display}" method="post" id="display-form">
 			<label for="displayYearMonth">表示年月：</label>
-			<select name="year" id="id_year"></select>年
-			<select name="month" id="id_month"></select>月
+			<input type="text" name="year" id="id_year" />年
+			<input type="text" name="month" id="id_month" />月
+			<div id="yearError" class="text-danger"></div>
+			<div id="monthError" class="text-danger"></div>
 			<input type="submit" class="btn btn-info" value="表示" id="display" />
 			<input type="hidden" name="yearMonth" id="yearMonth" />
 		</form>
@@ -42,10 +53,21 @@
 	<div class="container mt-3 mb-3">
 		<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn btn-info">却下</button>
 		<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn btn-info">承認</button>
-		<input type="submit" class="btn btn-info" value="承認申請" />
+		<!--		<form id="approval-form"  method="post" th:action="@{attendance/approveRequestComplete}">-->
+		<!--			<input type="submit" class="btn btn-info" value="承認申請" form="approval-form" />-->
+		<!--		</form>-->
+	
+<!--		<button type="submit" form="approval-form" name="apprication" class="btn btn-info">承認申請</button>-->
+
+
+		<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
+			<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
+			<button type="submit" class="btn btn-info">承認申請</button>
+		</form>
+
+		
 		<input type="submit" class="btn btn-info" value="登録" form="attendance-form" />
 	</div>
-
 
 	<!--	<span th:if="${session.loginUser.role == Manager}">-->
 	<div class="container mt-3 mb-3 border">
@@ -64,7 +86,7 @@
 					<tr>
 						<td><a th:href="@{/attendance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
 								th:text="${MonthlyList.name}"></a></td>
-						<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM')}"></td>
+						<td th:text="${#temporals.format(MonthlyList.targetYearMonth.toLocalDate(), 'yyyy/MM')}"></td>
 						<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
 					</tr>
 				</th:block>
@@ -217,33 +239,68 @@
 	<!--(申請情報)-->
 
 
+<!--		<script>-->
+<!--			document.getElementById('approve').addEventListener('click', function () {-->
+<!--				var year = document.getElementById('id_year').value;-->
+<!--				var month = document.getElementById('id_month').value;-->
+
+<!--				// 月を2桁にフォーマット-->
+<!--				if (month.length < 2) {-->
+<!--					month = '0' + month;-->
+<!--				}-->
+
+<!--				var yearMonth = year + '-' + month;-->
+
+<!--				// hidden inputを更新-->
+<!--				document.getElementById('yearMonth').value = yearMonth;-->
+<!--			});-->
+<!--		</script>-->
+
+<!--		<script>-->
+<!--			var optionLoop, this_day, this_month, this_year, today;-->
+<!--			today = new Date();-->
+<!--			this_year = today.getFullYear();-->
+<!--			this_month = today.getMonth() + 1;-->
+<!--			this_day = today.getDate();-->
+
+<!--			//ループ処理（スタート数字、終了数字、表示id名、デフォルト数字-->
+<!--			optionLoop = function (start, end, id, this_day) {-->
+<!--				var i, opt;-->
+
+<!--				opt = null;-->
+<!--				for (i = start; i <= end; i++) {-->
+<!--					if (i === this_day) {-->
+<!--						opt += "<option value='" + i + "' selected>" + i + "</option>";-->
+<!--					} else {-->
+<!--						opt += "<option value='" + i + "'>" + i + "</option>";-->
+<!--					}-->
+<!--				}-->
+<!--				return document.getElementById(id).innerHTML = opt;-->
+<!--			};-->
+<!--			optionLoop(2000, this_year, 'id_year', this_year);-->
+<!--			optionLoop(1, 12, 'id_month', this_month);-->
+
+<!--			/* yearとmonthを結合*/-->
+<!--			document.querySelector('form').addEventListener('submit', function (event) {-->
+<!--				var year = document.getElementById('id_year').value;-->
+<!--				var month = document.getElementById('id_month').value;-->
+
+<!--				// 月を2桁にフォーマット-->
+<!--				if (month.length < 2) {-->
+<!--					month = '0' + month;-->
+<!--				}-->
+
+<!--				var yearMonth = year + '-' + month;-->
+
+<!--				// hidden inputを更新-->
+<!--				var hiddenInput = document.getElementById('yearMonth');-->
+<!--				hiddenInput.value = yearMonth;-->
+<!--			});-->
+<!--		</script>-->
+
 	<script>
-		//年月表示
-		var optionLoop, this_day, this_month, this_year, today;
-		today = new Date();
-		this_year = today.getFullYear();
-		this_month = today.getMonth() + 1;
-		this_day = today.getDate();
-
-		//ループ処理（スタート数字、終了数字、表示id名、デフォルト数字
-		optionLoop = function (start, end, id, this_day) {
-			var i, opt;
-
-			opt = null;
-			for (i = start; i <= end; i++) {
-				if (i === this_day) {
-					opt += "<option value='" + i + "' selected>" + i + "</option>";
-				} else {
-					opt += "<option value='" + i + "'>" + i + "</option>";
-				}
-			}
-			return document.getElementById(id).innerHTML = opt;
-		};
-		optionLoop(2000, this_year, 'id_year', this_year);
-		optionLoop(1, 12, 'id_month', this_month);
-
-		/* yearとmonthを結合*/
-		document.querySelector('form').addEventListener('submit', function (event) {
+		// 入力内容をローカルストレージに保存
+		document.querySelector('#display-form').addEventListener('submit', function (event) {
 			var year = document.getElementById('id_year').value;
 			var month = document.getElementById('id_month').value;
 
@@ -254,9 +311,36 @@
 
 			var yearMonth = year + '-' + month;
 
-			// hidden inputを更新
 			var hiddenInput = document.getElementById('yearMonth');
 			hiddenInput.value = yearMonth;
+
+			localStorage.setItem('year', year);
+			localStorage.setItem('month', month);
+			localStorage.setItem('yearMonth', yearMonth);
+		});
+
+		// ページ読み込み時にローカルストレージから値を取得して設定
+		window.addEventListener('load', function () {
+			var storedYear = localStorage.getItem('year');
+			var storedMonth = localStorage.getItem('month');
+			var storedYearMonth = localStorage.getItem('yearMonth');
+
+			if (storedYear) {
+				document.getElementById('id_year').value = storedYear;
+			}
+			if (storedMonth) {
+				// 月を2桁にフォーマットする
+				if (storedMonth.length < 2) {
+					storedMonth = '0' + storedMonth;
+				}
+				document.getElementById('id_month').value = storedMonth;
+			}
+			if (storedYearMonth) {
+				var hiddenInput = document.getElementById('yearMonth');
+				if (hiddenInput) {
+					hiddenInput.value = storedYearMonth;
+				}
+			}
 		});
 
 		//申請承認後用勤務状況

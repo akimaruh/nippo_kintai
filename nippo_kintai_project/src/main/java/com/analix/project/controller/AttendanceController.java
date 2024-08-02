@@ -1,5 +1,6 @@
 package com.analix.project.controller;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,30 +48,11 @@ public class AttendanceController {
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
 
 		// ヘッダー:ステータス部分
-		Integer status = (Integer) session.getAttribute("status");
-		String statusFlg;
-		System.out.println("status:" + status);
-
-		if (status == null) {
-			statusFlg = "未申請";
-		} else {
-			switch (status) {
-			case 1:
-				statusFlg = "申請中";
-				break;
-			case 2:
-				statusFlg = "承認済";
-				break;
-			case 3:
-				statusFlg = "却下";
-				break;
-			default:
-				statusFlg = "未申請";
-				break;
-			}
-		}
+		Users user = (Users) session.getAttribute("loginUser");
+		String statusFlg = attendanceService.findStatusByUserId(user.getId());
 
 		model.addAttribute("statusFlg", statusFlg);
+	
 	
 
 		//				Integer userId = (Integer) session.getAttribute("id");
@@ -108,6 +90,16 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.POST)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session,AttendanceFormList attendanceFormList) {
+		
+		// ヘッダーのステータス部分
+		Integer status = (Integer) session.getAttribute("status");
+		Users user = (Users) session.getAttribute("loginUser");
+		String statusFlg = attendanceService.findStatusByUserId(user.getId());
+
+		model.addAttribute("statusFlg", statusFlg);
+		
+		session.setAttribute("yearMonth", yearMonth);
+		
 
 		System.out.println("コントローラクラス" + yearMonth);
 		Users loginUser = (Users) session.getAttribute("loginUser");
@@ -220,6 +212,32 @@ public class AttendanceController {
 		//	    }
 		return "redirect:/attendance/regist";
 
+	}
+	
+	/*
+	 * 『承認申請』ボタン押下後
+	 */
+	@RequestMapping(path="/attendance/approveRequestComplete", method = RequestMethod.POST)
+	public String approveRequest(HttpSession session, Model model) {
+		String approveYearMonth = (String)session.getAttribute("yearMonth");
+	    System.out.println("Received yearMonth:" + approveYearMonth);
+	    
+		Users user = (Users) session.getAttribute("loginUser");
+		Integer userId = user.getId();
+		
+//		LocalDate attendanceDate = LocalDate.of(2024,07,01); //ここなおす
+		Date attendanceDate = java.sql.Date.valueOf(approveYearMonth + "-01"); // "yyyy-MM-dd" 形式に変換
+		
+        System.out.println("コuserID:" + userId);
+        System.out.println("コattendanceDate:" + attendanceDate);
+		
+        
+		String message = attendanceService.insertMonthlyAttendanceReq(userId, attendanceDate);
+		System.out.println(message);
+	
+//		model.addAttribute(isApprove);
+		
+		return "redirect:/attendance/regist";
 	}
 
 	/*
