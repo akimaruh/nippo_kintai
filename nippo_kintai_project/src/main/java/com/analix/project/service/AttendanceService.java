@@ -179,6 +179,7 @@ public class AttendanceService {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
 									"HH:mm形式で入力して下さい"));
+					
 				}
 			}
 			//退勤時刻の形式が不正な場合
@@ -192,6 +193,7 @@ public class AttendanceService {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
 									"HH:mm形式で入力して下さい"));
+					break;
 				}
 			}
 			
