@@ -1,28 +1,32 @@
 @charset "UTF-8";
 
-.test {
-	/*	ボックスの幅*/
-	width: 500px;
-	/*	テキストと枠の間の余白*/
-	padding: 50px;
-	/*	枠のスタイル*/
-	border: 1px solid black;
-	/*	枠を中央寄せ*/
-	margin: 0 auto;
-	/*	高さ*/
-	height: 150px;
-	/*	文字を中央寄せ 横*/
-	text-align: center;
+.btn-yellow {
+  display: inline-block; /* ボタンをインラインブロックとして表示 */
+  font-weight: 400; /* ボタンのテキストの太さを調整 */
+  color: #000; /* テキストの色 */
+  text-align: center; /* テキストを中央に配置 */
+  vertical-align: middle; /* 垂直方向の配置 */
+  user-select: none; /* テキスト選択を無効にする */
+  border: 1px solid transparent; /* ボーダーの初期状態 */
+  padding: .400rem .9rem; /* ボタンのパディング */
+  font-size: 1rem; /* フォントサイズ */
+  line-height: 1.5; /* 行の高さ */
+  border-radius: .25rem; /* ボーダーの角を丸める */
+  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; /* トランジション効果 */
+  background-color: #ffff00; /* ボタンの背景色 */
+  border-color: #cccc00; /* ボーダーの色 */
 }
 
-
-.blue {
-	border: 1px solid blue;
+.btn-yellow:hover {
+  color: #000; /* ホバー時のテキストの色 */
+  background-color: #f5f500; /* ホバー時の背景色 */
+  border-color: #b84c00; /* ホバー時のボーダーの色 */
 }
 
-/*ボタン用*/
-.btn {
-	text-align: center;
-	border: 1px solid blue;
-	background-color: yellow;
+.btn-yellow:focus, .btn-yellow.focus {
+  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5); /* フォーカス時のボックスシャドウ */
+}
+
+.btn-yellow.disabled, .btn-yellow:disabled {
+  opacity: .45; /* 無効時の不透明度 */
 }
