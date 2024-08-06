@@ -23,10 +23,10 @@
 				<span th:text="${session.loginUser.id}"></span>
 			</div>
 			<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
-			<div>
-				<strong>ステータス：</strong>
-				<span th:text="${statusFlg}"></span>
-			</div>
+				<div>
+					<strong>ステータス：</strong>
+					<span th:text="${statusFlg}"></span>
+				</div>
 			</span>
 		</div>
 	</div>
@@ -49,8 +49,8 @@
 			<div class="container mt-3 mb-3">
 				<form th:action="@{/attendance/regist/display}" method="post" id="display-form">
 					<strong>表示年月：</strong>
-					<input type="text" name="year" id="id_year"/>年
-					<input type="text" name="month" id="id_month"/>月
+					<input type="text" name="year" id="id_year" />年
+					<input type="text" name="month" id="id_month" />月
 					<div id="yearError" class="text-danger"></div>
 					<div id="monthError" class="text-danger"></div>
 					<input type="submit" class="btn btn-info" value="表示" id="display" />
@@ -63,19 +63,21 @@
 
 	<div class="container mt-3 mb-3">
 		<th:block th:if="${session.loginUser.role == 'Manager'}">
-			<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn btn-info">却下</button>
-			<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn btn-info">承認</button>
+			<button type="submit" form="attendancebtn-form" name="action" value="reject"
+				class="btn btn-info">却下</button>
+			<button type="submit" form="attendancebtn-form" name="action" value="approve"
+				class="btn btn-info">承認</button>
 		</th:block>
 		<!--		<form id="approval-form"  method="post" th:action="@{attendance/approveRequestComplete}">-->
 		<!--			<input type="submit" class="btn btn-info" value="承認申請" form="approval-form" />-->
 		<!--		</form>-->
-	
+
 		<!--		<button type="submit" form="approval-form" name="apprication" class="btn btn-info">承認申請</button>-->
-	
+
 		<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
 			<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 				<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-				<button type="submit" class="btn btn-info" th:disabled="${status == 1 || status == 2}">承認申請</button>
+				<button type="submit" class="btn btn-info" th:disabled="${registCheck}==false">承認申請</button>
 			</form>
 			<input type="submit" class="btn btn-info" value="登録" form="attendance-form" />
 		</th:block>
@@ -183,23 +185,26 @@
 								</td>
 								<td class="w-10">
 									<input type="text" class="form-control" th:errorclass="is-invalid"
-										th:name="|attendanceFormList[${stat.index}].startTime2|" th:value="${dailyAttendanceForm.startTime2}"
+										th:name="|attendanceFormList[${stat.index}].startTime2|"
+										th:value="${dailyAttendanceForm.startTime2}"
 										th:disabled="${status == 1 || status == 2}" />
 									<span class="invalid-feedback" id="startTime-errors"
 										th:errors="*{attendanceFormList[__${stat.index}__].startTime2}"></span>
-								
-								
+
+
 								</td>
 								<td class="w-10">
 									<input type="text" class="form-control" th:errorclass="is-invalid"
-										th:name="|attendanceFormList[${stat.index}].endTime2|" th:value="${dailyAttendanceForm.endTime2}"
+										th:name="|attendanceFormList[${stat.index}].endTime2|"
+										th:value="${dailyAttendanceForm.endTime2}"
 										th:disabled="${status == 1 || status == 2}" />
 									<span class="invalid-feedback" id="endTime-errors"
 										th:errors="*{attendanceFormList[__${stat.index}__].endTime2}"></span>
 								</td>
 								<td class="w-10">
 									<input type="text" class="form-control" th:errorclass="is-invalid"
-										th:name="|attendanceFormList[${stat.index}].remarks|" th:value="${dailyAttendanceForm.remarks}"
+										th:name="|attendanceFormList[${stat.index}].remarks|"
+										th:value="${dailyAttendanceForm.remarks}"
 										th:disabled="${status == 1 || status == 2}" />
 									<span class="error invalid-feedback" id="remarks-errors"
 										th:errors="*{attendanceFormList[__${stat.index}__].remarks}"></span>
@@ -257,68 +262,61 @@
 				</table>
 			</form>
 		</div>
+		
+		<script>
+			//申請承認後用勤務状況
+			var statusList = {
+				0: "通常出勤",
+				1: "休日",
+				2: "祝日",
+				3: "遅刻",
+				4: "有給",
+				5: "欠勤",
+				6: "早退",
+				7: "時間外勤務",
+				8: "振替出勤",
+				9: "振替休日",
+				10: "代替出勤",
+				11: "代替休日",
+
+			};
+
+			function populateStatusDropdown() {
+				var dropdowns = document.getElementsByClassName('status-dropdown');
+				for (var i = 0; i < dropdowns.length; i++) {
+					var dropdown = dropdowns[i];
+					var selectedStatus = dropdown.getAttribute('data-status');
+					var options = '';
+
+					for (var key in statusList) {
+						var selected = (key == selectedStatus) ? ' selected' : '';
+						options += "<option value='" + key + "'" + selected + ">" + statusList[key] + "</option>";
+					}
+
+					dropdown.innerHTML = options;
+				}
+			}
+
+			window.onload = populateStatusDropdown;
+
+			// 申請情報確認時に使用
+			document.addEventListener('DOMContentLoaded', function () {
+				// テーブル内のすべてのstatusセルを取得
+				var statusCells = document.querySelectorAll('td[id^="status-"]');
+
+				// 各statusセルのテキストを変換
+				statusCells.forEach(function (cell) {
+					var statusCode = cell.textContent.trim();
+					var statusText = statusList[statusCode] || "不明";
+					cell.textContent = statusText;
+				});
+			});
+		</script>
+
 	</th:block>
 	<!--(申請情報)-->
 
 
-	<!--		<script>-->
-	<!--			document.getElementById('approve').addEventListener('click', function () {-->
-	<!--				var year = document.getElementById('id_year').value;-->
-	<!--				var month = document.getElementById('id_month').value;-->
-
-	<!--				// 月を2桁にフォーマット-->
-	<!--				if (month.length < 2) {-->
-	<!--					month = '0' + month;-->
-	<!--				}-->
-
-	<!--				var yearMonth = year + '-' + month;-->
-
-	<!--				// hidden inputを更新-->
-	<!--				document.getElementById('yearMonth').value = yearMonth;-->
-	<!--			});-->
-	<!--		</script>-->
-
-	<!--		<script>-->
-	<!--			var optionLoop, this_day, this_month, this_year, today;-->
-	<!--			today = new Date();-->
-	<!--			this_year = today.getFullYear();-->
-	<!--			this_month = today.getMonth() + 1;-->
-	<!--			this_day = today.getDate();-->
-
-	<!--			//ループ処理（スタート数字、終了数字、表示id名、デフォルト数字-->
-	<!--			optionLoop = function (start, end, id, this_day) {-->
-	<!--				var i, opt;-->
-
-	<!--				opt = null;-->
-	<!--				for (i = start; i <= end; i++) {-->
-	<!--					if (i === this_day) {-->
-	<!--						opt += "<option value='" + i + "' selected>" + i + "</option>";-->
-	<!--					} else {-->
-	<!--						opt += "<option value='" + i + "'>" + i + "</option>";-->
-	<!--					}-->
-	<!--				}-->
-	<!--				return document.getElementById(id).innerHTML = opt;-->
-	<!--			};-->
-	<!--			optionLoop(2000, this_year, 'id_year', this_year);-->
-	<!--			optionLoop(1, 12, 'id_month', this_month);-->
-
-	<!--			/* yearとmonthを結合*/-->
-	<!--			document.querySelector('form').addEventListener('submit', function (event) {-->
-	<!--				var year = document.getElementById('id_year').value;-->
-	<!--				var month = document.getElementById('id_month').value;-->
-
-	<!--				// 月を2桁にフォーマット-->
-	<!--				if (month.length < 2) {-->
-	<!--					month = '0' + month;-->
-	<!--				}-->
-
-	<!--				var yearMonth = year + '-' + month;-->
-
-	<!--				// hidden inputを更新-->
-	<!--				var hiddenInput = document.getElementById('yearMonth');-->
-	<!--				hiddenInput.value = yearMonth;-->
-	<!--			});-->
-	<!--		</script>-->
 
 	<script>
 
@@ -343,7 +341,7 @@
 				document.getElementById('monthError').innerHTML = "月を入力してください";
 				validation = false;
 			} else if (isNaN(month) || month < 1 || month > 12) {
-				document.getElementById('monthError').innerHTML = "mmのフォーマットで入力してください";
+				document.getElementById('monthError').innerHTML = "MMのフォーマットで入力してください";
 				validation = false;
 			} else {
 				document.getElementById('monthError').innerHTML = "";
@@ -368,16 +366,17 @@
 			var hiddenInput = document.getElementById('yearMonth');
 			hiddenInput.value = yearMonth;
 
-			localStorage.setItem('year', year);
-			localStorage.setItem('month', month);
-			localStorage.setItem('yearMonth', yearMonth);
+			sessionStorage.setItem('year', year);
+			sessionStorage.setItem('month', month);
+			sessionStorage.setItem('yearMonth', yearMonth);
 		});
 
 		// ページ読み込み時にローカルストレージから値を取得して設定
 		window.addEventListener('load', function () {
-			var storedYear = localStorage.getItem('year');
-			var storedMonth = localStorage.getItem('month');
+			var storedYear = sessionStorage.getItem('year');
+			var storedMonth = sessionStorage.getItem('month');
 			var storedYearMonth = localStorage.getItem('yearMonth');
+
 
 			if (storedYear) {
 				document.getElementById('id_year').value = storedYear;
@@ -397,53 +396,7 @@
 			}
 		});
 
-		//申請承認後用勤務状況
-		var statusList = {
-			0: "通常出勤",
-			1: "休日",
-			2: "祝日",
-			3: "遅刻",
-			4: "有給",
-			5: "欠勤",
-			6: "早退",
-			7: "時間外勤務",
-			8: "振替出勤",
-			9: "振替休日",
-			10: "代替出勤",
-			11: "代替休日",
 
-		};
-
-		function populateStatusDropdown() {
-			var dropdowns = document.getElementsByClassName('status-dropdown');
-			for (var i = 0; i < dropdowns.length; i++) {
-				var dropdown = dropdowns[i];
-				var selectedStatus = dropdown.getAttribute('data-status');
-				var options = '';
-
-				for (var key in statusList) {
-					var selected = (key == selectedStatus) ? ' selected' : '';
-					options += "<option value='" + key + "'" + selected + ">" + statusList[key] + "</option>";
-				}
-
-				dropdown.innerHTML = options;
-			}
-		}
-
-		window.onload = populateStatusDropdown;
-
-		// 申請情報確認時に使用
-		document.addEventListener('DOMContentLoaded', function () {
-			// テーブル内のすべてのstatusセルを取得
-			var statusCells = document.querySelectorAll('td[id^="status-"]');
-
-			// 各statusセルのテキストを変換
-			statusCells.forEach(function (cell) {
-				var statusCode = cell.textContent.trim();
-				var statusText = statusList[statusCode] || "不明";
-				cell.textContent = statusText;
-			});
-		});
 	</script>
 </body>
 

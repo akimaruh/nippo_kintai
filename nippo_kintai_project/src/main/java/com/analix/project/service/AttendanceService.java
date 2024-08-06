@@ -273,7 +273,7 @@ public class AttendanceService {
 				if (startInputTime.isAfter(endInputTime)) {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-									"退勤時間は出勤時間より後になるように入力して下さい"));
+									"出勤時間は退勤時間より先になるように入力して下さい"));
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
 									"退勤時間は出勤時間より後になるように入力して下さい"));
