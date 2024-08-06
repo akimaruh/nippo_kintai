@@ -22,8 +22,23 @@
 		keyProperty="id" parameterType="com.analix.project.dto.MonthlyAttendanceReqDto">
 		INSERT INTO monthly_attendance_req
 		(user_id, target_year_month, date, status)
-		VALUES (#{monthlyDto.userId}, #{monthlyDto.targetYearMonth}, #{monthlyDto.date}, #{monthlyDto.status})
+<!--		VALUES (#{userId}, #{targetYearMonth}, #{date}, #{status})-->
+	VALUES (#{monthlyDto.userId}, #{monthlyDto.targetYearMonth}, #{monthlyDto.date}, #{monthlyDto.status})
 	</insert>
+	
+	<!-- 「承認申請」ボタン押下後 - status検索 -->
+	<select id="findStatusByUserIdAndYearMonth" parameterType="map"
+		resultType="Integer">
+		SELECT status FROM monthly_attendance_req
+		WHERE user_id = #{userId} AND target_year_month = #{attendanceDate}
+	</select>
+	
+	<!-- statusを1に変更 -->
+	<update id="updateStatusWaiting" parameterType="map">
+		UPDATE monthly_attendance_req
+		SET status = 1
+		WHERE user_id = #{userId} AND target_year_month = #{attendanceDate}
+	</update>
 		
 	<!-- 承認 -->
 	<update id="updateStatusApprove" parameterType="map">
@@ -38,5 +53,15 @@
 		SET status = 3
 		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
 	</update>
+	
+	<!-- ユーザー名取得 -->
+	<select id="findMonthlyAttendanceReqByUserId"
+		resultType="com.analix.project.dto.MonthlyAttendanceReqDto">
+		SELECT * FROM monthly_attendance_req
+		JOIN users
+		ON monthly_attendance_req.user_id = users.id
+		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
+	</select>
+	
 
 </mapper>
