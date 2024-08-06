@@ -46,14 +46,7 @@ public class AttendanceController {
 		// ヘッダー:ユーザ名、ユーザーID
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
-
-		// ヘッダー:ステータス部分
-		Users user = (Users) session.getAttribute("loginUser");
-		String statusFlg = attendanceService.findStatusByUserId(user.getId());
-
-		model.addAttribute("statusFlg", statusFlg);
-	
-	
+		
 
 		//				Integer userId = (Integer) session.getAttribute("id");
 
@@ -91,14 +84,38 @@ public class AttendanceController {
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session,AttendanceFormList attendanceFormList) {
 		
-		// ヘッダーのステータス部分
-		Integer status = (Integer) session.getAttribute("status");
+		// ヘッダー:ステータス部分
 		Users user = (Users) session.getAttribute("loginUser");
-		String statusFlg = attendanceService.findStatusByUserId(user.getId());
-
-		model.addAttribute("statusFlg", statusFlg);
+		Date attendanceDate = java.sql.Date.valueOf(yearMonth + "-01");
+		session.setAttribute("attendanceDate", attendanceDate);
+		Integer status = attendanceService.findStatusByUserId(user.getId(), attendanceDate);
 		
+		
+		String statusFlg;
+
+		if (status == null) {
+			statusFlg = "未申請";
+		} else {
+			switch (status) {
+			case 1:
+				statusFlg = "申請中";
+				break;
+			case 2:
+				statusFlg = "承認済";
+				break;
+			case 3:
+				statusFlg = "却下";
+				break;
+			default:
+				statusFlg = "未申請";
+				break;
+			}
+		}
+		model.addAttribute("statusFlg", statusFlg);		
+		model.addAttribute("status", status);
 		session.setAttribute("yearMonth", yearMonth);
+//		session.setAttribute("statusFlg", statusFlg);
+//		session.setAttribute("status", status);
 		
 
 		System.out.println("コントローラクラス" + yearMonth);
@@ -158,24 +175,25 @@ public class AttendanceController {
 	 * 『承認申請』ボタン押下後
 	 */
 	@RequestMapping(path="/attendance/approveRequestComplete", method = RequestMethod.POST)
-	public String approveRequest(HttpSession session, Model model) {
-		String approveYearMonth = (String)session.getAttribute("yearMonth");
-	    System.out.println("Received yearMonth:" + approveYearMonth);
+	public String approveRequest(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
 	    
 		Users user = (Users) session.getAttribute("loginUser");
 		Integer userId = user.getId();
 		
 //		LocalDate attendanceDate = LocalDate.of(2024,07,01); //ここなおす
-		Date attendanceDate = java.sql.Date.valueOf(approveYearMonth + "-01"); // "yyyy-MM-dd" 形式に変換
+		Date approveYearMonth = (Date)session.getAttribute("attendanceDate");
 		
-        System.out.println("コuserID:" + userId);
-        System.out.println("コattendanceDate:" + attendanceDate);
+//        System.out.println("コuserID:" + userId);
+//        System.out.println("コattendanceDate:" + attendanceDate);
 		
-        
-		String message = attendanceService.insertMonthlyAttendanceReq(userId, attendanceDate);
-		System.out.println(message);
-	
-//		model.addAttribute(isApprove);
+		String message = attendanceService.insertMonthlyAttendanceReq(userId, approveYearMonth);
+		
+//		String applicationStatus = attendanceService.insertMonthlyAttendanceReq(userId, attendanceDate, approveYearMonth); 
+//		System.out.println("コapplicationStatus:" + applicationStatus);
+		
+		
+//        redirectAttributes.addFlashAttribute("status", applicationStatus);
+        redirectAttributes.addFlashAttribute("message", message);
 		
 		return "redirect:/attendance/regist";
 	}
@@ -204,7 +222,6 @@ public class AttendanceController {
 		model.addAttribute("attendanceList", attendanceList);
 
 		return "/attendance/regist";
-
 	}
 
 	/*
@@ -212,14 +229,18 @@ public class AttendanceController {
 	 */
 	@GetMapping("/attendance/update")
 	public String updateStatus(@RequestParam("userId") Integer userId,
-			@RequestParam("targetYearMonth") String targetYearMonth, @RequestParam("action") String action) {
+			@RequestParam("targetYearMonth") String targetYearMonth, @RequestParam("action") String action, RedirectAttributes redirectAttributes) {
 		System.out.println("updateStatusUserId: " + userId);
 		System.out.println("updateStatusTargetYearMonth: " + targetYearMonth);
 
 		if ("approve".equals(action)) {
 			attendanceService.updateStatusApprove(userId, targetYearMonth);
+			String message = attendanceService.updateStatusApprove(userId, targetYearMonth);
+			redirectAttributes.addFlashAttribute("message", message);
 		} else if ("reject".equals(action)) {
 			attendanceService.updateStatusReject(userId, targetYearMonth);
+			String message = attendanceService.updateStatusReject(userId, targetYearMonth);
+			redirectAttributes.addFlashAttribute("message", message);
 		}
 
 		return "redirect:/attendance/regist";

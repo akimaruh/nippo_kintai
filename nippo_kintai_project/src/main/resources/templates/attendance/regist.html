@@ -63,21 +63,19 @@
 
 	<div class="container mt-3 mb-3">
 		<th:block th:if="${session.loginUser.role == 'Manager'}">
-			<button type="submit" form="attendancebtn-form" name="action" value="reject"
-				class="btn btn-info">却下</button>
-			<button type="submit" form="attendancebtn-form" name="action" value="approve"
-				class="btn btn-info">承認</button>
+			<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn btn-info">却下</button>
+			<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn btn-info">承認</button>
 		</th:block>
 		<!--		<form id="approval-form"  method="post" th:action="@{attendance/approveRequestComplete}">-->
 		<!--			<input type="submit" class="btn btn-info" value="承認申請" form="approval-form" />-->
 		<!--		</form>-->
-
+	
 		<!--		<button type="submit" form="approval-form" name="apprication" class="btn btn-info">承認申請</button>-->
-
+	
 		<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
 			<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 				<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-				<button type="submit" class="btn btn-info" th:disabled="${registCheck}==false">承認申請</button>
+				<button type="submit" class="btn btn-info" th:disabled="${status == 1 || status == 2}">承認申請</button>
 			</form>
 			<input type="submit" class="btn btn-info" value="登録" form="attendance-form" />
 		</th:block>
@@ -159,7 +157,8 @@
 									<!--								class="status-dropdown form-select" th:data-status="${dailyAttendance.status}">-->
 									<!--							</select>-->
 									<select th:name="|attendanceFormList[${stat.index}].status|" class="form-select"
-										th:value="${dailyAttendanceForm.status}">
+										th:value="${dailyAttendanceForm.status}"
+										th:disabled="${status == 1 || status == 2}">
 										<!-- dailyAttendance.statusがnullまたは空の場合に空の選択肢を表示 -->
 										<option th:value=null th:if="${dailyAttendanceForm.status == null}"></option>
 
@@ -184,24 +183,24 @@
 								</td>
 								<td class="w-10">
 									<input type="text" class="form-control" th:errorclass="is-invalid"
-										th:name="|attendanceFormList[${stat.index}].startTime2|"
-										th:value="${dailyAttendanceForm.startTime2}" />
+										th:name="|attendanceFormList[${stat.index}].startTime2|" th:value="${dailyAttendanceForm.startTime2}"
+										th:disabled="${status == 1 || status == 2}" />
 									<span class="invalid-feedback" id="startTime-errors"
 										th:errors="*{attendanceFormList[__${stat.index}__].startTime2}"></span>
-
-
+								
+								
 								</td>
 								<td class="w-10">
 									<input type="text" class="form-control" th:errorclass="is-invalid"
-										th:name="|attendanceFormList[${stat.index}].endTime2|"
-										th:value="${dailyAttendanceForm.endTime2}" />
+										th:name="|attendanceFormList[${stat.index}].endTime2|" th:value="${dailyAttendanceForm.endTime2}"
+										th:disabled="${status == 1 || status == 2}" />
 									<span class="invalid-feedback" id="endTime-errors"
 										th:errors="*{attendanceFormList[__${stat.index}__].endTime2}"></span>
 								</td>
 								<td class="w-10">
 									<input type="text" class="form-control" th:errorclass="is-invalid"
-										th:name="|attendanceFormList[${stat.index}].remarks|"
-										th:value="${dailyAttendanceForm.remarks}" />
+										th:name="|attendanceFormList[${stat.index}].remarks|" th:value="${dailyAttendanceForm.remarks}"
+										th:disabled="${status == 1 || status == 2}" />
 									<span class="error invalid-feedback" id="remarks-errors"
 										th:errors="*{attendanceFormList[__${stat.index}__].remarks}"></span>
 

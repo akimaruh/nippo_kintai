@@ -39,29 +39,9 @@ public class AttendanceService {
 	/**
 	 * ヘッダー:ステータス部分
 	 */
-	public String findStatusByUserId(Integer userId) {
-		Integer status = monthlyAttendanceReqMapper.findStatusByUserId(userId);
-		String statusFlg;
+	public Integer findStatusByUserId(Integer userId, Date attendanceDate) {
 
-		if (status == null) {
-			statusFlg = "未申請";
-		} else {
-			switch (status) {
-			case 1:
-				statusFlg = "申請中";
-				break;
-			case 2:
-				statusFlg = "承認済";
-				break;
-			case 3:
-				statusFlg = "却下";
-				break;
-			default:
-				statusFlg = "未申請";
-				break;
-			}
-		}
-		return statusFlg;
+		return monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
 	}
 
 	/**
@@ -158,20 +138,30 @@ public class AttendanceService {
 	 * @Param attendanceDate
 	 */
 	public String insertMonthlyAttendanceReq(Integer userId, Date attendanceDate) {
-		System.out.println("サuserID:" + userId);
-		System.out.println("サattendanceDate:" + attendanceDate);
-
-		MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
-		monthlyDto.setUserId(userId);
-		monthlyDto.setTargetYearMonth(attendanceDate);
-		monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
-		monthlyDto.setStatus(1);
-
-		System.out.println("サdto:" + monthlyDto);
-
-		monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
-
-		return "OK";
+//        System.out.println("サuserID:" + userId);
+//        System.out.println("サattendanceDate:" + attendanceDate);
+        Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
+        
+        String message = null;
+               
+       if (applicationStatus == null) {
+        MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
+        monthlyDto.setUserId(userId);
+//        System.out.println(attendanceDate);
+        monthlyDto.setTargetYearMonth(attendanceDate);
+        monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
+        monthlyDto.setStatus(1);
+        
+//        System.out.println(monthlyDto);
+        
+        monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
+        
+       } else if (applicationStatus == 3) {
+    	   // statusを1(承認待ち)に更新
+    	   monthlyAttendanceReqMapper.updateStatusWaiting(userId, attendanceDate);
+       }
+       
+       return "承認申請が完了しました。";
 	}
 
 	/**
@@ -185,12 +175,22 @@ public class AttendanceService {
 	/**
 	 * status更新 承認・却下
 	 */
-	public void updateStatusApprove(Integer userId, String targetYearMonth) {
+	public String updateStatusApprove(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonth);
+		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+		String userName = monthlyAttendanceReqList.getName();
+		Date date = monthlyAttendanceReqList.getDate();
+		
+		return userName + "の" + date + "における承認申請が承認されました。";
 	}
 
-	public void updateStatusReject(Integer userId, String targetYearMonth) {
+	public String updateStatusReject(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonth);
+		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+		String userName = monthlyAttendanceReqList.getName();
+		Date date = monthlyAttendanceReqList.getDate();
+		
+		return userName + "の" + date + "における承認申請が却下されました。";
 	}
 
 	/**
