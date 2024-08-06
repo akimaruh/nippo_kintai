@@ -36,7 +36,8 @@
 
 		WHERE
 		id = #{attendance.id}
-		AND user_id = #{attendance.userId}
+		AND user_id =
+		#{attendance.userId}
 		AND date =
 		#{attendance.date}
 
@@ -53,12 +54,7 @@
 		AND DATE_FORMAT(date,
 		'%Y-%m') = #{targetYearMonth}
 	</select>
-	
-<!--	 「承認申請」ボタン押下後 -->
-<!--	<select id="findDateByUserId">-->
-<!--		SELECT date-->
-<!--		FROM attendance-->
-<!--		WHERE user_id = #{user_id}-->
-<!--	</select>-->
+
+
 
 </mapper>

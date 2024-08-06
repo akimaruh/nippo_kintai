@@ -138,34 +138,40 @@ public class AttendanceService {
 			dailyAttendanceList.add(dailyAttendance);
 		}
 		System.out.println(dailyAttendanceList);
-
-		//		AttendanceFormList attendanceFormList = new AttendanceFormList();
-		//		attendanceFormList.setAttendanceFormList(dailyAttendanceList);
-
-		//		return attendanceFormList;
 		return dailyAttendanceList;
 	}
-	
+
+	/**
+	 * 承認申請ボタン活性化
+	 * @param dailyAttendanceList
+	 * @return 全勤怠が登録されている場合true,そうでない場合false
+	 */
+	public Boolean applicableCheck(List<DailyAttendanceForm> dailyAttendanceList) {
+
+		return dailyAttendanceList.stream().allMatch(dailyAttendance -> dailyAttendance.getStatus() != null);
+
+	}
+
 	/**
 	 *「承認申請」ボタン押下後
 	 * @Param userId
 	 * @Param attendanceDate
 	 */
 	public String insertMonthlyAttendanceReq(Integer userId, Date attendanceDate) {
-        System.out.println("サuserID:" + userId);
-        System.out.println("サattendanceDate:" + attendanceDate);
-        
-        MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
-        monthlyDto.setUserId(userId);
-        monthlyDto.setTargetYearMonth(attendanceDate);
-        monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
-        monthlyDto.setStatus(1);
-        
-        System.out.println("サdto:" + monthlyDto);
-        
-        monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
-        
-        return "OK";
+		System.out.println("サuserID:" + userId);
+		System.out.println("サattendanceDate:" + attendanceDate);
+
+		MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
+		monthlyDto.setUserId(userId);
+		monthlyDto.setTargetYearMonth(attendanceDate);
+		monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
+		monthlyDto.setStatus(1);
+
+		System.out.println("サdto:" + monthlyDto);
+
+		monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
+
+		return "OK";
 	}
 
 	/**
@@ -209,7 +215,6 @@ public class AttendanceService {
 			String remarks = dailyAttendanceForm.getRemarks();
 			System.out.println(status + "" + startTime + "" + endTime + "" + remarks);
 
-
 			//出勤時刻の形式が不正な場合
 			if (startTime != "") {
 				// HH:mm形式の時刻を検出する正規表現
@@ -222,6 +227,7 @@ public class AttendanceService {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
 									"HH:mm形式で入力して下さい"));
+
 				}
 			}
 			//退勤時刻の形式が不正な場合
@@ -235,9 +241,10 @@ public class AttendanceService {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
 									"HH:mm形式で入力して下さい"));
+					break;
 				}
 			}
-			
+
 			//出勤時間または退勤時間のどちらかが空白の場合
 			if (endTime == "" && startTime != "") {
 				result.addError(
@@ -249,10 +256,10 @@ public class AttendanceService {
 						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
 								"出勤時間を入力して下さい"));
 			}
-			
+
 			//出勤時間＞退勤時間の場合
 			if (startTime != "" && endTime != "") {
-				
+
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 				if (startTime.matches("\\d{1}:\\d{2}")) {
 					startTime = "0" + startTime;
@@ -308,7 +315,7 @@ public class AttendanceService {
 	 * @param dailyAttendanceForm
 	 * @return 勤怠登録マッパー
 	 */
-	public Boolean getRegistDailyAttendance(Integer userId, AttendanceFormList attendanceFormList) {
+	public String getRegistDailyAttendance(Integer userId, AttendanceFormList attendanceFormList) {
 
 		System.out.println("サービス入った");
 		System.out.println(attendanceFormList);
@@ -417,24 +424,9 @@ public class AttendanceService {
 			//			attendanceMapper.updateDailyAttendance(registAttendance);
 			//	
 		}
-		return true; //messageを出力するので保留
+		return "勤怠登録が完了しました。"; //messageを出力するので保留
 
 	}
-	//入力済みの勤怠を非活性にする処理
-	//	public boolean attenanceNotEnteredCheck(AttendanceFormList attedanceFormList) {
-	//		
-	//		for(DailyAttendanceForm dailyAttendance: attedanceFormList.getAttendanceFormList()) {
-	//			boolean attendanceNotEnteredCheck = false;
-	//			Integer dailyAttendanceUserId = dailyAttendance.getUserId();
-	//			if(dailyAttendanceUserId ==null) {
-	//				attendanceNotEnteredCheck = true;
-	//				
-	//			
-	//			}
-
-	//		}
-	//		
-	//	}
 
 	//	/***
 	//	 * 勤怠修正
@@ -464,6 +456,11 @@ public class AttendanceService {
 	//	public Date convertToUtilDate(LocalDate convertedDate) {
 	//		return Date.from(convertedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	//	}
+	
+//	public String convertYearMonth(String year,String month) {
+//		
+//		return 
+//	}
 	/*
 	 * 表示日付生成
 	 */
