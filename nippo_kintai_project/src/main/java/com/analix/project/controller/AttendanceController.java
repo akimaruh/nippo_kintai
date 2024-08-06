@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
@@ -21,7 +22,6 @@ import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.service.AttendanceService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -87,7 +87,7 @@ public class AttendanceController {
 	/*
 	 * 『表示』ボタン押下後
 	 */
-	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.POST)
+	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.GET)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session,AttendanceFormList attendanceFormList) {
 		
@@ -107,20 +107,17 @@ public class AttendanceController {
 		System.out.println(loginUser.getId());
 		
 
-		//		List<LocalDate> dateList = attendanceService.generateMonthDates(yearMonth);
-		//		AttendanceFormList attendanceFormList = attendanceService.getFindAllDailyAttendance(userId, yearMonth);
-		 attendanceFormList.setAttendanceFormList(attendanceService.getFindAllDailyAttendance(userId, yearMonth));
+		
+		attendanceFormList.setAttendanceFormList(attendanceService.getFindAllDailyAttendance(userId, yearMonth));
 		 attendanceFormList.getAttendanceFormList().get(0).getDate();
-		//		boolean attendanceNotEnterdFlg = attendanceFormList;
 		System.out.println("表示ボタン押下後" + attendanceFormList);
 		
 		//１か月分登録されると活性化
-		attendanceService.applicableCheck(userId, yearMonth);
-		
-		
-
+	 boolean monthlyRegistCheck= attendanceService.applicableCheck(attendanceFormList.getAttendanceFormList());
+	 System.out.println(monthlyRegistCheck);
+	 
 		model.addAttribute("yearMonth", yearMonth);
-//		model.addAttribute("attendanceFormList", attendanceFormList);
+		model.addAttribute("registCheck", monthlyRegistCheck);
 	
 
 		return "/attendance/regist";
@@ -130,8 +127,8 @@ public class AttendanceController {
 	 * 『登録』ボタン押下後
 	 */
 	@RequestMapping(path = "/attendance/regist/complete", method = RequestMethod.POST)
-	public String attendanceComplete(HttpServletRequest request, @RequestParam("sessionUserId") Integer userId,
-			@Validated @ModelAttribute AttendanceFormList attendanceFormList, BindingResult result, Model model) {
+	public String attendanceComplete(@RequestParam("sessionUserId") Integer userId,
+			@Validated @ModelAttribute AttendanceFormList attendanceFormList, BindingResult result, Model model,HttpSession session ,RedirectAttributes redirectAttributes) {
 		
 		System.out.println("登録ボタン押下後" + attendanceFormList);
 		boolean errorFlg = false;
@@ -145,79 +142,15 @@ public class AttendanceController {
 			model.addAttribute("attendanceFormList",attendanceFormList);
 			
 			return "/attendance/regist";
-		}
-		
-		
-//		for(DailyAttendanceForm completeAttendance :attendanceFormList.getAttendanceFormList()) {
-//			//LocalDate型で受け取り
-//			LocalDate newDateString = completeAttendance.getDate();
-//			System.out.println(newDateString);
-//			//String型で受け取り
-//			String newStartTimeString = completeAttendance.getStartTime2();
-//			System.out.println(newStartTimeString);
-//			String newEndTimeString = completeAttendance.getEndTime2();
-			
-			
-			
-//			LocalDate newDateS = LocalDate.parse(newDateString);			
-//			LocalDate newStartTime = LocalDate.parse(newStartTimeString);
-//			LocalDate  newEndTime = LocalDate.parse(newEndTimeString);
-//			
-//			completeAttendance.setDate(newDateS);
-//			completeAttendance.setStartTimeLocalDate(newStartTime);
-//			completeAttendance.setEndTimeLocalDate(newEndTime);
-//			result = attendanceService.validationForm(attendanceFormList, result);
-//			if (result.hasErrors()) {
-//				return "redirect:/attendance/regist/display";
-//			}
-//		}
-		
-		
-		
-		
+		}		
 
-		
+		String message = attendanceService.getRegistDailyAttendance(userId, attendanceFormList);
+		String yearMonth = (String) session.getAttribute("yearMonth");
+		redirectAttributes.addFlashAttribute("message",message);
+		redirectAttributes.addAttribute("yearMonth",yearMonth);
 
-//		System.out.println(attendanceFormList);
-
-		//			//	@RequestMapping(path = "/attendance/regist/complete", method = RequestMethod.POST)
-		//			//	public String attendanceComplete(HttpServletRequest request, @RequestParam("userId") Integer userId,
-		//			//			@ModelAttribute ("date") String[] date,
-		//			//            @RequestParam("status") byte[] statuses,
-		//			//            @RequestParam("startTime") Time startTimes,
-		//			//            @RequestParam("endTime") String[] endTimes,
-		//			//            @RequestParam("remarks") String[] remarks, Model model) {
-		//
-		//			//		System.out.println("登録ボタン押下後" + attendanceFormList.getAttendanceFormList());
-		//			//	System.out.println("登録ボタン押下後"+dailyAttendanceList.get(0));
-		//			// デバッグ用: リクエストメソッドの出力
-		//			System.out.println("Request Method: " + request.getMethod());
-		//
-		//			// デバッグ用: 送信されたパラメータをすべて出力
-		//			Enumeration<String> parameterNames = request.getParameterNames();
-		//			while (parameterNames.hasMoreElements()) {
-		//				String paramName = parameterNames.nextElement();
-		//				System.out.println(paramName + ": " + request.getParameter(paramName));
-		//			}
-
-		//	    // デバッグ用: 送信されたパラメータをすべて出力
-		//	    Enumeration<String> parameterNames = request.getParameterNames();
-		//	    while (parameterNames.hasMoreElements()) {
-		//	        String paramName = parameterNames.nextElement();
-		//	        System.out.println(paramName + ": " + request.getParameter(paramName));
-		//	    }
-//		String newDateString = dailyAttendanceFormList .getDate2(); 
-//		Date newDateS = java.sql.Date.valueOf((newDateString == "" ? null:newDateString));
-		attendanceService.getRegistDailyAttendance(userId, attendanceFormList);
-
-		//	    for (DailyAttendanceDto attendance : dailyAttendanceList) {
-		//	        System.out.println("Date: " + attendance.getDate());
-		//	        System.out.println("Status: " + attendance.getStatus());
-		//	        System.out.println("Start Time: " + attendance.getStartTime());
-		//	        System.out.println("End Time: " + attendance.getEndTime());
-		//	        System.out.println("Remarks: " + attendance.getRemarks());
-		//	    }
-		return "redirect:/attendance/regist";
+	
+		return "redirect:/attendance/regist/display";
 
 	}
 	
