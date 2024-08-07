@@ -1,16 +1,12 @@
 package com.analix.project.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
@@ -26,65 +22,66 @@ public class UserController {
 		this.userService = userService;
 	}
 
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-		dateFormat.setLenient(false);
-		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
-	}
-
+	/**
+	 * 初期表示
+	 * @param model
+	 * @return ユーザー管理画面
+	 * 
+	 */
 	@RequestMapping(path = "/regist")
 	public String showUserRegist(Model model) {
-		Users userData = userService.getUserDataByUserName(null);
-		model.addAttribute("userData", userData);
+
+		model.addAttribute("userData", new Users());
 		//		model.addAttribute("userData", new Users());
 
 		return "user/regist";
 	}
 
+	/**
+	 * 『検索』ボタン押下後
+	 * @param name
+	 * @param model
+	 * @return ユーザー管理画面
+	 */
 	@RequestMapping(path = "/regist/search")
-	public String searchUserByUserName(String name, Model model) {
+	public String searchUserByUserName(RegistUserForm registUserForm, Model model) {
+		String inputName = registUserForm.getName();
+		RegistUserForm userData = userService.getUserDataByUserName(inputName);
+		String searchedName = userData.getName();
 
-		Users userData = userService.getUserDataByUserName(name);
-
+		if (searchedName == null) {
+			String error = "存在しないユーザーです";
+			model.addAttribute("error", error);
+			userData.setName(inputName);
+		}
 		model.addAttribute("userData", userData);
-
 		return "user/regist";
 	}
 
+	/**
+	 * 『登録』ボタン押下後
+	 * @param registUserForm
+	 * @param id
+	 * @param name
+	 * @param model
+	 * @param result
+	 * @return 
+	 */
 	@RequestMapping(path = "/regist/complete")
-	public String completeUserRegist(@ModelAttribute RegistUserForm registUserForm, Integer id,
-			String name, Model model) {
+	public String completeUserRegist(@Validated @ModelAttribute RegistUserForm registUserForm, Integer id,
+			String name, Model model, BindingResult result, RedirectAttributes redirectAttributes) {
 
-		// 日付形式を定義
-		Date startDate = registUserForm.getStartDate();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-		String stringTypeStartDate = dateFormat.format(startDate);
-		System.out.println("stringTypeStartDate" + stringTypeStartDate);
-		//		if ("9999/99/99".equals(stringTypeStartDate)) {
-		//			System.out.println("削除します");
-		//			userService.deleteUser(id);
-		//			model.addAttribute("message", "データが削除されました");
-		//			return "redirect:/user/regist";
+		userService.validationForm(registUserForm, result);
 
-		try {
-			 dateFormat.setLenient(false);
-	            dateFormat.parse(stringTypeStartDate);
-	            userService.registUserData(registUserForm, id,name);
+		if (result.hasErrors()) {
 
-		} catch (ParseException e) {
-			if ("9999/99/99".equals(stringTypeStartDate)) {
-				System.out.println("削除します");
-				userService.deleteUser(id);
-				model.addAttribute("message", "データが削除されました");
-				return "redirect:/user/regist";
-			} else {
-				// 他の無効な日付形式の場合
-				model.addAttribute("message", "無効な日付です");
-				//			result.rejectValue("startDate", "error.userData", "無効な日付形式です。");
-				return "redirect:/user/regist";
-			}
+			model.addAttribute("userData", registUserForm);
+			model.addAttribute("error","利用開始日が不正です");
+			return "user/regist";
 		}
+		System.out.println(registUserForm);
+		String message = userService.registUserData(registUserForm, id, name);
+		redirectAttributes.addFlashAttribute("message", message);
 
 		return "redirect:/user/regist";
 

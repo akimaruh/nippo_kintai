@@ -1,6 +1,6 @@
 package com.analix.project.entity;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 public class Users {
 
@@ -10,8 +10,8 @@ public class Users {
 	private String name;
 	private String role;
 	private Integer departmentId;
-//	 @DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date startDate;
+
+	private LocalDate startDate;
 	private Integer status; // ステータスフィールドを追加
 
 	
@@ -59,12 +59,12 @@ public class Users {
 	}
 
 	
-	public Date getStartDate() {
+	public LocalDate getStartDate() {
 		return startDate;
 	}
 
 	
-	public void setStartDate(Date startDate) {
+	public void setStartDate(LocalDate startDate) {
 		this.startDate = startDate;
 	}
 
