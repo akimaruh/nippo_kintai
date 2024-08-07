@@ -1,5 +1,8 @@
 package com.analix.project.controller;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,17 +28,41 @@ public class LoginController {
 	}
 
 	@PostMapping("/login")
-	public String login(@RequestParam("id")Integer id, @RequestParam("password") String password,
+	public String login(@RequestParam("id")String id, @RequestParam("password") String password,
 			HttpSession session, Model model) {
+		
+		// ユーザーID
+		String idRegex = "^[0-9]{1,16}$";
+		Pattern idPattern = Pattern.compile(idRegex);
+		Matcher idMatcher = idPattern.matcher(id);
+		if (!idMatcher.matches()) {
+			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
+			return "common/login";
+		}
+		
+		// パスワード
+		String passRegex = "^[0-9a-zA-Z]{1,16}$";
+		Pattern passPattern = Pattern.compile(passRegex);
+		Matcher passMatcher = passPattern.matcher(password);
+		if (!passMatcher.matches()) {
+			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
+			return "common/login";
+		}
+
+		
 		Users user = loginService.findByIdAndPassword(id, password);
 
 		if (user != null) {
+			
+			// このユーザーが利用開始日より前かチェック
+			if (loginService.isDate(user) == false) {
+				model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
+				return "common/login";
+			}
+			
 			session.setAttribute("loginUser", user);
 			String role = user.getRole();
 			
-//			Integer userId = user.getId();
-//	        Integer status = attendanceService.findStatusByUserId(userId);
-//	        session.setAttribute("status", status);
 
 			// 権限がadminの場合ユーザー管理画面へ遷移
 			if ("Admin".equals(role)) {
