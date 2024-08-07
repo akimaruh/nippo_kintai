@@ -31,7 +31,7 @@
 			</span>
 		</div>
 	</div>
-	<div th:if="${message}" class="alert alert-danger">
+	<div th:if="${message}" class="alert alert-info">
 		<p th:text="${message}"></p>
 	</div>
 
@@ -45,43 +45,45 @@
 	<!--		</form>-->
 	<!--	</div>-->
 	<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
+		<div class="container mt-3 mb-3">
+			<div class="row">
+				<form th:action="@{/attendance/regist/display}" method="get" id="display-form">
 
-		<form th:action="@{/attendance/regist/display}" method="get" id="display-form">
-			<div class="container mt-3 mb-3">
+
 					<strong>表示年月：</strong>
 					<input type="text" size="15" name="year" id="id_year" />年
 					<input type="text" size="15" name="month" id="id_month" />月
-					<input type="submit" class="btn-yellow btn--border-solid ms-3" value="表示" id="display" />
+					<input type="submit" class="btn-yellow ms-3" value="表示" id="display" />
 					<div id="yearError" class="text-danger"></div>
 					<div id="monthError" class="text-danger"></div>
 					<input type="hidden" name="yearMonth" id="yearMonth" />
 				</form>
-			</div>
-		</form>
+
 
 	</span>
 
-	<div class="container mt-3 mb-3">
+	<div class="d-flex align-items-center">
 		<th:block th:if="${session.loginUser.role == 'Manager'}">
-			<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn-yellow">却下</button>
-			<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn-yellow">承認</button>
+			<button type="submit" form="attendancebtn-form" name="action" value="reject" class="btn-yellow offset-col-8">却下</button>
+			<button type="submit" form="attendancebtn-form" name="action" value="approve" class="btn-yellow offset-col-8">承認</button>
 		</th:block>
 		<!--		<form id="approval-form"  method="post" th:action="@{attendance/approveRequestComplete}">-->
 		<!--			<input type="submit" class="btn-yellow" value="承認申請" form="approval-form" />-->
 		<!--		</form>-->
-	
+
 		<!--		<button type="submit" form="approval-form" name="apprication" class="btn-yellow">承認申請</button>-->
-	
+
 		<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
-			<div class="d-flex align-items-center">
-				<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
-					<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-					<button type="submit" class="btn-yellow" th:disabled="${registCheck}==false">承認申請</button>
-				</form>
-				<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form" />
-			</div>
+
+			<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
+				<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
+				<button type="submit" class="btn-yellow offset-col-8" th:disabled="${registCheck}==false ">承認申請</button>
+			</form>
+			<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form" />
+
 		</th:block>
 	</div>
+
 
 
 	<th:block th:if="${session.loginUser.role == 'Manager'}">
@@ -263,7 +265,7 @@
 				</table>
 			</form>
 		</div>
-		
+
 		<script>
 			//申請承認後用勤務状況
 			var statusList = {

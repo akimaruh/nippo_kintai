@@ -40,7 +40,6 @@ public class AttendanceService {
 	 * ヘッダー:ステータス部分
 	 */
 	public Integer findStatusByUserId(Integer userId, Date attendanceDate) {
-
 		return monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
 	}
 
@@ -174,6 +173,9 @@ public class AttendanceService {
 
 	/**
 	 * status更新 承認・却下
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return メッセージ
 	 */
 	public String updateStatusApprove(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonth);

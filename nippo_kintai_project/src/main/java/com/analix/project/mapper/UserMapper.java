@@ -12,7 +12,7 @@ public interface UserMapper {
 	
 	Integer createNewId ();
 	
-	Boolean isUserDataById (@Param("id") Integer id);
+	Integer countUserDataById (@Param("name") String name);
 	
 	Boolean updateUserData (@Param("users") Users registUser);
 	

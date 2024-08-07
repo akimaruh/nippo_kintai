@@ -1,23 +1,25 @@
 package com.analix.project.service;
 
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
 import com.analix.project.mapper.UserMapper;
-import com.analix.project.util.CustomDateUtil;
 
 @Service
 public class UserService {
-	
-	
+
 	private final UserMapper userMapper;
-	private final CustomDateUtil customDateUtil;
-	
 
 	public UserService(UserMapper userMapper) {
 		this.userMapper = userMapper;
-		this.customDateUtil = new CustomDateUtil();
+
 	}
 
 	/**
@@ -25,19 +27,71 @@ public class UserService {
 	 * @param name
 	 * @return userエンティティ
 	 */
-	public Users getUserDataByUserName(String name) {
+	public RegistUserForm getUserDataByUserName(String name) {
+		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByUserName(name);
-		if (userDataBySearch != null) {
-			Users userDataAfterSearch = userDataBySearch;
 
-			return userDataAfterSearch;
+		RegistUserForm registUserForm = new RegistUserForm();
+		//エンティティからフォームへ詰めなおし
+		if (userDataBySearch != null) {
+			registUserForm.setId(userDataBySearch.getId());
+			registUserForm.setName(userDataBySearch.getName());
+			registUserForm.setPassword(userDataBySearch.getPassword());
+			registUserForm.setRole(userDataBySearch.getRole());
+
+			//LocalDate型(yyyy-MM-dd)からString型(yyyy/MM/dd)へ変換
+			LocalDate startDate = userDataBySearch.getStartDate();
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+			String startDateString = startDate.format(dateTimeFormatter);
+
+			//DB保存の"9999-12-31"を外部表示用"9999/99/99"に戻す
+			if (startDateString.equals("9999/12/31")) {
+				startDateString = "9999/99/99";
+			}
+
+			registUserForm.setStartDate(startDateString);
+		} else {
+			//ユーザーが存在しない場合新しいユーザーIDを払い出し
+			Integer NextUserId = userMapper.createNewId();
+			registUserForm.setId(NextUserId + 1);
 		}
 
-		Users userDataAfterSearch = new Users();
-		Integer maxUserId = userMapper.createNewId();
-		userDataAfterSearch.setId(maxUserId + 1);
+		return registUserForm;
+	}
 
-		return userDataAfterSearch;
+	/**
+	 * 入力チェック
+	 * @param registUserForm
+	 * @param result
+	 */
+	public boolean validationForm(RegistUserForm registUserForm, BindingResult result) {
+		String startDate = registUserForm.getStartDate();
+		//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+
+		System.out.println("startDate:" + startDate);
+		if (startDate.equals("9999/99/99")) {
+
+			return true;
+		}
+
+		else {
+			DateFormat format = DateFormat.getDateInstance();
+			// 日付/時刻解析を厳密に行うかどうかを設定する。
+			format.setLenient(false);
+			try {
+				format.parse(startDate);
+				return true;
+
+			} catch (Exception e) {
+				result.addError(
+						new FieldError("registUserForm", "startDate",
+								"yyyy/MM/dd形式で入力して下さい"));
+				return false;
+
+			}
+
+		}
+
 	}
 
 	/**
@@ -45,57 +99,59 @@ public class UserService {
 	 * @param users
 	 * @return 反映結果
 	 */
-	public Boolean registUserData(RegistUserForm registUserForm,Integer id,String name) {
-
-		System.out.println("サービスクラス入り");
-		//		Date startDate = users.getStartDate();
-		//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-		//		String stringTypeStartDate = dateFormat.format(startDate); 
-
-		System.out.println("Date処理完了");
+	public String registUserData(RegistUserForm registUserForm, Integer id, String name) {
 
 		Users registUser = new Users();
-		
-		
+		String startDate = registUserForm.getStartDate();
+		String userName = registUserForm.getName();
+
+		//"利用開始日に9999/99/99が入力されている場合
+		if (startDate.equals("9999/99/99")) {
+			//SQLで保存できる最大日付へ変更
+			startDate = "9999/12/31";
+		}
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		LocalDate startDateLoalDate = LocalDate.parse(startDate, formatter);
+
 		registUser.setPassword(registUserForm.getPassword());
 		registUser.setRole(registUserForm.getRole());
-		registUser.setName(registUserForm.getName());
-		registUser.setStartDate(registUserForm.getStartDate());
-		System.out.println("サービスクラス" + registUser.getStartDate());
+		registUser.setName(userName);
+		registUser.setStartDate(startDateLoalDate);
 
-		Boolean userCheck= userMapper.isUserDataById(id);
-		System.out.println(id);
-				System.out.println(userCheck);
-		if (userCheck == null) {
-			System.out.println("新規登録処理");
-			System.out.println(name);
-			
-			return userMapper.insertUserData(registUser);
+		Integer userCheck = userMapper.countUserDataById(userName);
 
-		}
-		if (userCheck == true) {
+		//ユーザー更新処理
+		if (userCheck == 1) {
 			System.out.println("更新登録処理");
 			System.out.println(registUserForm.getName());
-			
-
 			registUser.setId(id);
+
+			boolean updateCheck = userMapper.updateUserData(registUser);
+			if (updateCheck == true) {
+				return userName + "を更新しました。";
+			} else {
+				return "登録が失敗しました。";
+			}
 		}
 
-		return userMapper.updateUserData(registUser);
-	}
-	
-	
+		//ユーザー登録処理
+		else if (userCheck == 0) {
+			System.out.println("新規登録処理");
+			System.out.println(name);
 
-	/**
-	 * ユーザー削除
-	 * @param id
-	 * @return 反映結果
-	 */
-	public Boolean deleteUser(Integer id) {
-		return userMapper.deleteUserData(id);
+			boolean updateCheck = userMapper.insertUserData(registUser);
+			if (updateCheck == true) {
+				return userName + "を登録しました。";
+			} else {
+				return "登録が失敗しました。";
+			}
+
+		} else {
+			//登録ユーザー重複時
+			return "登録が失敗しました。";
+		}
 
 	}
-	
-	
 
 }

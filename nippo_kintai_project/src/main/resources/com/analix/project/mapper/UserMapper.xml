@@ -15,13 +15,12 @@
 	</select>
 
 	<select id="createNewId" resultType="integer">
-		SELECT MAX(id)
-		FROM
-		users
+		SELECT max(id) FROM users;
+		
 	</select>
 
-	<select id="isUserDataById" resultType="boolean">
-		SELECT * FROM users WHERE id = #{id};
+	<select id="countUserDataById" resultType="integer">
+		SELECT count(*) FROM users WHERE name = #{name};
 	</select>
 
 	<update id="updateUserData"
