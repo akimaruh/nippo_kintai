@@ -17,175 +17,193 @@
 	<div th:if="${message}" class="alert alert-info">
 		<p th:text="${message}"></p>
 	</div>
-	<div class="container mt-3" id="regist">
+	<div class="container mt-5" id="regist">
 		<!-- 検索フォーム -->
 		<form th:action="@{/user/regist/search}" th:method="post" id="search-form">
-			<div class="mb-3">
-				<label for="regist-name">ユーザー名：</label>
-				<input type="text" class="form-control " th:field="${userData.name}" />
+			<div class="row container">
+				<div class="col-auto ms-3">
+					<strong for="regist-name">ユーザー名：</strong>
+				</div>
+				<div class="col-auto">
+					<input type="text" class="form-control " th:field="${userData.name}" />
+				</div>
+				<div class="col-auto">
+					<input type="submit" name="searchForUserName" value="検索" class="btn-yellow" id="search" />
+				</div>
 				<div id="nameError" class="text-danger"></div>
 			</div>
-			<input type="submit" name="searchForUserName" value="検索" class="btn-yellow" id="search" />
-			<div style="padding: 10px,0px,0px,0px; border: 3px solid rgb(96, 175, 255);">
-
-			</div>
-
 		</form>
+		
+		<div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(96, 175, 255);"></div>
 
 		<!-- 登録フォーム -->
 		<form th:object="${userData}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
-
-
-			<div class="mb-3">
-				<label for="regist-id">ユーザーID：</label>
-				<span th:text="*{id}" class="form-control-plaintext" id="regist-id"></span>
+			<div class="row container">
+				<div class="col-auto ms-3">
+					<strong for="regist-id">ユーザーID：</strong>
+				</div>
+				<div class="col">
+					<span th:text="*{id}" class="form-control-plaintext" id="regist-id"></span>
+				</div>
 			</div>
-
-			<div class="mb-3">
-				<label for="regist-password">パスワード：</label>
-				<input type="text" class="form-control" th:field="*{password}" />
+		
+			<div class="row container">
+				<div class="col-auto ms-1 mt-4">
+					<strong for="regist-password">　パスワード：</strong>
+				</div>
+				<div class="col-auto mt-4">
+					<input type="text" name="password" class="form-control" th:field="*{password}" id="regist-password" />
+				</div>
 				<div id="passwordError" class="text-danger"></div>
 			</div>
-
-			<div class="mb-3">
-				<label for="role">権限：</label>
-				<select id="role" class="form-select" th:field="*{role}">
-					<option th:value="*{role}">[[*{role}]]</option>
-					<option value="Admin">Admin</option>
-					<option value="UnitManager">UnitManager</option>
-					<option value="Manager">Manager</option>
-					<option value="Regular">Regular</option>
-				</select>
+		
+			<div class="row container">
+				<div class="col-auto ms-5 mt-4">
+					<strong for="role">権限：</strong>
+				</div>
+				<div class="col-auto mt-4">
+					<select id="role" name="role" class="form-select" th:field="*{role}">
+						<option th:value="*{role}">[[*{role}]]</option>
+						<option value="Admin">Admin</option>
+						<option value="UnitManager">UnitManager</option>
+						<option value="Manager">Manager</option>
+						<option value="Regular">Regular</option>
+					</select>
+				</div>
 				<div id="roleError" class="text-danger"></div>
 			</div>
-
-			<div class="mb-3">
-				<label for="regist-startDate">利用開始日：</label>
-				<input type="text" th:errorclass="is-invalid" class="form-control" th:field="*{startDate}" />
-<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
+		
+			<div class="row container">
+				<div class="col-auto mt-4">
+					<strong for="regist-startDate">利用開始日：</strong>
+				</div>
+				<div class="col-auto mt-4">
+					<input type="text" th:errorclass="is-invalid" class="form-control" th:field="*{startDate}" />
+					<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
+				</div>
 				<div id="startDateError" class="text-danger"></div>
-
 			</div>
-
+		
 			<input type="hidden" name="name" id="hidden-name" />
 			<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" />
 			<input type="hidden" name="id" th:value="*{id}" />
+		
 		</form>
-	</div>
+		</div>
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-		crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+			crossorigin="anonymous"></script>
 
-	<script>
-		//検索フォームのバリデーションチェック
-		document.getElementById('search-form').addEventListener('submit', function (event) {
+		<script>
+			//検索フォームのバリデーションチェック
+			document.getElementById('search-form').addEventListener('submit', function (event) {
 
-			let name = document.getElementById('name').value;
-			const MAX_USERNAME_LENGTH = 20;
-			const regex = /^[^\\x00-\\x7F]*$/;
+				let name = document.getElementById('name').value;
+				const MAX_USERNAME_LENGTH = 20;
+				const regex = /^[^\\x00-\\x7F]*$/;
 
-			let validation = true;
+				let validation = true;
 
-			if (name === "") {
-				document.getElementById('nameError').innerHTML = "名前を入力してください";
-				validation = false;
-			} else if (name.length > MAX_USERNAME_LENGTH) {
-				document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
-				validation = false;
-			} else if (!regex.test(name)) {
-				document.getElementById('nameError').innerHTML = "全角で入力してください";
-				validation = false;
-			} else {
-				document.getElementById('nameError').innerHTML = "";
-			}
-			if (!validation) {
-				event.preventDefault();
-				validation = false;
-			}
+				if (name === "") {
+					document.getElementById('nameError').innerHTML = "名前を入力してください";
+					validation = false;
+				} else if (name.length > MAX_USERNAME_LENGTH) {
+					document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
+					validation = false;
+				} else if (!regex.test(name)) {
+					document.getElementById('nameError').innerHTML = "全角で入力してください";
+					validation = false;
+				} else {
+					document.getElementById('nameError').innerHTML = "";
+				}
+				if (!validation) {
+					event.preventDefault();
+					validation = false;
+				}
 
-		});
+			});
 
-		//検索フォーム内のユーザー名を登録フォームにコピー
-		document.getElementById("regist-form").addEventListener('submit', function (event) {
-			const username = document.getElementById("name").value;
-			document.getElementById("hidden-name").value = username;
-			return true;
-		});
+			//検索フォーム内のユーザー名を登録フォームにコピー
+			document.getElementById("regist-form").addEventListener('submit', function (event) {
+				const username = document.getElementById("name").value;
+				document.getElementById("hidden-name").value = username;
+				return true;
+			});
 
-		// 登録フォームのバリデーションチェック
+			// 登録フォームのバリデーションチェック
 
-		document.getElementById('regist-form').addEventListener('submit', function (event) {
+			document.getElementById('regist-form').addEventListener('submit', function (event) {
 
-			let name = document.getElementById('name').value;
-			let password = document.getElementById('password').value;
-			let role = document.getElementById('role').value;
-			let startDate = document.getElementById('startDate').value;
-			const commandDate = "9999/99/99";
-			let date = new Date(startDate);
+				let name = document.getElementById('name').value;
+				let password = document.getElementById('password').value;
+				let role = document.getElementById('role').value;
+				let startDate = document.getElementById('startDate').value;
+				const commandDate = "9999/99/99";
+				let date = new Date(startDate);
 
-			const regex = /^[^\\x00-\\x7F]*$/;
+				const regex = /^[^\\x00-\\x7F]*$/;
 
-			const MAX_USERNAME_LENGTH = 20;
-			const MAX_PASSWORD_LENGTH = 16;
-			const STARTDATE_LENGTH = 10;
+				const MAX_USERNAME_LENGTH = 20;
+				const MAX_PASSWORD_LENGTH = 16;
+				const STARTDATE_LENGTH = 10;
 
-			let validation = true;
+				let validation = true;
 
-			if (name === "") {
-				document.getElementById('nameError').innerHTML = "名前を入力してください";
-				validation = false;
-			} else if (name.length > MAX_USERNAME_LENGTH) {
-				document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
-				validation = false;
-			} else if (!regex.test(name)) {
-				document.getElementById('nameError').innerHTML = "全角で入力してください";
-				validation = false;
-			} else {
-				document.getElementById('nameError').innerHTML = "";
-			}
+				if (name === "") {
+					document.getElementById('nameError').innerHTML = "名前を入力してください";
+					validation = false;
+				} else if (name.length > MAX_USERNAME_LENGTH) {
+					document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
+					validation = false;
+				} else if (!regex.test(name)) {
+					document.getElementById('nameError').innerHTML = "全角で入力してください";
+					validation = false;
+				} else {
+					document.getElementById('nameError').innerHTML = "";
+				}
 
-			if (password === "") {
-				document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
-				validation = false;
-			} else if (password.length > MAX_PASSWORD_LENGTH) {
-				document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
-				validation = false;
-			} else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
-				document.getElementById('passwordError').innerHTML = "半角で入力してください";
-				validation = false;
-			} else {
-				document.getElementById('passwordError').innerHTML = "";
-			}
+				if (password === "") {
+					document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
+					validation = false;
+				} else if (password.length > MAX_PASSWORD_LENGTH) {
+					document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
+					validation = false;
+				} else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
+					document.getElementById('passwordError').innerHTML = "半角で入力してください";
+					validation = false;
+				} else {
+					document.getElementById('passwordError').innerHTML = "";
+				}
 
-			if (role === "") {
-				document.getElementById('roleError').innerHTML = "権限を選択してください";
-				validation = false;
-			} else {
-				document.getElementById('roleError').innerHTML = "";
-			}
+				if (role === "") {
+					document.getElementById('roleError').innerHTML = "権限を選択してください";
+					validation = false;
+				} else {
+					document.getElementById('roleError').innerHTML = "";
+				}
 
-			if (startDate === "") {
-				document.getElementById('startDateError').innerHTML = "利用開始日を入力してください";
-				validation = false;
-			} else if (startDate.length != STARTDATE_LENGTH) {
-				document.getElementById('startDateError').innerHTML = "10文字で入力してください";
-				validation = false;
-			} else if (startDate !=commandDate && isNaN(date.getDate())) {
-				document.getElementById('startDateError').innerHTML = "利用開始日が不正です";
-				validation = false;
-			} else {
-				document.getElementById('startDateError').innerHTML = "";
-			}
+				if (startDate === "") {
+					document.getElementById('startDateError').innerHTML = "利用開始日を入力してください";
+					validation = false;
+				} else if (startDate.length != STARTDATE_LENGTH) {
+					document.getElementById('startDateError').innerHTML = "10文字で入力してください";
+					validation = false;
+				} else if (startDate != commandDate && isNaN(date.getDate())) {
+					document.getElementById('startDateError').innerHTML = "利用開始日が不正です";
+					validation = false;
+				} else {
+					document.getElementById('startDateError').innerHTML = "";
+				}
 
-			if (!validation) {
-				event.preventDefault();
+				if (!validation) {
+					event.preventDefault();
 
-			}
+				}
 
 
-		});
-	</script>
+			});
+		</script>
 </body>
 
 </html>
