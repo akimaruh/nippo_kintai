@@ -25,7 +25,7 @@ public class UserService {
 	/**
 	 * ユーザー名で検索
 	 * @param name
-	 * @return userエンティティ
+	 * @return registUserForm
 	 */
 	public RegistUserForm getUserDataByUserName(String name) {
 		//DBでユーザー検索
@@ -66,17 +66,14 @@ public class UserService {
 	 */
 	public boolean validationForm(RegistUserForm registUserForm, BindingResult result) {
 		String startDate = registUserForm.getStartDate();
-		//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
-		System.out.println("startDate:" + startDate);
 		if (startDate.equals("9999/99/99")) {
-
 			return true;
 		}
 
 		else {
 			DateFormat format = DateFormat.getDateInstance();
-			// 日付/時刻解析を厳密に行うかどうかを設定する。
+			// 日付/時刻解析を厳密に行う
 			format.setLenient(false);
 			try {
 				format.parse(startDate);
@@ -87,11 +84,8 @@ public class UserService {
 						new FieldError("registUserForm", "startDate",
 								"yyyy/MM/dd形式で入力して下さい"));
 				return false;
-
 			}
-
 		}
-
 	}
 
 	/**
@@ -107,7 +101,7 @@ public class UserService {
 
 		//"利用開始日に9999/99/99が入力されている場合
 		if (startDate.equals("9999/99/99")) {
-			//SQLで保存できる最大日付へ変更
+			//DBで保存できる最大日付へ変更
 			startDate = "9999/12/31";
 		}
 
@@ -123,10 +117,7 @@ public class UserService {
 
 		//ユーザー更新処理
 		if (userCheck == 1) {
-			System.out.println("更新登録処理");
-			System.out.println(registUserForm.getName());
 			registUser.setId(id);
-
 			boolean updateCheck = userMapper.updateUserData(registUser);
 			if (updateCheck == true) {
 				return userName + "を更新しました。";
@@ -137,9 +128,6 @@ public class UserService {
 
 		//ユーザー登録処理
 		else if (userCheck == 0) {
-			System.out.println("新規登録処理");
-			System.out.println(name);
-
 			boolean updateCheck = userMapper.insertUserData(registUser);
 			if (updateCheck == true) {
 				return userName + "を登録しました。";
