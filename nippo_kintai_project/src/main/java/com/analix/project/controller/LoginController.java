@@ -28,10 +28,10 @@ public class LoginController {
 	}
 
 	@PostMapping("/login")
-	public String login(@RequestParam("id")String id, @RequestParam("password") String password,
+	public String login(@RequestParam("id") String id, @RequestParam("password") String password,
 			HttpSession session, Model model) {
-		
-		// ユーザーID
+
+		// ユーザーIDチェック
 		String idRegex = "^[0-9]{1,16}$";
 		Pattern idPattern = Pattern.compile(idRegex);
 		Matcher idMatcher = idPattern.matcher(id);
@@ -39,8 +39,8 @@ public class LoginController {
 			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 			return "common/login";
 		}
-		
-		// パスワード
+
+		// パスワードチェック
 		String passRegex = "^[0-9a-zA-Z]{1,16}$";
 		Pattern passPattern = Pattern.compile(passRegex);
 		Matcher passMatcher = passPattern.matcher(password);
@@ -49,28 +49,25 @@ public class LoginController {
 			return "common/login";
 		}
 
-		
 		Users user = loginService.findByIdAndPassword(id, password);
 
 		if (user != null) {
-			
-			// このユーザーが利用開始日より前かチェック
+
+			// 利用開始日チェック
 			if (loginService.isDate(user) == false) {
 				model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 				return "common/login";
 			}
-			
+
 			session.setAttribute("loginUser", user);
 			String role = user.getRole();
-			
 
-			// 権限がadminの場合ユーザー管理画面へ遷移
 			if ("Admin".equals(role)) {
 				return "redirect:/user/regist";
-				// 権限がuserの場合勤怠登録画面へ遷移
+
 			} else if ("UnitManager".equals(role) || "Manager".equals(role) || "Regular".equals(role)) {
 				return "redirect:/attendance/regist";
-				// その他の場合にはエラー処理などを行う
+
 			} else {
 				model.addAttribute("error", "ログインに失敗しました。");
 				return "common/login";
@@ -82,10 +79,10 @@ public class LoginController {
 		}
 	}
 
-//	// ログアウト処理
-//	@GetMapping("/logout")
-//	public String logout(HttpSession session) {
-//		session.invalidate(); // セッションを無効化
-//		return "redirect:/login"; // ログインページへリダイレクト
-//	}
+	//	// ログアウト処理
+	//	@GetMapping("/logout")
+	//	public String logout(HttpSession session) {
+	//		session.invalidate(); // セッションを無効化
+	//		return "redirect:/login"; // ログインページへリダイレクト
+	//	}
 }

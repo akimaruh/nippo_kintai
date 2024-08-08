@@ -17,7 +17,7 @@
 	<div th:if="${message}" class="alert alert-info">
 		<p th:text="${message}"></p>
 	</div>
-	<div class="container mt-5" id="regist">
+	<div class="container mt-4" id="regist">
 		<!-- 検索フォーム -->
 		<form th:action="@{/user/regist/search}" th:method="post" id="search-form">
 			<div class="row container">
@@ -27,7 +27,7 @@
 				<div class="col-auto">
 					<input type="text" class="form-control " th:field="${userData.name}" />
 				</div>
-				<div class="col-auto">
+				<div class="col-auto ms-3">
 					<input type="submit" name="searchForUserName" value="検索" class="btn-yellow" id="search" />
 				</div>
 				<div id="nameError" class="text-danger"></div>
@@ -83,10 +83,13 @@
 				</div>
 				<div id="startDateError" class="text-danger"></div>
 			</div>
-		
+		   <div class="mx-auto p-1" style="width: 200px;">
+<!--			    <div class="position-absolute top-50 start-50">-->
 			<input type="hidden" name="name" id="hidden-name" />
 			<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" />
 			<input type="hidden" name="id" th:value="*{id}" />
+<!--		</div>-->
+		</div>
 		
 		</form>
 		</div>

@@ -22,8 +22,7 @@
 		keyProperty="id" parameterType="com.analix.project.dto.MonthlyAttendanceReqDto">
 		INSERT INTO monthly_attendance_req
 		(user_id, target_year_month, date, status)
-<!--		VALUES (#{userId}, #{targetYearMonth}, #{date}, #{status})-->
-	VALUES (#{monthlyDto.userId}, #{monthlyDto.targetYearMonth}, #{monthlyDto.date}, #{monthlyDto.status})
+		VALUES (#{monthlyDto.userId}, #{monthlyDto.targetYearMonth}, #{monthlyDto.date}, #{monthlyDto.status})
 	</insert>
 	
 	<!-- 「承認申請」ボタン押下後 - status検索 -->
@@ -63,5 +62,4 @@
 		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
 	</select>
 	
-
 </mapper>
