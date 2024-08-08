@@ -37,7 +37,10 @@ public class AttendanceService {
 	private CustomDateUtil customDateUtil;
 
 	/**
-	 * ヘッダー:ステータス部分
+	 * ヘッダー:ステータス部分取得
+	 * @param userId
+	 * @param attendanceDate
+	 * @return 月次勤怠承認テーブルのステータス
 	 */
 	public Integer findStatusByUserId(Integer userId, Date attendanceDate) {
 		return monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
@@ -51,14 +54,10 @@ public class AttendanceService {
 	 * @return 勤怠一覧取得マッパー
 	 */
 	public List<DailyAttendanceForm> getFindAllDailyAttendance(Integer userId, String yearMonth) {
-		//		public AttendanceFormList getFindAllDailyAttendance(Integer userId, String yearMonth) {
 
-		System.out.println(userId);
 		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
-		//		dailyAttendanceList.setAttendanceFormList(new ArrayList<DailyAttendanceForm>());
 		List<Attendance> attendanceListSearchForUserIdAndYearMonth = attendanceMapper.findAllDailyAttendance(userId,
 				yearMonth);
-		System.out.println(attendanceListSearchForUserIdAndYearMonth);
 
 		//日付生成
 		List<LocalDate> dateList = generateMonthDates(yearMonth);
@@ -73,7 +72,7 @@ public class AttendanceService {
 			DailyAttendanceForm dailyAttendance = new DailyAttendanceForm();
 
 			dailyAttendance.setDate(date);
-			System.out.println(date);
+
 			// 該当する日付の出席情報を取得
 			Attendance attendance = attendanceMap.get(date);
 
@@ -81,20 +80,6 @@ public class AttendanceService {
 				dailyAttendance.setId(attendance.getId());
 				dailyAttendance.setUserId(attendance.getUserId());
 				dailyAttendance.setStatus(attendance.getStatus());
-
-				//				if (endTime != null && !endTime.trim().isEmpty()) {
-				//					try {
-				//						// 入力が "HH:MM" 形式の場合、秒を追加して "HH:MM:SS" 形式に変換
-				//						if (endTime.matches("\\d{2}:\\d{2}")) {
-				//							endTime = endTime + ":00";
-				//						}
-				//						Time convertedEndTime = java.sql.Time.valueOf(endTime);
-				//						dailyAttendanceForm.setStartTime(convertedEndTime);
-				//					} catch (IllegalArgumentException e) {
-				//						// 無効なフォーマットの場合のエラーハンドリング
-				//						System.out.println("endTime変換失敗");
-				//						e.printStackTrace();
-				//					}
 
 				Time startTime = attendance.getStartTime();
 				Time endTime = attendance.getEndTime();
@@ -109,14 +94,11 @@ public class AttendanceService {
 				}
 
 				dailyAttendance.setRemarks(attendance.getRemarks());
-				System.out.println(date);
-				System.out.println("テスト");
-
 			}
 
 			dailyAttendanceList.add(dailyAttendance);
 		}
-		System.out.println(dailyAttendanceList);
+
 		return dailyAttendanceList;
 	}
 
@@ -135,37 +117,32 @@ public class AttendanceService {
 	 *「承認申請」ボタン押下後
 	 * @Param userId
 	 * @Param attendanceDate
+	 * @return メッセージ
 	 */
 	public String insertMonthlyAttendanceReq(Integer userId, Date attendanceDate) {
-//        System.out.println("サuserID:" + userId);
-//        System.out.println("サattendanceDate:" + attendanceDate);
-        Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
-        
-        String message = null;
-               
-       if (applicationStatus == null) {
-        MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
-        monthlyDto.setUserId(userId);
-//        System.out.println(attendanceDate);
-        monthlyDto.setTargetYearMonth(attendanceDate);
-        monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
-        monthlyDto.setStatus(1);
-        
-//        System.out.println(monthlyDto);
-        
-        monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
-        
-       } else if (applicationStatus == 3) {
-    	   // statusを1(承認待ち)に更新
-    	   monthlyAttendanceReqMapper.updateStatusWaiting(userId, attendanceDate);
-       }
-       
-       return "承認申請が完了しました。";
+
+		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
+
+		if (applicationStatus == null) {
+			MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
+			monthlyDto.setUserId(userId);
+			monthlyDto.setTargetYearMonth(attendanceDate);
+			monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
+			monthlyDto.setStatus(1);
+
+			monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
+
+		} else if (applicationStatus == 3) {
+			// statusを1(承認待ち)に更新
+			monthlyAttendanceReqMapper.updateStatusWaiting(userId, attendanceDate);
+		}
+
+		return "承認申請が完了しました。";
 	}
 
 	/**
 	 * 承認申請取得
-	 * @return
+	 * @return 承認申請リスト
 	 */
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq() {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
@@ -179,43 +156,48 @@ public class AttendanceService {
 	 */
 	public String updateStatusApprove(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonth);
-		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
+				.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
 		String userName = monthlyAttendanceReqList.getName();
 		Date date = monthlyAttendanceReqList.getDate();
-		
+
 		return userName + "の" + date + "における承認申請が承認されました。";
 	}
 
 	public String updateStatusReject(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonth);
-		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
+				.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
 		String userName = monthlyAttendanceReqList.getName();
 		Date date = monthlyAttendanceReqList.getDate();
-		
+
 		return userName + "の" + date + "における承認申請が却下されました。";
 	}
 
 	/**
 	 * 承認申請者情報取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return 承認申請者の勤怠リスト
 	 */
 	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth) {
-		System.out.println("Service: " + targetYearMonth);
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
 	}
 
-	//	//入力チェック
-	public List<String> validationForm(AttendanceFormList attendanceFormList, BindingResult result) {
-		List<String> errorBox = new ArrayList<>();
-		System.out.println(attendanceFormList);
+	/**
+	 * 勤怠登録前入力チェック
+	 * @param attendanceFormList
+	 * @param result
+	 * @return 
+	 */
+	public void validationForm(AttendanceFormList attendanceFormList, BindingResult result) {
+
 		int i = 0;
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
-			System.out.println("for文入り");
-			System.out.println(dailyAttendanceForm);
-			Byte status = dailyAttendanceForm.getStatus();
+
 			String startTime = dailyAttendanceForm.getStartTime2();
 			String endTime = dailyAttendanceForm.getEndTime2();
 			String remarks = dailyAttendanceForm.getRemarks();
-			System.out.println(status + "" + startTime + "" + endTime + "" + remarks);
 
 			//出勤時刻の形式が不正な場合
 			if (startTime != "") {
@@ -288,60 +270,43 @@ public class AttendanceService {
 				Pattern pattern = Pattern.compile(regex);
 				Matcher matcher = pattern.matcher(remarks);
 				if (remarks.length() >= 20) {
-					System.out.println("20字以内で答えてね");
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
 									"20字以内で入力して下さい"));
 
 				}
 				if (!matcher.find()) {
-					System.out.println("全角で答えてね");
-					System.out.println("------------------");
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
 									"全角で入力して下さい"));
-
 				}
-
 			}
-
 			i++;
 		}
-		return errorBox;
-
 	}
 
 	/**
-	/**
 	 * 勤怠登録
-	 * @param dailyAttendanceForm
-	 * @return 勤怠登録マッパー
+	 * @param userId
+	 * @param attendanceFormList
+	 * @return メッセージ
 	 */
 	public String getRegistDailyAttendance(Integer userId, AttendanceFormList attendanceFormList) {
 
-		System.out.println("サービス入った");
-		System.out.println(attendanceFormList);
-
-		List<Attendance> registAttendanceList = new ArrayList<Attendance>();//バラバラに登録するならいらないかも
+		List<Attendance> registAttendanceList = new ArrayList<Attendance>();
 
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
-			System.out.println("for文入り");
+
 			//LocalDate型→java.sql.Date型
 			//String型→java.sql.Time型に変換
 			Byte status = dailyAttendanceForm.getStatus();
 			Integer registedUserId = dailyAttendanceForm.getUserId();
-			System.out.println(registedUserId);
 			LocalDate date = dailyAttendanceForm.getDate();
 			String endTime = dailyAttendanceForm.getEndTime2();
-			System.out.println();
 			String startTime = dailyAttendanceForm.getStartTime2();
 
-			//DateはLocalDate型で受け取っているので使わない(後で消す)
-			//			String StringDate = dailyAttendanceForm.getDate2();
 			Date convertedDate = java.sql.Date.valueOf(date);
-			System.out.println("Date完了");
 
-			System.out.println("endTime変換これから");
 			if (endTime != null && !endTime.trim().isEmpty()) {
 
 				if (startTime != null && !startTime.trim().isEmpty()) {
@@ -359,7 +324,6 @@ public class AttendanceService {
 						dailyAttendanceForm.setStartTime(convertedStartTime);
 					} catch (IllegalArgumentException e) {
 						// 無効なフォーマットの場合のエラーハンドリング
-						System.out.println("startTime変換失敗");
 
 					}
 				}
@@ -379,19 +343,10 @@ public class AttendanceService {
 						dailyAttendanceForm.setEndTime(convertedEndTime);
 					} catch (IllegalArgumentException e) {
 						// 無効なフォーマットの場合のエラーハンドリング
-						System.out.println("endTime変換失敗");
+
 					}
 				}
 			}
-
-			//			Time convertedEndTime = java.sql.Time.valueOf(endTime);
-
-			//			if (startTime != null) {
-			//
-			//				Time convertedStartTime = java.sql.Time.valueOf(startTime);
-			//				dailyAttendanceForm.setStartTime(convertedStartTime);
-			//
-			//			}
 
 			Attendance registAttendance = new Attendance();
 
@@ -401,89 +356,44 @@ public class AttendanceService {
 			registAttendance.setRemarks(dailyAttendanceForm.getRemarks());
 			registAttendance.setStartTime(dailyAttendanceForm.getStartTime());
 			registAttendance.setEndTime(dailyAttendanceForm.getEndTime());
-			//これいらないかも
-			System.out.println("リスト格納完了");
 
 			if (status != null) {
 				if (registedUserId == null) {
-					System.out.println("登録");
-					System.out.println(registAttendance);
+
 					registAttendanceList.add(registAttendance);
 					attendanceMapper.registDailyAttendance(registAttendance);
 
 				} else {
-					System.out.println("更新");
+
 					registAttendance.setId(dailyAttendanceForm.getId());
 					registAttendanceList.add(registAttendance);
-					System.out.println(registAttendance);
+
 					attendanceMapper.updateDailyAttendance(registAttendance);
 
 				}
 			}
 
-			//		for (Attendance registAttendance : registAttendanceList) {
-			//			System.out.println("登録マッパー入る");
-			//			attendanceMapper.updateDailyAttendance(registAttendance);
-			//	
 		}
 		return "勤怠登録が完了しました。"; //messageを出力するので保留
 
 	}
 
-	//	/***
-	//	 * 勤怠修正
-	//	 * @param dailyAttendanceForm
-	//	 * @return 勤怠修正マッパー
-	//	 */
-	//	public Boolean getUpdateDailyAttendance(DailyAttendanceForm dailyAttendanceForm) {
-	//		Attendance updateAttendance = new Attendance();
-	//		LocalDate date = dailyAttendanceForm.getDate();
-	//		Date AttendanceDate = customDateUtil.convertToSqlDate(date);
-	//
-	//		updateAttendance.setId(dailyAttendanceForm.getId());
-	//		updateAttendance.setUserId(dailyAttendanceForm.getUserId());
-	//		updateAttendance.setDate(AttendanceDate);
-	//		updateAttendance.setStatus(dailyAttendanceForm.getStatus());
-	//		updateAttendance.setRemarks(dailyAttendanceForm.getRemarks());
-	//		updateAttendance.setStartTime(dailyAttendanceForm.getStartTime());
-	//		updateAttendance.setEndTime(dailyAttendanceForm.getEndTime());
-	//		return attendanceMapper.registDailyAttendance(updateAttendance);
-	//	}
-
-	//	/**
-	//	 * LocalDate型からjava.util.Date型への変換
-	//	 * @param convertedDate
-	//	 * @return java.util.Date型へ型変換されたconvertedDate
-	//	 */
-	//	public Date convertToUtilDate(LocalDate convertedDate) {
-	//		return Date.from(convertedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-	//	}
-	
-//	public String convertYearMonth(String year,String month) {
-//		
-//		return 
-//	}
-	/*
+	/**
 	 * 表示日付生成
+	 * @param yearMonth
+	 * @return 1か月の日付リスト
 	 */
 	public List<LocalDate> generateMonthDates(String yearMonth) {
-		// DateTimeFormatterを使用して年と月を解析
-		//		  try {
-		//	            LocalDate startDate = LocalDate.parse(yearMonth + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		//	            System.out.println("Start date: " + startDate);
-		//	        } catch (DateTimeParseException e) {
-		//	            e.printStackTrace();
-		//	        }
-		//	    }
+
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate start;
 		try {
-			System.out.println(LocalDate.parse(yearMonth + "-01", formatter));
+
 			// yearMonthに "-01" を追加して月の最初の日を表現
 			start = LocalDate.parse(yearMonth + "-01", formatter);
 
 		} catch (DateTimeParseException e) {
-			System.err.println("Invalid date string: " + yearMonth);
+
 			e.printStackTrace();
 			return new ArrayList<>(); // パースに失敗した場合は空のリストを返す
 		}

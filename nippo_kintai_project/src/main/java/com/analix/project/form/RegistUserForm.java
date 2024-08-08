@@ -1,9 +1,6 @@
 package com.analix.project.form;
 
-
-
 import lombok.Data;
-
 
 @Data
 public class RegistUserForm {
@@ -15,5 +12,4 @@ public class RegistUserForm {
 	private int departmentId;
 	private String startDate;
 
-	
 }
