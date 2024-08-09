@@ -121,7 +121,7 @@
 			} else if (name.length > MAX_USERNAME_LENGTH) {
 				document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
 				validation = false;
-			} else if (!regex.test(name)) {
+			} else if (/^[0-9a-zA-Zｱ-ﾝ\-\s!-/:-@[-`{-~]*$/.test(name)) {
 				document.getElementById('nameError').innerHTML = "全角で入力してください";
 				validation = false;
 			} else {
@@ -135,9 +135,9 @@
 		});
 
 		//検索フォーム内のユーザー名を登録フォームにコピー
-		document.getElementById("regist-form").addEventListener('submit', function (event) {
-			const username = document.getElementById("name").value;
-			document.getElementById("hidden-name").value = username;
+		document.getElementById('regist-form').addEventListener('submit', function (event) {
+			const username = document.getElementById('name').value;
+			document.getElementById('hidden-name').value = username;
 			return true;
 		});
 
@@ -152,7 +152,7 @@
 			const commandDate = "9999/99/99";
 			let date = new Date(startDate);
 
-			const regex = /^[^\\x00-\\x7F]*$/;
+			const regex = /^[\\x00-\\x7F]*$/;
 
 			const MAX_USERNAME_LENGTH = 20;
 			const MAX_PASSWORD_LENGTH = 16;
@@ -166,7 +166,7 @@
 			} else if (name.length > MAX_USERNAME_LENGTH) {
 				document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
 				validation = false;
-			} else if (!regex.test(name)) {
+			} else if (/^[0-9a-zA-Zｱ-ﾝ\-\s!-/:-@[-`{-~]*$/.test(name)) {
 				document.getElementById('nameError').innerHTML = "全角で入力してください";
 				validation = false;
 			} else {
