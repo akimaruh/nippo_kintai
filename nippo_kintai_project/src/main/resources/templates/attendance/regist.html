@@ -32,9 +32,10 @@
 		<p th:text="${message}"></p>
 	</div>
 
-	<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
+
 		<div class="container mt-3 mb-3">
 			<div class="row">
+					<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
 				<form th:action="@{/attendance/regist/display}" method="get" id="display-form">
 
 
@@ -50,7 +51,8 @@
 
 	</span>
 
-	<div class="d-flex align-items-center">
+	<div class="d-flex align-items-center position-absolute top-10 start-50">
+<!--	 <div class="mx-auto p-1" style="width: 200px;">-->
 		<th:block th:if="${session.loginUser.role == 'Manager'}">
 			<button type="submit" form="attendancebtn-form" name="action" value="reject"
 				class="btn-yellow offset-col-8">却下</button>
@@ -62,9 +64,10 @@
 
 			<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 				<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-				<button type="submit" class="btn-yellow offset-col-8" th:disabled="${registCheck}==false ">承認申請</button>
+				<button type="submit" class="btn-yellow offset-col-8" th:disabled="${registCheck == false || status == 1 || status == 2 || status == null}">承認申請</button>
+				<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form" th:disabled="${status == 1 || status == 2}"/>
 			</form>
-			<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form" />
+
 
 		</th:block>
 	</div>
@@ -72,7 +75,7 @@
 
 
 	<th:block th:if="${session.loginUser.role == 'Manager'}">
-		<div class="container mt-3 mb-3 border">
+		<div class="container mt-5 mb-3 border">
 			<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 				aria-describedby="user-table_info">
 				<thead>
@@ -230,6 +233,7 @@
 								<input type="hidden" id="attendancebtn-form" name="userId"
 									th:value="${attendanceReq.userId}" />
 							</th:block>
+							<tr>
 							<td th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}"></td>
 							<td
 								th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}">

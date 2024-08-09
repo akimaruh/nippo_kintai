@@ -30,3 +30,15 @@
 .btn-yellow.disabled, .btn-yellow:disabled {
   opacity: .45; /* 無効時の不透明度 */
 }
+
+/*目のアイコン*/
+#btn_passview {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+#btn_passview i {
+    font-size: 20px; /* アイコンのサイズ */
+}
+
