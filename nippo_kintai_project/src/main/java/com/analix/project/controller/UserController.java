@@ -71,12 +71,13 @@ public class UserController {
 	public String completeUserRegist(@Validated @ModelAttribute RegistUserForm registUserForm, Integer id,
 			String name, Model model, BindingResult result, RedirectAttributes redirectAttributes) {
 
-		userService.validationForm(registUserForm, result);
+		 boolean errorFlg = userService.validationForm(registUserForm, result);
 
 		if (result.hasErrors()) {
 
 			model.addAttribute("userData", registUserForm);
-			model.addAttribute("error","利用開始日が不正です");
+			model.addAttribute("errorFlg",errorFlg);
+			model.addAttribute("error","修正してください");
 			return "user/regist";
 		}
 		System.out.println(registUserForm);

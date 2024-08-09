@@ -99,7 +99,6 @@ public class AttendanceController {
 
 		//１か月分登録されると活性化
 		boolean monthlyRegistCheck = attendanceService.applicableCheck(attendanceFormList.getAttendanceFormList());
-		System.out.println(monthlyRegistCheck);
 
 		model.addAttribute("yearMonth", yearMonth);
 		model.addAttribute("registCheck", monthlyRegistCheck);

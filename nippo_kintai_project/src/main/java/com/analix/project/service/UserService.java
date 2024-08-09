@@ -66,9 +66,15 @@ public class UserService {
 	 */
 	public boolean validationForm(RegistUserForm registUserForm, BindingResult result) {
 		String startDate = registUserForm.getStartDate();
-
-		if (startDate.equals("9999/99/99")) {
+		String name = registUserForm.getName();
+		String password = registUserForm.getPassword();
+		String role = registUserForm.getRole();
+		
+		if(name !=null) {
 			return true;
+		}
+		if (startDate.equals("9999/99/99")) {
+			return false;
 		}
 
 		else {
@@ -77,13 +83,13 @@ public class UserService {
 			format.setLenient(false);
 			try {
 				format.parse(startDate);
-				return true;
+				return false;
 
 			} catch (Exception e) {
 				result.addError(
 						new FieldError("registUserForm", "startDate",
 								"yyyy/MM/dd形式で入力して下さい"));
-				return false;
+				return true;
 			}
 		}
 	}

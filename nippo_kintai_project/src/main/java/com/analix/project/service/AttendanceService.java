@@ -25,6 +25,7 @@ import com.analix.project.form.AttendanceFormList;
 import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.mapper.AttendanceMapper;
 import com.analix.project.mapper.MonthlyAttendanceReqMapper;
+import com.analix.project.util.AttendanceUtil;
 import com.analix.project.util.CustomDateUtil;
 
 @Service
@@ -35,6 +36,8 @@ public class AttendanceService {
 	private MonthlyAttendanceReqMapper monthlyAttendanceReqMapper;
 	@Autowired
 	private CustomDateUtil customDateUtil;
+	@Autowired
+	private AttendanceUtil attendanceUtil;
 
 	/**
 	 * ヘッダー:ステータス部分取得
@@ -198,53 +201,47 @@ public class AttendanceService {
 			String startTime = dailyAttendanceForm.getStartTime2();
 			String endTime = dailyAttendanceForm.getEndTime2();
 			String remarks = dailyAttendanceForm.getRemarks();
+			Byte status = dailyAttendanceForm.getStatus();
+			List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
+			List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
+			System.out.println(status);
 
-			//出勤時刻の形式が不正な場合
-			if (startTime != "") {
-				// HH:mm形式の時刻を検出する正規表現
-				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
-
-				// パターンをコンパイル
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(startTime);
-				if (!matcher.find()) {
-					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-									"HH:mm形式で入力して下さい"));
-
-				}
+			if (attendanceSystem.contains(status) && startTime == "") {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+								"出勤時間を入力して下さい"));
 			}
-			//退勤時刻の形式が不正な場合
-			if (endTime != "") {
-				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
-
-				// パターンをコンパイル
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(endTime);
-				if (!matcher.find()) {
-					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
-									"HH:mm形式で入力して下さい"));
-					break;
-				}
+			if (attendanceSystem.contains(status) && endTime == "") {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+								"退勤時間を入力して下さい"));
 			}
 
+			if (holidaySystem.contains(status) && startTime != "") {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+								"休日に出勤時間は入力できません"));
+			}
+			if (holidaySystem.contains(status) && endTime != "") {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+								"休日に退勤時間は入力できません"));
+			}
 			//出勤時間または退勤時間のどちらかが空白の場合
 			if (endTime == "" && startTime != "") {
 				result.addError(
 						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
 								"退勤時間を入力して下さい"));
 			}
+
 			if (startTime == "" && endTime != "") {
 				result.addError(
 						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
 								"出勤時間を入力して下さい"));
 			}
 
-			//出勤時間＞退勤時間の場合
 			if (startTime != "" && endTime != "") {
 
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 				if (startTime.matches("\\d{1}:\\d{2}")) {
 					startTime = "0" + startTime;
 				}
@@ -252,15 +249,68 @@ public class AttendanceService {
 					endTime = "0" + endTime;
 				}
 
-				LocalTime startInputTime = LocalTime.parse(startTime, formatter);
-				LocalTime endInputTime = LocalTime.parse(endTime, formatter);
-				if (startInputTime.isAfter(endInputTime)) {
+				//				//出勤時刻の形式が不正な場合
+				//				if (startTime != "") {
+				//					// HH:mm形式の時刻を検出する正規表現
+				//					String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+				//
+				//					// パターンをコンパイル
+				//					Pattern pattern = Pattern.compile(regex);
+				//					Matcher matcher = pattern.matcher(startTime);
+				//					if (!matcher.find()) {
+				//						result.addError(
+				//								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+				//										"HH:mm形式で入力して下さい"));
+				//
+				//					}
+				//				}
+				//退勤時刻の形式が不正な場合
+				if (endTime != "") {
+					String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+
+					// パターンをコンパイル
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(endTime);
+					if (!matcher.find()) {
+						result.addError(
+								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+										"HH:mm形式で入力して下さい"));
+
+					}
+				}
+
+				LocalTime startInputTime;
+				LocalTime endInputTime;
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+				//出勤時間＞退勤時間の場合
+
+				try {
+					startInputTime = LocalTime.parse(startTime, formatter);
+
+					try {
+
+						endInputTime = LocalTime.parse(endTime, formatter);
+
+						if (startInputTime.isAfter(endInputTime)) {
+							result.addError(
+									new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+											"出勤時間は退勤時間より先になるように入力して下さい"));
+							result.addError(
+									new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+											"退勤時間は出勤時間より後になるように入力して下さい"));
+						}
+
+					} catch (DateTimeParseException e) {
+						result.addError(
+								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+										"HH:mm形式で入力して下さい"));
+					}
+
+				} catch (DateTimeParseException e) {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-									"出勤時間は退勤時間より先になるように入力して下さい"));
-					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
-									"退勤時間は出勤時間より後になるように入力して下さい"));
+									"HH:mm形式で入力して下さい"));
 				}
 
 			}
@@ -269,7 +319,7 @@ public class AttendanceService {
 				String regex = "[^\\x00-\\x7F]";
 				Pattern pattern = Pattern.compile(regex);
 				Matcher matcher = pattern.matcher(remarks);
-				if (remarks.length() >= 20) {
+				if (remarks.length() > 20) {
 					result.addError(
 							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
 									"20字以内で入力して下さい"));
