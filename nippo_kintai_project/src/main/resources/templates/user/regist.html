@@ -20,25 +20,28 @@
 	</div>
 	<div class="container mt-4" id="regist">
 		<!-- 検索フォーム -->
-		<form th:action="@{/user/regist/search}" th:method="post" id="search-form">
+		<form th:action="@{/user/regist/search}" th:method="post" id="search-form" th:object="${registUserForm}">
 			<div class="row container">
 				<div class="col-auto ms-3">
 					<strong for="regist-name">ユーザー名：</strong>
 				</div>
 				<div class="col-auto">
-					<input type="text" class="form-control " th:field="${userData.name}" />
+					<input type="text" class="form-control" th:field="*{name}" />
+					<span class="text-danger" th:errors="*{name}"></span>
+					<span id="nameError" class="text-danger"></span>
 				</div>
 				<div class="col-auto ms-3">
 					<input type="submit" name="searchForUserName" value="検索" class="btn-yellow" id="search" />
 				</div>
-				<div id="nameError" class="text-danger"></div>
+
+
 			</div>
 		</form>
 
 		<div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(96, 175, 255);"></div>
 
 		<!-- 登録フォーム -->
-		<form th:object="${userData}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
+		<form th:object="${registUserForm}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
 			<div class="row container">
 				<div class="col-auto ms-3">
 					<strong for="regist-id">ユーザーID：</strong>
@@ -54,13 +57,15 @@
 				</div>
 				<div class="col-auto mt-4">
 					<input type="text" name="password" class="form-control" th:field="*{password}" />
+					<span class="text-danger" th:errors="*{password}"></span>
+					<span id="passwordError" class="text-danger"></span>
 				</div>
 				<div class="col mt-4">
 					<button type="button" id="btn_passview">
 						<i id="view" class="fas fa-eye"></i>
 					</button>
 				</div>
-				<div id="passwordError" class="text-danger"></div>
+
 			</div>
 
 			<div class="row container">
@@ -75,8 +80,11 @@
 						<option value="Manager">Manager</option>
 						<option value="Regular">Regular</option>
 					</select>
+					<span class="text-danger" th:errors="*{role}"></span>
+					<span id="roleError" class="text-danger"></span>
 				</div>
-				<div id="roleError" class="text-danger"></div>
+
+
 			</div>
 
 			<div class="row container">
@@ -86,8 +94,10 @@
 				<div class="col-auto mt-4">
 					<input type="text" th:errorclass="is-invalid" class="form-control" th:field="*{startDate}" />
 					<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
+					<span class="text-danger" th:errors="*{startDate}"></span>
+					<span id="startDateError" class="text-danger"></span>
 				</div>
-				<div id="startDateError" class="text-danger"></div>
+
 			</div>
 			<div class="mx-auto p-1" style="width: 200px;">
 				<!--			    <div class="position-absolute top-50 start-50">-->

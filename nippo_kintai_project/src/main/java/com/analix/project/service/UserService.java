@@ -3,6 +3,8 @@ package com.analix.project.service;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -27,7 +29,27 @@ public class UserService {
 	 * @param name
 	 * @return registUserForm
 	 */
-	public RegistUserForm getUserDataByUserName(String name) {
+	public RegistUserForm getUserDataByUserName(String name, BindingResult result) {
+
+		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
+		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
+		Matcher nameMatcher = fullwidthPattern.matcher(name);
+		if (name == null) {
+			result.addError(
+					new FieldError("registUserForm", "name",
+							"名前を入力してください"));
+		}
+		if (name.length() >= 20) {
+			result.addError(
+					new FieldError("registUserForm", "name",
+							"全角20文字以内で入力してください"));
+		}
+		if (!nameMatcher.find()) {
+			result.addError(
+					new FieldError("registUserForm", "name",
+							"全角で入力してください"));
+		}
+
 		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByUserName(name);
 
@@ -69,10 +91,50 @@ public class UserService {
 		String name = registUserForm.getName();
 		String password = registUserForm.getPassword();
 		String role = registUserForm.getRole();
-		
-		if(name !=null) {
-			return true;
+
+		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
+		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
+		Matcher nameMatcher = fullwidthPattern.matcher(name);
+//		if (name == "") {
+//			result.addError(
+//					new FieldError("registUserForm", "name",
+//							"名前を入力してください"));
+//		}
+		if (name.length() >= 20) {
+			result.addError(
+					new FieldError("registUserForm", "name",
+							"全角20文字以内で入力してください"));
 		}
+		if (!nameMatcher.find()) {
+			result.addError(
+					new FieldError("registUserForm", "name",
+							"全角で入力してください"));
+		}
+		String alnumRegex = "^[a-zA-Z0-9]+$";
+		Pattern alnumPattern = Pattern.compile(alnumRegex);
+		Matcher passwordMatcher = alnumPattern.matcher(password);
+//		if (password == "") {
+//			result.addError(
+//					new FieldError("registUserForm", "password",
+//							"パスワードを入力してください"));
+//		}
+		if (password.length() >= 16) {
+			result.addError(
+					new FieldError("registUserForm", "password",
+							"16文字以内で入力してください"));
+		}
+		if (!passwordMatcher.find()) {
+			result.addError(
+					new FieldError("registUserForm", "password",
+							"半角で入力してください"));
+		}
+
+		if (role == "") {
+			result.addError(
+					new FieldError("registUserForm", "role",
+							"権限を選択してください"));
+		}
+
 		if (startDate.equals("9999/99/99")) {
 			return false;
 		}

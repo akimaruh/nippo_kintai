@@ -31,7 +31,7 @@ public class UserController {
 	@RequestMapping(path = "/regist")
 	public String showUserRegist(Model model) {
 
-		model.addAttribute("userData", new Users());
+		model.addAttribute("registUserForm", new Users());
 		//		model.addAttribute("userData", new Users());
 
 		return "user/regist";
@@ -44,17 +44,23 @@ public class UserController {
 	 * @return ユーザー管理画面
 	 */
 	@RequestMapping(path = "/regist/search")
-	public String searchUserByUserName(RegistUserForm registUserForm, Model model) {
+	public String searchUserByUserName(@Validated @ModelAttribute RegistUserForm registUserForm, Model model,BindingResult result) {
 		String inputName = registUserForm.getName();
-		RegistUserForm userData = userService.getUserDataByUserName(inputName);
+		RegistUserForm userData = userService.getUserDataByUserName(inputName,result);
 		String searchedName = userData.getName();
+		
+		if (result.hasErrors()) {
 
+			model.addAttribute("registUserForm", registUserForm);
+			model.addAttribute("error", "エラー内容に従って修正してください");
+			return "user/regist";
+		}
 		if (searchedName == null) {
 			String error = "存在しないユーザーです";
 			model.addAttribute("error", error);
 			userData.setName(inputName);
 		}
-		model.addAttribute("userData", userData);
+		model.addAttribute("registUserForm", userData);
 		return "user/regist";
 	}
 
@@ -75,9 +81,9 @@ public class UserController {
 
 		if (result.hasErrors()) {
 
-			model.addAttribute("userData", registUserForm);
+			model.addAttribute("registUserForm", registUserForm);
 			model.addAttribute("errorFlg",errorFlg);
-			model.addAttribute("error","修正してください");
+			model.addAttribute("error","エラー内容に従って修正してください");
 			return "user/regist";
 		}
 		System.out.println(registUserForm);
