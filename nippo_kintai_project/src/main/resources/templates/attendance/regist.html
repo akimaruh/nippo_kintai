@@ -38,7 +38,6 @@
 					<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
 				<form th:action="@{/attendance/regist/display}" method="get" id="display-form">
 
-
 					<strong>表示年月：</strong>
 					<input type="text" size="15" name="year" id="id_year" />年
 					<input type="text" size="15" name="month" id="id_month" />月
@@ -48,27 +47,23 @@
 					<input type="hidden" name="yearMonth" id="yearMonth" />
 				</form>
 
-
 	</span>
 
 	<div class="d-flex align-items-center position-absolute top-10 start-50">
 <!--	 <div class="mx-auto p-1" style="width: 200px;">-->
 		<th:block th:if="${session.loginUser.role == 'Manager'}">
 			<button type="submit" form="attendancebtn-form" name="action" value="reject"
-				class="btn-yellow offset-col-8">却下</button>
+				id="reject-btn" class="btn-yellow offset-col-8" disabled>却下</button>
 			<button type="submit" form="attendancebtn-form" name="action" value="approve"
-				class="btn-yellow offset-col-8">承認</button>
+				id="approve-btn" class="btn-yellow offset-col-8" disabled>承認</button>
 		</th:block>
 
 		<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
-
 			<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 				<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-				<button type="submit" class="btn-yellow offset-col-8" th:disabled="${registCheck == false || status == 1 || status == 2 || status == null}">承認申請</button>
-				<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form" th:disabled="${status == 1 || status == 2}"/>
+				<button type="submit" class="btn-yellow offset-col-8" th:disabled="${(status == 1 || status == 2) || (status == null && (registCheck == false || registCheck == null))}">承認申請</button>
+				<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form" th:disabled="${status == 1 || status == 2 || displayFlg == true}"/>
 			</form>
-
-
 		</th:block>
 	</div>
 
@@ -89,8 +84,9 @@
 				<tbody>
 					<th:block th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
 						<tr>
-							<td><a th:href="@{/attendance/approveRequests(userId=${MonthlyList.userId}, targetYearMonth=${MonthlyList.targetYearMonth})}"
-									th:text="${MonthlyList.name}"></a></td>
+							<td><a th:href="@{/attendance/approveRequests(userId=${MonthlyList.userId}, 
+										targetYearMonth=${MonthlyList.targetYearMonth}, activateButtons=true)}"
+									th:text="${MonthlyList.name}" id="requestLink"></a></td>
 							<td th:text="${#temporals.format(MonthlyList.targetYearMonth.toLocalDate(), 'yyyy/MM')}">
 							</td>
 							<td th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}"></td>
@@ -309,6 +305,17 @@
 
 
 	<script>
+		
+		//「却下」「承認」ボタンの活性化
+		document.addEventListener('DOMContentLoaded', function () {
+			const urlParams = new URLSearchParams(window.location.search);
+			const activateButtons = urlParams.get('activateButtons');
+
+			if (activateButtons === 'true') {
+				document.getElementById('reject-btn').disabled = false;
+				document.getElementById('approve-btn').disabled = false;
+			}
+		});
 
 
 		// 入力チェック
@@ -385,7 +392,7 @@
 				}
 			}
 		});
-
+		
 
 	</script>
 </body>

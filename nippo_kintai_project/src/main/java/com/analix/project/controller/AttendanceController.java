@@ -29,9 +29,6 @@ public class AttendanceController {
 	@Autowired
 	public AttendanceService attendanceService;
 
-	//	@Autowired
-	//	private Attendance attendance;
-
 	/**
 	 * 初期表示
 	 * @param userId
@@ -45,6 +42,10 @@ public class AttendanceController {
 		// ヘッダー:ユーザ名、ユーザーID
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
+
+		// 初期表示で「登録ボタン」を非活性にさせるためのフラグ
+		boolean displayFlg = true;
+		model.addAttribute("displayFlg", displayFlg);
 
 		return "/attendance/regist";
 	}
@@ -87,6 +88,7 @@ public class AttendanceController {
 				break;
 			}
 		}
+
 		model.addAttribute("statusFlg", statusFlg);
 		model.addAttribute("status", status);
 		session.setAttribute("yearMonth", yearMonth);
@@ -154,10 +156,12 @@ public class AttendanceController {
 		Date approveYearMonth = (Date) session.getAttribute("attendanceDate");
 
 		String message = attendanceService.insertMonthlyAttendanceReq(userId, approveYearMonth);
+		String yearMonth = (String) session.getAttribute("yearMonth");
 
 		redirectAttributes.addFlashAttribute("message", message);
+		redirectAttributes.addAttribute("yearMonth", yearMonth);
 
-		return "redirect:/attendance/regist";
+		return "redirect:/attendance/regist/display";
 	}
 
 	/**
