@@ -10,6 +10,47 @@
 </head>
 
 <body>
+	<div class="container mt-3 mb-3">
+		<div class="d-flex align-items-center gap-5">
+			<div>
+				<strong>ユーザー名：</strong>
+				<span th:text="${session.loginUser.name}"></span>
+			</div>
+			<div>
+				<strong>ユーザーID：</strong>
+				<span th:text="${session.loginUser.id}"></span>
+			</div>
+		</div>
+	</div>
+	
+<!-- 右に寄せる -->
+<!--	<div>-->
+<!--		<button type="submit" class="btn-yellow">ログオフ</button>-->
+<!--	</div>-->
+	
+	<div class="d-flex flex-row-reverse">
+		<div class="p-2">
+			<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>
+<!--			    <input type="button" onclick="window.close();" value="閉じる">-->
+		</div>
+	</div>
+	
+	<div>
+		<button type="submit" class="btn-orange">勤怠登録</button>
+	</div>
+	
+	<div>
+		<button type="submit" class="btn-green">日報登録</button>
+	</div>
+	
+	<div>
+		<button type="submit" class="btn-purple">ユーザー情報登録</button>
+	</div>
+	
+	<div>
+		<button type="submit" class="btn-lightBlue">部署登録</button>
+	</div>
+
 
 </body>
 

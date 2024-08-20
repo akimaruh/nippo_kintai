@@ -1,5 +1,6 @@
 @charset "UTF-8";
 
+/*黄色ボタン*/
 .btn-yellow {
   display: inline-block; /* ボタンをインラインブロックとして表示 */
   font-weight: 400; /* ボタンのテキストの太さを調整 */
@@ -29,6 +30,134 @@
 
 .btn-yellow.disabled, .btn-yellow:disabled {
   opacity: .45; /* 無効時の不透明度 */
+}
+
+/*オレンジボタン*/
+.btn-orange {
+  display: inline-block;
+  font-weight: 400;
+  color: #000;
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .400rem .9rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  background-color: #ffff00;
+  border-color: #cccc00;
+}
+
+.btn-orange:hover {
+  color: #000;
+  background-color: #f5f500;
+  border-color: #b84c00;
+}
+
+.btn-orange:focus, .btn-yellow.focus {
+  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+}
+
+.btn-orange.disabled, .btn-yellow:disabled {
+  opacity: .45;
+}
+
+/*緑色ボタン*/
+.btn-green {
+  display: inline-block;
+  font-weight: 400;
+  color: #000;
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .400rem .9rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  background-color: #ffff00;
+  border-color: #cccc00;
+}
+
+.btn-green:hover {
+  color: #000;
+  background-color: #f5f500;
+  border-color: #b84c00;
+}
+
+.btn-green:focus, .btn-yellow.focus {
+  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+}
+
+.btn-green.disabled, .btn-yellow:disabled {
+  opacity: .45;
+}
+
+/*紫色ボタン*/
+.btn-purple {
+  display: inline-block;
+  font-weight: 400;
+  color: #000;
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .400rem .9rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  background-color: #ffff00;
+  border-color: #cccc00;
+}
+
+.btn-purple:hover {
+  color: #000;
+  background-color: #f5f500;
+  border-color: #b84c00;
+}
+
+.btn-purple:focus, .btn-yellow.focus {
+  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+}
+
+.btn-purple.disabled, .btn-yellow:disabled {
+  opacity: .45;
+}
+
+/*水色ボタン*/
+.btn-lightBlue {
+  display: inline-block;
+  font-weight: 400;
+  color: #000;
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .400rem .9rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  background-color: #ffff00;
+  border-color: #cccc00;
+}
+
+.btn-lightBlue:hover {
+  color: #000;
+  background-color: #f5f500;
+  border-color: #b84c00;
+}
+
+.btn-lightBlue:focus, .btn-yellow.focus {
+  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+}
+
+.btn-lightBlue.disabled, .btn-yellow:disabled {
+  opacity: .45;
 }
 
 /*目のアイコン*/
