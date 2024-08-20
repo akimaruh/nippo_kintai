@@ -127,6 +127,7 @@ public class AttendanceController {
 
 		if (result.hasErrors()) {
 			model.addAttribute("attendanceFormList", attendanceFormList);
+			model.addAttribute("error", "エラー内容に従って修正してください");
 
 			return "/attendance/regist";
 		}
