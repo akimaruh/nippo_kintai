@@ -1,5 +1,57 @@
 @charset "UTF-8";
 
+/* ボタンを横並びにするコンテナ */
+.menu-container .container {
+    display: flex;
+    justify-content: space-between; /* ボタンを等間隔に配置 */
+    width: 70%; /* コンテナの幅を調整 */
+}
+
+.menu-container .col {
+    flex: 1; /* 各列が均等に広がるように設定 */
+    display: flex;
+    justify-content: center; /* ボタンを中央に配置 */
+}
+
+
+/* ボタン共通のスタイル */
+.menuBtn {
+    display: flex;
+    flex-direction: column; /* アイコンと文字を縦に並べる */
+    align-items: center; /* アイコンと文字を中央に揃える */
+    width: 150px; /* 幅 */
+    height: 200px; /* 高さ */
+    border: 1px solid transparent;
+    border-radius: .25rem; /* ボーダーの角を丸める */
+    color: #000;
+    font-size: 1em; /* 文字のサイズ */
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    padding:40px;  /* 内側の余白を追加 */
+/*  box-shadow: 0 0 5px 1px rgb(231, 231, 231);*/
+/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3)*/
+}
+
+/* アイコンのスタイル */
+.icon {
+    font-size: 24px; /* アイコンのサイズ */
+    color: #000; /* アイコンの色 */
+    margin-bottom: 8px; /* アイコンとテキストの間隔 */
+}
+
+/* ボタン内のアイコンとテキストのスタイル */
+.menuBtn .icon {
+    font-size: 3.5em; /* アイコンのサイズ */
+    color: inherit; /* ボタンのテキスト色を継承 */
+    margin-bottom: 10px; /* アイコンとテキストの間隔 */
+}
+
+.menuBtn .label {
+    font-size: 1em; /* テキストのサイズ */
+}
+
 /*黄色ボタン*/
 .btn-yellow {
   display: inline-block; /* ボタンをインラインブロックとして表示 */
@@ -32,132 +84,80 @@
   opacity: .45; /* 無効時の不透明度 */
 }
 
-/*オレンジボタン*/
+/* オレンジボタン */
 .btn-orange {
-  display: inline-block;
-  font-weight: 400;
-  color: #000;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: .400rem .9rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: .25rem;
-  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  background-color: #ffff00;
-  border-color: #cccc00;
+    background-color: rgb(255, 192, 0);
+    border-color: rgb(255, 165, 0);
 }
 
 .btn-orange:hover {
-  color: #000;
-  background-color: #f5f500;
-  border-color: #b84c00;
+    background-color: rgb(255, 165, 0);
+    border-color: rgb(255, 140, 0);
 }
 
-.btn-orange:focus, .btn-yellow.focus {
-  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+.btn-orange:focus, .btn-orange.focus {
+    box-shadow: 0 0 0 .2rem rgba(255, 192, 0, .5);
 }
 
-.btn-orange.disabled, .btn-yellow:disabled {
-  opacity: .45;
+.btn-orange.disabled, .btn-orange:disabled {
+    opacity: .45;
 }
 
-/*緑色ボタン*/
+/* グリーンボタン */
 .btn-green {
-  display: inline-block;
-  font-weight: 400;
-  color: #000;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: .400rem .9rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: .25rem;
-  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  background-color: #ffff00;
-  border-color: #cccc00;
+    background-color: rgb(155, 187, 89);
+    border-color: rgb(139, 166, 76);
 }
 
 .btn-green:hover {
-  color: #000;
-  background-color: #f5f500;
-  border-color: #b84c00;
+    background-color: rgb(139, 166, 76);
+    border-color: rgb(120, 150, 65);
 }
 
-.btn-green:focus, .btn-yellow.focus {
-  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+.btn-green:focus, .btn-green.focus {
+    box-shadow: 0 0 0 .2rem rgba(155, 187, 89, .5);
 }
 
-.btn-green.disabled, .btn-yellow:disabled {
-  opacity: .45;
+.btn-green.disabled, .btn-green:disabled {
+    opacity: .45;
 }
 
-/*紫色ボタン*/
+/* パープルボタン */
 .btn-purple {
-  display: inline-block;
-  font-weight: 400;
-  color: #000;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: .400rem .9rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: .25rem;
-  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  background-color: #ffff00;
-  border-color: #cccc00;
+    background-color: rgb(179, 162, 199);
+    border-color: rgb(159, 142, 179);
 }
 
 .btn-purple:hover {
-  color: #000;
-  background-color: #f5f500;
-  border-color: #b84c00;
+    background-color: rgb(159, 142, 179);
+    border-color: rgb(139, 122, 159);
 }
 
-.btn-purple:focus, .btn-yellow.focus {
-  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+.btn-purple:focus, .btn-purple.focus {
+    box-shadow: 0 0 0 .2rem rgba(179, 162, 199, .5);
 }
 
-.btn-purple.disabled, .btn-yellow:disabled {
-  opacity: .45;
+.btn-purple.disabled, .btn-purple:disabled {
+    opacity: .45;
 }
 
-/*水色ボタン*/
+/* ライトブルーボタン */
 .btn-lightBlue {
-  display: inline-block;
-  font-weight: 400;
-  color: #000;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: .400rem .9rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: .25rem;
-  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  background-color: #ffff00;
-  border-color: #cccc00;
+    background-color: rgb(147, 205, 221);
+    border-color: rgb(120, 180, 200);
 }
 
 .btn-lightBlue:hover {
-  color: #000;
-  background-color: #f5f500;
-  border-color: #b84c00;
+    background-color: rgb(120, 180, 200);
+    border-color: rgb(100, 160, 180);
 }
 
-.btn-lightBlue:focus, .btn-yellow.focus {
-  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+.btn-lightBlue:focus, .btn-lightBlue.focus {
+    box-shadow: 0 0 0 .2rem rgba(147, 205, 221, .5);
 }
 
-.btn-lightBlue.disabled, .btn-yellow:disabled {
-  opacity: .45;
+.btn-lightBlue.disabled, .btn-lightBlue:disabled {
+    opacity: .45;
 }
 
 /*目のアイコン*/
@@ -170,4 +170,3 @@
 #btn_passview i {
     font-size: 20px; /* アイコンのサイズ */
 }
-
