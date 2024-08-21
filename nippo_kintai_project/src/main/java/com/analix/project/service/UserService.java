@@ -3,6 +3,7 @@ package com.analix.project.service;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,17 +11,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+import com.analix.project.entity.Department;
 import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
+import com.analix.project.mapper.DepartmentMapper;
 import com.analix.project.mapper.UserMapper;
 
 @Service
 public class UserService {
 
 	private final UserMapper userMapper;
+	private final DepartmentMapper departmentMapper;
 
-	public UserService(UserMapper userMapper) {
+	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper) {
 		this.userMapper = userMapper;
+		this.departmentMapper = departmentMapper;
 
 	}
 
@@ -34,16 +39,13 @@ public class UserService {
 		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
 		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
 		Matcher nameMatcher = fullwidthPattern.matcher(name);
-		if (name == null) {
-			result.addError(
-					new FieldError("registUserForm", "name",
-							"名前を入力してください"));
-		}
+
 		if (name.length() >= 20) {
 			result.addError(
 					new FieldError("registUserForm", "name",
 							"全角20文字以内で入力してください"));
 		}
+		//空欄または全角以外で入力があった場合
 		if (!nameMatcher.find()) {
 			result.addError(
 					new FieldError("registUserForm", "name",
@@ -95,16 +97,17 @@ public class UserService {
 		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
 		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
 		Matcher nameMatcher = fullwidthPattern.matcher(name);
-//		if (name == "") {
-//			result.addError(
-//					new FieldError("registUserForm", "name",
-//							"名前を入力してください"));
-//		}
+		//		if (name == "") {
+		//			result.addError(
+		//					new FieldError("registUserForm", "name",
+		//							"名前を入力してください"));
+		//		}
 		if (name.length() >= 20) {
 			result.addError(
 					new FieldError("registUserForm", "name",
 							"全角20文字以内で入力してください"));
 		}
+		//空欄または全角以外の入力があった場合
 		if (!nameMatcher.find()) {
 			result.addError(
 					new FieldError("registUserForm", "name",
@@ -113,16 +116,17 @@ public class UserService {
 		String alnumRegex = "^[a-zA-Z0-9]+$";
 		Pattern alnumPattern = Pattern.compile(alnumRegex);
 		Matcher passwordMatcher = alnumPattern.matcher(password);
-//		if (password == "") {
-//			result.addError(
-//					new FieldError("registUserForm", "password",
-//							"パスワードを入力してください"));
-//		}
+		//		if (password == "") {
+		//			result.addError(
+		//					new FieldError("registUserForm", "password",
+		//							"パスワードを入力してください"));
+		//		}
 		if (password.length() >= 16) {
 			result.addError(
 					new FieldError("registUserForm", "password",
-							"16文字以内で入力してください"));
+							"半角16文字以内で入力してください"));
 		}
+		//空欄または半角以外の入力があった場合
 		if (!passwordMatcher.find()) {
 			result.addError(
 					new FieldError("registUserForm", "password",
@@ -207,6 +211,16 @@ public class UserService {
 			//登録ユーザー重複時
 			return "登録が失敗しました。";
 		}
+
+	}
+
+	/**
+	 * 部署入力プルダウン用リスト
+	 * @return 部署リスト
+	 */
+	public List<Department> pulldownDepartment() {
+		List<Department> departmentList = departmentMapper.findAllDepartmentName();
+		return departmentList;
 
 	}
 

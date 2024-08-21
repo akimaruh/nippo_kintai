@@ -52,7 +52,7 @@
 
 			</span>
 
-			<div class="d-flex align-items-center position-absolute top-10 start-50">
+			<div class="d-flex flex-row-reverse">
 				<!--	 <div class="mx-auto p-1" style="width: 200px;">-->
 				<th:block th:if="${session.loginUser.role == 'Manager'}">
 					<button type="submit" form="attendancebtn-form" name="action" value="reject" id="reject-btn"
@@ -71,6 +71,13 @@
 					</form>
 				</th:block>
 			</div>
+			<div class="d-flex flex-row-reverse">
+				<div class="mt-1">
+					<a href="/common/startMenu">
+						<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
+					</a>
+				</div>
+			</div>
 
 
 
@@ -79,13 +86,12 @@
 					<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 						aria-describedby="user-table_info">
 						<thead>
-							<thead>
-								<tr>
-									<th>承認申請者</th>
-									<th>申請対象年月</th>
-									<th>申請日</th>
-								</tr>
-							</thead>
+							<tr>
+								<th>承認申請者</th>
+								<th>申請対象年月</th>
+								<th>申請日</th>
+							</tr>
+						</thead>
 						<tbody>
 							<th:block th:each="MonthlyList : ${monthlyAttendanceReqList}"
 								th:if="${MonthlyList.status == 1}">

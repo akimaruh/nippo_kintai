@@ -18,6 +18,15 @@
 	<div th:if="${message}" class="alert alert-info">
 		<p th:text="${message}"></p>
 	</div>
+
+	<div class="d-flex flex-row-reverse">
+		<div class="p-2">
+			<a href="/common/startMenu">
+				<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
+			</a>
+
+		</div>
+	</div>
 	<div class="container mt-4" id="regist">
 		<!-- 検索フォーム -->
 		<form th:action="@{/user/regist/search}" th:method="post" id="search-form" th:object="${registUserForm}">
@@ -73,7 +82,7 @@
 					<strong for="role">権限：</strong>
 				</div>
 				<div class="col-auto mt-4">
-					<select id="role" name="role" class="form-select" th:field="*{role}">
+					<select class="form-select" th:field="*{role}">
 						<option th:value="*{role}">[[*{role}]]</option>
 						<option value="Admin">Admin</option>
 						<option value="UnitManager">UnitManager</option>
@@ -84,28 +93,46 @@
 					<span id="roleError" class="text-danger"></span>
 				</div>
 
+				<div class="row container">
+					<div class="col-auto ms-3 mt-4">
+						<strong for="department">所属部署：</strong>
+					</div>
+					<div class="col-auto mt-4">
 
-			</div>
+						<select class="form-select" th:field="*{departmentName}">
+							<datalist id="departmentlist">
+								<option th:each="showDepartmentPulldown: ${showDepartmentPulldown}"
+									th:value="${showDepartmentPulldown.departmentName}">
+									[[${showDepartmentPulldown.departmentName}]]
+								</option>
+							</datalist>
+						</select>
+						<span class="text-danger" th:errors="*{departmentName}"></span> //*{departmentId}
+						<span id="passwordError" class="text-danger"></span>
+					</div>
 
-			<div class="row container">
-				<div class="col-auto mt-4">
-					<strong for="regist-startDate">利用開始日：</strong>
+
 				</div>
-				<div class="col-auto mt-4">
-					<input type="text" th:errorclass="is-invalid" class="form-control" th:field="*{startDate}" />
-					<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
-					<span class="text-danger" th:errors="*{startDate}"></span>
-					<span id="startDateError" class="text-danger"></span>
-				</div>
 
-			</div>
-			<div class="mx-auto p-1" style="width: 200px;">
-				<!--			    <div class="position-absolute top-50 start-50">-->
-				<input type="hidden" name="name" id="hidden-name" />
-				<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" />
-				<input type="hidden" name="id" th:value="*{id}" />
-				<!--		</div>-->
-			</div>
+				<div class="row container">
+					<div class="col-auto mt-4">
+						<strong for="regist-startDate">利用開始日：</strong>
+					</div>
+					<div class="col-auto mt-4">
+						<input type="text" th:errorclass="is-invalid" class="form-control" th:field="*{startDate}" />
+						<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
+						<span class="text-danger" th:errors="*{startDate}"></span>
+						<span id="startDateError" class="text-danger"></span>
+					</div>
+
+				</div>
+				<div class="mx-auto p-1" style="width: 200px;">
+					<!--			    <div class="position-absolute top-50 start-50">-->
+					<input type="hidden" name="name" id="hidden-name" />
+					<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" />
+					<input type="hidden" name="id" th:value="*{id}" />
+					<!--		</div>-->
+				</div>
 
 		</form>
 	</div>
