@@ -22,7 +22,8 @@ public class LoginController {
 	private LoginService loginService;
 
 	@GetMapping("/")
-	public String getLogin(Model model) {
+	public String getLogin(Model model ,HttpSession session) {
+
 		model.addAttribute("error", false);
 		return "common/login";
 	}

@@ -32,8 +32,7 @@ public class UserController {
 	public String showUserRegist(Model model) {
 
 		model.addAttribute("registUserForm", new Users());
-		//		model.addAttribute("userData", new Users());
-
+		model.addAttribute("departmentList", userService.pulldownDepartment());
 		return "user/regist";
 	}
 
@@ -44,11 +43,12 @@ public class UserController {
 	 * @return ユーザー管理画面
 	 */
 	@RequestMapping(path = "/regist/search")
-	public String searchUserByUserName(@Validated @ModelAttribute RegistUserForm registUserForm, Model model,BindingResult result) {
+	public String searchUserByUserName(@Validated @ModelAttribute RegistUserForm registUserForm, Model model,
+			BindingResult result) {
 		String inputName = registUserForm.getName();
-		RegistUserForm userData = userService.getUserDataByUserName(inputName,result);
+		RegistUserForm userData = userService.getUserDataByUserName(inputName, result);
 		String searchedName = userData.getName();
-		
+
 		if (result.hasErrors()) {
 
 			model.addAttribute("registUserForm", registUserForm);
@@ -61,6 +61,7 @@ public class UserController {
 			userData.setName(inputName);
 		}
 		model.addAttribute("registUserForm", userData);
+		model.addAttribute("departmentList", userService.pulldownDepartment());
 		return "user/regist";
 	}
 
@@ -77,13 +78,14 @@ public class UserController {
 	public String completeUserRegist(@Validated @ModelAttribute RegistUserForm registUserForm, Integer id,
 			String name, Model model, BindingResult result, RedirectAttributes redirectAttributes) {
 
-		 boolean errorFlg = userService.validationForm(registUserForm, result);
+		boolean errorFlg = userService.validationForm(registUserForm, result);
 
 		if (result.hasErrors()) {
 
 			model.addAttribute("registUserForm", registUserForm);
-			model.addAttribute("errorFlg",errorFlg);
-			model.addAttribute("error","エラー内容に従って修正してください");
+			model.addAttribute("departmentList", userService.pulldownDepartment());
+			model.addAttribute("errorFlg", errorFlg);
+			model.addAttribute("error", "エラー内容に従って修正してください");
 			return "user/regist";
 		}
 		System.out.println(registUserForm);

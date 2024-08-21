@@ -36,8 +36,7 @@ public class AttendanceService {
 	private MonthlyAttendanceReqMapper monthlyAttendanceReqMapper;
 	@Autowired
 	private CustomDateUtil customDateUtil;
-	@Autowired
-	private AttendanceUtil attendanceUtil;
+
 
 	/**
 	 * ヘッダー:ステータス部分取得
@@ -50,20 +49,26 @@ public class AttendanceService {
 	}
 
 	/**
-	 * 一覧表示
+	 * 勤怠表表示
 	 * @param userId
 	 * @param year
 	 * @param month
 	 * @return 勤怠一覧取得マッパー
 	 */
 	public List<DailyAttendanceForm> getFindAllDailyAttendance(Integer userId, String yearMonth) {
-
+		
+		//日付生成
+				List<LocalDate> dateList = generateMonthDates(yearMonth);
+				if(dateList.contains(null)) {
+					return null;
+				}
+				
+		//勤怠一覧の取得
 		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
 		List<Attendance> attendanceListSearchForUserIdAndYearMonth = attendanceMapper.findAllDailyAttendance(userId,
 				yearMonth);
 
-		//日付生成
-		List<LocalDate> dateList = generateMonthDates(yearMonth);
+		
 
 		// Attendance情報をLocalDateでインデックス化するMapを作成
 		Map<LocalDate, Attendance> attendanceMap = attendanceListSearchForUserIdAndYearMonth.stream()
@@ -186,6 +191,8 @@ public class AttendanceService {
 	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth) {
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
 	}
+	
+	
 
 	/**
 	 * 勤怠登録前入力チェック
@@ -205,7 +212,9 @@ public class AttendanceService {
 			List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
 			List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
 			System.out.println(status);
-
+			
+			
+			
 			if (attendanceSystem.contains(status) && startTime == "") {
 				result.addError(
 						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
@@ -424,7 +433,7 @@ public class AttendanceService {
 			}
 
 		}
-		return "勤怠登録が完了しました。"; //messageを出力するので保留
+		return "勤怠登録が完了しました。"; 
 
 	}
 

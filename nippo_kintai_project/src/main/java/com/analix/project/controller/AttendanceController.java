@@ -61,7 +61,8 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.GET)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session, AttendanceFormList attendanceFormList) {
-
+		
+		
 		// ヘッダー:ステータス部分
 		Users user = (Users) session.getAttribute("loginUser");
 		Date attendanceDate = java.sql.Date.valueOf(yearMonth + "-01");
@@ -97,7 +98,11 @@ public class AttendanceController {
 		Integer userId = loginUser.getId();
 
 		attendanceFormList.setAttendanceFormList(attendanceService.getFindAllDailyAttendance(userId, yearMonth));
-		attendanceFormList.getAttendanceFormList().get(0).getDate();
+		if(attendanceFormList.getAttendanceFormList().contains(null)) {
+			model.addAttribute("error", "年月を入力してください");
+			
+			return "/attendance/regist";
+		}
 
 		//１か月分登録されると活性化
 		boolean monthlyRegistCheck = attendanceService.applicableCheck(attendanceFormList.getAttendanceFormList());
