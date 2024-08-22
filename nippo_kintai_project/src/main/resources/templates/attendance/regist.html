@@ -56,15 +56,15 @@
 				<!--	 <div class="mx-auto p-1" style="width: 200px;">-->
 				<th:block th:if="${session.loginUser.role == 'Manager'}">
 					<button type="submit" form="attendancebtn-form" name="action" value="reject" id="reject-btn"
-						class="btn-yellow offset-col-8" disabled>却下</button>
+						class="btn-yellow" disabled>却下</button>
 					<button type="submit" form="attendancebtn-form" name="action" value="approve" id="approve-btn"
-						class="btn-yellow offset-col-8" disabled>承認</button>
+						class="btn-yellow" disabled>承認</button>
 				</th:block>
 
 				<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
 					<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 						<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-						<button type="submit" class="btn-yellow offset-col-8"
+						<button type="submit" class="btn-yellow"
 							th:disabled="${(status == 1 || status == 2) || (status == null && (registCheck == false || registCheck == null))}">承認申請</button>
 						<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form"
 							th:disabled="${status == 1 || status == 2 || displayFlg == true}" />
@@ -82,7 +82,7 @@
 
 
 			<th:block th:if="${session.loginUser.role == 'Manager'}">
-				<div class="container mt-5 mb-3 border">
+				<div class="container mt-3 mb-3 border">
 					<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 						aria-describedby="user-table_info">
 						<thead>

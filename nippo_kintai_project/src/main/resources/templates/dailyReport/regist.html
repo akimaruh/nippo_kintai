@@ -10,40 +10,136 @@
 </head>
 
 <body>
-<!--	<div class="container mt-3 mb-3">-->
-<!--		<div class="d-flex align-items-center gap-5">-->
-<!--			<div>-->
-<!--				<strong>ユーザー名：</strong>-->
-<!--				<span th:text="${session.loginUser,name}"></span>-->
-<!--			</div>-->
-<!--			<div>-->
-<!--				<strong>ユーザーID：</strong>-->
-<!--				<span th:text="${session.loginUser.id}"></span>-->
-<!--			</div>-->
-<!--			<div>-->
-<!--				<strong>ステータス：</strong>-->
-<!--			</div>-->
-<!--		</div>-->
-<!--	</div>-->
-
-
 	<div class="container mt-3 mb-3">
-		<div class="row">
+		<div class="d-flex align-items-center gap-5">
+			<div>
+				<strong>ユーザー名：</strong>
+				<span th:text="${session.loginUser.name}"></span>
+			</div>
+			<div>
+				<strong>ユーザーID：</strong>
+				<span th:text="${session.loginUser.id}"></span>
+			</div>
+			<div>
+				<strong>ステータス：</strong>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="container mt-4 mb-2">
+		<div class="row ms-2">
 			<form>
-				<strong>表示年月日：</strong>
-				<input type="text" size="8" />年
-				<input type="text" size="8" />月
-				<input type="text" size="8" />日
-				<input type="submit" class="btn-yellow ms-3" value="表示" />
+				<strong>対象日付：</strong>
+				<input type="date" id="today" />
 			</form>
 		</div>
 	</div>
+			
+<!--			<form>-->
+<!--				<strong>表示年月日：</strong>-->
+<!--				<input type="text" size="8" />年-->
+<!--				<input type="text" size="8" />月-->
+<!--				<input type="text" size="8" />日-->
+<!--				<input type="submit" class="btn-yellow ms-3" value="表示" />-->
+<!--			</form>-->
 	
-	<div>
-		<button type="submit" class="btn-yellow">一時保存</button>
-		<button type="submit" class="btn-yellow">提出</button>
-		<button type="submit" class="btn-yellow">確認</button>
+	<div class="container d-flex flex-row-reverse">
+		<button type="submit" class="btn-yellow ms-2">戻る</button>
+		<!--「提出」初期表示は非活性(作業時間、内容が入力されると活性化)-->
+		<!-- 既に提出済みの場合は非活性にする-->
+		<button type="submit" class="btn-yellow" disabled>提出</button>
 	</div>
+	
+	
+	<div class="container mt-3 mb-3">
+		<table class="table table-hover table-bordered" style="width:80%;" id="dailyReportTbl">
+			<thead>
+				<tr>
+					<th width="20%">作業時間（h）</th>
+					<th width="70%">作業内容</th>
+				</tr>
+			</thead>
+			<tbody>
+	
+				<tr>
+					<td><input type="number" class="form-control"></td>
+					<td><input type="text" class="form-control"></td>
+				</tr>
+				<tr>
+					<td><input type="number" class="form-control"></td>
+					<td><input type="text" class="form-control"></td>
+				</tr>
+				<tr>
+					<td><input type="number" class="form-control"></td>
+					<td><input type="text" class="form-control"></td>
+				</tr>
+				<tr>
+					<td><input type="number" class="form-control"></td>
+					<td><input type="text" class="form-control"></td>
+				</tr>
+	
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="container">
+<!--		<button onclick="add()">行追加</button>-->
+<!--		<button onclick="del()">行削除</button>-->
+		<input type="button" value="追加" onclick="add()" />
+		<input type="button" value="削除" onclick="del()" />
+	</div>
+	
+	
+	<script>
+		
+		// 対象日付の初期値を今日の日付に設定
+		// 参照：https://qiita.com/acht_web/items/cb5edabb5f835fc0c27f
+		function setTodayDate() {
+			var today = new Date();
+			var yyyy = today.getFullYear();
+			var mm = ("0" + (today.getMonth() + 1)).slice(-2); // getMonth()は1～12月を0～11で返すので+1している
+			var dd = ("0" + today.getDate()).slice(-2); // 頭に0をつけてから下2桁を取得
+			document.getElementById("today").value = yyyy + '-' + mm + '-' + dd;
+		}
+		window.onload = setTodayDate;
+		
+		
+		// テーブルの行追加・削除
+		// 参照：https://qiita.com/forever---searcher/items/7901217dc811d72687f8
+			const tblBody = document.getElementById("dailyReportTbl").getElementsByTagName('tbody')[0];
+
+			//行追加
+			function add() {
+				let tr = document.createElement("tr");
+
+				// 1つ目のtd
+				let td1 = document.createElement("td");
+				let inp1 = document.createElement("input");
+				inp1.type = "number";
+				inp1.className = "form-control";
+				td1.appendChild(inp1);
+				tr.appendChild(td1);
+				
+				// 2つ目のtd
+				let td2 = document.createElement("td");
+				let inp2 = document.createElement("input");
+				inp2.type = "text";
+				inp2.className = "form-control";
+				td2.appendChild(inp2);
+				tr.appendChild(td2);
+				
+				tblBody.appendChild(tr);
+			}
+
+			//末尾行削除
+			function del() {
+          	  let rows = tblBody.getElementsByTagName('tr');
+          	  if (rows.length > 0) {
+                tblBody.deleteRow(rows.length - 1);
+	        }};
+
+	</script>
 
 </body>
 </html>

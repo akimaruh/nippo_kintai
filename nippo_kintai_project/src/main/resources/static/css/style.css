@@ -44,12 +44,13 @@
 /* ボタン内のアイコンとテキストのスタイル */
 .menuBtn .icon {
     font-size: 3.5em; /* アイコンのサイズ */
-    color: inherit; /* ボタンのテキスト色を継承 */
+    color: rgb(58, 58, 58); /* ボタンのテキスト色を継承 */
     margin-bottom: 10px; /* アイコンとテキストの間隔 */
 }
 
 .menuBtn .label {
     font-size: 1em; /* テキストのサイズ */
+    color: rgb(58, 58, 58);
 }
 
 /*黄色ボタン*/
