@@ -3,7 +3,9 @@ package com.analix.project.service;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,11 +37,13 @@ public class UserService {
 	 * @return registUserForm
 	 */
 	public RegistUserForm getUserDataByUserName(String name, BindingResult result) {
-
+		
+		if(name != null) {
 		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
 		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
 		Matcher nameMatcher = fullwidthPattern.matcher(name);
-
+		
+		
 		if (name.length() >= 20) {
 			result.addError(
 					new FieldError("registUserForm", "name",
@@ -51,10 +55,17 @@ public class UserService {
 					new FieldError("registUserForm", "name",
 							"全角で入力してください"));
 		}
+		}
+		else {
+			result.addError(
+					new FieldError("registUserForm", "name",
+							"全角で入力してください"));
+			
+		}
 
 		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByUserName(name);
-
+		System.out.println(userDataBySearch);
 		RegistUserForm registUserForm = new RegistUserForm();
 		//エンティティからフォームへ詰めなおし
 		if (userDataBySearch != null) {
@@ -62,6 +73,8 @@ public class UserService {
 			registUserForm.setName(userDataBySearch.getName());
 			registUserForm.setPassword(userDataBySearch.getPassword());
 			registUserForm.setRole(userDataBySearch.getRole());
+			registUserForm.setDepartmentId(userDataBySearch.getDepartmentId());
+			registUserForm.setDepartmentName(userDataBySearch.getDepartmentName());
 
 			//LocalDate型(yyyy-MM-dd)からString型(yyyy/MM/dd)へ変換
 			LocalDate startDate = userDataBySearch.getStartDate();
@@ -93,6 +106,7 @@ public class UserService {
 		String name = registUserForm.getName();
 		String password = registUserForm.getPassword();
 		String role = registUserForm.getRole();
+		Integer departmentId = registUserForm.getDepartmentId();
 
 		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
 		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
@@ -137,6 +151,11 @@ public class UserService {
 			result.addError(
 					new FieldError("registUserForm", "role",
 							"権限を選択してください"));
+		}
+		if (departmentId == 0 || departmentId == null) {
+			result.addError(
+					new FieldError("registUserForm", "departmentId",
+							"所属部署を選択してください"));
 		}
 
 		if (startDate.equals("9999/99/99")) {
@@ -184,6 +203,7 @@ public class UserService {
 		registUser.setRole(registUserForm.getRole());
 		registUser.setName(userName);
 		registUser.setStartDate(startDateLoalDate);
+		registUser.setDepartmentId(registUserForm.getDepartmentId());
 
 		Integer userCheck = userMapper.countUserDataById(userName);
 
@@ -218,9 +238,19 @@ public class UserService {
 	 * 部署入力プルダウン用リスト
 	 * @return 部署リスト
 	 */
-	public List<Department> pulldownDepartment() {
+	public Map<String, Integer> pulldownDepartment() {
 		List<Department> departmentList = departmentMapper.findAllDepartmentName();
-		return departmentList;
+		Map<String, Integer> departmentMap = new LinkedHashMap<>();
+
+		for (Department row : departmentList) {
+			String departmentName = row.getName();
+			Integer departmentId = row.getDepartmentId();
+			departmentMap.put(departmentName, departmentId);
+		}
+
+		System.out.println(departmentMap.get("管理部"));
+
+		return departmentMap;
 
 	}
 

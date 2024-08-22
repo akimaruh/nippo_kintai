@@ -19,7 +19,7 @@
 		<p th:text="${message}"></p>
 	</div>
 
-	<div class="d-flex flex-row-reverse">
+	<div class="container d-flex flex-row-reverse">
 		<div class="p-2">
 			<a href="/common/startMenu">
 				<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
@@ -99,16 +99,16 @@
 					</div>
 					<div class="col-auto mt-4">
 
-						<select class="form-select" th:field="*{departmentName}">
-							<datalist id="departmentlist">
-								<option th:each="showDepartmentPulldown: ${showDepartmentPulldown}"
-									th:value="${showDepartmentPulldown.departmentName}">
-									[[${showDepartmentPulldown.departmentName}]]
-								</option>
-							</datalist>
+						<select class="form-select" th:field="*{departmentId}">
+							<option th:value="*{departmentId}">[[*{departmentName}]]
+							</option>
+							<option th:each="department : ${departmentList}" th:value="${department.value}"
+								th:text="${department.key}">
+							</option>
 						</select>
-						<span class="text-danger" th:errors="*{departmentName}"></span> //*{departmentId}
-						<span id="passwordError" class="text-danger"></span>
+
+						<span class="text-danger" th:errors="*{departmentId}"></span>
+						<span id="departmentIdError" class="text-danger"></span>
 					</div>
 
 
@@ -185,6 +185,7 @@
 			let name = document.getElementById('name').value;
 			let password = document.getElementById('password').value;
 			let role = document.getElementById('role').value;
+			let departmentId = document.getElementById('departmentId').value;
 			let startDate = document.getElementById('startDate').value;
 			const commandDate = "9999/99/99";
 			let date = new Date(startDate);
@@ -228,6 +229,12 @@
 				validation = false;
 			} else {
 				document.getElementById('roleError').innerHTML = "";
+			}
+			if (departmentId === "") {
+				document.getElementById('departmentIdError').innerHTML = "所属部署を選択してください";
+				validation = false;
+			} else {
+				document.getElementById('departmentIdError').innerHTML = "";
 			}
 
 			if (startDate === "") {

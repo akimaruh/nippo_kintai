@@ -30,12 +30,12 @@ public class Users {
 		this.password = password;
 	}
 
-	public String getDepartmentName() {
-		return departmentName;
+	public String getName() {
+		return name;
 	}
 
-	public void setDepartmentName(String departmentName) {
-		this.departmentName = departmentName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getRole() {
@@ -54,16 +54,16 @@ public class Users {
 		this.departmentId = departmentId;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public LocalDate getStartDate() {
 		return startDate;
+	}
+
+	public String getDepartmentName() {
+		return departmentName;
+	}
+
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
 	}
 
 	public void setStartDate(LocalDate startDate) {

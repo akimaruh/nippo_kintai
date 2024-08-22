@@ -16,7 +16,7 @@ public class StartMenuController {
 	 * 初期表示
 	 * @return
 	 */
-	@RequestMapping(path = "/common/startMenu", method = RequestMethod.POST)
+	@RequestMapping(path = "/common/startMenu")
 	public String showMenu(HttpSession session) {
 
 		return "common/startMenu";

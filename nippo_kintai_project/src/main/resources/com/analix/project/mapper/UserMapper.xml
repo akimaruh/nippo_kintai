@@ -1,26 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.analix.project.mapper.UserMapper">
+	<resultMap type="com.analix.project.entity.Users" id="users">
+		<id column="id" property="Id" />
+		<result column="password" property="password" />
+		<result column="name" property="name" />
+		<result column="role" property="role" />
+		<result column="department_id" property="departmentId" />
+		<result column="department_name" property="departmentName" />
+		<result column="start_Date" property="startDate" />
+	</resultMap>
+
 	<select id="findUserDataByUserName"
 		resultType="com.analix.project.entity.Users">
 		SELECT
-		name,
-		id,
-		password,
-		role,
-		start_date
+		users.id,
+		users.name,
+		users.password,
+		users.role,
+		users.department_id,
+		users.start_date,
+		department.name AS
+		department_name
 		FROM users
-		WHERE name
+		INNER JOIN department
+		ON users.department_id =
+		department.department_id
+		WHERE users.name
 		= #{name}
 	</select>
 
 	<select id="createNewId" resultType="integer">
 		SELECT max(id) FROM users;
-		
+
 	</select>
 
 	<select id="countUserDataById" resultType="integer">
-		SELECT count(*) FROM users WHERE name = #{name};
+		SELECT count(*) FROM
+		users WHERE name = #{name};
 	</select>
 
 	<update id="updateUserData"
@@ -30,6 +47,8 @@
 		#{users.password},
 		role =
 		#{users.role},
+		department_id =
+		#{users.departmentId},
 		start_date =
 		#{users.startDate}
 		WHERE
@@ -38,8 +57,8 @@
 	<insert id="insertUserData" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.Users">
 		INSERT INTO
-		users(name,password,role,start_date)
-		values(#{users.name},#{users.password},#{users.role},#{users.startDate})
+		users(name,password,role,department_id,start_date)
+		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate})
 	</insert>
 
 	<delete id="deleteUserData">
