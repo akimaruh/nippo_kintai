@@ -1,5 +1,7 @@
 package com.analix.project.controller;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +22,7 @@ public class UserController {
 
 	public UserController(UserService userService) {
 		this.userService = userService;
+
 	}
 
 	/**
@@ -30,9 +33,11 @@ public class UserController {
 	 */
 	@RequestMapping(path = "/regist")
 	public String showUserRegist(Model model) {
+		Map<String, Integer> departmentMap = userService.pulldownDepartment();
 
 		model.addAttribute("registUserForm", new Users());
-		model.addAttribute("departmentList", userService.pulldownDepartment());
+		model.addAttribute("departmentList", departmentMap);
+
 		return "user/regist";
 	}
 
@@ -47,7 +52,11 @@ public class UserController {
 			BindingResult result) {
 		String inputName = registUserForm.getName();
 		RegistUserForm userData = userService.getUserDataByUserName(inputName, result);
+		System.out.println(userData);
 		String searchedName = userData.getName();
+
+		Map<String, Integer> departmentMap = userService.pulldownDepartment();
+		model.addAttribute("departmentList", departmentMap);
 
 		if (result.hasErrors()) {
 
@@ -60,8 +69,9 @@ public class UserController {
 			model.addAttribute("error", error);
 			userData.setName(inputName);
 		}
+
 		model.addAttribute("registUserForm", userData);
-		model.addAttribute("departmentList", userService.pulldownDepartment());
+
 		return "user/regist";
 	}
 
@@ -81,9 +91,9 @@ public class UserController {
 		boolean errorFlg = userService.validationForm(registUserForm, result);
 
 		if (result.hasErrors()) {
-
+			Map<String, Integer> departmentMap = userService.pulldownDepartment();
 			model.addAttribute("registUserForm", registUserForm);
-			model.addAttribute("departmentList", userService.pulldownDepartment());
+			model.addAttribute("departmentList", departmentMap);
 			model.addAttribute("errorFlg", errorFlg);
 			model.addAttribute("error", "エラー内容に従って修正してください");
 			return "user/regist";

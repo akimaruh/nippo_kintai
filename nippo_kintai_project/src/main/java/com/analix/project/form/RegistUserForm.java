@@ -9,7 +9,8 @@ public class RegistUserForm {
 	private String password;
 	private String name;
 	private String role;
-	private int departmentId;
+	private Integer departmentId;
+	private String departmentName;
 	private String startDate;
 
 }
