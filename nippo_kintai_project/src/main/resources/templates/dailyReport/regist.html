@@ -48,39 +48,40 @@
 		<button type="submit" class="btn-yellow ms-2">戻る</button>
 		<!--「提出」初期表示は非活性(作業時間、内容が入力されると活性化)-->
 		<!-- 既に提出済みの場合は非活性にする-->
-		<button type="submit" class="btn-yellow" disabled>提出</button>
+		<button type="submit" id="submitBtn" class="btn-yellow" disabled>提出</button>
 	</div>
 	
-	
 	<div class="container mt-3 mb-3">
-		<table class="table table-hover table-bordered" style="width:80%;" id="dailyReportTbl">
-			<thead>
-				<tr>
-					<th width="20%">作業時間（h）</th>
-					<th width="70%">作業内容</th>
-				</tr>
-			</thead>
-			<tbody>
+		<form th:action="@{}" method="post" id="dailyReport-form">
+			<table class="table table-hover table-bordered" style="width:80%;" id="dailyReportTbl">
+				<thead>
+					<tr>
+						<th width="20%">作業時間（h）</th>
+						<th width="70%">作業内容</th>
+					</tr>
+				</thead>
+				<tbody>
 	
-				<tr>
-					<td><input type="number" class="form-control"></td>
-					<td><input type="text" class="form-control"></td>
-				</tr>
-				<tr>
-					<td><input type="number" class="form-control"></td>
-					<td><input type="text" class="form-control"></td>
-				</tr>
-				<tr>
-					<td><input type="number" class="form-control"></td>
-					<td><input type="text" class="form-control"></td>
-				</tr>
-				<tr>
-					<td><input type="number" class="form-control"></td>
-					<td><input type="text" class="form-control"></td>
-				</tr>
+					<tr>
+						<td><input type="number" step="0.5" class="form-control"></td>
+						<td><input type="text" class="form-control"></td>
+					</tr>
+					<tr>
+						<td><input type="number" class="form-control"></td>
+						<td><input type="text" class="form-control"></td>
+					</tr>
+					<tr>
+						<td><input type="number" class="form-control"></td>
+						<td><input type="text" class="form-control"></td>
+					</tr>
+					<tr>
+						<td><input type="number" class="form-control"></td>
+						<td><input type="text" class="form-control"></td>
+					</tr>
 	
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		</form>
 	</div>
 	
 	<div class="container">
@@ -138,6 +139,41 @@
           	  if (rows.length > 0) {
                 tblBody.deleteRow(rows.length - 1);
 	        }};
+	        
+	    //「提出」ボタン：1行でも作業時間・内容が入力されていれば活性化
+	    document.addEventListener("DOMContentLoaded", function() {
+			var submitBtn = document.getElementById("submitBtn");
+			var dailyReportTbl = document.getElementById("dailyReportTbl");
+			
+			// テーブル内に2列とも埋まっている行があるかチェックし、ボタンの状態を更新する
+		function updateSubmitBtn() {
+			var rows = dailyReportTbl.querySelectorAll("tbody tr");
+			var isAnyRowComplete = false; // 少なくとも1行が全て埋まっているかどうかのフラグ
+			
+			for (var i = 0; i<rows.length; i++) {
+				var inputs = rows[i].querySelectorAll("input"); // 現在の行に含まれる全てのinputタグ要素を取得
+				var isRowComplete = true; // 現在の行の全てが埋まっているかどうかのフラグ
+				
+				for (var j = 0; j<inputs.length; j++) {
+					if(inputs[j].value === "") { // 空の文字列をチェック
+						isRowComplete = false;
+						break;
+					}
+				}
+				
+				if (isRowComplete) {
+					isAnyRowComplete = true;
+					break;
+				}
+			}
+			
+			submitBtn.disabled = !isAnyRowComplete; // 1行でも埋まっていればボタンを活性化
+		}
+		
+		// input=入力された時(値が更新された時)にupdateSubmitBtnを呼び出す
+		dailyReportTbl.addEventListener("input", updateSubmitBtn);
+		});
+	        
 
 	</script>
 
