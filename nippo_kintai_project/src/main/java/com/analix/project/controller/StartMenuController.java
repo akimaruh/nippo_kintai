@@ -3,6 +3,7 @@ package com.analix.project.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,12 +27,13 @@ public class StartMenuController {
 	 * @return ページを閉じる
 	 */
 	@RequestMapping(path = "/common/logoff", method = RequestMethod.POST)
-	public String logoff(HttpServletRequest request, HttpServletResponse response) {
+	public String logoff(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
 
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			session.invalidate();
 		}
+		redirectAttributes.addFlashAttribute("message", "ログオフしました。再度ログインしてください。");
 
 		return "redirect:/";//JavaScriptで閉じないならこっち
 	}

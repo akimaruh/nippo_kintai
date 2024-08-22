@@ -20,6 +20,12 @@
 
 				<div class="card-body">
 					<form th:action="@{/login}" method="post">
+						
+						<!-- エラーメッセージの表示 -->
+						<div th:if="${message}" class="alert alert-info">
+							<p th:text="${message}"></p>
+						</div>
+						
 
 						<div class="form-group mb-5 mt-4 row container">
 							<div class="col-auto">

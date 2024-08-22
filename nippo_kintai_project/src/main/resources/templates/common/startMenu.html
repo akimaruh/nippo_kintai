@@ -23,26 +23,21 @@
 			</div>
 		</div>
 	</div>
-	
-<!-- 右に寄せる -->
-<!--	<div>-->
-<!--		<button type="submit" class="btn-yellow">ログオフ</button>-->
-<!--	</div>-->
-	
-	<div class="d-flex flex-row-reverse mx-5">
-		<div class="p-2">
+
+	<div class="container d-flex flex-row-reverse">
+		<div class="mt-5">
 			<form th:action="@{/common/logoff}" method="post">
 				<button type="submit" class="btn-yellow">ログオフ</button>
 			</form>
-			
-<!--			<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>-->
-<!--			    <input type="button" onclick="window.close();" value="閉じる">-->
+
+			<!--			<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>-->
+			<!--			    <input type="button" onclick="window.close();" value="閉じる">-->
 		</div>
 	</div>
-	
+
 	<div class="menu-container">
-		<div class="container">
-	
+		<div class="container mt-3">
+
 			<div class="col">
 				<form th:action="@{/attendance/regist}" method="get">
 					<button type="submit" class="menuBtn btn-orange">
@@ -51,7 +46,7 @@
 					</button>
 				</form>
 			</div>
-	
+
 			<div class="col">
 				<form th:action="@{/dailyReport/regist}" method="get">
 					<button type="submit" class="menuBtn btn-green">
@@ -60,7 +55,7 @@
 					</button>
 				</form>
 			</div>
-	
+
 			<div class="col">
 				<form th:action="@{/user/regist}" method="get">
 					<button type="submit" class="menuBtn btn-purple">
@@ -69,7 +64,7 @@
 					</button>
 				</form>
 			</div>
-	
+
 			<div class="col">
 				<form th:action="@{/department/regist}" method="get">
 					<button type="submit" class="menuBtn btn-lightBlue">
@@ -78,11 +73,11 @@
 					</button>
 				</form>
 			</div>
-	
+
 		</div>
 	</div>
-	
-	
+
+
 </body>
 
 </html>
