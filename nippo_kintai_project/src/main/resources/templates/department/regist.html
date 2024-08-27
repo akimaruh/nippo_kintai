@@ -10,7 +10,34 @@
 </head>
 
 <body>
-	部署登録画面
+	
+	<!-- ヘッダー -->
+	<div class="container mt-3 mb-3">
+		<div class="d-flex align-items-center gap-5">
+			<div>
+				<strong>ユーザー名：</strong>
+				<span th:text="${session.loginUser.name}"></span>
+			</div>
+			<div>
+				<strong>ユーザーID：</strong>
+				<span th:text="${session.loginUser.id}"></span>
+			</div>
+	
+			<div class="ms-auto d-flex gap-2">
+				<a href="/common/startMenu">
+					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
+				</a>
+	
+				<form th:action="@{/common/logoff}" method="post">
+					<button type="submit" class="btn-yellow">ログオフ</button>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- ヘッダー -->
 
+<div class="container mt-3 mb-3">
+<h1>部署登録画面</h1>
+</div>
 </body>
 </html>
