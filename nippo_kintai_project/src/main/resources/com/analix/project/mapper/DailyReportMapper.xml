@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.analix.project.mapper.DailyReportMapper">
+	<select id="findStatusByUserIdAndTargetDate"
+		resultType="integer">
+		SELECT status FROM daily_report
+		WHERE user_id = #{userId}
+		AND date = #{targetDate}
+	</select>
+
+	<insert id="registDailyReport" useGeneratedKeys="true"
+		keyProperty="id" parameterType="com.analix.project.entity.DailyReport">
+		INSERT INTO
+		daily_report(user_id,date,status)
+		values(#{dailyReport.userId},#{dailyReport.date},#{dailyReport.status})
+	</insert>
+
+	<insert id="registDailyReportDetail" useGeneratedKeys="true"
+		keyProperty="id"
+		parameterType="com.analix.project.entity.DailyReportDetail">
+		INSERT INTO
+		daily_report_detail(user_id,date,time,content)
+		values(#{dailyReportDetail.userId},#{dailyReportDetail.date},#{dailyReportDetail.time},#{dailyReportDetail.content})
+	</insert>
+
+	<update id="updateDailyReportDetail"
+		parameterType="com.analix.project.entity.DailyReportDetail">
+		UPDATE daily_report_detail
+		SET time =
+		dailyReportDetail.time},
+		content = #{dailyReportDetail.content}
+		WHERE
+		user_id=#{dailyReportDetail.userId}
+		AND date =#{dailyReportDetail.date}
+	</update>
+
+	<update id="updateDailyReportStatus"
+		parameterType="com.analix.project.entity.DailyReport">
+		UPDATE daily_report
+		SET status = #{status}
+		WHERE
+		user_id=#{dailyReport.userId}
+		AND date =#{dailyReport.date}
+	</update>
+
+	<resultMap type="com.analix.project.dto.DailyReportDto"
+		id="dailyReportDto">
+		<id column="id" property="id" />
+		<result column="user_id" property="userId" />
+		<result column="date" property="date" />
+		<result column="status" property="status" />
+
+		<collection property="dailyReportDetailDtoList"
+			ofType="com.analix.project.dto.DailyReportDetailDto">
+			<id column="daily_report_detail_id" property="id" />
+			<result column="user_id" property="userId" />
+			<result column="date" property="date" />
+			<result column="time" property="time" />
+			<result column="content" property="content" />
+		</collection>
+	</resultMap>
+	<select id="findAllDailyReportByUserIdAndTargetDate"
+		resultMap="dailyReportDto">
+
+		SELECT
+		daily_report.id,
+		daily_report.user_id,
+		daily_report.date,
+		daily_report.status,
+		daily_report_detail.id AS daily_report_detail_id,
+		daily_report_detail.time,
+		daily_report_detail.content
+		FROM daily_report
+		INNER JOIN daily_report_detail
+		ON daily_report.user_id = daily_report_detail.user_id
+		AND daily_report.date = daily_report_detail.date
+		WHERE daily_report.user_id = #{userId}
+		AND daily_report.date = #{targetDate}
+	</select>
+
+
+</mapper>

@@ -29,7 +29,9 @@ public class AttendanceUtil {
 	    public static String getJapaneseDayOfWeek(DayOfWeek dayOfWeek) {
 	        return japaneseDaysOfWeek.get(dayOfWeek);
 	    }
-	    
+	    /**
+	     * 勤怠状況変換用util
+	     */
 	    private static final Map<Byte,String> attendanceStatus = new HashMap<>();
 	    static {
 	    	attendanceStatus.put((byte) 0,"通常出勤");
