@@ -13,10 +13,10 @@
 <body>
 	<div class="container mt-5 d-flex justify-content-center">
 		<div class="col-md-6">
-			<div class="card">
-				<div class="card-header">
-					<h3 class="text-center">日報勤怠管理アプリ</h3>
-				</div>
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+<!--				<div class="card-header">-->
+<!--					<h3 class="text-center">日報勤怠管理アプリ</h3>-->
+<!--				</div>-->
 
 				<div class="card-body">
 					<form th:action="@{/login}" method="post">
@@ -27,7 +27,7 @@
 						</div>
 						
 
-						<div class="form-group mb-5 mt-4 row container">
+						<div class="form-group mb-5 mt-5 row container">
 							<div class="col-auto">
 								<label for="id">ユーザーID：</label>
 							</div>
@@ -36,7 +36,7 @@
 							</div>
 						</div>
 
-						<div class="form-group mb-4 row container">
+						<div class="form-group mt-4 mb-5 row container">
 							<div class="col-auto">
 								<label for="password">パスワード：</label>
 							</div>
@@ -45,7 +45,7 @@
 							</div>
 						</div>
 
-						<div class="mb-3 text-center">
+						<div class="mb-5 text-center">
 							<input type="submit" value="ログイン" class="btn-yellow" />
 						</div>
 					</form>

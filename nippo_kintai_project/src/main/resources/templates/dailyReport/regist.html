@@ -12,6 +12,7 @@
 
 <body>
 	
+	<!-- ヘッダー -->
 	<div class="container mt-3 mb-3">
 		<div class="d-flex align-items-center gap-5">
 			<div>
@@ -26,11 +27,22 @@
 				<strong>ステータス：</strong>
 				<span th:text="${statusName}"></span>
 			</div>
+	
+			<div class="ms-auto d-flex gap-2">
+				<a href="/common/startMenu">
+					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
+				</a>
+	
+				<form th:action="@{/common/logoff}" method="post">
+					<button type="submit" class="btn-yellow">ログオフ</button>
+				</form>
+			</div>
 		</div>
 	</div>
+	<!-- ヘッダー -->
 
-
-	<div class="container mt-4 mb-2">
+	<div class="container mt-3 mb-3 border" style="background-color: white; ">
+	<div class="container mt-5 mb-2">
 		<div class="row ms-2">
 			<form>
 				<strong>対象日付：</strong>
@@ -47,27 +59,31 @@
 	<!--				<input type="submit" class="btn-yellow ms-3" value="表示" />-->
 	<!--			</form>-->
 
-	<div class="container d-flex flex-row-reverse">
-			<a href="/common/startMenu">
-				<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow ms-2" />
-			</a>
+<!--	<div class="container d-flex flex-row-reverse">-->
+<!--		<a href="/common/startMenu">-->
+<!--			<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow ms-2" />-->
+<!--		</a>-->
+<!--	</div>-->
+	
 		<!--「提出」初期表示は非活性(作業時間、内容が入力されると活性化)-->
 		<!-- 既に提出済みの場合は非活性にする-->
- <button type="submit" id="submitBtn" class="btn-yellow" disabled>提出</button>
-<!--		※バックエンド実装のため一旦常時活性に変更※-->
-<button type="submit" class="btn-yellow">提出</button>
-	</div>
+		<div class="container d-flex flex-row-reverse">
+			<button type="submit" id="submitBtn" class="btn-yellow" disabled>提出</button>
+			<!--		※バックエンド実装のため一旦常時活性に変更※-->
+			<button type="submit" class="btn-yellow">提出</button>
+		</div>
 
-	<div class="container mt-3 mb-3">
+<!--	<div class="container mt-3 mb-3 border" style="background-color: white; ">-->
+		<div class="container mt-3 mb-3">
 <!--		<form th:action="@{}" method="post" id="dailyReport-form">-->
 		<table class="table table-hover table-bordered" style="width:80%;" id="dailyReportTbl">
-			<thead>
+			<thead style="background-color: white; ">
 				<tr>
 					<th width="20%">作業時間（h）</th>
 					<th width="70%">作業内容</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody style="background-color: white; ">
 
 				<tr>
 						<td><input type="number" step="0.5" class="form-control"></td>
@@ -91,11 +107,14 @@
 <!--		</form>-->
 	</div>
 
-	<div class="container">
-
+	<div class="container mb-5">
 		<input type="button" value="追加" onclick="add()" />
 		<input type="button" value="削除" onclick="del()" />
 	</div>
+	
+<!--	</div>-->
+
+</div>
 
 
 

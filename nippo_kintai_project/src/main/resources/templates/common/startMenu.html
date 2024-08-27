@@ -11,6 +11,7 @@
 </head>
 
 <body>
+	<!-- ヘッダー -->
 	<div class="container mt-3 mb-3">
 		<div class="d-flex align-items-center gap-5">
 			<div>
@@ -21,22 +22,30 @@
 				<strong>ユーザーID：</strong>
 				<span th:text="${session.loginUser.id}"></span>
 			</div>
+	
+			<div class="ms-auto">
+				<form th:action="@{/common/logoff}" method="post">
+					<button type="submit" class="btn-yellow">ログオフ</button>
+				</form>
+			</div>
 		</div>
 	</div>
+	<!-- ヘッダー -->
 
-	<div class="container d-flex flex-row-reverse">
-		<div class="mt-5">
-			<form th:action="@{/common/logoff}" method="post">
-				<button type="submit" class="btn-yellow">ログオフ</button>
-			</form>
+<!--	<div class="container d-flex flex-row-reverse">-->
+<!--		<div class="mt-5">-->
+<!--			<form th:action="@{/common/logoff}" method="post">-->
+<!--				<button type="submit" class="btn-yellow">ログオフ</button>-->
+<!--			</form>-->
 
-			<!--			<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>-->
-			<!--			    <input type="button" onclick="window.close();" value="閉じる">-->
-		</div>
-	</div>
+<!--						<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>-->
+<!--						    <input type="button" onclick="window.close();" value="閉じる">-->
+<!--		</div>-->
+<!--	</div>-->
+	
 
 	<div class="menu-container">
-		<div class="container mt-3">
+		<div class="container mt-5">
 
 			<div class="col">
 				<form th:action="@{/attendance/regist}" method="get">

@@ -1,5 +1,20 @@
 @charset "UTF-8";
 
+body {
+	background-color: rgb(246, 246, 246);
+/*	padding-top: 80px;  ヘッダーの後ろに要素が隠れないようにするため */
+}
+
+/*.fixed-header {*/
+/*	position: fixed;*/
+/*	top: 0;*/
+/*	left: 0;*/
+/*	width: 100%;*/
+/*	z-index: 1030;*/
+/*	padding: 10px 0;*/
+/*}*/
+
+
 /* ボタンを横並びにするコンテナ */
 .menu-container .container {
     display: flex;
@@ -26,12 +41,12 @@
     color: #000;
     font-size: 1em; /* 文字のサイズ */
     text-align: center;
-    cursor: pointer;
+
     outline: none;
     transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
     padding:40px;  /* 内側の余白を追加 */
 /*  box-shadow: 0 0 5px 1px rgb(231, 231, 231);*/
-/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3)*/
+/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3);*/
 }
 
 /* アイコンのスタイル */
@@ -56,11 +71,8 @@
 /*黄色ボタン*/
 .btn-yellow {
   display: inline-block; /* ボタンをインラインブロックとして表示 */
-  font-weight: 400; /* ボタンのテキストの太さを調整 */
   color: #000; /* テキストの色 */
   text-align: center; /* テキストを中央に配置 */
-  vertical-align: middle; /* 垂直方向の配置 */
-  user-select: none; /* テキスト選択を無効にする */
   border: 1px solid transparent; /* ボーダーの初期状態 */
   padding: .400rem .9rem; /* ボタンのパディング */
   font-size: 1rem; /* フォントサイズ */
@@ -68,11 +80,11 @@
   border-radius: .25rem; /* ボーダーの角を丸める */
   transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; /* トランジション効果 */
   background-color: #ffff00; /* ボタンの背景色 */
-  border-color: #cccc00; /* ボーダーの色 */
+/*  border-color: #cccc00;  (元々)ボーダーの色 */
+  border-color: rgb(206, 206, 0); /* ボーダーの色 */
 }
 
 .btn-yellow:hover {
-  color: #000; /* ホバー時のテキストの色 */
   background-color: #f5f500; /* ホバー時の背景色 */
   border-color: #b84c00; /* ホバー時のボーダーの色 */
 }
@@ -161,13 +173,26 @@
     opacity: .45;
 }
 
-/*目のアイコン*/
-#btn_passview {
-    border: none;
-    background: transparent;
-    cursor: pointer;
+/*ユーザー画面*/
+.users-text {
+	text-align: right;
+	transform: translate(-20px);
+	
+/*	font-weight: bold;*/
 }
 
-#btn_passview i {
-    font-size: 20px; /* アイコンのサイズ */
+/*目のアイコン*/
+#btn_passview {
+	position: absolute;
+	right: 18px;
+	top: 50%;
+	transform: translateY(-50%); 
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: gray;
+}
+
+.password-container {
+	position: relative;
 }
