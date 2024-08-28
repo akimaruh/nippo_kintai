@@ -27,7 +27,7 @@
 		parameterType="com.analix.project.entity.DailyReportDetail">
 		UPDATE daily_report_detail
 		SET time =
-		dailyReportDetail.time},
+		#{dailyReportDetail.time},
 		content = #{dailyReportDetail.content}
 		WHERE
 		user_id=#{dailyReportDetail.userId}
@@ -37,7 +37,7 @@
 	<update id="updateDailyReportStatus"
 		parameterType="com.analix.project.entity.DailyReport">
 		UPDATE daily_report
-		SET status = #{status}
+		SET status = #{dailyReport.status}
 		WHERE
 		user_id=#{dailyReport.userId}
 		AND date =#{dailyReport.date}

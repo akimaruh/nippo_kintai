@@ -33,21 +33,21 @@ public interface DailyReportMapper {
 	 * @param dailyReportDetail
 	 * @return 反映結果
 	 */
-	public boolean registDailyReportDetail(DailyReportDetail dailyReportDetail);
+	public boolean registDailyReportDetail(@Param("dailyReportDetail")DailyReportDetail dailyReportDetail);
 	
 	/**
 	 * 日報詳細更新
 	 * @param dailyReportDetail
 	 * @return 反映結果
 	 */
-	public boolean updateDailyReportDetail(DailyReportDetail dailyReportDetail);
+	public boolean updateDailyReportDetail(@Param("dailyReportDetail")DailyReportDetail dailyReportDetail);
 	
 	/**
 	 * 日報ステータス更新
 	 * @param dailyReport
 	 * @return 反映結果
 	 */
-	public boolean updateDailyReportStatus(DailyReport dailyReport);
+	public boolean updateDailyReportStatus(@Param("dailyReport")DailyReport dailyReport);
 	
 	/**
 	 * 日報取得

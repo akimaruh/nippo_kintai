@@ -76,8 +76,9 @@ public class DailyReportController {
 
 		//日報取得
 		dailyReportForm = dailyReportService.getDailyReport(userId, targetDate);
-		System.out.println("HTML直前" + dailyReportForm);
+		System.out.println("HTML直前2" + dailyReportForm);
 		model.addAttribute("dailyReport", dailyReportForm);
+		model.addAttribute(targetDate);
 
 		return "/dailyReport/regist";
 	}
@@ -96,8 +97,8 @@ public class DailyReportController {
 		dailyReportForm.setUserId(Integer.parseInt(userId));
 		LocalDate targetDate = LocalDate.parse(date);
 		dailyReportForm.setDate(targetDate);
-
-		System.out.println(dailyReportForm);
+		
+		System.out.println("登録"+dailyReportForm);
 		if (result.hasErrors()) {
 			return "/dailyReport/regist"; // バリデーションエラーがあれば、再度フォームを表示
 		}

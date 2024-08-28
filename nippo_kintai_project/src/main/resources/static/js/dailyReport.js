@@ -1,13 +1,26 @@
 // 対象日付の初期値を今日の日付に設定
-// 参照：https://qiita.com/acht_web/items/cb5edabb5f835fc0c27f
 function setTodayDate() {
-	var today = new Date();
-	var yyyy = today.getFullYear();
-	var mm = ("0" + (today.getMonth() + 1)).slice(-2); // getMonth()は1～12月を0～11で返すので+1している
-	var dd = ("0" + today.getDate()).slice(-2); // 頭に0をつけてから下2桁を取得
-	document.getElementById("today").value = yyyy + '-' + mm + '-' + dd;
+	var dateInput = document.getElementById("today");
+
+	// 日付がまだ設定されていない場合にのみ今日の日付を設定する
+	if (!dateInput.value) {
+		var today = new Date();
+		var yyyy = today.getFullYear();
+		var mm = ("0" + (today.getMonth() + 1)).slice(-2); // 月を0埋めして2桁に
+		var dd = ("0" + today.getDate()).slice(-2); // 日を0埋めして2桁に
+		dateInput.value = yyyy + '-' + mm + '-' + dd;
+	}
 }
 window.onload = setTodayDate;
+
+//
+const inputElem = document.getElementById("today");
+
+inputElem.addEventListener('change', (event) => {
+	// フォームを送信
+	document.getElementById("dailyReport").submit();
+
+});
 
 //日付を別のinputタブに反映
 document.getElementById('dailyReport-form').addEventListener('submit', function() {
@@ -27,17 +40,17 @@ function add() {
 	//id
 	let inpId = document.createElement("input");
 	inpId.type = "hidden";
-	inpId.name = `dailyReportDetail[${rowCount}].id`; // name属性を設定
+	inpId.name = `DailyReportFormDetailList[${rowCount}].id`; // name属性を設定
 	tr.appendChild(inpId);
 	//userId
 	let inpUserId = document.createElement("input");
 	inpUserId.type = "hidden";
-	inpUserId.name = `dailyReportDetail[${rowCount}].userId`; // name属性を設定
+	inpUserId.name = `DailyReportFormDetailList[${rowCount}].userId`; // name属性を設定
 	tr.appendChild(inpUserId);
 	//date
 	let inpDate = document.createElement("input");
 	inpDate.type = "hidden";
-	inpDate.name = `dailyReportDetail[${rowCount}].date`; // name属性を設定
+	inpDate.name = `DailyReportFormDetailList[${rowCount}].date`; // name属性を設定
 	tr.appendChild(inpDate);
 
 	// 1つ目のtd
@@ -46,7 +59,7 @@ function add() {
 	inp1.type = "number";
 	inp1.className = "form-control";
 	inp1.step = "0.5"
-	inp1.name = `dailyReportDetail[${rowCount}].time`; // name属性を設定
+	inp1.name = `DailyReportFormDetailList[${rowCount}].time`; // name属性を設定
 	td1.appendChild(inp1);
 	tr.appendChild(td1);
 
@@ -55,12 +68,23 @@ function add() {
 	let inp2 = document.createElement("input");
 	inp2.type = "text";
 	inp2.className = "form-control";
-	inp2.name = `dailyReportDetail[${rowCount}].content`; // name属性を設定
+	inp2.name = `DailyReportFormDetailList[${rowCount}].content`; // name属性を設定
 	td2.appendChild(inp2);
 	tr.appendChild(td2);
 
 	tblBody.appendChild(tr);
 }
+//ダメだったらこっち試す
+//	function add() {
+//    const table = document.getElementById('reportTable');
+//    const newRow = table.insertRow();
+//    const index = table.rows.length - 1; // 新しいインデックスを取得
+//
+//    newRow.innerHTML = `
+//        <td><input type="number" step="0.5" name="DailyReportFormDetailList[${index}].time" /></td>
+//        <td><input type="text" name="DailyReportFormDetailList[${index}].content" /></td>
+//    `;
+//}
 
 //末尾行削除
 function del() {

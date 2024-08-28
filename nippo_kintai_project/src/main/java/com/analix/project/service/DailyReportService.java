@@ -52,11 +52,11 @@ public class DailyReportService {
 		//Dtoを取得
 		DailyReportDto dailyReportDto = dailyReportMapper.findAllDailyReportByUserIdAndTargetDate(userId, targetDate);
 		//該当日で最初に日報を登録する場合
-		if(dailyReportDto ==null) {
+		if (dailyReportDto == null) {
 			DailyReportForm dailyReportForm = new DailyReportForm();
 			dailyReportForm.setDailyReportFormDetailList(new ArrayList<>());
 			return dailyReportForm;
-			}
+		}
 		//該当日が既に登録済みの場合
 		List<DailyReportDetailDto> dailyReportDetailDtoList = dailyReportDto.getDailyReportDetailDtoList();
 
@@ -84,7 +84,7 @@ public class DailyReportService {
 				dailyReportForm.setDailyReportFormDetailList(dailyReportDetailFormList);
 				System.out.println(dailyReportForm);
 			}
-			
+
 		}
 		System.out.println(dailyReportForm);
 		//ここまで
@@ -106,21 +106,20 @@ public class DailyReportService {
 		Integer dailyReportId = dailyReportForm.getId();
 		Integer userId = dailyReportForm.getUserId();
 		LocalDate targetDate = dailyReportForm.getDate();
-		
+
 		System.out.println(dailyReportForm.getDailyReportFormDetailList());
-		
+
 		//日報のIDがnullまたは0なら日報マスタを作成する
-		if (dailyReportId != 0) {
+		if (dailyReportId == 0 || dailyReportId == null) {
 			System.out.println("日報テーブル登録開始");
 			DailyReport dailyReport = new DailyReport();
 			dailyReport.setUserId(userId);
 			dailyReport.setDate(targetDate);
 			dailyReport.setStatus(Constants.CODE_VAL_UNSUBMITTED);//未提出
+			System.out.println("登録処理寸前：" + dailyReport);
 			dailyReportMapper.registDailyReport(dailyReport);
 			System.out.println("日報テーブル登録完了");
 		}
-
-		
 
 		for (DailyReportDetailForm dailyReportDetailForm : dailyReportForm.getDailyReportFormDetailList()) {
 			System.out.println("日報詳細テーブル準備開始");
@@ -132,8 +131,9 @@ public class DailyReportService {
 				DailyReportDetail dailyDetailReport = new DailyReportDetail();
 				dailyDetailReport.setContent(content);
 				dailyDetailReport.setTime(time);
-				dailyDetailReport.setUserId(userId);
-				dailyDetailReport.setDate(targetDate);
+				dailyDetailReport.setUserId(dailyReportForm.getUserId());
+				dailyDetailReport.setDate(dailyReportForm.getDate());
+				System.out.println("登録処理寸前：" + dailyDetailReport);
 
 				//登録処理
 				if (dailyReportDetailId == null || dailyReportDetailId == 0) {
@@ -144,6 +144,7 @@ public class DailyReportService {
 					System.out.println("更新処理開始");
 					//日報修正機能が今後追加されるなら別メソッドにした方がいいのか…？
 					dailyDetailReport.setId(dailyReportDetailId);
+					System.out.println("更新処理寸前：" + dailyDetailReport);
 					isRegistCheck = dailyReportMapper.updateDailyReportDetail(dailyDetailReport);
 
 				}
@@ -153,9 +154,10 @@ public class DailyReportService {
 
 		}
 		if (isRegistCheck == true) {
+			System.out.println("登録完了");
 			return "登録が完了しました";
 		} else {
-
+			System.out.println("登録失敗");
 			return "登録失敗";
 		}
 	}
@@ -166,7 +168,8 @@ public class DailyReportService {
 	 */
 	public void updateDailyReportStatus(DailyReportForm dailyReportForm) {
 		DailyReport dailyReport = new DailyReport();
-		dailyReport.setId(dailyReportForm.getId());
+		dailyReport.setUserId(dailyReportForm.getUserId());
+		dailyReport.setDate(dailyReportForm.getDate());
 		dailyReport.setStatus(Constants.CODE_VAL_BEFORE_SUBMITTED_APPROVAL);
 		dailyReportMapper.updateDailyReportStatus(dailyReport);
 	}
