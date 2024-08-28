@@ -13,7 +13,7 @@ function setTodayDate() {
 }
 window.onload = setTodayDate;
 
-//
+//カレンダー選択後日報表示反映
 const inputElem = document.getElementById("today");
 
 inputElem.addEventListener('change', (event) => {
