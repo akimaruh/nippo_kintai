@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.entity.Users;
 import com.analix.project.form.DailyReportForm;
@@ -40,6 +41,7 @@ public class DailyReportController {
 		model.addAttribute(userId);
 		LocalDate targetDate;
 		targetDate = LocalDate.now();
+		model.addAttribute("targetDate",targetDate);
 
 		String statusName = dailyReportService.findStatusByUserId(userId, targetDate);
 		model.addAttribute("statusName", statusName);
@@ -78,7 +80,7 @@ public class DailyReportController {
 		dailyReportForm = dailyReportService.getDailyReport(userId, targetDate);
 		System.out.println("HTML直前2" + dailyReportForm);
 		model.addAttribute("dailyReport", dailyReportForm);
-		model.addAttribute(targetDate);
+		model.addAttribute("targetDate",targetDate);
 
 		return "/dailyReport/regist";
 	}
@@ -91,7 +93,7 @@ public class DailyReportController {
 	@RequestMapping(path = "/dailyReport/regist/complete", method = RequestMethod.POST)
 	public String submitDailyReport(@Validated @ModelAttribute DailyReportForm dailyReportForm,
 			@RequestParam("userId") String userId, @RequestParam("date") String date,
-			@RequestParam("id") String id, BindingResult result, HttpSession session) {
+			@RequestParam("id") String id, BindingResult result, HttpSession session,RedirectAttributes redirectAttributes) {
 		String idAfterDecision = (id == "") ? "0" : id;
 		dailyReportForm.setId(Integer.parseInt(idAfterDecision));
 		dailyReportForm.setUserId(Integer.parseInt(userId));
@@ -111,8 +113,9 @@ public class DailyReportController {
 		dailyReportService.registDailyReportService(dailyReportForm);
 		//ステータスを提出済承認前に変更
 		dailyReportService.updateDailyReportStatus(dailyReportForm);
-
-		return "redirect:/dailyReport/regist";
+		
+		redirectAttributes.addAttribute("date",date);
+		return "redirect:/dailyReport/change";
 
 	}
 }

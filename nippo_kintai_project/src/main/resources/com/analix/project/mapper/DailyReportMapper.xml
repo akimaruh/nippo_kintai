@@ -30,7 +30,8 @@
 		#{dailyReportDetail.time},
 		content = #{dailyReportDetail.content}
 		WHERE
-		user_id=#{dailyReportDetail.userId}
+		id=#{dailyReportDetail.id}
+		AND user_id=#{dailyReportDetail.userId}
 		AND date =#{dailyReportDetail.date}
 	</update>
 

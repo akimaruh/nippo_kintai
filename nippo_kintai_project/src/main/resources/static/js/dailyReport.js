@@ -1,17 +1,17 @@
 // 対象日付の初期値を今日の日付に設定
-function setTodayDate() {
-	var dateInput = document.getElementById("today");
-
-	// 日付がまだ設定されていない場合にのみ今日の日付を設定する
-	if (!dateInput.value) {
-		var today = new Date();
-		var yyyy = today.getFullYear();
-		var mm = ("0" + (today.getMonth() + 1)).slice(-2); // 月を0埋めして2桁に
-		var dd = ("0" + today.getDate()).slice(-2); // 日を0埋めして2桁に
-		dateInput.value = yyyy + '-' + mm + '-' + dd;
-	}
-}
-window.onload = setTodayDate;
+//function setTodayDate() {
+//	var dateInput = document.getElementById("today");
+//
+//	// 日付がまだ設定されていない場合にのみ今日の日付を設定する
+//	if (!dateInput.value) {
+//		var today = new Date();
+//		var yyyy = today.getFullYear();
+//		var mm = ("0" + (today.getMonth() + 1)).slice(-2); // 月を0埋めして2桁に
+//		var dd = ("0" + today.getDate()).slice(-2); // 日を0埋めして2桁に
+//		dateInput.value = yyyy + '-' + mm + '-' + dd;
+//	}
+//}
+//window.onload = setTodayDate;
 
 //カレンダー選択後日報表示反映
 const inputElem = document.getElementById("today");
@@ -87,12 +87,12 @@ function add() {
 //}
 
 //末尾行削除
-function del() {
-	let rows = tblBody.getElementsByTagName('tr');
-	if (rows.length > 0) {
-		tblBody.deleteRow(rows.length - 1);
-	}
-};
+//function del() {
+//	let rows = tblBody.getElementsByTagName('tr');
+//	if (rows.length > 0) {
+//		tblBody.deleteRow(rows.length - 1);
+//	}
+//};
 
 //「提出」ボタン：1行でも作業時間・内容が入力されていれば活性化
 document.addEventListener("DOMContentLoaded", function() {
