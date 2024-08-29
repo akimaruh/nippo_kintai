@@ -22,6 +22,13 @@ public interface DailyReportMapper {
 			@Param("targetDate") LocalDate targetDate);
 	
 	/**
+	 * 登録済みの日報データ確認
+	 * @param userId
+	 * @param targetDate
+	 * @return
+	 */
+	public int countRegistedDailyReportByTargetDate (@Param("userId") Integer userId,@Param("targetDate") LocalDate targetDate);
+	/**
 	 * 日報テーブル登録
 	 * @param dailyReport
 	 * @return 反映結果

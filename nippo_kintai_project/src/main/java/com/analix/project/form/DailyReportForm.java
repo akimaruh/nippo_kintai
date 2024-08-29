@@ -5,11 +5,13 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 import lombok.Data;
-@Valid
+
 @Data
+
 public class DailyReportForm {
 	private Integer id;
 	private Integer userId;
 	private LocalDate date;
-	private List<DailyReportDetailForm> DailyReportFormDetailList;
+	@Valid
+	private List<DailyReportDetailForm> dailyReportFormDetailList;
 }

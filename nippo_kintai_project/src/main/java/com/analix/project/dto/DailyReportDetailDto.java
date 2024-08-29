@@ -12,7 +12,7 @@ public class DailyReportDetailDto {
 	/*日付*/
 	private LocalDate date;
 	/*時間*/
-	private Float time;
+	private Integer time;
 	/*内容*/
 	private String content;
 

@@ -3,7 +3,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
 
 	let name = document.getElementById('name').value;
 	const MAX_USERNAME_LENGTH = 20;
-	const regex = /^[^\\x00-\\x7F]*$/;
+	
 
 	let validation = true;
 

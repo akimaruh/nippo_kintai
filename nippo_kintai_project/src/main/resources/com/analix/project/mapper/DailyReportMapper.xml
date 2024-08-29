@@ -8,6 +8,13 @@
 		AND date = #{targetDate}
 	</select>
 
+	<select id="countRegistedDailyReportByTargetDate"
+		resultType="int">
+		SELECT count(*) FROM daily_report
+		WHERE user_id = #{userId}
+		AND date = #{targetDate} 
+	</select>
+
 	<insert id="registDailyReport" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.DailyReport">
 		INSERT INTO
@@ -32,7 +39,8 @@
 		WHERE
 		id=#{dailyReportDetail.id}
 		AND user_id=#{dailyReportDetail.userId}
-		AND date =#{dailyReportDetail.date}
+		AND
+		date =#{dailyReportDetail.date}
 	</update>
 
 	<update id="updateDailyReportStatus"
@@ -68,15 +76,20 @@
 		daily_report.user_id,
 		daily_report.date,
 		daily_report.status,
-		daily_report_detail.id AS daily_report_detail_id,
+		daily_report_detail.id AS
+		daily_report_detail_id,
 		daily_report_detail.time,
 		daily_report_detail.content
 		FROM daily_report
-		INNER JOIN daily_report_detail
-		ON daily_report.user_id = daily_report_detail.user_id
-		AND daily_report.date = daily_report_detail.date
+		INNER JOIN
+		daily_report_detail
+		ON daily_report.user_id =
+		daily_report_detail.user_id
+		AND daily_report.date =
+		daily_report_detail.date
 		WHERE daily_report.user_id = #{userId}
-		AND daily_report.date = #{targetDate}
+		AND
+		daily_report.date = #{targetDate}
 	</select>
 
 

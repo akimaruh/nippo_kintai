@@ -96,21 +96,28 @@ public class DailyReportService {
 	 * 入力チェック
 	 * @param submittedDailyReportForm
 	 */
-	public void validationForm(DailyReportForm dailyReportForm) {
-		//いらない？？
-	}
+	//	public void validationForm(DailyReportForm dailyReportForm) {
+	//		//いらない？？
+	//	}
 
+	/**
+	 * 日報登録
+	 * @param dailyReportForm
+	 * @return
+	 */
 	public String registDailyReportService(DailyReportForm dailyReportForm) {
 		boolean isRegistCheck = false;
 		//詰め替えと追加
-		Integer dailyReportId = dailyReportForm.getId();
 		Integer userId = dailyReportForm.getUserId();
 		LocalDate targetDate = dailyReportForm.getDate();
 
 		System.out.println(dailyReportForm.getDailyReportFormDetailList());
 
-		//日報のIDがnullまたは0なら日報マスタを作成する
-		if (dailyReportId == 0 || dailyReportId == null) {
+		//日報マスタが既に存在するか確認
+		int count = dailyReportMapper.countRegistedDailyReportByTargetDate(userId, targetDate);
+		boolean dailyReportExistsFlg = (count > 0);
+		//日報マスタが存在しなければ作成する
+		if (dailyReportExistsFlg == false) {
 			System.out.println("日報テーブル登録開始");
 			DailyReport dailyReport = new DailyReport();
 			dailyReport.setUserId(userId);
@@ -122,12 +129,12 @@ public class DailyReportService {
 		}
 
 		for (DailyReportDetailForm dailyReportDetailForm : dailyReportForm.getDailyReportFormDetailList()) {
-			System.out.println("日報詳細テーブル準備開始");
-			Float time = dailyReportDetailForm.getTime();
+			System.out.println("日報詳細テーブル準備開始" + dailyReportDetailForm.getTime());
+			Integer time = dailyReportDetailForm.getTime();
 			String content = dailyReportDetailForm.getContent();
 			Integer dailyReportDetailId = dailyReportDetailForm.getId();
 
-			if (time != null || content != null || content != "") {
+			if (time != null && (content != null || content != "")) {
 				DailyReportDetail dailyDetailReport = new DailyReportDetail();
 				dailyDetailReport.setContent(content);
 				dailyDetailReport.setTime(time);
@@ -139,7 +146,7 @@ public class DailyReportService {
 				if (dailyReportDetailId == null || dailyReportDetailId == 0) {
 					System.out.println("登録処理開始");
 					isRegistCheck = dailyReportMapper.registDailyReportDetail(dailyDetailReport);
-
+					//更新処理
 				} else {
 					System.out.println("更新処理開始");
 					//日報修正機能が今後追加されるなら別メソッドにした方がいいのか…？
@@ -148,7 +155,6 @@ public class DailyReportService {
 					isRegistCheck = dailyReportMapper.updateDailyReportDetail(dailyDetailReport);
 
 				}
-
 				continue;
 			}
 

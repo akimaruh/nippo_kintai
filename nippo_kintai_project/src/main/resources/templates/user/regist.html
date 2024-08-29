@@ -22,12 +22,12 @@
 				<strong>ユーザーID：</strong>
 				<span th:text="${session.loginUser.id}"></span>
 			</div>
-	
+
 			<div class="ms-auto d-flex gap-2">
 				<a href="/common/startMenu">
 					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
 				</a>
-	
+
 				<form th:action="@{/common/logoff}" method="post">
 					<button type="submit" class="btn-yellow">ログオフ</button>
 				</form>
@@ -35,7 +35,7 @@
 		</div>
 	</div>
 	<!-- ヘッダー -->
-	
+
 	<!--	<h1 class="mb-4 text-center">ユーザー登録</h1>-->
 	<div th:if="${error}" class="alert alert-danger">
 		<p th:text="${error}"></p>
@@ -44,13 +44,13 @@
 		<p th:text="${message}"></p>
 	</div>
 
-<!--	<div class="container d-flex flex-row-reverse">-->
-<!--		<div>-->
-<!--			<a href="/common/startMenu">-->
-<!--				<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
-<!--			</a>-->
-<!--		</div>-->
-<!--	</div>-->
+	<!--	<div class="container d-flex flex-row-reverse">-->
+	<!--		<div>-->
+	<!--			<a href="/common/startMenu">-->
+	<!--				<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
+	<!--			</a>-->
+	<!--		</div>-->
+	<!--	</div>-->
 
 	<div class="container d-flex justify-content-center mb-5" id="regist">
 		<div class="col-md-6">
@@ -94,7 +94,8 @@
 						<div class="container mb-3 row">
 							<label for="password" class="col-sm-4 col-form-label users-text">パスワード</label>
 							<div class="col-sm-8 password-container">
-								<input type="text" name="password" class="form-control" th:field="*{password}" style="display: none;" />
+								<input type="text" name="password" class="form-control" th:field="*{password}"
+									style="display: none;" />
 								<button type="button" id="btn_passview">
 									<i id="view" class="fas fa-eye-slash"></i>
 								</button>
@@ -102,8 +103,8 @@
 							<div class="col-sm-4"></div>
 							<div class="col-sm-8">
 								<span class="text-danger" th:errors="*{password}"></span>
-								<span id="passwordError" class="text-danger"></span>
 							</div>
+							<div id="passwordError" class="text-danger"></div>
 						</div>
 
 						<div class="container mb-3 row">
@@ -152,7 +153,8 @@
 						<!--			    <div class="position-absolute top-50 start-50">-->
 						<div class="container d-flex flex-row-reverse mt-3 mb-2">
 							<input type="hidden" name="name" id="hidden-name" />
-							<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" style="margin-right: 20px;" />
+							<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow"
+								style="margin-right: 20px;" />
 							<input type="hidden" name="id" th:value="*{id}" />
 							<!--		</div>-->
 						</div>
