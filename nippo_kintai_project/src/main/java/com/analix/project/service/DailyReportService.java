@@ -96,10 +96,10 @@ public class DailyReportService {
 	 * 入力チェック
 	 * @param submittedDailyReportForm
 	 */
-	//	public void validationForm(DailyReportForm dailyReportForm) {
-	//		//いらない？？
-	//	}
-
+//	public void validationForm(DailyReportForm dailyReportForm) {
+//		//いらない？？
+//	}
+	
 	/**
 	 * 日報登録
 	 * @param dailyReportForm
@@ -112,12 +112,12 @@ public class DailyReportService {
 		LocalDate targetDate = dailyReportForm.getDate();
 
 		System.out.println(dailyReportForm.getDailyReportFormDetailList());
-
+		
 		//日報マスタが既に存在するか確認
 		int count = dailyReportMapper.countRegistedDailyReportByTargetDate(userId, targetDate);
 		boolean dailyReportExistsFlg = (count > 0);
 		//日報マスタが存在しなければ作成する
-		if (dailyReportExistsFlg == false) {
+		if (dailyReportExistsFlg==false) {
 			System.out.println("日報テーブル登録開始");
 			DailyReport dailyReport = new DailyReport();
 			dailyReport.setUserId(userId);
@@ -157,7 +157,7 @@ public class DailyReportService {
 				}
 				continue;
 			}
-
+			
 		}
 		if (isRegistCheck == true) {
 			System.out.println("登録完了");

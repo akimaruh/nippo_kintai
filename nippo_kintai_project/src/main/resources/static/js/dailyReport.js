@@ -17,7 +17,6 @@
 const inputDate = document.getElementById("today");
 
 inputDate.addEventListener('change', (event) => {
-
 	// 今日の日付を取得（"yyyy-mm-dd"形式）
 	var today = new Date().toLocaleDateString("ja-JP", {
 		year: "numeric", month: "2-digit",
@@ -26,7 +25,7 @@ inputDate.addEventListener('change', (event) => {
 
 	// 日付のバリデーション
 	let validation = true;
-
+	
 	if (inputDate.value > today) {
 		document.getElementById('dateError').innerHTML = "今日以前の日報を選んでください";
 		validation = false;
@@ -70,30 +69,30 @@ document.getElementById('dailyReport-form').addEventListener('submit', function(
 	return true;
 });
 
+//日付を別のinputタブに反映
+document.getElementById('dailyReport-form').addEventListener('submit', function() {
+	const date = document.getElementById('today').value;
+	document.getElementById('hidden-date').value = date;
+	return true;
+});
+
 // テーブルの行追加・削除
 // 参照：https://qiita.com/forever---searcher/items/7901217dc811d72687f8
-let inputUserId = document.getElementById('userId');
-const tblBody = document.getElementById('dailyReportTbl').getElementsByTagName('tbody')[0];
+const tblBody = document.getElementById("dailyReportTbl").getElementsByTagName('tbody')[0];
 let rowCount = tblBody.getElementsByTagName('tr').length; // 既存の行数をカウント
-
-
-
 
 //行追加
 function add() {
-	console.log(rowCount);
 	let tr = document.createElement("tr");
 	//id
 	let inpId = document.createElement("input");
 	inpId.type = "hidden";
 	inpId.name = `dailyReportFormDetailList[${rowCount}].id`; // name属性を設定
-
 	tr.appendChild(inpId);
 	//userId
 	let inpUserId = document.createElement("input");
 	inpUserId.type = "hidden";
 	inpUserId.name = `dailyReportFormDetailList[${rowCount}].userId`; // name属性を設定
-	inpUserId.value = inputUserId.innerHTML;
 	tr.appendChild(inpUserId);
 	//date
 	let inpDate = document.createElement("input");
@@ -106,8 +105,8 @@ function add() {
 	let td1 = document.createElement("td");
 	let inp1 = document.createElement("input");
 	inp1.type = "number";
-	inp1.min = "0";
 	inp1.className = "form-control";
+	inp1.min = "0"
 	inp1.name = `dailyReportFormDetailList[${rowCount}].time`; // name属性を設定
 	td1.appendChild(inp1);
 	tr.appendChild(td1);
@@ -124,8 +123,27 @@ function add() {
 	tblBody.appendChild(tr);
 	rowCount++;
 }
+//ダメだったらこっち試す
+//	function add() {
+//    const table = document.getElementById('reportTable');
+//    const newRow = table.insertRow();
+//    const index = table.rows.length - 1; // 新しいインデックスを取得
+//
+//    newRow.innerHTML = `
+//        <td><input type="number" step="0.5" name="DailyReportFormDetailList[${index}].time" /></td>
+//        <td><input type="text" name="DailyReportFormDetailList[${index}].content" /></td>
+//    `;
+//}
 
-///「提出」ボタン：活性化/非活性
+//末尾行削除
+//function del() {
+//	let rows = tblBody.getElementsByTagName('tr');
+//	if (rows.length > 0) {
+//		tblBody.deleteRow(rows.length - 1);
+//	}
+//};
+
+//「提出」ボタン：活性化/非活性
 document.addEventListener("DOMContentLoaded", function() {
 	var submitBtn = document.getElementById("submitBtn");
 	var dailyReportTbl = document.getElementById("dailyReportTbl");
@@ -195,4 +213,3 @@ document.addEventListener("DOMContentLoaded", function() {
 		updateSubmitBtn();
 	}
 });
-

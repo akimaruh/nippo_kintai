@@ -123,21 +123,13 @@ public class DailyReportController {
 		}
 
 		System.out.println("登録" + dailyReportForm);
-		//		if (!result.hasErrors()) {
-		//
-		//		}
-
-		//内容取得→入力チェック→詰め替え→（登録→ステータス変更or更新→ステータスそのまま)→完了
-
-		//入力チェック
-		//		dailyReportService.validationForm(dailyReportForm);
-		//登録or更新
+		
 		dailyReportService.registDailyReportService(dailyReportForm);
 		//ステータスを提出済承認前に変更
 		dailyReportService.updateDailyReportStatus(dailyReportForm);
 
 		redirectAttributes.addFlashAttribute("targetDate", targetDate);
-		redirectAttributes.addFlashAttribute("dailyReportForm", dailyReportForm);
+	
 		redirectAttributes.addFlashAttribute("message", "日報の登録が完了しました。");
 
 		return "redirect:/dailyReport/regist";

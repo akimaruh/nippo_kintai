@@ -50,9 +50,9 @@
 						<div th:if="${error}" class="alert alert-danger">
 							<p th:text="${error}"></p>
 						</div>
-						<span th:if="${message}" class="alert alert-info">
+						<div th:if="${message}" class="alert alert-info">
 							<p th:text="${message}"></p>
-						</span>
+						</div>
 						<form id="dailyReport" name="dailyReportForm" method="post" action="/dailyReport/change">
 							<strong>対象日付：</strong>
 
@@ -132,7 +132,8 @@
 
 
 										<td><input type="number" class="form-control"
-												th:field="*{dailyReportFormDetailList[__${stat.index}__].time}" min="0" />
+												th:field="*{dailyReportFormDetailList[__${stat.index}__].time}"
+												min="0" />
 											<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].time')}"
 												class="text-danger"
 												th:errors="*{dailyReportFormDetailList[__${stat.index}__].time}"></div>
@@ -163,7 +164,8 @@
 				</div>
 
 				<div class="container mb-5">
-					<input type="button" value="追加" onclick="add()" id="add-button" />
+					<input type="button" value="追加" onclick="add()" id="submitBtn"
+						th:disabled="${statusName == '承認済'}" />
 					<!--			<input type="button" value="削除" onclick="del()" />-->
 				</div>
 			</div>
