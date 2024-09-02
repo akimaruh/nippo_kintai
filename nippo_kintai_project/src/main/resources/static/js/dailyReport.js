@@ -47,7 +47,8 @@ inputDate.addEventListener('change', (event) => {
 function del() {
 	const tblBody = document.getElementById("dailyReport-tbody"); // テーブルのtbodyのIDを指定してください
 	let rows = tblBody.getElementsByTagName('tr');
-	let addButton = document.getElementById("add-button");
+	let addButton = document.getElementById("addBtn");
+	let submitButton = document.getElementById("submitBtn");
 
 	// 全ての行を削除
 	while (rows.length > 0) {
@@ -55,6 +56,7 @@ function del() {
 	}
 	// addButtonを非表示にする
 	addButton.style.display = "none";
+	submitButton.style.display = "none";
 }
 //日付を別のinputタブに反映
 document.getElementById('dailyReport-form').addEventListener('submit', function() {
