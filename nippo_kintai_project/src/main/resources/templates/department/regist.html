@@ -43,7 +43,7 @@
 					<h3 class="text-center">部署登録</h3>
 				</div>
 				<div class="card-body" style="margin-right: 02px;">
-					
+
 					<!-- エラー -->
 					<div th:if="${error}" class="alert alert-danger">
 						<p th:text="${error}"></p>
@@ -55,18 +55,25 @@
 
 					<div>
 						<label>登録済の部署</label>
-						<input type="text" class="form-control" />
+						<!--<input type="text" class="form-control" />-->
+						<select class="form-select" name="department" id="input-registed-department">
+							<option value=""></option>
+							<option th:each="department : ${departmentList}" th:value="${department.departmentId}"
+								th:text="${department.name}"></option>
+						</select>
 					</div>
+
 
 					<div>
 						<label>新部署名</label>
-						<input type="text" class="form-control" />
+						<input type="text" class="form-control" id="input-new-department" />
+						<span id="newNameError" class="text-danger"></span>
 					</div>
 
 					<!-- ボタン -->
-					<button type="submit" class="btn-yellow">登録</button>
-					<button type="submit" class="btn-yellow">変更</button>
-					<button type="submit" class="btn-yellow">削除</button>
+					<button type="submit" class="btn-yellow" id="regist-btn" disabled>登録</button>
+					<button type="submit" class="btn-yellow" id="modify-btn" disabled>変更</button>
+					<button type="submit" class="btn-yellow" id="delete-btn" disabled onclick="delcheck()">削除</button>
 					<!-- ボタン -->
 
 				</div>
@@ -74,7 +81,7 @@
 		</div>
 	</div>
 
-
+	<script th:src="@{/js/department.js}"></script>
 </body>
 
 </html>
