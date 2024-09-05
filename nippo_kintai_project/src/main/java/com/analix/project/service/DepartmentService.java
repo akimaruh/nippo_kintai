@@ -36,7 +36,11 @@ public class DepartmentService {
 	/**
 	 * 「登録」ボタン押下
 	 */
-	public String registDepartment(Department department) {
+	public String registDepartment(String newName) {
+		
+		Department department = new Department();
+		department.setName(newName);
+
 		if (isDepartmentExists(department.getName())) {
 			return "この部署名は既に登録済です";
 		}

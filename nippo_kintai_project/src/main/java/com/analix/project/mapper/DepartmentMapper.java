@@ -25,5 +25,5 @@ public interface DepartmentMapper {
 	/**
 	 * 新部署名登録
 	 */
-	public void registDepartment(@Param("Department") Department department);
+	public void registDepartment(@Param("department") Department department);
 }

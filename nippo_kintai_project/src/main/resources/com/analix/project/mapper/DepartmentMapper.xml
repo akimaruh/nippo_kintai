@@ -11,17 +11,18 @@
 	</select>
 	
 	<!-- 部署の検索 -->
-	<select id="findAllByName" resultType="Integer">
+	<select id="departmentCountByName" resultType="Integer">
 		SELECT COUNT(*) FROM department
 		WHERE name = #{name}
+		AND is_active = 1
 	</select>
 	
 	<!-- 新部署名登録 -->
 	<insert id="registDepartment" useGeneratedKeys="true"
-		keyProperty="id" parameterType="com.analix.project.entity.Department">
+		keyProperty="departmentId" parameterType="com.analix.project.entity.Department">
 		INSERT INTO
 		department(name, is_active)
-		VALUES (#{name}, 1)
+		VALUES (#{department.name}, 1)
 	</insert>
 		
 </mapper>

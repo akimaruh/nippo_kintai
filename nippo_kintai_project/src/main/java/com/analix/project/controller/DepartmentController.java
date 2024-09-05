@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.entity.Department;
 import com.analix.project.service.DepartmentService;
@@ -33,12 +35,16 @@ public class DepartmentController {
 	}
 	
 	/**
-	 * 
+	 * 「登録」ボタン押下
 	 */
 	@RequestMapping(path = "/department/regist/complete", method = RequestMethod.POST)
-	public String departmentComplete() {
+	public String departmentComplete(@RequestParam("newName") String newName, Department department, Model model, RedirectAttributes redirectAttributes) {
+
+		department.setName(newName);
+		String message = departmentService.registDepartment(newName);
+		redirectAttributes.addFlashAttribute("error", message);
+//		model.addAttribute("message", message);
 		
-		return "/department/regist";
-		
+		return "redirect:/department/regist";
 	}
 }

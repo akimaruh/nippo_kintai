@@ -58,28 +58,31 @@
 						<!--<input type="text" class="form-control" />-->
 						<select class="form-select" name="department" id="input-registed-department">
 							<option value=""></option>
-							<option th:each="department : ${departmentList}" th:value="${department.departmentId}"
+							<option th:each="department : ${departmentList}" th:value="${department.name}"
 								th:text="${department.name}"></option>
 						</select>
 					</div>
 
+					<form action="/department/regist/complete" method="post" id="department-form">
+						<div>
+							<label>新部署名</label>
+							<input type="text" class="form-control" name="newName" id="input-new-department" />
+							<span id="newNameError" class="text-danger"></span>
+						</div>
 
-					<div>
-						<label>新部署名</label>
-						<input type="text" class="form-control" id="input-new-department" />
-						<span id="newNameError" class="text-danger"></span>
-					</div>
-
-					<!-- ボタン -->
-					<button type="submit" class="btn-yellow" id="regist-btn" disabled>登録</button>
-					<button type="submit" class="btn-yellow" id="modify-btn" disabled>変更</button>
-					<button type="submit" class="btn-yellow" id="delete-btn" disabled onclick="delcheck()">削除</button>
-					<!-- ボタン -->
-
+						<!-- ボタン -->
+						<button type="submit" class="btn-yellow" id="regist-btn" disabled>登録</button>
+						<button type="submit" class="btn-yellow" id="modify-btn" disabled>変更</button>
+						<button type="submit" class="btn-yellow" id="delete-btn" disabled
+							onclick="delcheck()">削除</button>
+						<!-- ボタン -->
+					</form>
+					
 				</div>
 			</div>
 		</div>
 	</div>
+
 
 	<script th:src="@{/js/department.js}"></script>
 </body>
