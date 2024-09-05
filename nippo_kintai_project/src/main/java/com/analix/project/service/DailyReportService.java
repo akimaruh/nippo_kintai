@@ -105,7 +105,7 @@ public class DailyReportService {
 	 * @param dailyReportForm
 	 * @return
 	 */
-	public String registDailyReportService(DailyReportForm dailyReportForm) {
+	public boolean registDailyReportService(DailyReportForm dailyReportForm) {
 		boolean isRegistCheck = false;
 		//詰め替えと追加
 		Integer userId = dailyReportForm.getUserId();
@@ -129,10 +129,17 @@ public class DailyReportService {
 		}
 
 		for (DailyReportDetailForm dailyReportDetailForm : dailyReportForm.getDailyReportFormDetailList()) {
-			System.out.println("日報詳細テーブル準備開始" + dailyReportDetailForm.getTime());
+			System.out.println("日報詳細テーブル準備開始" + dailyReportDetailForm);
 			Integer time = dailyReportDetailForm.getTime();
 			String content = dailyReportDetailForm.getContent();
 			Integer dailyReportDetailId = dailyReportDetailForm.getId();
+			
+			//日報詳細idがあるかつ作業時間がnullかつ作業内容が空欄の場合削除処理を行う
+			if(dailyReportDetailId != null && (time ==null && content=="")) {
+				System.out.println("削除処理開始");
+				isRegistCheck=dailyReportMapper.deleteDailyReportDetail(dailyReportDetailId);
+				continue;
+			}
 
 			if (time != null && (content != null || content != "")) {
 				DailyReportDetail dailyDetailReport = new DailyReportDetail();
@@ -161,10 +168,10 @@ public class DailyReportService {
 		}
 		if (isRegistCheck == true) {
 			System.out.println("登録完了");
-			return "登録が完了しました";
+			return true;
 		} else {
 			System.out.println("登録失敗");
-			return "登録失敗";
+			return false;
 		}
 	}
 

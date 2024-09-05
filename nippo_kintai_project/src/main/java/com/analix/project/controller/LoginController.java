@@ -22,7 +22,7 @@ public class LoginController {
 	private LoginService loginService;
 
 	@GetMapping("/")
-	public String getLogin(Model model ,HttpSession session) {
+	public String getLogin(Model model, HttpSession session) {
 
 		model.addAttribute("error", false);
 		return "common/login";
@@ -62,7 +62,6 @@ public class LoginController {
 
 			session.setAttribute("loginUser", user);
 			String role = user.getRole();
-
 			//ログイン完了後遷移
 			//権限による画面遷移の可能性を考え、現状権限で分岐する書き方で進める
 			if ("Admin".equals(role)) {
@@ -80,6 +79,12 @@ public class LoginController {
 			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 			return "common/login";
 		}
+	}
+	@GetMapping("/timeout")
+	public String timeout(Model model,HttpSession session) {
+
+		model.addAttribute("message","タイムアウトしました。再ログインしてください。");
+		return "common/login";
 	}
 
 	//	// ログアウト処理

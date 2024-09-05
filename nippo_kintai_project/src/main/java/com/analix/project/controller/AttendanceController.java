@@ -129,18 +129,21 @@ public class AttendanceController {
 			HttpSession session, RedirectAttributes redirectAttributes) {
 
 		attendanceService.validationForm(attendanceFormList, result);
+		String yearMonth = (String) session.getAttribute("yearMonth");
+		
 
 		if (result.hasErrors()) {
 			model.addAttribute("attendanceFormList", attendanceFormList);
+			model.addAttribute("yearMonth", yearMonth);
 			model.addAttribute("error", "エラー内容に従って修正してください");
 
 			return "/attendance/regist";
 		}
 
 		String message = attendanceService.getRegistDailyAttendance(userId, attendanceFormList);
-		String yearMonth = (String) session.getAttribute("yearMonth");
-		redirectAttributes.addFlashAttribute("message", message);
+		
 		redirectAttributes.addAttribute("yearMonth", yearMonth);
+		redirectAttributes.addFlashAttribute("message", message);
 
 		return "redirect:/attendance/regist/display";
 

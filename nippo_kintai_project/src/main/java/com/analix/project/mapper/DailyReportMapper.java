@@ -63,4 +63,11 @@ public interface DailyReportMapper {
 	 * @return 日報+日報詳細
 	 */
 	public DailyReportDto findAllDailyReportByUserIdAndTargetDate(@Param("userId")Integer userId,@Param("targetDate")LocalDate targetDate);
+	
+	/**
+	 * 日報詳細行毎に削除
+	 * @param id
+	 * @return 反映結果
+	 */
+	public boolean deleteDailyReportDetail(@Param("id")Integer id);
 }

@@ -104,16 +104,18 @@ public class DailyReportController {
 	 * @return
 	 */
 	@RequestMapping(path = "/dailyReport/regist/complete", method = RequestMethod.POST)
-	public String submitDailyReport(@Valid @ModelAttribute ("dailyReport") DailyReportForm dailyReportForm, BindingResult result,
-			@RequestParam("userId") String userId, @RequestParam("date") String date,
-			@RequestParam("id") String id, HttpSession session, RedirectAttributes redirectAttributes, Model model) {
+	public String submitDailyReport(@Valid @ModelAttribute("dailyReport") DailyReportForm dailyReportForm,
+			BindingResult result,
+			HttpSession session, RedirectAttributes redirectAttributes, Model model) {
+		System.out.println("フォーム受け取りほやほや" + dailyReportForm);
+		//		String idAfterDecision = (id == "") ? "0" : id;
+		//		dailyReportForm.setId(Integer.parseInt(idAfterDecision));
+		//		dailyReportForm.setUserId(Integer.parseInt(userId));
+		//		LocalDate targetDate = LocalDate.parse(date);
+		//		dailyReportForm.setDate(targetDate);
+		LocalDate targetDate = dailyReportForm.getDate();
+		boolean isRegistComplete=false;
 
-		String idAfterDecision = (id == "") ? "0" : id;
-		dailyReportForm.setId(Integer.parseInt(idAfterDecision));
-		dailyReportForm.setUserId(Integer.parseInt(userId));
-		LocalDate targetDate = LocalDate.parse(date);
-		dailyReportForm.setDate(targetDate);
-		
 		if (result.hasErrors()) {
 			model.addAttribute("targetDate", targetDate);
 			model.addAttribute("dailyReport", dailyReportForm);
@@ -123,15 +125,18 @@ public class DailyReportController {
 		}
 
 		System.out.println("登録" + dailyReportForm);
+
 		
-		dailyReportService.registDailyReportService(dailyReportForm);
+		isRegistComplete = dailyReportService.registDailyReportService(dailyReportForm);
 		//ステータスを提出済承認前に変更
-		dailyReportService.updateDailyReportStatus(dailyReportForm);
+		 dailyReportService.updateDailyReportStatus(dailyReportForm);
 
 		redirectAttributes.addFlashAttribute("targetDate", targetDate);
-	
-		redirectAttributes.addFlashAttribute("message", "日報の登録が完了しました。");
-
+		if (isRegistComplete = true) {
+			redirectAttributes.addFlashAttribute("message", "日報の登録が完了しました。");
+		} else if(isRegistComplete = false){
+			redirectAttributes.addFlashAttribute("error", "日報の登録が失敗しました。");
+		}
 		return "redirect:/dailyReport/regist";
 
 	}

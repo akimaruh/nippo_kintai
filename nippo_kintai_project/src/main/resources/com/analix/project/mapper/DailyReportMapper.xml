@@ -91,6 +91,11 @@
 		AND
 		daily_report.date = #{targetDate}
 	</select>
+	
+	<delete id="deleteDailyReportDetail">
+		DELETE FROM daily_report_detail
+		WHERE id = #{id}
+	</delete>
 
 
 </mapper>
