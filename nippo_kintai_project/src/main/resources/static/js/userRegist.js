@@ -2,7 +2,7 @@
 document.getElementById('search-form').addEventListener('submit', function(event) {
 
 	let name = document.getElementById('name').value;
-	const MAX_USERNAME_LENGTH = 20;
+	const MAX_USERNAME_LENGTH = 21;
 	
 
 	let validation = true;
@@ -46,7 +46,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 
 	const regex = /^[\\x00-\\x7F]*$/;
 
-	const MAX_USERNAME_LENGTH = 20;
+	const MAX_USERNAME_LENGTH = 21;
 	const MAX_PASSWORD_LENGTH = 16;
 	const STARTDATE_LENGTH = 10;
 

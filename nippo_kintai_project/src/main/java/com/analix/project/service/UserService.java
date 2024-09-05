@@ -37,35 +37,32 @@ public class UserService {
 	 * @return registUserForm
 	 */
 	public RegistUserForm getUserDataByUserName(String name, BindingResult result) {
-		
-		if(name != null) {
-		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
-		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
-		Matcher nameMatcher = fullwidthPattern.matcher(name);
-		
-		
-		if (name.length() >= 20) {
-			result.addError(
-					new FieldError("registUserForm", "name",
-							"全角20文字以内で入力してください"));
-		}
-		//空欄または全角以外で入力があった場合
-		if (!nameMatcher.find()) {
+
+		if (name != null) {
+			String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
+			Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
+			Matcher nameMatcher = fullwidthPattern.matcher(name);
+
+			if (name.length() > 20) {
+				result.addError(
+						new FieldError("registUserForm", "name",
+								"全角20文字以内で入力してください"));
+			}
+			//空欄または全角以外で入力があった場合
+			if (!nameMatcher.find()) {
+				result.addError(
+						new FieldError("registUserForm", "name",
+								"全角で入力してください"));
+			}
+		} else {
 			result.addError(
 					new FieldError("registUserForm", "name",
 							"全角で入力してください"));
-		}
-		}
-		else {
-			result.addError(
-					new FieldError("registUserForm", "name",
-							"全角で入力してください"));
-			
+
 		}
 
 		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByUserName(name);
-		System.out.println(userDataBySearch);
 		RegistUserForm registUserForm = new RegistUserForm();
 		//エンティティからフォームへ詰めなおし
 		if (userDataBySearch != null) {
@@ -116,7 +113,7 @@ public class UserService {
 		//					new FieldError("registUserForm", "name",
 		//							"名前を入力してください"));
 		//		}
-		if (name.length() >= 20) {
+		if (name.length() > 20) {
 			result.addError(
 					new FieldError("registUserForm", "name",
 							"全角20文字以内で入力してください"));
@@ -135,7 +132,7 @@ public class UserService {
 		//					new FieldError("registUserForm", "password",
 		//							"パスワードを入力してください"));
 		//		}
-		if (password.length() >= 16) {
+		if (password.length() > 16) {
 			result.addError(
 					new FieldError("registUserForm", "password",
 							"半角16文字以内で入力してください"));
@@ -247,8 +244,6 @@ public class UserService {
 			Integer departmentId = row.getDepartmentId();
 			departmentMap.put(departmentName, departmentId);
 		}
-
-		System.out.println(departmentMap.get("管理部"));
 
 		return departmentMap;
 

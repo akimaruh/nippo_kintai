@@ -52,7 +52,6 @@ public class UserController {
 			BindingResult result) {
 		String inputName = registUserForm.getName();
 		RegistUserForm userData = userService.getUserDataByUserName(inputName, result);
-		System.out.println(userData);
 		String searchedName = userData.getName();
 
 		Map<String, Integer> departmentMap = userService.pulldownDepartment();
@@ -98,7 +97,7 @@ public class UserController {
 			model.addAttribute("error", "エラー内容に従って修正してください");
 			return "user/regist";
 		}
-		System.out.println(registUserForm);
+		
 		String message = userService.registUserData(registUserForm, id, name);
 		redirectAttributes.addFlashAttribute("message", message);
 
