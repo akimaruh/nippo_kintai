@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.analix.project.mapper.DepartmentMapper">
+
+	<!-- 有効な部署の検索 -->
 	<select id="findAllDepartmentName"
 		resultType="com.analix.project.entity.Department">
 		SELECT department_id,name FROM department
-		WHERE is_active =0
+		WHERE is_active = 1
+		ORDER BY name ASC
 	</select>
+	
+	<!-- 部署の検索 -->
+	<select id="findAllByName" resultType="Integer">
+		SELECT COUNT(*) FROM department
+		WHERE name = #{name}
+	</select>
+	
+	<!-- 新部署名登録 -->
+	<insert id="registDepartment" useGeneratedKeys="true"
+		keyProperty="id" parameterType="com.analix.project.entity.Department">
+		INSERT INTO
+		department(name, is_active)
+		VALUES (#{name}, 1)
+	</insert>
+		
 </mapper>
