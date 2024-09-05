@@ -211,7 +211,6 @@ public class AttendanceService {
 			Byte status = dailyAttendanceForm.getStatus();
 			List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
 			List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
-			System.out.println(status);
 			
 			
 			
