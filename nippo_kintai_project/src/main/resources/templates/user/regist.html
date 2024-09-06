@@ -64,7 +64,7 @@
 					<form th:action="@{/user/regist/search}" th:method="post" id="search-form"
 						th:object="${registUserForm}">
 						<div class="container mb-3 row mt-3">
-							<label for="regist-name" class="col-sm-4 col-form-label users-text">ユーザー名</label>
+							<label for="name" class="col-sm-4 col-form-label users-text">ユーザー名</label>
 							<div class="col-sm-6">
 								<input type="text" class="form-control" th:field="*{name}" />
 								<span class="text-danger" th:errors="*{name}"></span>
@@ -92,7 +92,7 @@
 						</div>
 
 						<div class="container mb-3 row">
-							<label for="password" class="col-sm-4 col-form-label users-text">パスワード</label>
+							<span class="col-sm-4 col-form-label users-text">パスワード</span>
 							<div class="col-sm-8 password-container">
 								<input type="text" name="password" class="form-control" th:field="*{password}"
 									style="display: none;" />
