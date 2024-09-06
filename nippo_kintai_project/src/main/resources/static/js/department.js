@@ -5,12 +5,18 @@
 const inputRegistedDepartment = document.getElementById('input-registed-department');
 //新部署名入力欄
 const inputNewDepartment = document.getElementById('input-new-department');
+//削除済部署名入力欄
+const inputDeletedDepartment = document.getElementById('deleted-department');
+
 //登録ボタン
 const registButton = document.getElementById('regist-btn');
 //変更ボタン
 const modifyButton = document.getElementById('modify-btn');
 //削除ボタン
 const deleteButton = document.getElementById('delete-btn');
+//有効化ボタン
+const activateButton = document.getElementById('activation-btn');
+
 
 // ボタンの状態を更新する関数
 function updateButtonState() {
@@ -18,6 +24,7 @@ function updateButtonState() {
 	// 各入力欄の値をトリム（前後のスペースを削除）したものを使う
 	const newDepartmentValue = inputNewDepartment.value.trim();
 	const registedDepartmentValue = inputRegistedDepartment.value.trim();
+	const deletedDepartmentValue = inputDeletedDepartment.value.trim();
 
 	// 新部署名が入力されていて、登録済み部署名が空である場合に登録ボタンを活性化
 	if (newDepartmentValue !== '' && registedDepartmentValue === '') {
@@ -44,17 +51,26 @@ function updateButtonState() {
 	} else {
 		deleteButton.disabled = true;
 	}
+	//削除済み部署名が入力されている場合に有効化ボタンを活性化
+	if (deletedDepartmentValue !== '') {
+		activateButton.disabled = false;
+	} else {
+		activateButton.disabled = true;
+	}
 
 }
 //入力チェックエラー時にボタン非活性を強制する関数
 function forceDesabled() {
 	registButton.disabled = true;
 	modifyButton.disabled = true;
+	activateButton.disabled = true;
 }
 
 // 新部署名、登録済み部署名の両方の入力欄にイベントリスナーを追加
 inputNewDepartment.addEventListener('input', updateButtonState);
 inputRegistedDepartment.addEventListener('input', updateButtonState);
+inputDeletedDepartment.addEventListener('input', updateButtonState);
+
 
 // ページ読み込み時に初期状態をチェック
 document.addEventListener('DOMContentLoaded', updateButtonState);
@@ -64,7 +80,18 @@ document.addEventListener('DOMContentLoaded', updateButtonState);
  */
 //削除確認
 function delcheck() {
-	let check= window.confirm('削除します。よろしいですか？');
+	let check= window.confirm(inputRegistedDepartment.value+'を登録から削除します。本当によろしいですか？');
+	if(check){
+		console.log('削除するって');
+		return true;
+	}else{
+		console.log('キャンセルするって');
+		return false;
+	}
+}
+
+function activecheck(){
+	let check= window.confirm(inputDeletedDepartment.value+'を有効化します。よろしいですか？');
 	if(check){
 		console.log('削除するって');
 		return true;
@@ -95,6 +122,12 @@ function validation() {
 inputNewDepartment.addEventListener('input', validation);
 inputRegistedDepartment.addEventListener('input', validation);
 
+//const link =document.getElementById('display');
+//link.addEventListener('click',function(){
+//	document.getElementById('activate-form').style.display='block';
+//	
+//	
+//});
 
 
 
