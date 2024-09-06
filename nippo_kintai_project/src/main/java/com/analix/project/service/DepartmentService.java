@@ -25,8 +25,8 @@ public class DepartmentService {
 	
 	/**
 	 * 部署の存在チェック
-	 * @param name
-	 * @return
+	 * @param name 部署名
+	 * @return　
 	 */
 	public boolean isDepartmentExists(String name){
 		Integer departmentCount = departmentMapper.departmentCountByName(name);
@@ -35,18 +35,44 @@ public class DepartmentService {
 	
 	/**
 	 * 「登録」ボタン押下
+	 * @param newName 新部署名
+	 * @return true登録成功、false登録失敗
 	 */
-	public String registDepartment(String newName) {
+	public boolean registDepartment(String newName) {
 		
 		Department department = new Department();
 		department.setName(newName);
 
 		if (isDepartmentExists(department.getName())) {
-			return "この部署名は既に登録済です";
+			return false; // 部署名が存在する場合は登録できない
 		}
 		departmentMapper.registDepartment(department);
-		return "登録しました";
+		return true; // 登録成功
+		
 	}
 
-
+	/**
+	 * 「変更」ボタン押下
+	 * @param newName 新部署名
+	 * @param exsistsName 登録済の部署名
+	 * @return true変更成功、false変更失敗
+	 */
+	public boolean updateDepartment(String newName, String exsistsName) {
+		
+		if (isDepartmentExists(newName)) {
+			return false; // 新部署名が既に存在する場合は変更できない
+		}
+		
+		departmentMapper.updateDepartmentName(newName, exsistsName);
+		return true; // 変更成功
+	}
+	
+	//「削除」ボタン押下(論理削除)
+	public boolean deleteDepartment(String exsistsName) {
+        int deleteCount = departmentMapper.deleteDepartment(exsistsName);
+        return deleteCount > 0; // 行数が1以上なら成功
+		
+		
+	}
+	
 }
