@@ -30,6 +30,10 @@ public class DepartmentController {
 		// 「登録済の部署」リストプルダウン
 		List<Department> departmentList = departmentService.showDepartment();
 		model.addAttribute("departmentList", departmentList);
+		
+		// 「無効な部署」リストプルダウン
+		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
+		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
 
 		return "/department/regist";
 	}
@@ -54,17 +58,23 @@ public class DepartmentController {
 			redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です");
 			redirectAttributes.addFlashAttribute("newName", newName);
 		}
-		
+
 		//この部署名は無効化されています
 
 		return "redirect:/department/regist";
 	}
 
-	// 「変更」ボタン押下
+	/**
+	 * 「変更」ボタン押下
+	 * @param newName 新部署名
+	 * @param exsistsName 登録済の部署名
+	 * @param redirectAttributes
+	 * @return
+	 */
 	@RequestMapping(path = "/department/regist/update", method = RequestMethod.POST)
 	public String updateDepartment(@RequestParam("newName") String newName,
 			@RequestParam("exsistsName") String exsistsName, RedirectAttributes redirectAttributes) {
-		
+
 		if (exsistsName.equals(newName)) {
 			redirectAttributes.addFlashAttribute("error", "部署名同じ");
 			return "redirect:/department/regist";
@@ -77,13 +87,18 @@ public class DepartmentController {
 		} else {
 			redirectAttributes.addFlashAttribute("error", "変更できませんでした");
 		}
-		
+
 		//この部署名は無効化されています
-		
+
 		return "redirect:/department/regist";
 	}
-	
-	//「削除」ボタン押下(論理削除)
+
+	/**
+	 * 「削除」ボタン押下(論理削除)
+	 * @param exsistsName 登録済の部署名
+	 * @param redirectAttributes
+	 * @return
+	 */
 	@RequestMapping(path = "/department/regist/delete", method = RequestMethod.POST)
 	public String deleteDepartment(@RequestParam("exsistsName") String exsistsName,
 			RedirectAttributes redirectAttributes) {
@@ -95,8 +110,30 @@ public class DepartmentController {
 		} else {
 			redirectAttributes.addFlashAttribute("error", "削除できませんでした");
 		}
-		return "redirect:/department/regist";
 
+		return "redirect:/department/regist";
 	}
+	
+	/**
+	 * 「有効化」ボタン押下
+	 * @param inactiveName 無効な部署名
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@RequestMapping(path = "/department/regist/active", method = RequestMethod.POST)
+	public String updateDepartmentToActive(@RequestParam("inactiveName") String inactiveName, RedirectAttributes redirectAttributes) {
+		
+		boolean isUpdate = departmentService.updateDepartmentToActive(inactiveName);
+		
+		if (isUpdate) {
+			redirectAttributes.addFlashAttribute("message", "戻しました");
+		} else {
+			redirectAttributes.addFlashAttribute("error", "戻せませんでした");
+		}
+		
+		return "redirect:/department/regist";
+		
+	}
+	
 
 }

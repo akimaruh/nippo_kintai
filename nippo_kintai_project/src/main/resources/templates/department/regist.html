@@ -121,20 +121,21 @@
 							</div>
 							<div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
 								data-bs-parent="#accordionExample">
-								<form action="" method="post" id="activation-form">
+								<form action="/department/regist/active" method="post" id="activation-form">
 									<div class="container mt-2 mb-3 row">
 
 										<label for="deleted-department" class="col-sm-4 col-form-label">削除済の部署名</label>
 
 										<div class="input-group input-group-sm">
-											<select class="form-select" th:value="${exsistsName}" name="exsistsName"
+											<select class="form-select" th:value="${inactiveName}" name="inactiveName"
 												id="deleted-department">
 												<option value=""></option>
-												<option th:each="department : ${departmentList}"
-													th:value="${department.name}" th:text="${department.name}"></option>
+												<option th:each="inactiveList : ${inactiveDepartmentList}"
+													th:value="${inactiveList.name}" th:text="${inactiveList.name}">
+												</option>
 											</select>
 											<button type="submit" class="btn btn-yellow" id="activation-btn"
-												formaction="/department/regist/delete" disabled
+												formaction="/department/regist/active" disabled
 												onclick="return activecheck()">有効化</button>
 											<!--									<i class="fa-solid fa-trash-can icon"></i>-->
 										</div>
