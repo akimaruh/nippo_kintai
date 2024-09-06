@@ -67,12 +67,35 @@ public class DepartmentService {
 		return true; // 変更成功
 	}
 	
-	//「削除」ボタン押下(論理削除)
+	/**
+	 * 「削除」ボタン押下(論理削除)
+	 * @param exsistsName 登録済の部署名
+	 * @return true削除成功、false削除失敗
+	 */
 	public boolean deleteDepartment(String exsistsName) {
         int deleteCount = departmentMapper.deleteDepartment(exsistsName);
         return deleteCount > 0; // 行数が1以上なら成功
-		
-		
 	}
 	
+	/**
+	 * 「無効な部署」リスト
+	 * @return 無効な部署リスト
+	 */
+	public List<Department> showInactiveDepartment(){
+		List<Department> inactiveDepartmentList = departmentMapper.findInactiveDepartment();
+
+		return inactiveDepartmentList;
+	}
+	
+	/**
+	 * 「有効化」ボタン押下
+	 * @param inactiveName 無効な部署名
+	 * @return true有効化成功、false有効化失敗
+	 */
+	public boolean updateDepartmentToActive(String inactiveName) {
+		int updateCount = departmentMapper.updateDepartmentToActive(inactiveName);
+		return updateCount > 0;
+	}
+	
+
 }

@@ -42,6 +42,15 @@ public interface DepartmentMapper {
 	 */
 	public int deleteDepartment(@Param("exsistsName") String exsistsName);
 	
-//	public void update
+	/**
+	 * 無効な部署名リスト
+	 * @return
+	 */
+	public List<Department> findInactiveDepartment();
 
+	/**
+	 * 部署名有効化(無効から有効)
+	 * @param inactiveName 無効な部署名
+	 */
+	public Integer updateDepartmentToActive(@Param("inactiveName") String inactiveName);
 }
