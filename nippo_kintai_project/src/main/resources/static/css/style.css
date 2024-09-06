@@ -2,7 +2,7 @@
 
 body {
 	background-color: rgb(246, 246, 246);
-/*	padding-top: 80px;  ヘッダーの後ろに要素が隠れないようにするため */
+	/*	padding-top: 80px;  ヘッダーの後ろに要素が隠れないようにするため */
 }
 
 /*.fixed-header {*/
@@ -17,168 +17,211 @@ body {
 
 /* ボタンを横並びにするコンテナ */
 .menu-container .container {
-    display: flex;
-    justify-content: space-between; /* ボタンを等間隔に配置 */
-    width: 70%; /* コンテナの幅を調整 */
+	display: flex;
+	justify-content: space-between;
+	/* ボタンを等間隔に配置 */
+	width: 70%;
+	/* コンテナの幅を調整 */
 }
 
 .menu-container .col {
-    flex: 1; /* 各列が均等に広がるように設定 */
-    display: flex;
-    justify-content: center; /* ボタンを中央に配置 */
+	flex: 1;
+	/* 各列が均等に広がるように設定 */
+	display: flex;
+	justify-content: center;
+	/* ボタンを中央に配置 */
 }
 
 
 /* ボタン共通のスタイル */
 .menuBtn {
-    display: flex;
-    flex-direction: column; /* アイコンと文字を縦に並べる */
-    align-items: center; /* アイコンと文字を中央に揃える */
-    width: 150px; /* 幅 */
-    height: 200px; /* 高さ */
-    border: 1px solid transparent;
-    border-radius: .25rem; /* ボーダーの角を丸める */
-    color: #000;
-    font-size: 1em; /* 文字のサイズ */
-    text-align: center;
+	display: flex;
+	flex-direction: column;
+	/* アイコンと文字を縦に並べる */
+	align-items: center;
+	/* アイコンと文字を中央に揃える */
+	width: 150px;
+	/* 幅 */
+	height: 200px;
+	/* 高さ */
+	border: 1px solid transparent;
+	border-radius: .25rem;
+	/* ボーダーの角を丸める */
+	color: #000;
+	font-size: 1em;
+	/* 文字のサイズ */
+	text-align: center;
 
-    outline: none;
-    transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-    padding:40px;  /* 内側の余白を追加 */
-/*  box-shadow: 0 0 5px 1px rgb(231, 231, 231);*/
-/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3);*/
+	outline: none;
+	transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+	padding: 40px;
+	/* 内側の余白を追加 */
+	/*  box-shadow: 0 0 5px 1px rgb(231, 231, 231);*/
+	/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3);*/
 }
 
 /* アイコンのスタイル */
 .icon {
-    font-size: 24px; /* アイコンのサイズ */
-    color: #000; /* アイコンの色 */
-    margin-bottom: 8px; /* アイコンとテキストの間隔 */
+	font-size: 24px;
+	/* アイコンのサイズ */
+	color: #000;
+	/* アイコンの色 */
+	margin-bottom: 8px;
+	/* アイコンとテキストの間隔 */
 }
 
 /* ボタン内のアイコンとテキストのスタイル */
 .menuBtn .icon {
-    font-size: 3.5em; /* アイコンのサイズ */
-    color: rgb(58, 58, 58); /* ボタンのテキスト色を継承 */
-    margin-bottom: 10px; /* アイコンとテキストの間隔 */
+	font-size: 3.5em;
+	/* アイコンのサイズ */
+	color: rgb(58, 58, 58);
+	/* ボタンのテキスト色を継承 */
+	margin-bottom: 10px;
+	/* アイコンとテキストの間隔 */
 }
 
 .menuBtn .label {
-    font-size: 1em; /* テキストのサイズ */
-    color: rgb(58, 58, 58);
+	font-size: 1em;
+	/* テキストのサイズ */
+	color: rgb(58, 58, 58);
 }
 
 /*黄色ボタン*/
 .btn-yellow {
-  display: inline-block; /* ボタンをインラインブロックとして表示 */
-  color: #000; /* テキストの色 */
-  text-align: center; /* テキストを中央に配置 */
-  border: 1px solid transparent; /* ボーダーの初期状態 */
-  padding: .400rem .9rem; /* ボタンのパディング */
-  font-size: 1rem; /* フォントサイズ */
-  line-height: 1.5; /* 行の高さ */
-  border-radius: .25rem; /* ボーダーの角を丸める */
-  transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; /* トランジション効果 */
-  background-color: #ffff00; /* ボタンの背景色 */
-/*  border-color: #cccc00;  (元々)ボーダーの色 */
-  border-color: rgb(206, 206, 0); /* ボーダーの色 */
+	display: inline-block;
+	/* ボタンをインラインブロックとして表示 */
+	color: #000;
+	/* テキストの色 */
+	text-align: center;
+	/* テキストを中央に配置 */
+	border: 1px solid transparent;
+	/* ボーダーの初期状態 */
+	padding: .400rem .9rem;
+	/* ボタンのパディング */
+	font-size: 1rem;
+	/* フォントサイズ */
+	line-height: 1.5;
+	/* 行の高さ */
+	border-radius: .25rem;
+	/* ボーダーの角を丸める */
+	transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+	/* トランジション効果 */
+	background-color: #ffff00;
+	/* ボタンの背景色 */
+	/*  border-color: #cccc00;  (元々)ボーダーの色 */
+	border-color: rgb(206, 206, 0);
+	/* ボーダーの色 */
 }
 
 .btn-yellow:hover {
-  background-color: #f5f500; /* ホバー時の背景色 */
-  border-color: #b84c00; /* ホバー時のボーダーの色 */
+	background-color: #f5f500;
+	/* ホバー時の背景色 */
+	border-color: #b84c00;
+	/* ホバー時のボーダーの色 */
 }
 
-.btn-yellow:focus, .btn-yellow.focus {
-  box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5); /* フォーカス時のボックスシャドウ */
+.btn-yellow:focus,
+.btn-yellow.focus {
+	box-shadow: 0 0 0 .2rem rgba(255, 255, 0, .5);
+	/* フォーカス時のボックスシャドウ */
 }
 
-.btn-yellow.disabled, .btn-yellow:disabled {
-  opacity: .45; /* 無効時の不透明度 */
+.btn-yellow.disabled,
+.btn-yellow:disabled {
+	opacity: .45;
+	/* 無効時の不透明度 */
 }
 
 /* オレンジボタン */
 .btn-orange {
-    background-color: rgb(255, 192, 0);
-    border-color: rgb(255, 165, 0);
+	background-color: rgb(255, 192, 0);
+	border-color: rgb(255, 165, 0);
 }
 
 .btn-orange:hover {
-    background-color: rgb(255, 165, 0);
-    border-color: rgb(255, 140, 0);
+	background-color: rgb(255, 165, 0);
+	border-color: rgb(255, 140, 0);
 }
 
-.btn-orange:focus, .btn-orange.focus {
-    box-shadow: 0 0 0 .2rem rgba(255, 192, 0, .5);
+.btn-orange:focus,
+.btn-orange.focus {
+	box-shadow: 0 0 0 .2rem rgba(255, 192, 0, .5);
 }
 
-.btn-orange.disabled, .btn-orange:disabled {
-    opacity: .45;
+.btn-orange.disabled,
+.btn-orange:disabled {
+	opacity: .45;
 }
 
 /* グリーンボタン */
 .btn-green {
-    background-color: rgb(155, 187, 89);
-    border-color: rgb(139, 166, 76);
+	background-color: rgb(155, 187, 89);
+	border-color: rgb(139, 166, 76);
 }
 
 .btn-green:hover {
-    background-color: rgb(139, 166, 76);
-    border-color: rgb(120, 150, 65);
+	background-color: rgb(139, 166, 76);
+	border-color: rgb(120, 150, 65);
 }
 
-.btn-green:focus, .btn-green.focus {
-    box-shadow: 0 0 0 .2rem rgba(155, 187, 89, .5);
+.btn-green:focus,
+.btn-green.focus {
+	box-shadow: 0 0 0 .2rem rgba(155, 187, 89, .5);
 }
 
-.btn-green.disabled, .btn-green:disabled {
-    opacity: .45;
+.btn-green.disabled,
+.btn-green:disabled {
+	opacity: .45;
 }
 
 /* パープルボタン */
 .btn-purple {
-    background-color: rgb(179, 162, 199);
-    border-color: rgb(159, 142, 179);
+	background-color: rgb(179, 162, 199);
+	border-color: rgb(159, 142, 179);
 }
 
 .btn-purple:hover {
-    background-color: rgb(159, 142, 179);
-    border-color: rgb(139, 122, 159);
+	background-color: rgb(159, 142, 179);
+	border-color: rgb(139, 122, 159);
 }
 
-.btn-purple:focus, .btn-purple.focus {
-    box-shadow: 0 0 0 .2rem rgba(179, 162, 199, .5);
+.btn-purple:focus,
+.btn-purple.focus {
+	box-shadow: 0 0 0 .2rem rgba(179, 162, 199, .5);
 }
 
-.btn-purple.disabled, .btn-purple:disabled {
-    opacity: .45;
+.btn-purple.disabled,
+.btn-purple:disabled {
+	opacity: .45;
 }
 
 /* ライトブルーボタン */
 .btn-lightBlue {
-    background-color: rgb(147, 205, 221);
-    border-color: rgb(120, 180, 200);
+	background-color: rgb(147, 205, 221);
+	border-color: rgb(120, 180, 200);
 }
 
 .btn-lightBlue:hover {
-    background-color: rgb(120, 180, 200);
-    border-color: rgb(100, 160, 180);
+	background-color: rgb(120, 180, 200);
+	border-color: rgb(100, 160, 180);
 }
 
-.btn-lightBlue:focus, .btn-lightBlue.focus {
-    box-shadow: 0 0 0 .2rem rgba(147, 205, 221, .5);
+.btn-lightBlue:focus,
+.btn-lightBlue.focus {
+	box-shadow: 0 0 0 .2rem rgba(147, 205, 221, .5);
 }
 
-.btn-lightBlue.disabled, .btn-lightBlue:disabled {
-    opacity: .45;
+.btn-lightBlue.disabled,
+.btn-lightBlue:disabled {
+	opacity: .45;
 }
 
 /*ユーザー画面*/
 .users-text {
 	text-align: right;
 	transform: translate(-20px);
-	
-/*	font-weight: bold;*/
+
+	/*	font-weight: bold;*/
 }
 
 /*目のアイコン*/
@@ -186,13 +229,21 @@ body {
 	position: absolute;
 	right: 18px;
 	top: 50%;
-	transform: translateY(-50%); 
-    border: none;
-    background: transparent;
-    font-size: 15px;
-    color: gray;
+	transform: translateY(-50%);
+	border: none;
+	background: transparent;
+	font-size: 15px;
+	color: gray;
 }
 
 .password-container {
 	position: relative;
+}
+
+.input-group {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	width: 66.66666667%;
 }
