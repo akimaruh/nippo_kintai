@@ -18,7 +18,7 @@ function updateButtonState() {
 	// 各入力欄の値をトリム（前後のスペースを削除）したものを使う
 	const newDepartmentValue = inputNewDepartment.value.trim();
 	const registedDepartmentValue = inputRegistedDepartment.value.trim();
-	
+
 	// 新部署名が入力されていて、登録済み部署名が空である場合に登録ボタンを活性化
 	if (newDepartmentValue !== '' && registedDepartmentValue === '') {
 		registButton.disabled = false;
@@ -29,7 +29,7 @@ function updateButtonState() {
 	// 両方の入力がある場合にのみチェック
 	if (newDepartmentValue !== '' && registedDepartmentValue !== '') {
 		// 新部署名と登録済み部署名が異なる場合にボタンを活性化
-		if (newDepartmentValue !== registedDepartmentValue) {
+		if (inputRegistedDepartment.value != inputNewDepartment.value) {
 			modifyButton.disabled = false;
 		} else {
 			modifyButton.disabled = true;
@@ -64,9 +64,15 @@ document.addEventListener('DOMContentLoaded', updateButtonState);
  */
 //削除確認
 function delcheck() {
-	return window.confirm('削除します。よろしいですか？');
+	let check= window.confirm('削除します。よろしいですか？');
+	if(check){
+		console.log('削除するって');
+		return true;
+	}else{
+		console.log('キャンセルするって');
+		return false;
+	}
 }
-
 /**
  * 入力チェック
  */
@@ -78,21 +84,16 @@ function validation() {
 
 	if (inputNewDepartment.value.length > MAX_DEPARTMENT_LENGTH) {
 		document.getElementById('newNameError').innerHTML = OVER_DEPARTMENT_LENGTH;
-		errorFlg = true;
 		forceDesabled();
 
 	} else {
 		document.getElementById('newNameError').innerHTML = EMPTIY;
-		errorFlg = false;
 	}
-	if (errorFlg = true) {
-		validation.preventDefault();
-		errorFlg = true;
-	}
+
 }
 
-inputNewDepartment.addEventListener('keyup', validation);
-inputRegistedDepartment.addEventListener('keyup', validation);
+inputNewDepartment.addEventListener('input', validation);
+inputRegistedDepartment.addEventListener('input', validation);
 
 
 
