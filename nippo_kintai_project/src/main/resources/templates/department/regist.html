@@ -66,30 +66,30 @@
 					</div>
 					<!-- エラー -->
 
-					<form action="?" method="post" id="department-form">
-						<div class="container mb-3 row">
+					<form th:object="${department}" action="?" method="post" id="department-form">
+						<div class="container mt-3 mb-3 row">
 							<label for="input-registed-department" class="col-sm-4 col-form-label">登録済の部署名</label>
 							<!--<input type="text" class="form-control" />-->
 							<div class="input-group">
-								<select class="form-select" th:value="${exsistsName}" name="exsistsName"
-									id="input-registed-department">
-									<option value=""></option>
+								<select class="form-select" th:value="${exsistsName}" name="exsistsName" id="input-registed-department">
+									<option th:value="${exsistsName}">[[*{exsistsName}]]</option>
 									<option th:each="department : ${departmentList}" th:value="${department.name}"
 										th:text="${department.name}"></option>
 								</select>
-								<button type="submit" class="btn btn-light" id="delete-btn"
-									formaction="/department/regist/delete" disabled
+								<button type="submit" class="btn btn-light" id="delete-btn" formaction="/department/regist/delete"
 									onclick="return delcheck()">削除</button>
 								<!--								<i class="fa-solid fa-trash-can icon"></i>-->
+								<span class="text-danger" th:errors="*{exsistsName}"></span>
 							</div>
 						</div>
 
 						<div class="container mb-3 row">
 							<label for="input-new-department" class="col-sm-4 col-form-label">新部署名</label>
 							<div class="col-sm-8">
-								<input type="text" class="form-control" th:value="${newName}" name="newName"
-									id="input-new-department" />
+								<input type="text" class="form-control" th:value="${newName}" name="newName" id="input-new-department" />
 								<span id="newNameError" class="text-danger"></span>
+								<!--java用-->
+								<span class="text-danger" th:errors="*{newName}"></span>
 							</div>
 						</div>
 
@@ -123,28 +123,27 @@
 								data-bs-parent="#accordionExample">
 								<form action="/department/regist/active" method="post" id="activation-form">
 									<div class="container mt-2 mb-3 row">
-
+					
 										<label for="deleted-department" class="col-sm-4 col-form-label">削除済の部署名</label>
-
+					
 										<div class="input-group input-group-sm">
 											<select class="form-select" th:value="${inactiveName}" name="inactiveName"
 												id="deleted-department">
-												<option value=""></option>
-												<option th:each="inactiveList : ${inactiveDepartmentList}"
-													th:value="${inactiveList.name}" th:text="${inactiveList.name}">
+												<option th:value="${inactiveName}">[[*{inactiveName}]]</option>
+												<option th:each="inactiveList : ${inactiveDepartmentList}" th:value="${inactiveList.name}"
+													th:text="${inactiveList.name}">
 												</option>
 											</select>
 											<button type="submit" class="btn btn-yellow" id="activation-btn"
-												formaction="/department/regist/active" disabled
 												onclick="return activecheck()">有効化</button>
-											<!--									<i class="fa-solid fa-trash-can icon"></i>-->
+											<span class="text-danger" th:errors="${department.inactiveName}"></span>
 										</div>
 									</div>
 								</form>
-
+					
 							</div>
 						</div>
-
+					
 					</div>
 
 
