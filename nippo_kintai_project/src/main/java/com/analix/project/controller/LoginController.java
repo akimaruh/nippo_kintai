@@ -50,7 +50,8 @@ public class LoginController {
 			return "common/login";
 		}
 
-		Users user = loginService.findByIdAndPassword(id, password);
+		Users user = new Users();
+		user = loginService.findByIdAndPassword(id, password);
 
 		if (user != null) {
 
@@ -59,8 +60,9 @@ public class LoginController {
 				model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 				return "common/login";
 			}
-
+			
 			session.setAttribute("loginUser", user);
+			
 			String role = user.getRole();
 			//ログイン完了後遷移
 			//権限による画面遷移の可能性を考え、現状権限で分岐する書き方で進める

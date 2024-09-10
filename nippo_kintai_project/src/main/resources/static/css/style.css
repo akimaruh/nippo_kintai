@@ -247,3 +247,25 @@ body {
 	align-items: stretch;
 	width: 66.66666667%;
 }
+ /* フォーム入力欄が光るアニメーション */
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px #fff;
+            }
+            50% {
+                box-shadow: 0 0 20px rgb(0, 128, 255);
+            }
+            100% {
+                box-shadow: 0 0 5px #fff;
+            }
+        }
+
+        /* アニメーション適用 */
+        .glowing-input {
+            animation: glow 2s infinite alternate;
+        }
+
+        .glowing-button {
+            animation: glow 2s infinite alternate;
+        }
+

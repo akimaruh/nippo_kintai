@@ -37,7 +37,6 @@ public class AttendanceService {
 	@Autowired
 	private CustomDateUtil customDateUtil;
 
-
 	/**
 	 * ヘッダー:ステータス部分取得
 	 * @param userId
@@ -56,19 +55,17 @@ public class AttendanceService {
 	 * @return 勤怠一覧取得マッパー
 	 */
 	public List<DailyAttendanceForm> getFindAllDailyAttendance(Integer userId, String yearMonth) {
-		
+
 		//日付生成
-				List<LocalDate> dateList = generateMonthDates(yearMonth);
-				if(dateList.contains(null)) {
-					return null;
-				}
-				
+		List<LocalDate> dateList = generateMonthDates(yearMonth);
+		if (dateList.contains(null)) {
+			return null;
+		}
+
 		//勤怠一覧の取得
 		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
 		List<Attendance> attendanceListSearchForUserIdAndYearMonth = attendanceMapper.findAllDailyAttendance(userId,
 				yearMonth);
-
-		
 
 		// Attendance情報をLocalDateでインデックス化するMapを作成
 		Map<LocalDate, Attendance> attendanceMap = attendanceListSearchForUserIdAndYearMonth.stream()
@@ -191,8 +188,6 @@ public class AttendanceService {
 	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth) {
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
 	}
-	
-	
 
 	/**
 	 * 勤怠登録前入力チェック
@@ -211,44 +206,73 @@ public class AttendanceService {
 			Byte status = dailyAttendanceForm.getStatus();
 			List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
 			List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
-			
-			
-			
-			if (attendanceSystem.contains(status) && startTime == "") {
-				result.addError(
-						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-								"出勤時間を入力して下さい"));
+
+			//備考欄
+			if (remarks != "") {
+				String regex = "[^\\x00-\\x7F]";
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(remarks);
+				if (remarks.length() > 20) {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
+									"20字以内で入力して下さい"));
+
+				}
+				if (!matcher.find()) {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
+									"全角で入力して下さい"));
+				}
+				if (status == null) {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].status",
+									"勤怠状況を入力して下さい"));
+				}
 			}
-			if (attendanceSystem.contains(status) && endTime == "") {
-				result.addError(
-						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
-								"退勤時間を入力して下さい"));
+			//休日系統
+			if (holidaySystem.contains(status)) {
+				if (startTime != "") {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+									"休日に出勤時間は入力できません"));
+				}
+				if (endTime != "") {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+									"休日に退勤時間は入力できません"));
+				}
+				i++;
+				continue;
 			}
 
-			if (holidaySystem.contains(status) && startTime != "") {
-				result.addError(
-						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-								"休日に出勤時間は入力できません"));
-			}
-			if (holidaySystem.contains(status) && endTime != "") {
-				result.addError(
-						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
-								"休日に退勤時間は入力できません"));
-			}
-			//出勤時間または退勤時間のどちらかが空白の場合
-			if (endTime == "" && startTime != "") {
-				result.addError(
-						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
-								"退勤時間を入力して下さい"));
-			}
+			//出勤系統
+			if (attendanceSystem.contains(status)) {
+				//出勤時間も退勤時間も入力していない場合(以降の入力チェックが不要のためブレイク)
+				if (startTime == "" && endTime == "") {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+									"出勤時間を入力して下さい"));
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+									"退勤時間を入力して下さい"));
+					i++;
+					continue;
+				}
+				//出勤時間または退勤時間のどちらかが空白の場合
+				if (endTime == "" && startTime != "") {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+									"退勤時間を入力して下さい"));
+				}
 
-			if (startTime == "" && endTime != "") {
-				result.addError(
-						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-								"出勤時間を入力して下さい"));
+				if (startTime == "" && endTime != "") {
+					result.addError(
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+									"出勤時間を入力して下さい"));
+				}
 			}
-
-			if (startTime != "" && endTime != "") {
+			//桁数補足
+			if (startTime != "" || endTime != "") {
 
 				if (startTime.matches("\\d{1}:\\d{2}")) {
 					startTime = "0" + startTime;
@@ -257,21 +281,21 @@ public class AttendanceService {
 					endTime = "0" + endTime;
 				}
 
-				//				//出勤時刻の形式が不正な場合
-				//				if (startTime != "") {
-				//					// HH:mm形式の時刻を検出する正規表現
-				//					String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
-				//
-				//					// パターンをコンパイル
-				//					Pattern pattern = Pattern.compile(regex);
-				//					Matcher matcher = pattern.matcher(startTime);
-				//					if (!matcher.find()) {
-				//						result.addError(
-				//								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-				//										"HH:mm形式で入力して下さい"));
-				//
-				//					}
-				//				}
+				//DateTimeParseException eで同じことやっているのでコメントアウト
+				//出勤時刻の形式が不正な場合
+				if (startTime != "") {
+					// HH:mm形式の時刻を検出する正規表現
+					String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+
+					// パターンをコンパイル
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(startTime);
+					if (!matcher.find()) {
+						result.addError(
+								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+										"HH:mm形式で入力して下さい"));
+					}
+				}
 				//退勤時刻の形式が不正な場合
 				if (endTime != "") {
 					String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
@@ -297,7 +321,6 @@ public class AttendanceService {
 					startInputTime = LocalTime.parse(startTime, formatter);
 
 					try {
-
 						endInputTime = LocalTime.parse(endTime, formatter);
 
 						if (startInputTime.isAfter(endInputTime)) {
@@ -310,34 +333,19 @@ public class AttendanceService {
 						}
 
 					} catch (DateTimeParseException e) {
-						result.addError(
-								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
-										"HH:mm形式で入力して下さい"));
+
 					}
 
 				} catch (DateTimeParseException e) {
-					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
-									"HH:mm形式で入力して下さい"));
+
 				}
 
 			}
-			//備考欄
-			if (remarks != "") {
-				String regex = "[^\\x00-\\x7F]";
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(remarks);
-				if (remarks.length() > 20) {
-					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
-									"20字以内で入力して下さい"));
+			if ((startTime != "" && endTime != "") && status == null) {
+				result.addError(
+						new FieldError("attendanceFormList", "attendanceFormList[" + i + "].status",
+								"勤怠状況を入力して下さい"));
 
-				}
-				if (!matcher.find()) {
-					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].remarks",
-									"全角で入力して下さい"));
-				}
 			}
 			i++;
 		}
@@ -432,7 +440,7 @@ public class AttendanceService {
 			}
 
 		}
-		return "勤怠登録が完了しました。"; 
+		return "勤怠登録が完了しました。";
 
 	}
 

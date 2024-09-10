@@ -80,22 +80,22 @@ document.addEventListener('DOMContentLoaded', updateButtonState);
  */
 //削除確認
 function delcheck() {
-	let check= window.confirm(inputRegistedDepartment.value+'を登録から削除します。本当によろしいですか？');
-	if(check){
+	let check = window.confirm(inputRegistedDepartment.value + 'を登録から削除します。本当によろしいですか？');
+	if (check) {
 		console.log('削除するって');
 		return true;
-	}else{
+	} else {
 		console.log('キャンセルするって');
 		return false;
 	}
 }
 
-function activecheck(){
-	let check= window.confirm(inputDeletedDepartment.value+'を有効化します。よろしいですか？');
-	if(check){
+function activecheck() {
+	let check = window.confirm(inputDeletedDepartment.value + 'を有効化します。よろしいですか？');
+	if (check) {
 		console.log('削除するって');
 		return true;
-	}else{
+	} else {
 		console.log('キャンセルするって');
 		return false;
 	}
@@ -116,18 +116,60 @@ function validation() {
 	} else {
 		document.getElementById('newNameError').innerHTML = EMPTIY;
 	}
+	//同じ部署名は登録できません。
 
 }
 
 inputNewDepartment.addEventListener('input', validation);
 inputRegistedDepartment.addEventListener('input', validation);
 
-//const link =document.getElementById('display');
-//link.addEventListener('click',function(){
-//	document.getElementById('activate-form').style.display='block';
-//	
-//	
-//});
+/**
+ * 入力後次の操作欄に光るアニメーション
+ */
+const registeredDepartment = document.getElementById('input-registed-department');
+const newDepartmentInput = document.getElementById('input-new-department');
+//const modifyButton = document.getElementById('modify-btn');
+//const registButton = document.getElementById('regist-btn');
+
+// 部署名入力欄にイベントリスナーを追加
+registeredDepartment.addEventListener('change', function() {
+	if (registeredDepartment.value !== "") {
+		// 登録済みの部署名が選択された場合、新部署名欄を光らせる
+		newDepartmentInput.classList.add('glowing-input');
+	} else {
+		// 未選択の場合、新部署名欄の光るアニメーションを削除
+		newDepartmentInput.classList.remove('glowing-input');
+	}
+	checkButtons();
+});
+
+newDepartmentInput.addEventListener('input', function() {
+	checkButtons();
+});
+
+// ボタンの状態を確認して、アニメーションを追加
+function checkButtons() {
+	const isNewDepartmentEntered = newDepartmentInput.value.trim() !== "";
+
+	if (registeredDepartment.value !== "" && isNewDepartmentEntered) {
+		// 登録済み部署名が選択され、新部署名が入力された場合、変更ボタンを光らせる
+		modifyButton.disabled = false;
+		newDepartmentInput.classList.remove('glowing-input');
+		modifyButton.classList.add('glowing-button');
+	} else {
+		modifyButton.disabled = true;
+		modifyButton.classList.remove('glowing-button');
+	}
+
+	if (registeredDepartment.value === "" && isNewDepartmentEntered) {
+		// 登録済み部署名が未選択で、新部署名が入力された場合、登録ボタンを光らせる
+		registButton.disabled = false;
+		registButton.classList.add('glowing-button');
+	} else {
+		registButton.disabled = true;
+		registButton.classList.remove('glowing-button');
+	}
+}
 
 
 

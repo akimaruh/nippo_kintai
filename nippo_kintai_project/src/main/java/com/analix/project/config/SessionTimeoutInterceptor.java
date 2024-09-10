@@ -1,5 +1,6 @@
 package com.analix.project.config;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Interceptorによる処理を実装するクラス
  */
+@Component
 public class SessionTimeoutInterceptor implements HandlerInterceptor {
 
 
