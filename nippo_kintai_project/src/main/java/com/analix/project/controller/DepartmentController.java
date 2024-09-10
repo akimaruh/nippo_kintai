@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,10 +33,13 @@ public class DepartmentController {
 		// 「登録済の部署」リストプルダウン
 		List<Department> departmentList = departmentService.showDepartment();
 		model.addAttribute("departmentList", departmentList);
-		
+
 		// 「無効な部署」リストプルダウン
 		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
 		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
+
+		// フォームの初期化
+		model.addAttribute("department", new Department());
 
 		return "/department/regist";
 	}
@@ -44,18 +50,34 @@ public class DepartmentController {
 	 * @param department
 	 * @param model
 	 * @param redirectAttributes
-	 * @return
+	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/complete", method = RequestMethod.POST)
-	public String departmentComplete(@RequestParam("newName") String newName, Department department, Model model,
-			RedirectAttributes redirectAttributes) {
+	public String departmentComplete(@ModelAttribute("department") @Validated Department department,
+			@RequestParam("newName") String newName, Model model,
+			RedirectAttributes redirectAttributes, BindingResult result) {
+
+		departmentService.validationForm(department, true, true, false, false, result);
+
+		// プルダウンメニューのデータを再取得
+		List<Department> departmentList = departmentService.showDepartment();
+		model.addAttribute("departmentList", departmentList);
+
+		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
+		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
+
+		if (result.hasErrors()) {
+			model.addAttribute("error", "エラー内容に従って修正してください。");
+			model.addAttribute("newName", newName);
+			return "/department/regist";
+		}
 
 		boolean isRegistComplete = departmentService.registDepartment(newName);
 
 		if (isRegistComplete) {
-			redirectAttributes.addFlashAttribute("message", "登録しました");
+			redirectAttributes.addFlashAttribute("message", newName + "を登録しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です");
+			redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です。");
 			redirectAttributes.addFlashAttribute("newName", newName);
 		}
 
@@ -69,23 +91,36 @@ public class DepartmentController {
 	 * @param newName 新部署名
 	 * @param exsistsName 登録済の部署名
 	 * @param redirectAttributes
-	 * @return
+	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/update", method = RequestMethod.POST)
-	public String updateDepartment(@RequestParam("newName") String newName,
-			@RequestParam("exsistsName") String exsistsName, RedirectAttributes redirectAttributes) {
+	public String updateDepartment(@ModelAttribute("department") @Validated Department department,
+			@RequestParam("newName") String newName,
+			@RequestParam("exsistsName") String exsistsName, Model model, RedirectAttributes redirectAttributes,
+			BindingResult result) {
 
-		if (exsistsName.equals(newName)) {
-			redirectAttributes.addFlashAttribute("error", "部署名同じ");
-			return "redirect:/department/regist";
+		departmentService.validationForm(department, true, true, true, false, result);
+
+		// プルダウンメニューのデータを再取得
+		List<Department> departmentList = departmentService.showDepartment();
+		model.addAttribute("departmentList", departmentList);
+
+		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
+		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
+
+		if (result.hasErrors()) {
+			model.addAttribute("error", "エラー内容に従って修正してください。");
+			model.addAttribute("newName", newName);
+			model.addAttribute("exsistsName", exsistsName);
+			return "/department/regist";
 		}
 
 		boolean isUpdate = departmentService.updateDepartment(newName, exsistsName);
 
 		if (isUpdate) {
-			redirectAttributes.addFlashAttribute("message", "変更しました");
+			redirectAttributes.addFlashAttribute("message", exsistsName + "から" + newName + "に変更しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "変更できませんでした");
+			redirectAttributes.addFlashAttribute("error", "変更に失敗しました。");
 		}
 
 		//この部署名は無効化されています
@@ -97,43 +132,73 @@ public class DepartmentController {
 	 * 「削除」ボタン押下(論理削除)
 	 * @param exsistsName 登録済の部署名
 	 * @param redirectAttributes
-	 * @return
+	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/delete", method = RequestMethod.POST)
-	public String deleteDepartment(@RequestParam("exsistsName") String exsistsName,
-			RedirectAttributes redirectAttributes) {
+	public String deleteDepartment(@ModelAttribute("department") @Validated Department department,
+			@RequestParam("exsistsName") String exsistsName,
+			Model model, RedirectAttributes redirectAttributes, BindingResult result) {
+
+		departmentService.validationForm(department, false, false, true, false, result);
+
+		// プルダウンメニューのデータを再取得
+		List<Department> departmentList = departmentService.showDepartment();
+		model.addAttribute("departmentList", departmentList);
+
+		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
+		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
+
+		if (result.hasErrors()) {
+			model.addAttribute("error", "エラー内容に従って修正してください。");
+			return "/department/regist";
+		}
 
 		boolean isDelete = departmentService.deleteDepartment(exsistsName);
 
 		if (isDelete) {
-			redirectAttributes.addFlashAttribute("message", "削除しました");
+			redirectAttributes.addFlashAttribute("message", exsistsName + "を削除しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "削除できませんでした");
+			redirectAttributes.addFlashAttribute("error", "削除に失敗しました。");
 		}
 
 		return "redirect:/department/regist";
 	}
-	
+
 	/**
 	 * 「有効化」ボタン押下
 	 * @param inactiveName 無効な部署名
 	 * @param redirectAttributes
-	 * @return
+	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/active", method = RequestMethod.POST)
-	public String updateDepartmentToActive(@RequestParam("inactiveName") String inactiveName, RedirectAttributes redirectAttributes) {
-		
-		boolean isUpdate = departmentService.updateDepartmentToActive(inactiveName);
-		
-		if (isUpdate) {
-			redirectAttributes.addFlashAttribute("message", "戻しました");
-		} else {
-			redirectAttributes.addFlashAttribute("error", "戻せませんでした");
+	public String updateDepartmentToActive(@ModelAttribute("department") @Validated Department department,
+			@RequestParam("inactiveName") String inactiveName, Model model, RedirectAttributes redirectAttributes,
+			BindingResult result) {
+
+		departmentService.validationForm(department, false, false, false, true, result);
+
+		// プルダウンメニューのデータを再取得
+		List<Department> departmentList = departmentService.showDepartment();
+		model.addAttribute("departmentList", departmentList);
+
+		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
+		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
+
+		if (result.hasErrors()) {
+			model.addAttribute("error", "エラー内容に従って修正してください。");
+			return "/department/regist";
 		}
-		
+
+		boolean isUpdate = departmentService.updateDepartmentToActive(inactiveName);
+
+		if (isUpdate) {
+			redirectAttributes.addFlashAttribute("message", inactiveName + "を有効化しました。");
+		} else {
+			redirectAttributes.addFlashAttribute("error", "有効化に失敗しました。");
+		}
+
 		return "redirect:/department/regist";
-		
+
 	}
-	
 
 }
