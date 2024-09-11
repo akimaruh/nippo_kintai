@@ -18,7 +18,7 @@ public class SessionTimeoutInterceptor implements HandlerInterceptor {
 			throws Exception {// 各Controllerの処理が始まる前に呼ばれる
 
 		if (request.getSession().getAttribute("loginUser") == null) { // 必要なセッション情報を確認
-			
+			response.setStatus(HttpServletResponse.SC_FOUND);
 			response.sendRedirect("/timeout"); // 無ければトップページにリダイレクト
 			return false; // Controllerは起動しない
 		}

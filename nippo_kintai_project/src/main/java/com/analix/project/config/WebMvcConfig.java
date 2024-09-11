@@ -11,15 +11,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer{
 	
 	@Autowired
-	private SessionTimeoutInterceptor SessionTimeoutInterceptor() {
-		return new SessionTimeoutInterceptor();
-	}
+	private SessionTimeoutInterceptor sessionTimeoutInterceptor;
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry
-			.addInterceptor(SessionTimeoutInterceptor()) // interceptorを追加
-			.addPathPatterns("/*") // 全てのパスパターンを対象に追加
-			.excludePathPatterns("/","/login","/timeout", "/resources/*"); // ログイン画面を対象から除外
+			.addInterceptor(sessionTimeoutInterceptor) // interceptorを追加
+			.addPathPatterns("/**") // 全てのパスパターンを対象に追加
+			.excludePathPatterns("/","/login","/timeout", "/resources/**","/css/style.css"); // ログイン画面を対象から除外
 			
 	}
 
