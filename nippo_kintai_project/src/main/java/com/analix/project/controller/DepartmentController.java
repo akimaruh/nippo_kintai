@@ -77,12 +77,15 @@ public class DepartmentController {
 		if (isRegistComplete) {
 			redirectAttributes.addFlashAttribute("message", newName + "を登録しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です。");
-			redirectAttributes.addFlashAttribute("newName", newName);
+			Byte status = departmentService.getDepartmentStatus(newName);
+			if (status == 0) {
+				redirectAttributes.addFlashAttribute("error", "この部署名は無効化されています。");
+				redirectAttributes.addFlashAttribute("newName", newName);
+			} else {
+				redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です。");
+				redirectAttributes.addFlashAttribute("newName", newName);
+			}
 		}
-
-		//この部署名は無効化されています
-
 		return "redirect:/department/regist";
 	}
 
@@ -120,18 +123,25 @@ public class DepartmentController {
 		if (isUpdate) {
 			redirectAttributes.addFlashAttribute("message", exsistsName + "から" + newName + "に変更しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "変更に失敗しました。");
+			Byte status = departmentService.getDepartmentStatus(newName);
+			if (status == 0) {
+				redirectAttributes.addFlashAttribute("error", "この部署名は無効化されています。");
+				redirectAttributes.addFlashAttribute("newName", newName);
+			} else if (status == 1) {
+				redirectAttributes.addFlashAttribute("error", "変更に失敗しました。");
+				redirectAttributes.addFlashAttribute("newName", newName);
+			}
 		}
-
-		//この部署名は無効化されています
-
 		return "redirect:/department/regist";
 	}
 
 	/**
 	 * 「削除」ボタン押下(論理削除)
-	 * @param exsistsName 登録済の部署名
+	 * @param department 登録済の部署名
+	 * @param exsistsName
+	 * @param model
 	 * @param redirectAttributes
+	 * @param result
 	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/delete", method = RequestMethod.POST)
@@ -153,21 +163,29 @@ public class DepartmentController {
 			return "/department/regist";
 		}
 
-		boolean isDelete = departmentService.deleteDepartment(exsistsName);
+		boolean hasUsers = departmentService.userDepartment(exsistsName);
 
-		if (isDelete) {
-			redirectAttributes.addFlashAttribute("message", exsistsName + "を削除しました。");
+		if (hasUsers) {
+			redirectAttributes.addFlashAttribute("error", "この部署にはユーザーがいるため削除できません。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "削除に失敗しました。");
-		}
+			boolean isDelete = departmentService.deleteDepartment(exsistsName);
 
+			if (isDelete) {
+				redirectAttributes.addFlashAttribute("message", exsistsName + "を削除しました。");
+			} else {
+				redirectAttributes.addFlashAttribute("error", "削除に失敗しました。");
+			}
+		}
 		return "redirect:/department/regist";
 	}
 
 	/**
 	 * 「有効化」ボタン押下
+	 * @param department
 	 * @param inactiveName 無効な部署名
+	 * @param model
 	 * @param redirectAttributes
+	 * @param result
 	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/active", method = RequestMethod.POST)
@@ -196,7 +214,6 @@ public class DepartmentController {
 		} else {
 			redirectAttributes.addFlashAttribute("error", "有効化に失敗しました。");
 		}
-
 		return "redirect:/department/regist";
 
 	}
