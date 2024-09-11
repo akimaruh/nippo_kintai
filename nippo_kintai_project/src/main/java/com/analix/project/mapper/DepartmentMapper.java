@@ -20,7 +20,7 @@ public interface DepartmentMapper {
 	 * @param name 部署名
 	 * @return 部署名が存在する数
 	 */
-	public Integer departmentCountByName(@Param("name") String name);
+	public Byte findDepartmentStatusByName(@Param("name") String name);
 	
 	/**
 	 * 新部署名登録
@@ -53,4 +53,12 @@ public interface DepartmentMapper {
 	 * @param inactiveName 無効な部署名
 	 */
 	public Integer updateDepartmentToActive(@Param("inactiveName") String inactiveName);
+
+	/**
+	 * 部署名に紐づくユーザー数のカウント
+	 * @param name 部署名
+	 * @return カウント数
+	 */
+	public Integer getUsersCountByDepartmentName(@Param("name") String name);
+	
 }

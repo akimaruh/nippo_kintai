@@ -40,9 +40,8 @@ public class DepartmentService {
 	 * @param name 部署名
 	 * @return ture存在する false存在しない
 	 */
-	public boolean isDepartmentExists(String name){
-		Integer departmentCount = departmentMapper.departmentCountByName(name);
-		return departmentCount > 0; // 1以上なら存在する
+	public Byte getDepartmentStatus(String name){
+		return departmentMapper.findDepartmentStatusByName(name);
 	}
 	
 	/**
@@ -51,14 +50,18 @@ public class DepartmentService {
 	 * @return true登録成功、false登録失敗
 	 */
 	public boolean registDepartment(String newName) {
-		if (isDepartmentExists(newName)) {
-			return false; // 部署名が存在する場合は登録できない
+		Byte status = getDepartmentStatus(newName);
+
+		if (status == null) {
+			Department department = new Department();
+			department.setName(newName);
+			departmentMapper.registDepartment(department);
+			return true; // 登録成功
+		} else if (status == 0) {
+			return false; // 登録失敗(無効化)
+		} else {
+			return false; // 登録失敗(既に存在する)
 		}
-		
-		Department department = new Department();
-		department.setName(newName);
-		departmentMapper.registDepartment(department);
-		return true; // 登録成功
 	}
 
 	/**
@@ -68,12 +71,15 @@ public class DepartmentService {
 	 * @return true変更成功、false変更失敗
 	 */
 	public boolean updateDepartment(String newName, String exsistsName) {
-		if (isDepartmentExists(newName)) {
-			return false; // 新部署名が既に存在する場合は変更できない
-		}
-		
-		departmentMapper.updateDepartmentName(newName, exsistsName);
-		return true; // 変更成功
+		Byte status = getDepartmentStatus(newName);
+
+		if (status == null) {
+			departmentMapper.updateDepartmentName(newName, exsistsName);
+			return true; // 変更成功
+		} else if (status == 0) {
+			return false; // 変更失敗(無効化)
+		} else
+			return false; // 変更失敗(既に存在する)
 	}
 	
 	/**
@@ -112,27 +118,42 @@ public class DepartmentService {
 		String exsistsName = department.getExsistsName();
 		String inactiveName = department.getInactiveName();
 
-		if (checkLength && newName.length() > 10) {
+		// 文字数チェック
+		if (checkLength && newName.length() > 100) {
 			result.addError(
-					new FieldError("department", "newName", "10文字以内で入力してください。"));
+					new FieldError("department", "newName", "100文字以内で入力してください。"));
 		}
 
+		// 新部署名の必須チェック
 		if (requiredNewNameCheck && newName == "") {
 			result.addError(
 					new FieldError("department", "newName", "新部署名を入力してください。"));
 		}
-
+		
+		// 登録済の部署名の必須チェック
 		if (requiredExsistsNameCheck && exsistsName == "") {
 			result.addError(
 					new FieldError("department", "exsistsName", "登録済の部署名を選択してください。"));
 		}
-
+		
+		// 削除済の部署名の必須チェック
 		if (requiredInactiveNameCheck && inactiveName == "") {
 			result.addError(
 					new FieldError("department", "inactiveName", "削除済の部署名を選択してください。"));
 		}
 
 		return true;
+	}
+	
+	/**
+	 * 部署IDに紐づくユーザー数のカウント
+	 * @param departmentId 部署Id
+	 * @return true存在する false存在しない
+	 */
+	public boolean userDepartment(String name) {
+		Integer usersCount = departmentMapper.getUsersCountByDepartmentName(name);
+		System.out.println(usersCount);
+		return usersCount > 0;
 	}
 
 }

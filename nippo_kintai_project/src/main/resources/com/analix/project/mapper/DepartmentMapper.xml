@@ -10,10 +10,12 @@
 		ORDER BY name ASC
 	</select>
 	
-	<!-- 部署名の検索 -->
-	<select id="departmentCountByName" resultType="Integer">
-		SELECT COUNT(*) FROM department
-		WHERE name = #{name}
+	<!-- 部署名の有効フラグの検索 -->
+	<select id="findDepartmentStatusByName" resultType="Byte">
+		SELECT is_active FROM department
+		WHERE name = #{name} 
+<!--		SELECT COUNT(*) FROM department-->
+<!--		WHERE name = #{name}-->
 	</select>
 	
 	<!-- 新部署名登録 -->
@@ -56,5 +58,14 @@
 		SET is_active = 1
 		WHERE name = #{inactiveName}
 	</update>
+
+	<!-- 部署名に紐づくユーザー数のカウント -->
+	<select id="getUsersCountByDepartmentName" resultType="Integer">
+		SELECT COUNT(*)
+		FROM users
+		INNER JOIN department
+		ON users.department_id = department.department_id
+		WHERE department.name = #{name}
+	</select>
 		
 </mapper>
