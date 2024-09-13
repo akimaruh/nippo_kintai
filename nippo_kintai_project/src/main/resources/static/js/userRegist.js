@@ -3,7 +3,7 @@ document.getElementById('search-form').addEventListener('submit', function(event
 
 	let name = document.getElementById('name').value;
 	const MAX_USERNAME_LENGTH = 21;
-	
+
 
 	let validation = true;
 
@@ -13,8 +13,8 @@ document.getElementById('search-form').addEventListener('submit', function(event
 	} else if (name.length > MAX_USERNAME_LENGTH) {
 		document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
 		validation = false;
-	} else if (/^[0-9a-zA-Zｱ-ﾝ\-\s!-/:-@[-`{-~]*$/.test(name)) {
-		document.getElementById('nameError').innerHTML = "全角で入力してください";
+	} else if (!/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFa-zA-Z]+$/.test(name)) {
+		document.getElementById('nameError').innerHTML = "漢字、全角カタカナ、半角英字のみ入力可能です";
 		validation = false;
 	} else {
 		document.getElementById('nameError').innerHTML = "";
@@ -44,9 +44,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	const commandDate = "9999/99/99";
 	let date = new Date(startDate);
 
-	const regex = /^[\\x00-\\x7F]*$/;
-
-	const MAX_USERNAME_LENGTH = 21;
+	const MAX_USERNAME_LENGTH = 20;
 	const MAX_PASSWORD_LENGTH = 16;
 	const STARTDATE_LENGTH = 10;
 
@@ -55,11 +53,11 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	if (name === "") {
 		document.getElementById('nameError').innerHTML = "名前を入力してください";
 		validation = false;
-	} else if (name.length > MAX_USERNAME_LENGTH) {
-		document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
+	} else if (name.length >= MAX_USERNAME_LENGTH) {
+		document.getElementById('nameError').innerHTML = "20文字以内で入力してください";
 		validation = false;
-	} else if (/^[0-9a-zA-Zｱ-ﾝ\-\s!-/:-@[-`{-~]*$/.test(name)) {
-		document.getElementById('nameError').innerHTML = "全角で入力してください";
+	} else if (!/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFa-zA-Z]+$/.test(name)) {
+		document.getElementById('nameError').innerHTML = "漢字、全角カタカナ、半角英字のみ入力可能です";
 		validation = false;
 	} else {
 		document.getElementById('nameError').innerHTML = "";
@@ -135,6 +133,50 @@ window.addEventListener('DOMContentLoaded', function() {
 	});
 });
 
+//日付の入力補助機能
+document.getElementById('startDate').addEventListener('blur', function() {
+	let input = document.getElementById('startDate').value;
+console.log(input);
+	// 「9999/99/99」は変更しない
+	if (input === "9999/99/99") return;
+
+	// (yyyy/MM/dd,yyyy-MM-dd,yyyyMMdd)入力パターンに対応
+	input = input.replace(/-/g, '/');  // ハイフンをスラッシュに変換
+	let regex = /^(\d{2,4})[\/\-]?(\d{1,2})[\/\-]?(\d{1,2})$/;
+
+	let match = input.match(regex);
+	if (match) {
+		let year = match[1];
+		let month = match[2];
+		let day = match[3];
+
+		// 年が2桁の場合は20xxとして扱う
+		if (year.length === 2) {
+			year = '20' + year;
+		}
+
+		// 月や日の桁数が1桁の場合は0埋めする
+		month = month.padStart(2, '0');
+		day = day.padStart(2, '0');
+
+		// 日付の補正
+		const date = new Date(year, month - 1, day);
+//		const currentDate = new Date();
+
+//		// 入力日が2年以内であることを確認
+//		const twoYearsLater = new Date();
+//		twoYearsLater.setFullYear(currentDate.getFullYear() +2);
+
+//		if (date >= currentDate && date <= twoYearsLater) {
+			// 補正された日付を「yyyy/MM/dd」形式に修正
+			const formattedDate = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+			input = formattedDate;
+//		}
+		console.log(input);
+		document.getElementById('startDate').value =input;
+	}
+});
+
 //↓元々書いてあったやつ
 ////バリデーションチェック
 //document.getElementById('search-form').addEventListener('submit',function(event){
@@ -159,48 +201,48 @@ window.addEventListener('DOMContentLoaded', function() {
 //  } if(name.length >MAX_USERNAME_LENGTH){
 //	  document.getElementById('nameError').innerHTML = "10文字以内で入力して下さい";
 //    validation = false;
-//    
+//
 //  }else{
 //	  document.getElementById('nameError').innerHTML = "";
 //  }
-//  
-//  
+//
+//
 //   if(password === ""){
 //    document.getElementById('password').innerHTML = "パスワードを入力して下さい";
 //    validation = false;
 //   } if(password.length >MAX_PASSWORD_LENGTH){
 //	  document.getElementById('password').innerHTML = "16文字以内で入力して下さい";
 //    validation = false;
-//    
+//
 //    }if(!halfwidthCheck.test(password)){
 //		document.getElementById('password').innerHTML = "半角で入力して下さい";
-//	
-//    
+//
+//
 //  }else{
 //	  document.getElementById('password').innerHTML = "";
 //  }
-//    
-//    
-//  
+//
+//
+//
 //  if(role === ""){
 //    document.getElementById('role').innerHTML = "権限を選択して下さい";
 //    validation = false;
 //  } else{
 //    document.getElementById('role').innerHTML = "";
 //  }
-//  
-//  
+//
+//
 //  if(startDate === ""){
 //    document.getElementById('startDate').innerHTML = "利用開始日を入力して下さい";
 //    validation = false;
 // } if(startDate.length >MAX_STARTDATE_LENGTH){
 //	  document.getElementById('startDate').innerHTML = "10文字以内で入力して下さい";
 //    validation = false;
-//    
+//
 //  }else{
 //	  document.getElementById('startDate').innerHTML = "";
 //  }
-//  
+//
 //
 ////  if(!check.test(email)){
 ////    document.getElementById('message1').innerHTML = "メールアドレスの形式で入力して下さい";

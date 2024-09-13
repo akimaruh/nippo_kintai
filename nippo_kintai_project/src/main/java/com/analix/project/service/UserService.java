@@ -39,14 +39,14 @@ public class UserService {
 	public RegistUserForm getUserDataByUserName(String name, BindingResult result) {
 
 		if (name != null) {
-			String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
+			String fullwidthRegex = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFFa-zA-Z]+$";
 			Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
 			Matcher nameMatcher = fullwidthPattern.matcher(name);
 
 			if (name.length() > 20) {
 				result.addError(
 						new FieldError("registUserForm", "name",
-								"全角20文字以内で入力してください"));
+								"20文字以内で入力してください"));
 			}
 			//空欄または全角以外で入力があった場合
 			if (!nameMatcher.find()) {
@@ -54,11 +54,6 @@ public class UserService {
 						new FieldError("registUserForm", "name",
 								"全角で入力してください"));
 			}
-		} else {
-			result.addError(
-					new FieldError("registUserForm", "name",
-							"全角で入力してください"));
-
 		}
 
 		//DBでユーザー検索
@@ -124,7 +119,7 @@ public class UserService {
 					new FieldError("registUserForm", "name",
 							"全角で入力してください"));
 		}
-		String alnumRegex = "^[a-zA-Z0-9]+$";
+		String alnumRegex = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFFa-zA-Z]+$";
 		Pattern alnumPattern = Pattern.compile(alnumRegex);
 		Matcher passwordMatcher = alnumPattern.matcher(password);
 		//		if (password == "") {
@@ -181,8 +176,8 @@ public class UserService {
 	 * @param users
 	 * @return 反映結果
 	 */
-	public String registUserData(RegistUserForm registUserForm, Integer id, String name) {
-
+	public String registUserData(RegistUserForm registUserForm, Integer id) {
+		System.out.println(registUserForm.getName());
 		Users registUser = new Users();
 		String startDate = registUserForm.getStartDate();
 		String userName = registUserForm.getName();
@@ -201,9 +196,9 @@ public class UserService {
 		registUser.setName(userName);
 		registUser.setStartDate(startDateLoalDate);
 		registUser.setDepartmentId(registUserForm.getDepartmentId());
-
-		Integer userCheck = userMapper.countUserDataById(userName);
-
+		System.out.println(registUser.getName());
+		Integer userCheck = userMapper.countUserDataById(id,userName);
+		System.out.println("ユーザー合致数"+userCheck);
 		//ユーザー更新処理
 		if (userCheck == 1) {
 			registUser.setId(id);
@@ -211,7 +206,7 @@ public class UserService {
 			if (updateCheck == true) {
 				return userName + "を更新しました。";
 			} else {
-				return "登録が失敗しました。";
+				return userName+"の登録が失敗しました。";
 			}
 		}
 
@@ -221,12 +216,12 @@ public class UserService {
 			if (updateCheck == true) {
 				return userName + "を登録しました。";
 			} else {
-				return "登録が失敗しました。";
+				return userName+"の登録が失敗しました。";
 			}
 
 		} else {
 			//登録ユーザー重複時
-			return "登録が失敗しました。";
+			return userName+"は既に登録されています。";
 		}
 
 	}

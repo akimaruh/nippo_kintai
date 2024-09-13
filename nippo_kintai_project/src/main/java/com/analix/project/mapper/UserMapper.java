@@ -29,7 +29,7 @@ public interface UserMapper {
 	 * @param name
 	 * @return nameに該当するユーザーデータ数
 	 */
-	Integer countUserDataById (@Param("name") String name);
+	Integer countUserDataById (@Param("id") Integer id, @Param("name")String name);
 	
 	/**
 	 * ユーザーデータ更新

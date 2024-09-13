@@ -13,6 +13,9 @@ public class Users {
 
 	private LocalDate startDate;
 	private Integer status; // ステータスフィールドを追加
+	private String email;
+	private String tel;
+
 
 	public Integer getId() {
 		return id;
@@ -76,6 +79,21 @@ public class Users {
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getTel() {
+		return tel;
+	}
+
+	public void setTel(String tel) {
+		this.tel = tel;
 	}
 
 }
