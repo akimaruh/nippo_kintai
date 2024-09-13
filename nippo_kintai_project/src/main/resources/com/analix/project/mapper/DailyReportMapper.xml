@@ -12,7 +12,7 @@
 		resultType="int">
 		SELECT count(*) FROM daily_report
 		WHERE user_id = #{userId}
-		AND date = #{targetDate} 
+		AND date = #{targetDate}
 	</select>
 
 	<insert id="registDailyReport" useGeneratedKeys="true"
@@ -91,11 +91,26 @@
 		AND
 		daily_report.date = #{targetDate}
 	</select>
-	
+
 	<delete id="deleteDailyReportDetail">
 		DELETE FROM daily_report_detail
 		WHERE id = #{id}
 	</delete>
+
+	<select id="dailyReportUnsubmittedPersonList"
+		resultType="com.analix.project.entity.users">
+		SELECT users.id,
+		users.name
+		FROM users
+		LEFT JOIN daily_report
+		ON users.id
+		= daily_report.user_id AND daily_report.date = #{today}
+		WHERE
+		daily_report.user_id IS NULL
+		AND users.role
+		= "Regular" OR "UnitManager";
+
+	</select>
 
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.analix.project.mapper;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -8,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import com.analix.project.dto.DailyReportDto;
 import com.analix.project.entity.DailyReport;
 import com.analix.project.entity.DailyReportDetail;
+import com.analix.project.entity.Users;
 
 @Mapper
 public interface DailyReportMapper {
@@ -70,4 +72,13 @@ public interface DailyReportMapper {
 	 * @return 反映結果
 	 */
 	public boolean deleteDailyReportDetail(@Param("id")Integer id);
+	
+	/**
+	 * 日報未提出者一覧取得
+	 * @param today
+	 * @return 日報未提出ユーザーIDのリスト
+	 */
+	public List<Users> dailyReportUnsubmittedPersonList(@Param("today")LocalDate today);
+		
+	
 }

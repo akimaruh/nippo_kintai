@@ -62,6 +62,7 @@ public class DailyReportController {
 		//ステータス
 		String statusName = dailyReportService.findStatusByUserId(userId, targetDate);
 		model.addAttribute("statusName", statusName);
+		forgetReportRegist();
 
 		return "/dailyReport/regist";
 	}
@@ -139,5 +140,10 @@ public class DailyReportController {
 		}
 		return "redirect:/dailyReport/regist";
 
+	}
+	
+	//お試しバッチ処理準備
+	public void forgetReportRegist() {
+		dailyReportService.registCheck();
 	}
 }

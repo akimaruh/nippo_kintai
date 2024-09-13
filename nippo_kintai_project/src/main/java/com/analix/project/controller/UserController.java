@@ -98,7 +98,7 @@ public class UserController {
 			return "user/regist";
 		}
 		
-		String message = userService.registUserData(registUserForm, id, name);
+		String message = userService.registUserData(registUserForm, id);
 		redirectAttributes.addFlashAttribute("message", message);
 
 		return "redirect:/user/regist";

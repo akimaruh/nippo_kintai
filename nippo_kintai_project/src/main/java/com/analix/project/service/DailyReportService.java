@@ -11,6 +11,7 @@ import com.analix.project.dto.DailyReportDetailDto;
 import com.analix.project.dto.DailyReportDto;
 import com.analix.project.entity.DailyReport;
 import com.analix.project.entity.DailyReportDetail;
+import com.analix.project.entity.Users;
 import com.analix.project.form.DailyReportDetailForm;
 import com.analix.project.form.DailyReportForm;
 import com.analix.project.mapper.DailyReportMapper;
@@ -35,7 +36,9 @@ public class DailyReportService {
 		//		dailyReportStatusMap.put(1, "提出済承認前");
 		//		dailyReportStatusMap.put(2, "承認済");
 		System.out.println(targetDate);
+		
 		Integer dailyReportStatus = dailyReportMapper.findStatusByUserIdAndTargetDate(userId, targetDate);
+		System.out.println(dailyReportStatus);
 		int result = (dailyReportStatus == null) ? 0 : dailyReportStatus;
 		final String statusName = DailyReportUtil.getSubmitStatus(result);
 		return statusName;
@@ -186,5 +189,13 @@ public class DailyReportService {
 		dailyReport.setStatus(Constants.CODE_VAL_BEFORE_SUBMITTED_APPROVAL);
 		dailyReportMapper.updateDailyReportStatus(dailyReport);
 	}
-
+	//ステータスを取得する
+	public List<Users> registCheck() {
+		LocalDate today =LocalDate.now();
+		List<Users> unSubmitterList=dailyReportMapper.dailyReportUnsubmittedPersonList(today);
+		return unSubmitterList;
+		
+	}
+	
+	//
 }

@@ -37,13 +37,16 @@
 
 	<select id="countUserDataById" resultType="integer">
 		SELECT count(*) FROM
-		users WHERE name = #{name};
+		users WHERE id = #{id};
 	</select>
 
 	<update id="updateUserData"
 		parameterType="com.analix.project.entity.Users">
 		UPDATE users
-		SET password =
+		SET 
+		name =
+		#{users.name},
+		password =
 		#{users.password},
 		role =
 		#{users.role},
