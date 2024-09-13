@@ -67,10 +67,10 @@ public class LoginController {
 			//ログイン完了後遷移
 			//権限による画面遷移の可能性を考え、現状権限で分岐する書き方で進める
 			if ("Admin".equals(role)) {
-				return "common/startMenu";
+				return "redirect:/common/startMenu";
 
 			} else if ("UnitManager".equals(role) || "Manager".equals(role) || "Regular".equals(role)) {
-				return "common/startMenu";
+				return "redirect:/common/startMenu";
 
 			} else {
 				model.addAttribute("error", "ログインに失敗しました。");

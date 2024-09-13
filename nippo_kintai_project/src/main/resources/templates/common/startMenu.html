@@ -23,7 +23,6 @@
 				<strong>ユーザーID：</strong>
 				<span th:text="${session.loginUser !=null && session.loginUser.id != null ? session.loginUser.id :''}"></span>
 			</div>
-	
 			<div class="ms-auto">
 				<form th:action="@{/common/logoff}" method="post">
 					<button type="submit" class="btn-yellow">ログオフ</button>
@@ -31,6 +30,34 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="container mt-4 mb-5 d-flex justify-content-center">
+		<div class="col-md-7">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				<div class="card-body">
+					<p>おしらせ</p>
+				
+					<ul>
+						<th:block th:if="${session.loginUser.role == 'Manager'}" th:each="managerMassage : ${managerMassage}">
+							<li>
+								<a href="/attendance/regist">
+								<span th:text="${managerMassage}"></span>
+								</a>
+							</li>
+						</th:block>
+						
+						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="regularMassage : ${regularMassage}">
+							<li>
+								<span th:text="${regularMassage}"></span>
+							</li>
+						</th:block>
+					</ul>
+				
+				</div>
+				</div>
+				</div>
+				</div>
+
 	<!-- ヘッダー -->
 
 <!--	<div class="container d-flex flex-row-reverse">-->
@@ -43,7 +70,6 @@
 <!--						    <input type="button" onclick="window.close();" value="閉じる">-->
 <!--		</div>-->
 <!--	</div>-->
-	
 
 	<div class="menu-container">
 		<div class="container mt-5">
@@ -86,7 +112,6 @@
 
 		</div>
 	</div>
-
 
 </body>
 

@@ -47,16 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-//「却下」「承認」ボタンの活性化
-document.addEventListener('DOMContentLoaded', function() {
-	const urlParams = new URLSearchParams(window.location.search);
-	const activateButtons = urlParams.get('activateButtons');
-
-	if (activateButtons === 'true') {
-		document.getElementById('reject-btn').disabled = false;
-		document.getElementById('approve-btn').disabled = false;
-	}
-});
+////「却下」「承認」ボタンの活性化
+//document.addEventListener('DOMContentLoaded', function() {
+//	const urlParams = new URLSearchParams(window.location.search);
+//	const activateButtons = urlParams.get('activateButtons');
+//
+//	if (activateButtons === 'true') {
+//		document.getElementById('reject-btn').disabled = false;
+//		document.getElementById('approve-btn').disabled = false;
+//	}
+//});
 
 
 // 入力チェック
@@ -134,6 +134,11 @@ window.addEventListener('load', function() {
 		}
 	}
 });
+
+// 戻るボタン
+function goBack() {
+	window.history.back();
+}
 
 //↓元々書いてあったやつ
 //document.addEventListener('DOMContentLoaded', function () {

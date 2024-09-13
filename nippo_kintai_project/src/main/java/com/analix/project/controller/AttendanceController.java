@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -182,9 +183,11 @@ public class AttendanceController {
 	 * @param attendanceFormList
 	 * @return
 	 */
-	@GetMapping("/attendance/approveRequests")
+	@PostMapping("/attendance/approveRequests")
 	public String showApproveRequests(@RequestParam("userId") Integer userId,
-			@RequestParam("targetYearMonth") String targetYearMonth, Model model, HttpSession session,
+			@RequestParam("targetYearMonth") String targetYearMonth, 
+			@RequestParam("name") String name, @RequestParam("date") String date,
+			Model model, HttpSession session,
 			AttendanceFormList attendanceFormList) {
 
 		session.setAttribute("targetYearMonth", targetYearMonth);
@@ -194,6 +197,11 @@ public class AttendanceController {
 		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, yearMonth);
 
 		model.addAttribute("attendanceList", attendanceList);
+		model.addAttribute("targetYearMonth", targetYearMonth);
+		
+		model.addAttribute("name", name);
+		model.addAttribute("yearMonth", yearMonth);
+		model.addAttribute("date", date);
 
 		return "/attendance/regist";
 	}
