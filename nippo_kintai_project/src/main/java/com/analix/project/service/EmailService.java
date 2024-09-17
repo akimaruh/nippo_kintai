@@ -11,6 +11,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Users;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
@@ -49,11 +50,11 @@ public class EmailService {
 		List<Users> umsubmittedAttendanceUserList = attendanceService.registCheck();
 		System.out.println(umsubmittedDailyReportUserList);
 		System.out.println(umsubmittedAttendanceUserList);
-//		// 勤怠未提出者リストをセットに変換
-//		Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
-//
-//		// 日報未提出者リストをセットに変換
-//		Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
+		//		// 勤怠未提出者リストをセットに変換
+		//		Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
+		//
+		//		// 日報未提出者リストをセットに変換
+		//		Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
 
 		//メールを送るグループを作成
 		//勤怠未提出者リスト
@@ -167,5 +168,40 @@ public class EmailService {
 		System.out.println("勤怠日報未提出者抽出" + new ArrayList<>(unsubmittedAttendanceUsers));
 		return new ArrayList<>(unsubmittedAttendanceUsers);
 	}
+
+	
+	// 勤怠承認申請
+	public void sendRequestEmail(MonthlyAttendanceReqDto request) {
+		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
+		for (Users manager : managerList) {
+			String subject = "【日報勤怠アプリ】勤怠承認申請のお知らせ";
+			String content = request.getName() + "さんの" + request.getTargetYearMonth() + "の承認申請があります。";
+			System.out.println("Service managerEmail: " + manager.getEmail() +  manager.getName());
+			sendEmail(manager.getEmail(), subject, content);
+		}
+	}
+
+	// 承認
+	public void sendApproveEmail(MonthlyAttendanceReqDto request) {
+		String subject = "【日報勤怠アプリ】承認のお知らせ";
+		String content = request.getTargetYearMonth() + "の承認申請が承認されました。";
+		sendEmail(request.getEmail(), subject, content);
+	}
+
+	// 却下
+	public void sendRejectEmail(MonthlyAttendanceReqDto request) {
+		String subject = "【日報勤怠アプリ】却下のお知らせ";
+		String content = request.getTargetYearMonth() + "の承認申請が却下されました。";
+		sendEmail(request.getEmail(), subject, content);
+	}
+
+	//	@PostConstruct
+	//	public void init() {
+	//		sendTestEmail("");
+	//	}
+	//	
+	//	public void sendTestEmail(String to) {
+	//		sendEmail(to, "テストメール", "テストメールです。");
+	//	}
 
 }
