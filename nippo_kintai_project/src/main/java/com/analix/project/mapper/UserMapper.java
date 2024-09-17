@@ -1,5 +1,7 @@
 package com.analix.project.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,6 +46,13 @@ public interface UserMapper {
 	 * @return 反映結果
 	 */
 	Boolean insertUserData (@Param("users") Users registUser);
+	
+	/**
+	 * 権限ごとのユーザー抽出
+	 * @param role
+	 * @return
+	 */
+	List<Users> findUserListByRole(@Param("role") String role);
 	
 	
 	

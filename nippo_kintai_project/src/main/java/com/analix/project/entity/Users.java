@@ -1,9 +1,14 @@
 package com.analix.project.entity;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 
-public class Users {
+import lombok.Data;
 
+@Data
+public class Users implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String password;
 	private String name;
@@ -16,6 +21,20 @@ public class Users {
 	private String email;
 	private String tel;
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Users user = (Users) o;
+		return Objects.equals(id, user.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 
 	public Integer getId() {
 		return id;
@@ -80,6 +99,7 @@ public class Users {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
+
 	public String getEmail() {
 		return email;
 	}

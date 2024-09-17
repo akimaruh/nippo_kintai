@@ -9,6 +9,8 @@
 		<result column="department_id" property="departmentId" />
 		<result column="department_name" property="departmentName" />
 		<result column="start_Date" property="startDate" />
+		<result column="email" property="email"/>
+		<result column="tel" property="tel"/>
 	</resultMap>
 
 	<select id="findUserDataByUserName"
@@ -20,6 +22,8 @@
 		users.role,
 		users.department_id,
 		users.start_date,
+		users.email,
+		users.tel,
 		department.name AS
 		department_name
 		FROM users
@@ -68,4 +72,21 @@
 		DELETE FROM users
 		WHERE id = #{id}
 	</delete>
+	
+	<select id="findUserListByRole"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		users.id,
+		users.name,
+		users.password,
+		users.role,
+		users.department_id,
+		users.start_date,
+		users.email,
+		users.tel
+		FROM users
+		WHERE users.role
+		= #{role}
+	</select>
+	
 </mapper>

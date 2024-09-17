@@ -1,11 +1,13 @@
 package com.analix.project.mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.analix.project.entity.Attendance;
+import com.analix.project.entity.Users;
 
 @Mapper
 public interface AttendanceMapper {
@@ -41,5 +43,12 @@ public interface AttendanceMapper {
 	 */
 	public List<Attendance> findByUserIdAndYearMonth(@Param("userId") Integer userId,
 			@Param("targetYearMonth") String targetYearMonth);
+	
+	/**
+	 * 勤怠未提出者情報取得
+	 * @param today
+	 * @return 勤怠未提出者のリスト
+	 */
+	public List<Users> attendanceUnsubmittedPersonList(@Param("today") LocalDate today);
 
 }

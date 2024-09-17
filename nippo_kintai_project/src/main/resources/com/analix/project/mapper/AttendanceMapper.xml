@@ -55,6 +55,25 @@
 		'%Y-%m') = #{targetYearMonth}
 	</select>
 
+	<select id="attendanceUnsubmittedPersonList"
+		resultType="com.analix.project.entity.Users">
+		SELECT users.id,
+		users.name,
+		users.email,
+		users.tel
+		FROM users
+		LEFT JOIN attendance
+		ON
+		users.id
+		= attendance.user_id AND attendance.date = #{today}
+		WHERE
+		attendance.user_id IS NULL
+		AND users.role
+		= "Regular" OR "UnitManager";
+
+
+	</select>
+
 
 
 </mapper>
