@@ -1,65 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.analix.project.mapper.MonthlyAttendanceReqMapper">
+<mapper
+	namespace="com.analix.project.mapper.MonthlyAttendanceReqMapper">
 
 	<!-- 全件取得 -->
 	<select id="findAllMonthlyAttendanceReq"
 		resultType="com.analix.project.dto.MonthlyAttendanceReqDto">
 		SELECT * FROM monthly_attendance_req
 		JOIN users
-		ON monthly_attendance_req.user_id = users.id
+		ON
+		monthly_attendance_req.user_id = users.id
 	</select>
-	
+
+	<!-- 全件取得 userIdとtargetYearMonth -->
+	<select id="findAllMonthlyAttendanceReqByUserId"
+		resultType="com.analix.project.dto.MonthlyAttendanceReqDto">
+		SELECT * FROM monthly_attendance_req
+		JOIN users
+		ON monthly_attendance_req.user_id = users.id
+		WHERE monthly_attendance_req.user_id = #{userId}
+		AND monthly_attendance_req.target_year_month = #{targetYearMonth}
+	</select>
+
 	<!-- ログインユーザーのstatus取得 -->
 	<select id="findStatusByUserId" parameterType="Integer">
-		SELECT status FROM monthly_attendance_req
+		SELECT status FROM
+		monthly_attendance_req
 		WHERE user_id = #{userId}
 		LIMIT 1
 	</select>
-	
+
 	<!-- 「承認申請」ボタン押下後 -->
 	<insert id="insertMonthlyAttendanceReq" useGeneratedKeys="true"
-		keyProperty="id" parameterType="com.analix.project.dto.MonthlyAttendanceReqDto">
+		keyProperty="id"
+		parameterType="com.analix.project.dto.MonthlyAttendanceReqDto">
 		INSERT INTO monthly_attendance_req
-		(user_id, target_year_month, date, status)
-		VALUES (#{monthlyDto.userId}, #{monthlyDto.targetYearMonth}, #{monthlyDto.date}, #{monthlyDto.status})
+		(user_id,
+		target_year_month, date, status)
+		VALUES (#{monthlyDto.userId},
+		#{monthlyDto.targetYearMonth}, #{monthlyDto.date},
+		#{monthlyDto.status})
 	</insert>
-	
+
 	<!-- 「承認申請」ボタン押下後 - status検索 -->
 	<select id="findStatusByUserIdAndYearMonth" parameterType="map"
 		resultType="Integer">
 		SELECT status FROM monthly_attendance_req
-		WHERE user_id = #{userId} AND target_year_month = #{attendanceDate}
+		WHERE user_id =
+		#{userId} AND target_year_month = #{attendanceDate}
 	</select>
-	
+
 	<!-- statusを1に変更 -->
 	<update id="updateStatusWaiting" parameterType="map">
-		UPDATE monthly_attendance_req
+		UPDATE
+		monthly_attendance_req
 		SET status = 1
-		WHERE user_id = #{userId} AND target_year_month = #{attendanceDate}
+		WHERE user_id = #{userId} AND
+		target_year_month = #{attendanceDate}
 	</update>
-		
+
 	<!-- 承認 -->
 	<update id="updateStatusApprove" parameterType="map">
-		UPDATE monthly_attendance_req
+		UPDATE
+		monthly_attendance_req
 		SET status = 2
-		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
+		WHERE user_id = #{userId} AND
+		target_year_month = #{targetYearMonth}
 	</update>
-		
+
 	<!-- 却下 -->
 	<update id="updateStatusReject" parameterType="map">
-		UPDATE monthly_attendance_req
+		UPDATE
+		monthly_attendance_req
 		SET status = 3
-		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
+		WHERE user_id = #{userId} AND
+		target_year_month = #{targetYearMonth}
 	</update>
-	
+
 	<!-- ユーザー名取得 -->
 	<select id="findMonthlyAttendanceReqByUserId"
 		resultType="com.analix.project.dto.MonthlyAttendanceReqDto">
 		SELECT * FROM monthly_attendance_req
 		JOIN users
-		ON monthly_attendance_req.user_id = users.id
-		WHERE user_id = #{userId} AND target_year_month = #{targetYearMonth}
+		ON
+		monthly_attendance_req.user_id = users.id
+		WHERE user_id = #{userId} AND
+		target_year_month = #{targetYearMonth}
 	</select>
-	
+
 </mapper>

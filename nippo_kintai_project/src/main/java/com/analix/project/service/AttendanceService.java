@@ -152,12 +152,22 @@ public class AttendanceService {
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq() {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
 	}
-
+	
 	/**
-	 * status更新 承認・却下
+	 * 承認申請リスト(usersテーブルと結合)
 	 * @param userId
 	 * @param targetYearMonth
-	 * @return メッセージ
+	 * @return 承認申請リスト
+	 */
+	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReqByUserId(Integer userId, String targetYearMonth) {
+		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+	}
+
+	/**
+	 * status更新 承認
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return 承認メッセージ
 	 */
 	public String updateStatusApprove(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonth);
@@ -168,7 +178,13 @@ public class AttendanceService {
 
 		return userName + "の" + date + "における承認申請が承認されました。";
 	}
-
+	
+	/**
+	 * status更新 却下
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return 却下メッセージ
+	 */
 	public String updateStatusReject(Integer userId, String targetYearMonth) {
 		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonth);
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
