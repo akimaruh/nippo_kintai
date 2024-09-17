@@ -21,6 +21,7 @@ import org.springframework.validation.FieldError;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
+import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.form.DailyAttendanceForm;
 import com.analix.project.mapper.AttendanceMapper;
@@ -489,5 +490,14 @@ public class AttendanceService {
 
 		return dates;
 	}
+	
+	//ステータスを取得する
+		public List<Users> registCheck() {
+			LocalDate today = LocalDate.now();
+			List<Users> unSubmitterList = attendanceMapper.attendanceUnsubmittedPersonList(today);
+			System.out.println(unSubmitterList);
+			return unSubmitterList;
+
+		}
 
 }
