@@ -19,5 +19,9 @@ public class MonthlyAttendanceReqDto {
 	private Integer status;
 	/** 氏名 */
 	private String name;
+	/** メール */
+	private String email;
+	
+	private String role;
 	
 }

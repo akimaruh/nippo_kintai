@@ -21,6 +21,7 @@ import com.analix.project.entity.Attendance;
 import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.service.AttendanceService;
+import com.analix.project.service.EmailService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -29,6 +30,8 @@ public class AttendanceController {
 
 	@Autowired
 	public AttendanceService attendanceService;
+	@Autowired
+	private EmailService emailService;
 
 	/**
 	 * 初期表示
@@ -155,6 +158,8 @@ public class AttendanceController {
 	 * @param session
 	 * @param model
 	 * @param redirectAttributes
+	 * @param targetYearMonth 
+	 * @param request 
 	 * @return
 	 */
 	@RequestMapping(path = "/attendance/approveRequestComplete", method = RequestMethod.POST)
@@ -170,7 +175,15 @@ public class AttendanceController {
 
 		redirectAttributes.addFlashAttribute("message", message);
 		redirectAttributes.addAttribute("yearMonth", yearMonth);
-
+		
+		String targetYearMonth = yearMonth + "-01";
+		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
+				targetYearMonth);
+		for (MonthlyAttendanceReqDto request : requests) {
+			System.out.println("Sending request: " + request);
+			emailService.sendRequestEmail(request);
+		}
+		
 		return "redirect:/attendance/regist/display";
 	}
 
@@ -218,17 +231,31 @@ public class AttendanceController {
 	public String updateStatus(@RequestParam("userId") Integer userId,
 			@RequestParam("targetYearMonth") String targetYearMonth, @RequestParam("action") String action,
 			RedirectAttributes redirectAttributes) {
+		
+		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId, targetYearMonth); 
+		
+		for (MonthlyAttendanceReqDto request : requests) {
 
-		if ("approve".equals(action)) {
-			attendanceService.updateStatusApprove(userId, targetYearMonth);
-			String message = attendanceService.updateStatusApprove(userId, targetYearMonth);
-			redirectAttributes.addFlashAttribute("message", message);
-		} else if ("reject".equals(action)) {
-			attendanceService.updateStatusReject(userId, targetYearMonth);
-			String message = attendanceService.updateStatusReject(userId, targetYearMonth);
-			redirectAttributes.addFlashAttribute("message", message);
+			if ("approve".equals(action)) {
+				attendanceService.updateStatusApprove(userId, targetYearMonth);
+				String message = attendanceService.updateStatusApprove(userId, targetYearMonth);
+				redirectAttributes.addFlashAttribute("message", message);
+				
+				System.out.println("Sending approve request: " + request);
+				emailService.sendApproveEmail(request);
+				
+			} else if ("reject".equals(action)) {
+				attendanceService.updateStatusReject(userId, targetYearMonth);
+				String message = attendanceService.updateStatusReject(userId, targetYearMonth);
+				redirectAttributes.addFlashAttribute("message", message);
+				
+				System.out.println("Sending reject request: " + request);
+				emailService.sendRejectEmail(request);
+			}
 		}
-
+			
 		return "redirect:/attendance/regist";
 	}
+
+	
 }

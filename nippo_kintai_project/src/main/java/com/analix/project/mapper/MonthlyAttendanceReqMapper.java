@@ -16,6 +16,14 @@ public interface MonthlyAttendanceReqMapper {
 	 */
 	public List<MonthlyAttendanceReqDto> findAllMonthlyAttendanceReq();
 	
+	/**
+	 * 対象者を絞って全件取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return
+	 */
+	public List<MonthlyAttendanceReqDto> findAllMonthlyAttendanceReqByUserId(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
+	
 	/*
 	 * ログインユーザーのstatus取得
 	 */
