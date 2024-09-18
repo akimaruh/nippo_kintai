@@ -23,5 +23,7 @@ public class MonthlyAttendanceReqDto {
 	private String email;
 	
 	private String role;
+	/** 年月 */
+	private String yearMonth;
 	
 }
