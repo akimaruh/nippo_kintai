@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.analix.project.mapper.NotificationsMapper">
+	<insert id="insertNotifications" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO notifications (title, message,
+		notification_type,
+		target_role)
+		VALUES (#{notification.title},
+		#{notification.message}, #{notification.notificationType},
+		#{notification.targetRole})
+	</insert>
+
+	<!-- 最後に挿入されたIDを取得 -->
+	<select id="getLastInsertId" resultType="integer">
+		SELECT LAST_INSERT_ID()
+	</select>
+
+	<resultMap type="com.analix.project.dto.NotificationsDto"
+		id="notificationsDto">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="message" property="message" />
+		<result column="created_at" property="createdAt" />
+		<result column="notification_type" property="notificationType" />
+		<collection property="userNotificationsDtoList"
+			ofType="com.analix.project.dto.UserNotificationsDto">
+			<id column="notification_id" property="notificationId" />
+
+			<result column="user_id" property="userId" />
+			<result column="status" property="status" />
+		</collection>
+	</resultMap>
+	<select id="getNotification"
+		resultMap="notificationsDto">
+		SELECT
+		notifications.title,
+		notifications.message,
+		notifications.created_at,
+		notifications.notification_type,
+		user_notifications.id AS
+		notification_id,
+		user_notifications.user_id,
+		user_notifications.status
+		FROM
+		notifications
+		INNER JOIN
+		user_notifications
+		ON notifications.id =
+		user_notifications.notification_id
+		WHERE user_notifications.user_id = #{userId}
+		AND user_notifications.status = "未読";
+	</select>
+
+</mapper>

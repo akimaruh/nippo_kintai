@@ -1,14 +1,15 @@
-package com.analix.project.entity;
+package com.analix.project.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.Data;
 /**
- * 通知エンティティ
+ * 通知DTO
  */
 @Data
-public class Notifications {
-	
+public class NotificationsDto {
+
 	//通知ID 
 	Integer id;
 	//タイトル
@@ -20,10 +21,10 @@ public class Notifications {
 	//通知種類
 	String notificationType;
 	//対象権限
-	String targetRole; 
+	String target_role;
+	//ユーザー通知DTOリスト
+	List<UserNotificationsDto> userNotificationsDtoList;
 	
-	//ユーザー通知リスト
-//	List<UserNotifications> userNotificationsList;
 	
 
 }

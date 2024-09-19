@@ -38,19 +38,19 @@
 					<p>おしらせ</p>
 				
 					<ul>
-						<th:block th:if="${session.loginUser.role == 'Manager'}" th:each="managerMassage : ${managerMassage}">
+						<th:block  th:each="notifications : ${notifications}">
 							<li>
 								<a href="/attendance/regist">
-								<span th:text="${managerMassage}"></span>
+								<span th:text="${notifications}"></span>
 								</a>
 							</li>
 						</th:block>
 						
-						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="regularMassage : ${regularMassage}">
-							<li>
-								<span th:text="${regularMassage}"></span>
-							</li>
-						</th:block>
+<!--						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="notifications : ${notifications}">-->
+<!--							<li>-->
+<!--								<span th:text="${regularMassage}"></span>-->
+<!--							</li>-->
+<!--						</th:block>-->
 					</ul>
 				
 				</div>
