@@ -22,6 +22,7 @@ import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.service.AttendanceService;
 import com.analix.project.service.EmailService;
+import com.analix.project.service.InformationService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -32,6 +33,8 @@ public class AttendanceController {
 	public AttendanceService attendanceService;
 	@Autowired
 	private EmailService emailService;
+	@Autowired
+	private InformationService informationService;
 
 	/**
 	 * 初期表示
@@ -65,8 +68,7 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.GET)
 	public String attendanceDisplay(@RequestParam("yearMonth") String yearMonth,
 			Model model, HttpSession session, AttendanceFormList attendanceFormList) {
-		
-		
+
 		// ヘッダー:ステータス部分
 		Users user = (Users) session.getAttribute("loginUser");
 		Date attendanceDate = java.sql.Date.valueOf(yearMonth + "-01");
@@ -102,9 +104,9 @@ public class AttendanceController {
 		Integer userId = loginUser.getId();
 
 		attendanceFormList.setAttendanceFormList(attendanceService.getFindAllDailyAttendance(userId, yearMonth));
-		if(attendanceFormList.getAttendanceFormList().contains(null)) {
+		if (attendanceFormList.getAttendanceFormList().contains(null)) {
 			model.addAttribute("error", "年月を入力してください");
-			
+
 			return "/attendance/regist";
 		}
 
@@ -134,7 +136,6 @@ public class AttendanceController {
 
 		attendanceService.validationForm(attendanceFormList, result);
 		String yearMonth = (String) session.getAttribute("yearMonth");
-		
 
 		if (result.hasErrors()) {
 			model.addAttribute("attendanceFormList", attendanceFormList);
@@ -145,7 +146,7 @@ public class AttendanceController {
 		}
 
 		String message = attendanceService.getRegistDailyAttendance(userId, attendanceFormList);
-		
+
 		redirectAttributes.addAttribute("yearMonth", yearMonth);
 		redirectAttributes.addFlashAttribute("message", message);
 
@@ -175,15 +176,17 @@ public class AttendanceController {
 
 		redirectAttributes.addFlashAttribute("message", message);
 		redirectAttributes.addAttribute("yearMonth", yearMonth);
-		
+
 		String targetYearMonth = yearMonth + "-01";
+		
+		informationService.approveRequestInsertNotifications();
 		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
 				targetYearMonth);
 		for (MonthlyAttendanceReqDto request : requests) {
 			System.out.println("Sending request: " + request);
 			emailService.sendRequestEmail(request);
 		}
-		
+
 		return "redirect:/attendance/regist/display";
 	}
 
@@ -198,7 +201,7 @@ public class AttendanceController {
 	 */
 	@PostMapping("/attendance/approveRequests")
 	public String showApproveRequests(@RequestParam("userId") Integer userId,
-			@RequestParam("targetYearMonth") String targetYearMonth, 
+			@RequestParam("targetYearMonth") String targetYearMonth,
 			@RequestParam("name") String name, @RequestParam("date") String date,
 			Model model, HttpSession session,
 			AttendanceFormList attendanceFormList) {
@@ -211,7 +214,7 @@ public class AttendanceController {
 
 		model.addAttribute("attendanceList", attendanceList);
 		model.addAttribute("targetYearMonth", targetYearMonth);
-		
+
 		model.addAttribute("name", name);
 		model.addAttribute("yearMonth", yearMonth);
 		model.addAttribute("date", date);
@@ -231,31 +234,31 @@ public class AttendanceController {
 	public String updateStatus(@RequestParam("userId") Integer userId,
 			@RequestParam("targetYearMonth") String targetYearMonth, @RequestParam("action") String action,
 			RedirectAttributes redirectAttributes) {
-		
-		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId, targetYearMonth); 
-		
+
+		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
+				targetYearMonth);
+
 		for (MonthlyAttendanceReqDto request : requests) {
 
 			if ("approve".equals(action)) {
 				attendanceService.updateStatusApprove(userId, targetYearMonth);
 				String message = attendanceService.updateStatusApprove(userId, targetYearMonth);
 				redirectAttributes.addFlashAttribute("message", message);
-				
+				informationService.approveInsertNotifications(userId);
 				System.out.println("Sending approve request: " + request);
 				emailService.sendApproveEmail(request);
-				
+
 			} else if ("reject".equals(action)) {
 				attendanceService.updateStatusReject(userId, targetYearMonth);
 				String message = attendanceService.updateStatusReject(userId, targetYearMonth);
 				redirectAttributes.addFlashAttribute("message", message);
-				
+				informationService.rejectInsertNotifications(userId);
 				System.out.println("Sending reject request: " + request);
 				emailService.sendRejectEmail(request);
 			}
 		}
-			
+
 		return "redirect:/attendance/regist";
 	}
 
-	
 }

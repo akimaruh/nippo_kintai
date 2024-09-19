@@ -3,6 +3,7 @@ package com.analix.project.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,20 +42,20 @@ public class EmailService {
 		}
 	}
 
-	//	public void sendForgetRegistEmails(Map<String, List<Users>> umsubmitMap) {
-	public void sendForgetRegistEmails() {
+		public void sendForgetRegistEmails(Map<String, List<Users>> umsubmitMap) {
+//	public void sendForgetRegistEmails() {
 		//日報未提出者リストと、勤怠未提出者リストにそれぞれ分ける
-		//		List<Users> umsubmittedDailyReportUserList = umsubmitMap.get("dailyReport");
-		//		List<Users> umsubmittedAttendanceUserList = umsubmitMap.get("attendance");
-		List<Users> umsubmittedDailyReportUserList = dailyReportService.registCheck();
-		List<Users> umsubmittedAttendanceUserList = attendanceService.registCheck();
+				List<Users> umsubmittedDailyReportUserList = umsubmitMap.get("dailyReport");
+				List<Users> umsubmittedAttendanceUserList = umsubmitMap.get("attendance");
+//		List<Users> umsubmittedDailyReportUserList = dailyReportService.registCheck();
+//		List<Users> umsubmittedAttendanceUserList = attendanceService.registCheck();
 		System.out.println(umsubmittedDailyReportUserList);
 		System.out.println(umsubmittedAttendanceUserList);
-		//		// 勤怠未提出者リストをセットに変換
-		//		Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
-		//
-		//		// 日報未提出者リストをセットに変換
-		//		Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
+//				// 勤怠未提出者リストをセットに変換
+//				Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
+//		
+//				// 日報未提出者リストをセットに変換
+//				Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
 
 		//メールを送るグループを作成
 		//勤怠未提出者リスト
