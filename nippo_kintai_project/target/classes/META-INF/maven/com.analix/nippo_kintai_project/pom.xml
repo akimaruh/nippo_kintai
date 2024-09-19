@@ -77,6 +77,12 @@
 			<version>2.4.0</version>
 		</dependency>
 
+		<!-- ？プッシュ通知 -->
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>9.3.0</version>
+		</dependency>
 
 		<!-- その他の依存関係 -->
 		<dependency>
