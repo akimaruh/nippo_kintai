@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+<!--status="OFF"はLog4j2の内部ログを無効にする-->
+<!--デバック時に内部ログ確認したい場合は"DEBUG"や"INFO"に変更する-->
+    <Properties>
+		<!-- 日次、月次、エラー用が設定されている -->
+        <Property name="app_name">nippo_kintai_project</Property>
+        <Property name="date">%d{yyyy-MM-dd HH:mm:ss.SSS}</Property>
+        <Property name="daily_log">logs/app_${app_name}_%d{yyyy-MM-dd}.log</Property>
+        <Property name="monthly_log">logs/app_monthly_${app_name}_%d{yyyy-MM}.log</Property>
+        <Property name="error_daily_log">logs/app_error_${app_name}_%d{yyyy-MM-dd}.log</Property>
+    </Properties>
+    
+    <appenders>
+    	<Console name="Console" target="SYSTEM_OUT">
+        	<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}, [%highlight{%p}{FATAL=red, ERROR=red, WARN=yellow, INFO=blue, DEBUG=green, TRACE=cyan}], [%c{1}], %m%n" />
+        </Console>
+        
+        <RollingFile name="File" fileName="logs/app.log" filePattern="${daily_log}.gz">
+            <PatternLayout pattern="${date}, [ %-5level ], [${app_name}], %logger{10}, %msg %n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        
+        <RollingFile name="ErrorFile" fileName="logs/app_error.log" filePattern="${error_daily_log}.gz">
+			<!-- [ ERROR ]という文字列を含むログだけがerrorFileに書き込まれる -->
+            <RegexFilter regex="\[ ERROR \]" />
+            <PatternLayout pattern="${date}, [ %-5level ], [${app_name}], %logger{10}, %msg %n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        
+        <RollingFile fileName="logs/app_monthly.log" filePattern="${monthly_log}.gz">
+            <PatternLayout pattern="${date}, [ %-5level ], [${app_name}], %logger{10}, %msg %n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </appenders>
+    
+    <loggers>
+		<!-- info以上のレベルのログが出力される、debugレベルのログはlevel="debug"にする -->
+        <root level="info">
+            <appender-ref ref="Console" />
+            <appender-ref ref="File" />
+            <appender-ref ref="MonthlyFile" />
+            <appender-ref ref="ErrorFile" />
+        </root>
+    </loggers>
+    
+</configuration>

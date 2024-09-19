@@ -100,9 +100,7 @@
 	<select id="dailyReportUnsubmittedPersonList"
 		resultType="com.analix.project.entity.Users">
 		SELECT users.id,
-		users.name,
-		users.email,
-		users.tel
+		users.name
 		FROM users
 		LEFT JOIN daily_report
 		ON users.id
