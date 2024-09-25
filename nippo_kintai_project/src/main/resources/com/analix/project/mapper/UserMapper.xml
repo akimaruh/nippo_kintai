@@ -57,15 +57,17 @@
 		department_id =
 		#{users.departmentId},
 		start_date =
-		#{users.startDate}
+		#{users.startDate},
+		email =
+		#{users.email}
 		WHERE
 		id = #{users.id}
 	</update>
 	<insert id="insertUserData" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.Users">
 		INSERT INTO
-		users(name,password,role,department_id,start_date)
-		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate})
+		users(name,password,role,department_id,start_date,email)
+		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate},#{users.email})
 	</insert>
 
 	<delete id="deleteUserData">

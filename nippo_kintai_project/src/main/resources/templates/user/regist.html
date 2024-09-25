@@ -139,11 +139,21 @@
 							</div>
 						</div>
 
+						<div class="container mb-3 row ">
+							<label for="name" class="col-sm-4 col-form-label">email</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control" th:field="*{email}" />
+								<span class="text-danger" th:errors="*{email}"></span>
+								<span id="emailError" class="text-danger"></span>
+							</div>
+
+						</div>
+
 						<div class="container mb-3 row">
 							<label for="startDate" class="col-sm-4 col-form-label">利用開始日</label>
 							<div class="col-sm-8">
 								<input type="text" th:errorclass="is-invalid" class="form-control"
-									th:field="*{startDate}" placeholder="yyyy/MM/dd"/>
+									th:field="*{startDate}" placeholder="yyyy/MM/dd" />
 								<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
 								<span class="text-danger" th:errors="*{startDate}"></span>
 								<span id="startDateError" class="text-danger"></span>

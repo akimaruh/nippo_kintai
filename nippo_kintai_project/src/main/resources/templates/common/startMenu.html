@@ -17,11 +17,13 @@
 		<div class="d-flex align-items-center gap-5">
 			<div>
 				<strong>ユーザー名：</strong>
-				<span th:text="${session.loginUser !=null && session.loginUser.name != null ? session.loginUser.name :''}"></span>
+				<span
+					th:text="${session.loginUser !=null && session.loginUser.name != null ? session.loginUser.name :''}"></span>
 			</div>
 			<div>
 				<strong>ユーザーID：</strong>
-				<span th:text="${session.loginUser !=null && session.loginUser.id != null ? session.loginUser.id :''}"></span>
+				<span
+					th:text="${session.loginUser !=null && session.loginUser.id != null ? session.loginUser.id :''}"></span>
 			</div>
 			<div class="ms-auto">
 				<form th:action="@{/common/logoff}" method="post">
@@ -36,40 +38,42 @@
 			<div class="card" style="background-color: rgb(255, 255, 255);">
 				<div class="card-body">
 					<p>おしらせ</p>
-				
+
 					<ul>
-						<th:block  th:each="notifications : ${notifications}">
+						<th:block th:each="notifications : ${notificationsList}">
 							<li>
-								<a href="/attendance/regist">
-								<span th:text="${notifications}"></span>
+								<a href="/attendance/regist"
+									th:onclick="markAsRead(event,[[${notifications.id}]], [[${notifications.userNotificationsDto.userId}]],'/attendance/regist');">
+									<span th:text="${notifications.message}"></span>
 								</a>
 							</li>
 						</th:block>
-						
-<!--						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="notifications : ${notifications}">-->
-<!--							<li>-->
-<!--								<span th:text="${regularMassage}"></span>-->
-<!--							</li>-->
-<!--						</th:block>-->
+
+						<!--						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="notifications : ${notifications}">-->
+						<!--							<li>-->
+						<!--								<span th:text="${regularMassage}"></span>-->
+						<!--							</li>-->
+						<!--						</th:block>-->
 					</ul>
-				
+
 				</div>
-				</div>
-				</div>
-				</div>
+			</div>
+		</div>
+	</div>
+
 
 	<!-- ヘッダー -->
 
-<!--	<div class="container d-flex flex-row-reverse">-->
-<!--		<div class="mt-5">-->
-<!--			<form th:action="@{/common/logoff}" method="post">-->
-<!--				<button type="submit" class="btn-yellow">ログオフ</button>-->
-<!--			</form>-->
+	<!--	<div class="container d-flex flex-row-reverse">-->
+	<!--		<div class="mt-5">-->
+	<!--			<form th:action="@{/common/logoff}" method="post">-->
+	<!--				<button type="submit" class="btn-yellow">ログオフ</button>-->
+	<!--			</form>-->
 
-<!--						<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>-->
-<!--						    <input type="button" onclick="window.close();" value="閉じる">-->
-<!--		</div>-->
-<!--	</div>-->
+	<!--						<button type="submit" onclick="window.open('','_self').close();" class="btn-yellow">ログオフ</button>-->
+	<!--						    <input type="button" onclick="window.close();" value="閉じる">-->
+	<!--		</div>-->
+	<!--	</div>-->
 
 	<div class="menu-container">
 		<div class="container mt-5">
@@ -91,7 +95,6 @@
 					</button>
 				</form>
 			</div>
-
 			<div class="col">
 				<form th:action="@{/user/regist}" method="get">
 					<button type="submit" class="menuBtn btn-purple">
@@ -112,7 +115,9 @@
 
 		</div>
 	</div>
-
+	 
+		<script th:src="@{/js/startMenu.js}"></script>
+	
 </body>
 
 </html>

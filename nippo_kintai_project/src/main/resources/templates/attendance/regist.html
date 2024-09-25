@@ -79,16 +79,19 @@
 											th:if="${attendanceList} != null">←戻る</button>
 									</div>
 									<div>
-										<button type="submit" form="attendancebtn-form" name="action" value="reject" id="reject-btn"
-											class="btn-yellow" th:disabled="${attendanceList} == null">却下</button>
-										<button type="submit" form="attendancebtn-form" name="action" value="approve" id="approve-btn"
-											class="btn-yellow mx-2" th:disabled="${attendanceList} == null">承認</button>
+										<button type="submit" form="attendancebtn-form" name="action" value="reject"
+											id="reject-btn" class="btn-yellow"
+											th:disabled="${attendanceList} == null">却下</button>
+										<button type="submit" form="attendancebtn-form" name="action" value="approve"
+											id="approve-btn" class="btn-yellow mx-2"
+											th:disabled="${attendanceList} == null">承認</button>
 									</div>
 								</th:block>
 							</div>
-						
+
 							<div class="d-flex flex-row-reverse">
-								<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
+								<th:block
+									th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
 									<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 										<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
 										<button type="submit" class="btn-yellow"
