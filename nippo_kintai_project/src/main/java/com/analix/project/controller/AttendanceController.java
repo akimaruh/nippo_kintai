@@ -179,7 +179,7 @@ public class AttendanceController {
 
 		String targetYearMonth = yearMonth + "-01";
 		
-		informationService.approveRequestInsertNotifications();
+		informationService.approveRequestInsertNotifications(user.getName(),yearMonth);
 		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
 				targetYearMonth);
 		for (MonthlyAttendanceReqDto request : requests) {
@@ -244,7 +244,7 @@ public class AttendanceController {
 				attendanceService.updateStatusApprove(userId, targetYearMonth);
 				String message = attendanceService.updateStatusApprove(userId, targetYearMonth);
 				redirectAttributes.addFlashAttribute("message", message);
-				informationService.approveInsertNotifications(userId);
+				informationService.approveInsertNotifications(userId,targetYearMonth);
 				System.out.println("Sending approve request: " + request);
 				emailService.sendApproveEmail(request);
 
@@ -252,7 +252,7 @@ public class AttendanceController {
 				attendanceService.updateStatusReject(userId, targetYearMonth);
 				String message = attendanceService.updateStatusReject(userId, targetYearMonth);
 				redirectAttributes.addFlashAttribute("message", message);
-				informationService.rejectInsertNotifications(userId);
+				informationService.rejectInsertNotifications(userId,targetYearMonth);
 				System.out.println("Sending reject request: " + request);
 				emailService.sendRejectEmail(request);
 			}

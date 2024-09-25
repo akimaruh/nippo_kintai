@@ -15,4 +15,19 @@ public interface UserNotificationsMapper {
 	 * @return 反映結果
 	 */
 	boolean insertUserNotifications(@Param("userNotificationsList") List<UserNotification> userNotificationsList);
+	/**
+	 * ユーザー通知紐づけ確認
+	 * @param notificationId
+	 * @param userId
+	 * @return
+	 */
+	UserNotification findByNotificationIdAndUserId(@Param("notificationId")Integer notificationId,@Param("userId")Integer userId);
+	
+	
+	/**
+	 * 既読更新
+	 * @param userNotification
+	 * @return
+	 */
+	boolean readNotification(@Param("userNotification") UserNotification userNotification);
 }

@@ -100,7 +100,9 @@
 	<select id="dailyReportUnsubmittedPersonList"
 		resultType="com.analix.project.entity.Users">
 		SELECT users.id,
-		users.name
+		users.name,
+		users.email,
+		users.tel
 		FROM users
 		LEFT JOIN daily_report
 		ON users.id
@@ -108,7 +110,9 @@
 		WHERE
 		daily_report.user_id IS NULL
 		AND users.role
-		= "Regular" OR "UnitManager";
+		= "Regular"
+		OR users.role
+		="UnitManager";
 
 	</select>
 
