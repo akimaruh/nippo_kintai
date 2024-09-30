@@ -12,5 +12,6 @@ public class RegistUserForm {
 	private Integer departmentId;
 	private String departmentName;
 	private String startDate;
+	private String email;
 
 }

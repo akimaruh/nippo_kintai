@@ -7,12 +7,28 @@
 		INSERT INTO user_notifications (user_id, notification_id, status,
 		read_at)
 		VALUES
-		<foreach collection="userNotificationsList" item="userNotification"
-			separator=",">
+		<foreach collection="userNotificationsList"
+			item="userNotification" separator=",">
 			(#{userNotification.userId},
 			#{userNotification.notificationId},
 			#{userNotification.status},
 			#{userNotification.readAt})
 		</foreach>
 	</insert>
+
+	<select id="findByNotificationIdAndUserId"
+		resultType="com.analix.project.entity.UserNotification">
+		SELECT *
+		FROM user_notifications
+		WHERE notification_id = #{notificationId}
+		AND user_id = #{userId}
+	</select>
+	
+	<update id="readNotification" parameterType="com.analix.project.entity.UserNotification">
+	UPDATE user_notifications
+	SET status = #{userNotification.status},
+	read_at = #{userNotification.readAt}
+	WHERE notification_id = #{userNotification.notificationId}
+	AND user_id = #{userNotification.userId}
+	</update>
 </mapper>

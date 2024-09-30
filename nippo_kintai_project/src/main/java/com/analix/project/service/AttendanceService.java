@@ -5,6 +5,7 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -44,8 +45,8 @@ public class AttendanceService {
 	 * @param attendanceDate
 	 * @return 月次勤怠承認テーブルのステータス
 	 */
-	public Integer findStatusByUserId(Integer userId, Date attendanceDate) {
-		return monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
+	public Integer findStatusByUserId(Integer userId, LocalDate targetYearMonthAtDay) {
+		return monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, targetYearMonthAtDay);
 	}
 
 	/**
@@ -55,10 +56,12 @@ public class AttendanceService {
 	 * @param month
 	 * @return 勤怠一覧取得マッパー
 	 */
-	public List<DailyAttendanceForm> getFindAllDailyAttendance(Integer userId, String yearMonth) {
-
-		//日付生成
-		List<LocalDate> dateList = generateMonthDates(yearMonth);
+	public List<DailyAttendanceForm> getFindAllDailyAttendance(Integer userId, YearMonth targetYearMonth) {
+		LocalDate targetYearMonthAtDay =targetYearMonth.atDay(1);
+		//1か月分の日付生成
+		List<LocalDate> dateList = generateMonthDates(targetYearMonthAtDay);
+		
+		//1か月分の日付が生成できていなかったらエラー表示をコントローラで行うためこの時点でnullを返す
 		if (dateList.contains(null)) {
 			return null;
 		}
@@ -66,7 +69,8 @@ public class AttendanceService {
 		//勤怠一覧の取得
 		List<DailyAttendanceForm> dailyAttendanceList = new ArrayList<DailyAttendanceForm>();
 		List<Attendance> attendanceListSearchForUserIdAndYearMonth = attendanceMapper.findAllDailyAttendance(userId,
-				yearMonth);
+				targetYearMonth);
+		System.out.println(attendanceListSearchForUserIdAndYearMonth);
 
 		// Attendance情報をLocalDateでインデックス化するMapを作成
 		Map<LocalDate, Attendance> attendanceMap = attendanceListSearchForUserIdAndYearMonth.stream()
@@ -125,22 +129,22 @@ public class AttendanceService {
 	 * @Param attendanceDate
 	 * @return メッセージ
 	 */
-	public String insertMonthlyAttendanceReq(Integer userId, Date attendanceDate) {
+	public String insertMonthlyAttendanceReq(Integer userId, LocalDate targetYearMonthAtDay) {
 
-		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, attendanceDate);
+		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, targetYearMonthAtDay);
 
 		if (applicationStatus == null) {
 			MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
 			monthlyDto.setUserId(userId);
-			monthlyDto.setTargetYearMonth(attendanceDate);
-			monthlyDto.setDate(java.sql.Date.valueOf(LocalDate.now()));
+			monthlyDto.setTargetYearMonth(targetYearMonthAtDay);
+			monthlyDto.setDate(LocalDate.now());
 			monthlyDto.setStatus(1);
 
 			monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
 
 		} else if (applicationStatus == 3) {
 			// statusを1(承認待ち)に更新
-			monthlyAttendanceReqMapper.updateStatusWaiting(userId, attendanceDate);
+			monthlyAttendanceReqMapper.updateStatusWaiting(userId,targetYearMonthAtDay);
 		}
 
 		return "承認申請が完了しました。";
@@ -154,13 +158,15 @@ public class AttendanceService {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
 	}
 	
+	
+	
 	/**
 	 * 承認申請リスト(usersテーブルと結合)
 	 * @param userId
 	 * @param targetYearMonth
 	 * @return 承認申請リスト
 	 */
-	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReqByUserId(Integer userId, String targetYearMonth) {
+	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReqByUserId(Integer userId, LocalDate targetYearMonth) {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReqByUserId(userId, targetYearMonth);
 	}
 
@@ -170,14 +176,15 @@ public class AttendanceService {
 	 * @param targetYearMonth
 	 * @return 承認メッセージ
 	 */
-	public String updateStatusApprove(Integer userId, String targetYearMonth) {
-		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonth);
+	public String updateStatusApprove(Integer userId, LocalDate targetYearMonthAtDay) {
+		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonthAtDay);
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
-				.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
 		String userName = monthlyAttendanceReqList.getName();
-		Date date = monthlyAttendanceReqList.getDate();
+//		LocalDate date = monthlyAttendanceReqList.getDate();
+		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
 
-		return userName + "の" + date + "における承認申請が承認されました。";
+		return userName + "の" + targetYearMonth + "における承認申請が承認されました。";
 	}
 	
 	/**
@@ -186,14 +193,15 @@ public class AttendanceService {
 	 * @param targetYearMonth
 	 * @return 却下メッセージ
 	 */
-	public String updateStatusReject(Integer userId, String targetYearMonth) {
-		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonth);
+	public String updateStatusReject(Integer userId,  LocalDate targetYearMonthAtDay) {
+		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonthAtDay);
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
-				.findMonthlyAttendanceReqByUserId(userId, targetYearMonth);
+				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
 		String userName = monthlyAttendanceReqList.getName();
-		Date date = monthlyAttendanceReqList.getDate();
+//		LocalDate date = monthlyAttendanceReqList.getDate();
+		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
 
-		return userName + "の" + date + "における承認申請が却下されました。";
+		return userName + "の" + targetYearMonth + "における承認申請が却下されました。";
 	}
 
 	/**
@@ -202,7 +210,7 @@ public class AttendanceService {
 	 * @param targetYearMonth
 	 * @return 承認申請者の勤怠リスト
 	 */
-	public List<Attendance> findByUserIdAndYearMonth(Integer userId, String targetYearMonth) {
+	public List<Attendance> findByUserIdAndYearMonth(Integer userId, YearMonth targetYearMonth) {
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
 	}
 
@@ -466,21 +474,10 @@ public class AttendanceService {
 	 * @param yearMonth
 	 * @return 1か月の日付リスト
 	 */
-	public List<LocalDate> generateMonthDates(String yearMonth) {
+	public List<LocalDate> generateMonthDates(LocalDate targetYearMonth) {
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate start;
-		try {
-
-			// yearMonthに "-01" を追加して月の最初の日を表現
-			start = LocalDate.parse(yearMonth + "-01", formatter);
-
-		} catch (DateTimeParseException e) {
-
-			e.printStackTrace();
-			return new ArrayList<>(); // パースに失敗した場合は空のリストを返す
-		}
-
+//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate start = targetYearMonth;
 		LocalDate end = start.plusMonths(1).minusDays(1);
 
 		List<LocalDate> dates = new ArrayList<>();

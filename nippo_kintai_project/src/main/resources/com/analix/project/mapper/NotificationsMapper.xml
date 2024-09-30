@@ -23,7 +23,7 @@
 		<result column="message" property="message" />
 		<result column="created_at" property="createdAt" />
 		<result column="notification_type" property="notificationType" />
-		<collection property="userNotificationsDtoList"
+		<collection property="userNotificationsDto"
 			ofType="com.analix.project.dto.UserNotificationsDto">
 			<id column="notification_id" property="notificationId" />
 
@@ -34,6 +34,7 @@
 	<select id="getNotification"
 		resultMap="notificationsDto">
 		SELECT
+		notifications.id,
 		notifications.title,
 		notifications.message,
 		notifications.created_at,

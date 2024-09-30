@@ -66,6 +66,7 @@ public class UserService {
 			registUserForm.setPassword(userDataBySearch.getPassword());
 			registUserForm.setRole(userDataBySearch.getRole());
 			registUserForm.setDepartmentId(userDataBySearch.getDepartmentId());
+			registUserForm.setEmail(userDataBySearch.getEmail());
 			registUserForm.setDepartmentName(userDataBySearch.getDepartmentName());
 
 			//LocalDate型(yyyy-MM-dd)からString型(yyyy/MM/dd)へ変換
@@ -195,6 +196,7 @@ public class UserService {
 		registUser.setRole(registUserForm.getRole());
 		registUser.setName(userName);
 		registUser.setStartDate(startDateLoalDate);
+		registUser.setEmail(registUserForm.getEmail());
 		registUser.setDepartmentId(registUserForm.getDepartmentId());
 		System.out.println(registUser.getName());
 		Integer userCheck = userMapper.countUserDataById(id,userName);

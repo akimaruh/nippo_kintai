@@ -90,50 +90,50 @@ document.getElementById('display-form').addEventListener('submit', function(even
 	}
 });
 
-// 入力内容をローカルストレージに保存
-document.querySelector('#display-form').addEventListener('submit', function(event) {
-	var year = document.getElementById('id_year').value;
-	var month = document.getElementById('id_month').value;
-
-	// 月を2桁にフォーマット
-	if (month.length < 2) {
-		month = '0' + month;
-	}
-
-	var yearMonth = year + '-' + month;
-
-	var hiddenInput = document.getElementById('yearMonth');
-	hiddenInput.value = yearMonth;
-
-	sessionStorage.setItem('year', year);
-	sessionStorage.setItem('month', month);
-	sessionStorage.setItem('yearMonth', yearMonth);
-});
-
-// ページ読み込み時にローカルストレージから値を取得して設定
-window.addEventListener('load', function() {
-	var storedYear = sessionStorage.getItem('year');
-	var storedMonth = sessionStorage.getItem('month');
-	var storedYearMonth = localStorage.getItem('yearMonth');
-
-
-	if (storedYear) {
-		document.getElementById('id_year').value = storedYear;
-	}
-	if (storedMonth) {
-		// 月を2桁にフォーマットする
-		if (storedMonth.length < 2) {
-			storedMonth = '0' + storedMonth;
-		}
-		document.getElementById('id_month').value = storedMonth;
-	}
-	if (storedYearMonth) {
-		var hiddenInput = document.getElementById('yearMonth');
-		if (hiddenInput) {
-			hiddenInput.value = storedYearMonth;
-		}
-	}
-});
+//// 入力内容をローカルストレージに保存
+//document.querySelector('#display-form').addEventListener('submit', function(event) {
+//	var year = document.getElementById('id_year').value;
+//	var month = document.getElementById('id_month').value;
+//
+//	// 月を2桁にフォーマット
+//	if (month.length < 2) {
+//		month = '0' + month;
+//	}
+//
+//	var yearMonth = year + '-' + month;
+//
+//	var hiddenInput = document.getElementById('yearMonth');
+//	hiddenInput.value = yearMonth;
+//
+//	sessionStorage.setItem('year', year);
+//	sessionStorage.setItem('month', month);
+//	sessionStorage.setItem('yearMonth', yearMonth);
+//});
+//
+//// ページ読み込み時にローカルストレージから値を取得して設定
+//window.addEventListener('load', function() {
+//	var storedYear = sessionStorage.getItem('year');
+//	var storedMonth = sessionStorage.getItem('month');
+//	var storedYearMonth = localStorage.getItem('yearMonth');
+//
+//
+//	if (storedYear) {
+//		document.getElementById('id_year').value = storedYear;
+//	}
+//	if (storedMonth) {
+//		// 月を2桁にフォーマットする
+//		if (storedMonth.length < 2) {
+//			storedMonth = '0' + storedMonth;
+//		}
+//		document.getElementById('id_month').value = storedMonth;
+//	}
+//	if (storedYearMonth) {
+//		var hiddenInput = document.getElementById('yearMonth');
+//		if (hiddenInput) {
+//			hiddenInput.value = storedYearMonth;
+//		}
+//	}
+//});
 
 // 戻るボタン
 function goBack() {

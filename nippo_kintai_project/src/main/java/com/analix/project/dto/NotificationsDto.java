@@ -1,7 +1,6 @@
 package com.analix.project.dto;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import lombok.Data;
 /**
@@ -21,9 +20,9 @@ public class NotificationsDto {
 	//通知種類
 	String notificationType;
 	//対象権限
-	String target_role;
+	String targetRole;
 	//ユーザー通知DTOリスト
-	List<UserNotificationsDto> userNotificationsDtoList;
+	UserNotificationsDto userNotificationsDto;
 	
 	
 

@@ -217,7 +217,7 @@ function validation() {
 	//新部署名入力欄
 	const inputNewDepartment = document.getElementById('input-new-department');
 
-	const MAX_DEPARTMENT_LENGTH = 10;
+	const MAX_DEPARTMENT_LENGTH = 100;
 	const OVER_DEPARTMENT_LENGTH = "100文字以内で入力して下さい"
 	const CANNOT_SAME_NAME = "同じ部署名は登録できません";
 	const EMPTIY = "";

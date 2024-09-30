@@ -1,5 +1,6 @@
 package com.analix.project.service;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
@@ -42,20 +44,20 @@ public class EmailService {
 		}
 	}
 
-		public void sendForgetRegistEmails(Map<String, List<Users>> umsubmitMap) {
-//	public void sendForgetRegistEmails() {
+	public void sendForgetRegistEmails(Map<String, List<Users>> umsubmitMap) {
+		//	public void sendForgetRegistEmails() {
 		//日報未提出者リストと、勤怠未提出者リストにそれぞれ分ける
-				List<Users> umsubmittedDailyReportUserList = umsubmitMap.get("dailyReport");
-				List<Users> umsubmittedAttendanceUserList = umsubmitMap.get("attendance");
-//		List<Users> umsubmittedDailyReportUserList = dailyReportService.registCheck();
-//		List<Users> umsubmittedAttendanceUserList = attendanceService.registCheck();
+		List<Users> umsubmittedDailyReportUserList = umsubmitMap.get("dailyReport");
+		List<Users> umsubmittedAttendanceUserList = umsubmitMap.get("attendance");
+		//		List<Users> umsubmittedDailyReportUserList = dailyReportService.registCheck();
+		//		List<Users> umsubmittedAttendanceUserList = attendanceService.registCheck();
 		System.out.println(umsubmittedDailyReportUserList);
 		System.out.println(umsubmittedAttendanceUserList);
-//				// 勤怠未提出者リストをセットに変換
-//				Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
-//		
-//				// 日報未提出者リストをセットに変換
-//				Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
+		//				// 勤怠未提出者リストをセットに変換
+		//				Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
+		//		
+		//				// 日報未提出者リストをセットに変換
+		//				Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
 
 		//メールを送るグループを作成
 		//勤怠未提出者リスト
@@ -72,13 +74,14 @@ public class EmailService {
 
 		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
 		for (Users manager : managerList) {
-			String managerMessage = "日報未提出者一覧:" + umsubmittedDailyReportUserList.stream()
-					.map(Users::getName).collect(Collectors.joining(","))
+			String managerMessage = "本日の日報・勤怠未提出者" + Constants.LINE_SEPARATOR + "日報未提出者:"
+					+ umsubmittedDailyReportUserList.stream()
+							.map(Users::getName).collect(Collectors.joining(","))
 					+ Constants.LINE_SEPARATOR +
-					"勤怠未提出者一覧:" + umsubmittedAttendanceUserList.stream()
+					"勤怠未提出者:" + umsubmittedAttendanceUserList.stream()
 							.map(Users::getName).collect(Collectors.joining(","));
 
-			sendEmail(manager.getEmail(), "未提出者一覧", managerMessage);
+			sendEmail(manager.getEmail(), "【日報勤怠アプリ】日報・勤怠未提出者一覧", managerMessage);
 		}
 
 		//未提出者に通知を送信
@@ -87,27 +90,99 @@ public class EmailService {
 			//勤怠未提出者に通知を送信
 			for (Users unsubmittedAttendanceOnly : unsubmittedAttendanceOnlyList) {
 				String userMessage = "本日の勤怠が未提出です。早急に提出してください。";
-				sendEmail(unsubmittedAttendanceOnly.getEmail(), "勤怠未提出通知", userMessage);
+				sendEmail(unsubmittedAttendanceOnly.getEmail(), "【日報勤怠アプリ】勤怠未提出", userMessage);
 			}
 		}
 		if (unsubmittedDailyReportOnlyList != null) {
 			//日報未提出者に通知を送信
 			for (Users unsubmittedDailyReportOnly : unsubmittedDailyReportOnlyList) {
 				String userMessage = "本日の日報が未提出です。早急に提出してください。";
-				sendEmail(unsubmittedDailyReportOnly.getEmail(), "日報未提出通知", userMessage);
+				sendEmail(unsubmittedDailyReportOnly.getEmail(), "【日報勤怠アプリ】日報未提出", userMessage);
 			}
 		}
 		if (unsubmittedBothList != null) {
 			//両方未提出者に通知を送信
 			for (Users unsubmittedBoth : unsubmittedBothList) {
 				String userMessage = "本日の日報・勤怠が未提出です。早急に提出してください。";
-				sendEmail(unsubmittedBoth.getEmail(), "日報・勤怠未提出通知", userMessage);
+				sendEmail(unsubmittedBoth.getEmail(), "【日報勤怠アプリ】日報・勤怠未提出", userMessage);
 			}
 		}
 		System.out.println("バッチメール送信処理終了");
 
 	}
 
+	/**
+	 * 各ボタン押下時のメール送信
+	 */
+	/**
+	 * 勤怠承認申請提出時
+	 * @param request
+	 */
+	@Async
+	public void sendRequestEmail(MonthlyAttendanceReqDto request) {
+		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
+		for (Users manager : managerList) {
+			int year = request.getTargetYearMonth().getYear();
+			int month = request.getTargetYearMonth().getMonthValue();
+			YearMonth targetYearMonth = YearMonth.of(year, month);
+			String subject = "【日報勤怠アプリ】勤怠承認申請";
+			String content = request.getName() + "さんの" + targetYearMonth + "の承認申請があります。";
+			System.out.println("Service managerEmail: " + manager.getEmail() + manager.getName());
+			sendEmail(manager.getEmail(), subject, content);
+		}
+	}
+
+	 
+	/**
+	 * 承認時
+	 * @param request
+	 */
+	@Async
+	public void sendApproveEmail(Integer userId,YearMonth targetYearMonth) {
+		String subject = "【日報勤怠アプリ】承認";
+		String email =userMapper.findEmailByUserId(userId);
+//		int year = request.getTargetYearMonth().getYear();
+//		int month = request.getTargetYearMonth().getMonthValue();
+//		YearMonth targetYearMonth = YearMonth.of(year, month);
+		String content = targetYearMonth + "の承認申請が承認されました。";
+		sendEmail(email, subject, content);
+	}
+
+	/**
+	 * 却下時
+	 * @param request
+	 */
+	@Async
+	public void sendRejectEmail(Integer userId,YearMonth targetYearMonth) {
+		String subject = "【日報勤怠アプリ】却下";
+		String email =userMapper.findEmailByUserId(userId);
+//		int year = request.getTargetYearMonth().getYear();
+//		int month = request.getTargetYearMonth().getMonthValue();
+//		YearMonth targetYearMonth = YearMonth.of(year, month);
+		String content = targetYearMonth + "の承認申請が却下されました。";
+		sendEmail(email, subject, content);
+	}
+
+	/**
+	 * システム障害発生時メール送信
+	 * @param ex
+	 */
+	@Async
+	public void sendErrorNotification(Exception ex, List<Users> users) {
+
+		for (Users admin : users) {
+			String to = admin.getEmail(); // 管理者のメールアドレス
+			String subject = "【日報勤怠アプリ】システム障害発生";
+			String content = "以下のエラーが発生しました:\n\n" + ex.getMessage();
+			sendEmail(to, subject, content);
+		}
+
+	}
+	
+	
+	/**
+	 * バッチ処理時のメール送信者抽出
+	 */
 	/**
 	 * 勤怠のみ未提出者抽出
 	 * @param unsubmittedAttendanceUsers
@@ -168,32 +243,6 @@ public class EmailService {
 		unsubmittedAttendanceUsers.retainAll(unsubmittedDailyReportUsers);
 		System.out.println("勤怠日報未提出者抽出" + new ArrayList<>(unsubmittedAttendanceUsers));
 		return new ArrayList<>(unsubmittedAttendanceUsers);
-	}
-
-	
-	// 勤怠承認申請
-	public void sendRequestEmail(MonthlyAttendanceReqDto request) {
-		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
-		for (Users manager : managerList) {
-			String subject = "【日報勤怠アプリ】勤怠承認申請のお知らせ";
-			String content = request.getName() + "さんの" + request.getTargetYearMonth() + "の承認申請があります。";
-			System.out.println("Service managerEmail: " + manager.getEmail() +  manager.getName());
-			sendEmail(manager.getEmail(), subject, content);
-		}
-	}
-
-	// 承認
-	public void sendApproveEmail(MonthlyAttendanceReqDto request) {
-		String subject = "【日報勤怠アプリ】承認のお知らせ";
-		String content = request.getTargetYearMonth() + "の承認申請が承認されました。";
-		sendEmail(request.getEmail(), subject, content);
-	}
-
-	// 却下
-	public void sendRejectEmail(MonthlyAttendanceReqDto request) {
-		String subject = "【日報勤怠アプリ】却下のお知らせ";
-		String content = request.getTargetYearMonth() + "の承認申請が却下されました。";
-		sendEmail(request.getEmail(), subject, content);
 	}
 
 	//	@PostConstruct

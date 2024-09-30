@@ -7,7 +7,7 @@
 		resultType="com.analix.project.entity.Department">
 		SELECT department_id,name FROM department
 		WHERE is_active = 1
-		ORDER BY name ASC
+		ORDER BY department_id ASC
 	</select>
 	
 	<!-- 部署名の有効フラグの検索 -->
@@ -48,7 +48,7 @@
 		resultType="com.analix.project.entity.Department">
 		SELECT department_id,name FROM department
 		WHERE is_active = 0
-		ORDER BY name ASC
+		ORDER BY department_id ASC
 	</select>
 	
 	<!-- 部署名有効化(無効から有効) -->

@@ -9,10 +9,10 @@
 		<result column="department_id" property="departmentId" />
 		<result column="department_name" property="departmentName" />
 		<result column="start_Date" property="startDate" />
-		<result column="email" property="email"/>
-		<result column="tel" property="tel"/>
+		<result column="email" property="email" />
+		<result column="tel" property="tel" />
 	</resultMap>
-
+	
 	<select id="findUserDataByUserName"
 		resultType="com.analix.project.entity.Users">
 		SELECT
@@ -28,7 +28,8 @@
 		department_name
 		FROM users
 		INNER JOIN department
-		ON users.department_id =
+		ON
+		users.department_id =
 		department.department_id
 		WHERE users.name
 		= #{name}
@@ -47,7 +48,7 @@
 	<update id="updateUserData"
 		parameterType="com.analix.project.entity.Users">
 		UPDATE users
-		SET 
+		SET
 		name =
 		#{users.name},
 		password =
@@ -57,22 +58,24 @@
 		department_id =
 		#{users.departmentId},
 		start_date =
-		#{users.startDate}
+		#{users.startDate},
+		email =
+		#{users.email}
 		WHERE
 		id = #{users.id}
 	</update>
 	<insert id="insertUserData" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.Users">
 		INSERT INTO
-		users(name,password,role,department_id,start_date)
-		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate})
+		users(name,password,role,department_id,start_date,email)
+		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate},#{users.email})
 	</insert>
 
 	<delete id="deleteUserData">
 		DELETE FROM users
 		WHERE id = #{id}
 	</delete>
-	
+
 	<select id="findUserListByRole"
 		resultType="com.analix.project.entity.Users">
 		SELECT
@@ -89,4 +92,13 @@
 		= #{role}
 	</select>
 	
+	<select id="findEmailByUserId" resultType="String">
+		SELECT
+		email
+		FROM
+		users
+		WHERE
+		id = #{userId}
+	</select>
+
 </mapper>

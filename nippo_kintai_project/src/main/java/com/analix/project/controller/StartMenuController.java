@@ -1,5 +1,6 @@
 package com.analix.project.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.analix.project.dto.NotificationsDto;
 import com.analix.project.entity.Users;
 import com.analix.project.mapper.NotificationsMapper;
 import com.analix.project.service.AttendanceService;
@@ -70,16 +72,16 @@ public class StartMenuController {
 //			}
 //		}
 		Users user = (Users) session.getAttribute("loginUser");
-		List<String> notifications = informationService.findNotification(user.getId());
-
-		
-		
-
-		model.addAttribute("notifications", notifications);
+		List<NotificationsDto> notificationsDtoList  = new ArrayList<>();
+		 notificationsDtoList = informationService.findNotification(user.getId());
+		model.addAttribute("notificationsList", notificationsDtoList);
 //		model.addAttribute("regularMassage", regularMassage);
 
 		return "common/startMenu";
 	}
+	
+	
+	 
 
 	/**
 	 * 『ログオフ』ボタン押下後

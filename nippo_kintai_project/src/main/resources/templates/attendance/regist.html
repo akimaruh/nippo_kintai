@@ -60,12 +60,11 @@
 							<form th:action="@{/attendance/regist/display}" method="get" id="display-form">
 
 								<strong>表示年月：</strong>
-								<input type="text" size="15" name="year" id="id_year" />年
-								<input type="text" size="15" name="month" id="id_month" />月
+								<input type="text" size="15" name="year" id="id_year" th:value="${year}" />年
+								<input type="text" size="15" name="month" id="id_month" th:value="${month}" />月
 								<input type="submit" class="btn-yellow ms-3" value="表示" id="display" />
 								<div id="yearError" class="text-danger"></div>
 								<div id="monthError" class="text-danger"></div>
-								<input type="hidden" name="yearMonth" id="yearMonth" />
 							</form>
 
 						</span>
@@ -79,19 +78,22 @@
 											th:if="${attendanceList} != null">←戻る</button>
 									</div>
 									<div>
-										<button type="submit" form="attendancebtn-form" name="action" value="reject" id="reject-btn"
-											class="btn-yellow" th:disabled="${attendanceList} == null">却下</button>
-										<button type="submit" form="attendancebtn-form" name="action" value="approve" id="approve-btn"
-											class="btn-yellow mx-2" th:disabled="${attendanceList} == null">承認</button>
+										<button type="submit" form="attendancebtn-form" name="action" value="reject"
+											id="reject-btn" class="btn-yellow"
+											th:disabled="${attendanceList} == null">却下</button>
+										<button type="submit" form="attendancebtn-form" name="action" value="approve"
+											id="approve-btn" class="btn-yellow mx-2"
+											th:disabled="${attendanceList} == null">承認</button>
 									</div>
 								</th:block>
 							</div>
-						
+
 							<div class="d-flex flex-row-reverse">
-								<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
+								<th:block
+									th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}">
 									<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
 										<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
-										<button type="submit" class="btn-yellow"
+										<button type="submit" class="btn-yellow" id="request-btn"
 											th:disabled="${(status == 1 || status == 2) || (status == null && (registCheck == false || registCheck == null))}">承認申請</button>
 										<input type="submit" class="btn-yellow ms-1" value="登録" form="attendance-form"
 											th:disabled="${status == 1 || status == 2 || displayFlg == true}" />
@@ -138,19 +140,21 @@
 															th:text="${MonthlyList.name}"></button>
 													</form>
 												</td>
+												<!--		targetDateをLocalDate型でDBに格納するようになったので若干変更-->
 												<td
-													th:text="${#temporals.format(MonthlyList.targetYearMonth.toLocalDate(), 'yyyy/MM')}">
+													th:text="${#temporals.format(MonthlyList.targetYearMonth, 'yyyy/MM')}">
 												</td>
-												<td
-													th:text="${#temporals.format(MonthlyList.date.toLocalDate(), 'yyyy/MM/dd')}">
+												<td th:text="${#temporals.format(MonthlyList.date, 'yyyy/MM/dd')}">
 												</td>
+												<!--		変更ここまで										-->
 											</tr>
 										</th:block>
 										<th:block>
 											<tr>
 												<td th:text="${name}"></td>
-												<td th:text="${yearMonth}"></td>
+												<td th:text="${#temporals.format(yearMonth,'yyyy/MM')}"></td>
 												<td th:text="${date}"></td>
+<!--												<td th:text="${#temporals.format.date, 'yyyy/MM/dd')}"></td>-->
 											</tr>
 										</th:block>
 									</tbody>
@@ -306,7 +310,7 @@
 						<!--「承認申請者」押下後 -->
 						<th:block th:if="${session.loginUser.role == 'Manager'}">
 							<div class="container mt-3 mb-3 border">
-								<form id="attendancebtn-form" method="get" th:action="@{/attendance/update}">
+								<form id="attendancebtn-form" method="post" th:action="@{/attendance/update}">
 									<table class="table table-hover sortabletable dataTable no-footer"
 										id="attendance-table" role="grid" aria-describedby="attendance-table_info">
 										<thead>
@@ -354,7 +358,11 @@
 			</div>
 			</th:block>
 
-			<script th:src="@{/js/attendance.js}"></script>
+<form action="/attendance/test" method="post"></form>
+<button id="test-btn" class="btn-yellow">テストボタン</button>
+
+<script th:src="@{/pushApi/sw.js}"></script>
+<script th:src="@{/js/attendance.js}"></script>		
 </body>
 
 </html>

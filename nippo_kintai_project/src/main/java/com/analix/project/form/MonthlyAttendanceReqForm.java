@@ -1,12 +1,10 @@
-package com.analix.project.dto;
+package com.analix.project.form;
 
 import java.time.LocalDate;
 
 import lombok.Data;
-
 @Data
-public class MonthlyAttendanceReqDto {
-	
+public class MonthlyAttendanceReqForm {
 	/** 申請ID */
 	private Integer id;
 	/** 申請者のユーザーID */
@@ -23,7 +21,5 @@ public class MonthlyAttendanceReqDto {
 	private String email;
 	
 	private String role;
-//	/** 年月 */
-//	private String yearMonth;
-	
+
 }

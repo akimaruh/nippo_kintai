@@ -1,6 +1,6 @@
 package com.analix.project.mapper;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -22,7 +22,7 @@ public interface MonthlyAttendanceReqMapper {
 	 * @param targetYearMonth
 	 * @return
 	 */
-	public List<MonthlyAttendanceReqDto> findAllMonthlyAttendanceReqByUserId(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
+	public List<MonthlyAttendanceReqDto> findAllMonthlyAttendanceReqByUserId(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonth);
 	
 	/*
 	 * ログインユーザーのstatus取得
@@ -37,26 +37,26 @@ public interface MonthlyAttendanceReqMapper {
 	/*
 	 * 「承認申請」ボタン押下後 - status検索
 	 */
-	public Integer findStatusByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("attendanceDate") Date attendanceDate);
+	public Integer findStatusByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("attendanceDate") LocalDate attendanceDate);
 
 	/*
 	 * status更新 承認申請
 	 */
-	public void updateStatusWaiting(@Param("userId") Integer userId, @Param("attendanceDate") Date attendanceDate);
+	public void updateStatusWaiting(@Param("userId") Integer userId, @Param("attendanceDate") LocalDate attendanceDate);
 	
 	/*
 	 * status更新 承認
 	 */
-	public void updateStatusApprove(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
+	public void updateStatusApprove(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
 	
 	/*
 	 * status更新 却下
 	 */
-	public void updateStatusReject(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
+	public void updateStatusReject(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
 	
 	/*
 	 * ユーザー名取得
 	 */
-	public MonthlyAttendanceReqDto findMonthlyAttendanceReqByUserId(@Param("userId") Integer userId, @Param("targetYearMonth") String targetYearMonth);
+	public MonthlyAttendanceReqDto findMonthlyAttendanceReqByUserId(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
 
 }

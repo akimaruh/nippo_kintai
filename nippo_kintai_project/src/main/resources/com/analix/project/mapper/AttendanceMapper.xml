@@ -69,7 +69,9 @@
 		WHERE
 		attendance.user_id IS NULL
 		AND users.role
-		= "Regular" OR "UnitManager";
+		= "Regular"
+		OR users.role
+		="UnitManager";
 
 
 	</select>
