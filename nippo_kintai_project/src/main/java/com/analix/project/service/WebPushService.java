@@ -8,7 +8,6 @@ import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.dto.SubscriptionDto;
 import com.analix.project.entity.Subscriptions;
 import com.analix.project.mapper.SubscriptionMapper;
@@ -60,20 +59,20 @@ public class WebPushService {
     }
     
 	// 承認ボタン押下時
-	public void sendApprovePush(MonthlyAttendanceReqDto request)
+	public void sendApprovePush(Integer userId)
 			throws GeneralSecurityException, IOException, JoseException {
 		String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"承認されました\"}";
-		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(request.getUserId());
+		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(userId);
 		Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
 		Subscription subscription = new Subscription(entity.getEndpoint(), keys);
 		sendPushNotification(subscription, payload);
 	}
 	
 	// 却下ボタン押下時
-	public void sendRejectPush(MonthlyAttendanceReqDto request)
+	public void sendRejectPush(Integer userId)
 			throws GeneralSecurityException, IOException, JoseException {
 		String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"承認されました\"}";
-		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(request.getUserId());
+		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(userId);
 		Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
 		Subscription subscription = new Subscription(entity.getEndpoint(), keys);
 		sendPushNotification(subscription, payload);

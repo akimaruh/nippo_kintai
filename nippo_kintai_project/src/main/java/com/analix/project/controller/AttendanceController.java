@@ -1,10 +1,14 @@
 package com.analix.project.controller;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,16 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.analix.project.entity.Notifications;
-import com.analix.project.service.WebPushService;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
+import com.analix.project.entity.Notifications;
 import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.service.AttendanceService;
 import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
+import com.analix.project.service.WebPushService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -296,8 +300,8 @@ public class AttendanceController {
 				redirectAttributes.addFlashAttribute("message", message);
 				informationService.approveInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending approve request: " + request);
-try {
-					webPushService.sendApprovePush(request);
+				try {
+					webPushService.sendApprovePush(userId);
 					System.out.println("承認:通知が正常に送信されました！");
 				} catch (GeneralSecurityException | IOException | JoseException e) {
 					System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
@@ -312,8 +316,8 @@ try {
 				redirectAttributes.addFlashAttribute("message", message);
 				informationService.rejectInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending reject request: " + request);
-try {
-					webPushService.sendRejectPush(request);
+				try {
+					webPushService.sendRejectPush(userId);
 				} catch (GeneralSecurityException | IOException | JoseException e) {
 					e.printStackTrace();
 				}

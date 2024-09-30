@@ -38,12 +38,13 @@
 					<p>おしらせ</p>
 					<div class="overflow-auto" style="max-height: 150px;">
 						<ul>
-							<th:block th:each="notifications : ${notifications}">
+							<th:block th:each="notifications : ${notificationsList}">
 								<li>
-									<a href="/attendance/regist">
-										<span th:text="${notifications}"></span>
-									</a>
-								</li>
+								<a href="/attendance/regist"
+									th:onclick="markAsRead(event,[[${notifications.id}]], [[${notifications.userNotificationsDto.userId}]],'/attendance/regist');">
+									<span th:text="${notifications.message}"></span>
+								</a>
+							</li>
 							</th:block>
 	
 							<!--						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="notifications : ${notifications}">-->
@@ -114,7 +115,9 @@
 		</div>
 	</div>
 	
+<script th:src="@{/js/startMenu.js}"></script>
 <script th:src="@{/pushApi/app.js}" defer></script>
+
 </body>
 
 </html>
