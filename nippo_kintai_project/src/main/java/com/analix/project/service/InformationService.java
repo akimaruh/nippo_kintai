@@ -1,6 +1,7 @@
 package com.analix.project.service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -110,11 +111,11 @@ public class InformationService {
 	 * @param userId
 	 * @return
 	 */
-	public String approveRequestInsertNotifications(String name,String targetYearMonth) {
+	public String approveRequestInsertNotifications(String name,YearMonth approveYearMonth) {
 		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
 		// 承認申請通知作成
 		Notifications approveRequestNotifications = createNotification("承認申請",
-				name+"さんの"+targetYearMonth+"の承認申請があります。",
+				name+"さんの"+approveYearMonth+"の承認申請があります。",
 				"承認申請提出");
 		Integer approveRequestNotificationId = notificationsMapper.getLastInsertId();
 		for (Users manager : managerList) {
@@ -129,7 +130,7 @@ public class InformationService {
 	 * @param userId
 	 * @return
 	 */
-	public String approveInsertNotifications(Integer userId,String targetYearMonth) {
+	public String approveInsertNotifications(Integer userId,YearMonth targetYearMonth) {
 		// 承認通知作成
 		Notifications approveNotifications = createNotification("承認",
 				targetYearMonth+"の承認申請が承認されました。",
@@ -144,7 +145,7 @@ public class InformationService {
 	 * @param userId
 	 * @return
 	 */
-	public String rejectInsertNotifications(Integer userId,String targetYearMonth) {
+	public String rejectInsertNotifications(Integer userId,YearMonth targetYearMonth) {
 		// 却下通知作成
 		Notifications rejectNotifications = createNotification("却下",
 				targetYearMonth+"の承認申請が却下されました。",

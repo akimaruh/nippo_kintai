@@ -54,6 +54,11 @@ public interface UserMapper {
 	 */
 	List<Users> findUserListByRole(@Param("role") String role);
 	
-	
+	/***
+	 * ユーザーのメールアドレス抽出
+	 * @param userId
+	 * @return
+	 */
+	String findEmailByUserId(@Param("userId") Integer userId);
 	
 }
