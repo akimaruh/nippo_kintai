@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.analix.project.mapper.SubscriptionMapper">
+
+	<!-- サブスクリプション情報登録 -->
+	<insert id="insertSubscription" parameterType="nl.martijndwars.webpush.Subscription">
+		INSERT INTO subscriptions
+		(user_id, endpoint, p256dh, auth)
+		VALUES (#{userId}, #{endpoint}, #{p256dh}, #{auth})
+	</insert>
+
+    <!-- ユーザーIDに基づいて最新のサブスクリプション情報を取得 -->
+    <select id="findSubscriptionsByUserId" resultType="com.analix.project.entity.Subscriptions">
+		SELECT endpoint, p256dh, auth
+		FROM subscriptions
+		WHERE user_id = #{userId}
+		ORDER BY created_at DESC
+		LIMIT 1
+    </select>
+    
+	<!-- マネージャーのサブスクリプション情報を取得 -->
+    <select id="getManagerSubscriptions" resultType="com.analix.project.entity.Subscriptions">
+    	SELECT users.id AS userId,
+    	users.role,
+    	s.endpoint, s.p256dh, s.auth
+    	FROM users
+    	JOIN subscriptions s
+    	ON users.id = s.user_id
+    	WHERE users.role = 'Manager'
+    </select>
+
+	
+</mapper>

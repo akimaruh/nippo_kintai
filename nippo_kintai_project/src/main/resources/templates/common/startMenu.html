@@ -36,27 +36,28 @@
 			<div class="card" style="background-color: rgb(255, 255, 255);">
 				<div class="card-body">
 					<p>おしらせ</p>
-				
-					<ul>
-						<th:block  th:each="notifications : ${notifications}">
-							<li>
-								<a href="/attendance/regist">
-								<span th:text="${notifications}"></span>
-								</a>
-							</li>
-						</th:block>
-						
-<!--						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="notifications : ${notifications}">-->
-<!--							<li>-->
-<!--								<span th:text="${regularMassage}"></span>-->
-<!--							</li>-->
-<!--						</th:block>-->
-					</ul>
-				
+					<div class="overflow-auto" style="max-height: 150px;">
+						<ul>
+							<th:block th:each="notifications : ${notifications}">
+								<li>
+									<a href="/attendance/regist">
+										<span th:text="${notifications}"></span>
+									</a>
+								</li>
+							</th:block>
+	
+							<!--						<th:block th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}" th:each="notifications : ${notifications}">-->
+							<!--							<li>-->
+							<!--								<span th:text="${regularMassage}"></span>-->
+							<!--							</li>-->
+							<!--						</th:block>-->
+						</ul>
+	
+					</div>
 				</div>
-				</div>
-				</div>
-				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- ヘッダー -->
 
@@ -112,7 +113,8 @@
 
 		</div>
 	</div>
-
+	
+<script th:src="@{/pushApi/app.js}" defer></script>
 </body>
 
 </html>
