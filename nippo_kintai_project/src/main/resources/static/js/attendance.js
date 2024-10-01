@@ -60,7 +60,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // 入力チェック
-document.getElementById('display-form').addEventListener('submit', function(event) {
+const form = document.getElementById('display-form');
+if(form){
+	form.addEventListener('submit', function(event) {
+
+//document.getElementById('display-form').addEventListener('submit', function(event) {
 	let year = document.getElementById('id_year').value;
 	let month = document.getElementById('id_month').value;
 	let validation = true;
@@ -89,6 +93,7 @@ document.getElementById('display-form').addEventListener('submit', function(even
 		event.preventDefault();
 	}
 });
+}
 
 //// 入力内容をローカルストレージに保存
 //document.querySelector('#display-form').addEventListener('submit', function(event) {
