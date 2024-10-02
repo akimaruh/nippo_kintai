@@ -21,6 +21,8 @@ public class NotificationsDto {
 	String notificationType;
 	//対象権限
 	String targetRole;
+	//URL
+	String url;
 	//ユーザー通知DTOリスト
 	UserNotificationsDto userNotificationsDto;
 	

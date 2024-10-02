@@ -30,7 +30,7 @@ public class EmailService {
 	private AttendanceService attendanceService;
 	@Autowired
 	private DailyReportService dailyReportService;
-
+	@Async
 	public void sendEmail(String to, String subject, String content) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(to);
@@ -43,7 +43,7 @@ public class EmailService {
 			System.out.println("メール送信失敗: " + e.getMessage());
 		}
 	}
-
+	
 	public void sendForgetRegistEmails(Map<String, List<Users>> umsubmitMap) {
 		//	public void sendForgetRegistEmails() {
 		//日報未提出者リストと、勤怠未提出者リストにそれぞれ分ける
