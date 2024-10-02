@@ -39,7 +39,7 @@ public class WebPushService {
         // プッシュ通知を送信
         try {
 			pushService.send(notification);
-			System.out.println("通知が正常に送信されました！");
+			System.out.println("サービス：通知が正常に送信されました！");
 		} catch (GeneralSecurityException | IOException | JoseException | ExecutionException | InterruptedException e) {
 			System.out.println("通知送信中にエラーが発生しました: " + e.getMessage());
 			e.printStackTrace();
@@ -50,57 +50,90 @@ public class WebPushService {
     
     /**
      * サブスクリプション情報をデータベースに保存
-     * @param subscriprtionDto
+     * @param subscriptionDto
      */
-    public void saveSubscription(SubscriptionDto subscriprtionDto) {
+    public void saveSubscription(SubscriptionDto subscriptionDto) {
     	subscriptionMapper.insertSubscription(
-    			subscriprtionDto.getUserId(), subscriprtionDto.getEndpoint(), 
-    			subscriprtionDto.getKeys().getP256dh(), subscriprtionDto.getKeys().getAuth());
+    			subscriptionDto.getUserId(), subscriptionDto.getEndpoint(), 
+    			subscriptionDto.getKeys().getP256dh(), subscriptionDto.getKeys().getAuth());
     }
     
+    /**
+     * サブスクリプション情報がデータベースに存在するか確認
+     * @param userId
+     * @param endpoint
+     * @return true:存在する false:存在しない
+     */
+    public boolean checkSubscriptionExists(Integer userId, String endpoint) {
+    	Integer count = subscriptionMapper.existsByUserIdAndEndpoint(userId, endpoint);
+    	System.out.println("マネージャーカウント: " + count);
+		return count != null && count > 0 ; // countが0より大きければtrueを返す
+	}	
+    
+    
 	// 承認ボタン押下時
-	public void sendApprovePush(Integer userId)
+	public void sendApprovePush(Integer userId, String payload)
 			throws GeneralSecurityException, IOException, JoseException {
-		String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"承認されました\"}";
+		// サブスクリプションの存在確認
 		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(userId);
-		Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
-		Subscription subscription = new Subscription(entity.getEndpoint(), keys);
-		sendPushNotification(subscription, payload);
+
+		if (entity != null) {
+			Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
+			Subscription subscription = new Subscription(entity.getEndpoint(), keys);
+			sendPushNotification(subscription, payload);
+			System.err.println("サービス承認ペイロード： " + payload);
+		} else {
+			System.out.println("(承認)サブスクリプションが存在しません。" + userId);
+		}
 	}
 	
 	// 却下ボタン押下時
-	public void sendRejectPush(Integer userId)
+	public void sendRejectPush(Integer userId, String payload)
 			throws GeneralSecurityException, IOException, JoseException {
-		String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"承認されました\"}";
+		// サブスクリプションの存在確認
 		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(userId);
-		Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
-		Subscription subscription = new Subscription(entity.getEndpoint(), keys);
-		sendPushNotification(subscription, payload);
+
+		if (entity != null) {
+			Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
+			Subscription subscription = new Subscription(entity.getEndpoint(), keys);
+			sendPushNotification(subscription, payload);
+		} else {
+			System.out.println("(却下)サブスクリプションが存在しません。" + userId);
+		}
+
 	}
 
 	// 承認申請ボタン押下時
 	public void sendRequestPush(String payload)
 			throws GeneralSecurityException, IOException, JoseException {
 		List<Subscriptions> managerList = subscriptionMapper.getManagerSubscriptions();
+
 		for (Subscriptions manager : managerList) {
-//			String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請があります\"}";
-			System.out.println("ペイロード: " + payload);
-			Keys keys = new Keys(manager.getP256dh(), manager.getAuth());
-			Subscription subscription = new Subscription(manager.getEndpoint(), keys);
-			System.out.println("マネージャーだれ？" + manager.getUserId());
-			sendPushNotification(subscription, payload);
+			// サブスクリプションの存在確認
+			boolean exists = checkSubscriptionExists(manager.getUserId(), manager.getEndpoint());
+
+			if (exists) {
+				Keys keys = new Keys(manager.getP256dh(), manager.getAuth());
+				Subscription subscription = new Subscription(manager.getEndpoint(), keys);
+				System.out.println("マネージャーだれ？" + manager.getUserId());
+				sendPushNotification(subscription, payload);
+			} else {
+				System.out.println("(申請)サブスクリプションが存在しません。" + manager.getUserId());
+			}
+
 		}
 	}
 		
-	// テストボタン押下時
-	public void sendTestPush(Integer userId)
-			throws GeneralSecurityException, IOException, JoseException {
-		String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"テストです。\"}";
-		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(userId);
-		Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
-		Subscription subscription = new Subscription(entity.getEndpoint(), keys);
-		sendPushNotification(subscription, payload);
-	}	
+//	// テストボタン押下時
+//	public void sendTestPush(Integer userId)
+//			throws GeneralSecurityException, IOException, JoseException {
+//		String payload = "{\"title\":\"【サービスクラス】\",\"body\":\"テストです。\"}";
+//		Subscriptions entity = subscriptionMapper.findSubscriptionsByUserId(userId);
+//		Keys keys = new Keys(entity.getP256dh(), entity.getAuth());
+//		Subscription subscription = new Subscription(entity.getEndpoint(), keys);
+//		sendPushNotification(subscription, payload);
+//	}
+	
 }
 
 //    public void addSubscription(Subscription request) {

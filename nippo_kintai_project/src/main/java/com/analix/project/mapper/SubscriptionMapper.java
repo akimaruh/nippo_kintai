@@ -38,5 +38,14 @@ public interface SubscriptionMapper {
 	 * @return
 	 */
 	public List<Subscriptions> getManagerSubscriptions();
+	
+	
+	/**
+	 * サブスクリプション情報がデータベースに存在するか確認
+	 * @param userId
+	 * @param endpoint
+	 * @return カウント数 0:存在しない 1以上:存在する
+	 */
+	public Integer existsByUserIdAndEndpoint(@Param("userId") Integer userId, @Param("endpoint") String endpoint);
 
 }

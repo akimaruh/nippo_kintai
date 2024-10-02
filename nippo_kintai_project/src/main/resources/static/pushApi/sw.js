@@ -2,13 +2,12 @@
 
 self.addEventListener('push', function(event) {
 	console.log('プッシュ通知を受信しました');
-	console.log('一番上のデータ、タイトル:' + data, title);
 	
 	const data = event.data ? event.data.json() : { title: 'デフォルトタイトル', body: 'デフォルトメッセージ' };
     const title = data.title || '通知';
     const options = {
         body: data.body || '通知が届きました',
-        icon: '/img/pet_hoso_cat.png'
+        icon: '/img/nippo_kintai_icon.jpeg'
     };
 	
 	// 受信した通知をブラウザに表示
@@ -16,12 +15,16 @@ self.addEventListener('push', function(event) {
         self.registration.showNotification(title, options) // 受信した通知をブラウザに表示する部分
     );
     
-})
+});
+
+
 
 
 // 承認ボタン押下時
-document.addEventListener('DOMContentLoaded', function() {
-	document.getElementById('approve-btn').addEventListener('click', function() {
+const approveBtn = document.getElementById('approve-btn');
+
+if (approveBtn) {
+	approveBtn.addEventListener('click', function() {
 
 		// サーバーからデータを取得
 		fetch('/attendance/update', {
@@ -31,9 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				const title = data.title || '承認';  // サーバーからのタイトルを使う
-				const body = data.body || '承認されました';  // サーバーからの本文を使う
-				const icon = '/img/pet_hoso_cat.png';
+				const title = data.title || '【日報勤怠アプリ】承認';  // サーバーからのタイトルを使う
+				const body = data.body || '申請が承認されました。';  // サーバーからの本文を使う
+				const icon = '/img/nippo_kintai_icon.jpeg';
 
 				const showNotification = () => new Notification(title, { body, icon });
 
@@ -47,12 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			})
 			.catch(error => console.error('Error:', error));
 	});
-});
-
+}
 
 // 却下ボタン押下時
-document.addEventListener('DOMContentLoaded', function() {
-	document.getElementById('reject-btn').addEventListener('click', function() {
+const rejectBtn = document.getElementById('reject-btn');
+if (rejectBtn) {
+	rejectBtn.addEventListener('click', function() {
 
 		// サーバーからデータを取得
 		fetch('/attendance/update', {
@@ -62,9 +65,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				const title = data.title || '【日報勤怠アプリ】承認申請結果';  // サーバーからのタイトルを使う
+				const title = data.title || '【日報勤怠アプリ】却下';  // サーバーからのタイトルを使う
 				const body = data.body || '申請が却下されました。再度申請を行ってください。';  // サーバーからの本文を使う
-				const icon = '/img/pet_hoso_cat.png';
+				const icon = '/img/nippo_kintai_icon.jpeg';
 
 				const showNotification = () => new Notification(title, { body, icon });
 
@@ -78,106 +81,108 @@ document.addEventListener('DOMContentLoaded', function() {
 			})
 			.catch(error => console.error('Error:', error));
 	});
-});
+}
+		
+
 
 // 承認申請ボタン押下時
-document.addEventListener('DOMContentLoaded', function() {
-	document.getElementById('request-btn').addEventListener('click', function() {
-		console.log('承認申請');
-		
-		// サーバーからデータを取得
-		fetch('/attendance/approveRequestComplete', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ buttonType: 'request' })
-		})
-			.then(response => response.json())
-			.then(data => {
-				console.log('承認申請のデータ、タイトル:' + data.title, data.body);
-				const title = data.title || '【日報勤怠アプリ】勤怠承認申請';
-				const body = data.body || '承認申請があります。';
-				const icon = '/img/pet_hoso_cat.png';
+//const requestBtn = document.getElementById('request-btn');
+//if (requestBtn) {
+//	requestBtn.addEventListener('click', function() {
+//		// サーバーからデータを取得
+//		fetch('/attendance/approveRequestComplete', {
+//			method: 'POST',
+//			headers: { 'Content-Type': 'application/json' },
+//			body: JSON.stringify({ buttonType: 'request' })
+//		})
+//			.then(response => response.json())
+//			.then(data => {
+//				const title = data.title || '【日報勤怠アプリ】勤怠承認申請';
+//				const body = data.body || '承認申請があります。';
+//				const icon = '/img/nippo_kintai_icon.jpeg';
+//
+//				const showNotification = () => new Notification(title, { body, icon });
+//
+//				if (Notification.permission === 'granted') {
+//					showNotification();
+//				} else {
+//					Notification.requestPermission().then(permission => {
+//						if (permission === 'granted') showNotification();
+//					});
+//				}
+//			})
+//			.catch(error => console.error('Error:', error));
+//	});
+//}
 
-				const showNotification = () => new Notification(title, { body, icon });
+	
 
-				if (Notification.permission === 'granted') {
-					showNotification();
-				} else {
-					Notification.requestPermission().then(permission => {
-						if (permission === 'granted') showNotification();
-					});
-				}
-			})
-			.catch(error => console.error('Error:', error));
-	});
-});
-
-// テストボタン押下時
+//// テストボタン押下時
+////document.addEventListener('DOMContentLoaded', function() {
+////    document.getElementById('test-btn').addEventListener('click', function(event) {
+////        event.preventDefault(); // フォームのデフォルト動作を防ぐ
+////
+////        // サーバーからデータを取得
+////        fetch('/attendance/test', {
+////            method: 'POST',
+////            headers: { 'Content-Type': 'application/json' },
+////        })
+////        .then(response => {
+////            if (!response.ok) {
+////                throw new Error('Network response was not ok');
+////            }
+////            return response.json();
+////        })
+////        .then(data => {
+////			console.log('あ' + data.title);
+////            const title = data.title || 'テスト通知';
+////            const body = data.body || 'テスト通知が送信されました';
+////            const icon = '/img/pet_hoso_cat.png';
+////
+////            const showNotification = () => new Notification(title, { body, icon });
+////
+////            if (Notification.permission === 'granted') {
+////                showNotification();
+////            } else {
+////                Notification.requestPermission().then(permission => {
+////                    if (permission === 'granted') showNotification();
+////                });
+////            }
+////        })
+////        .catch(error => console.error('Error:', error));
+////    });
+////});
+//
+//// テスト２ボタン押下時
 //document.addEventListener('DOMContentLoaded', function() {
-//    document.getElementById('test-btn').addEventListener('click', function(event) {
-//        event.preventDefault(); // フォームのデフォルト動作を防ぐ
+//	document.getElementById('test-btn').addEventListener('click', function() {
 //
-//        // サーバーからデータを取得
-//        fetch('/attendance/test', {
-//            method: 'POST',
-//            headers: { 'Content-Type': 'application/json' },
-//        })
-//        .then(response => {
-//            if (!response.ok) {
-//                throw new Error('Network response was not ok');
-//            }
-//            return response.json();
-//        })
-//        .then(data => {
-//			console.log('あ' + data.title);
-//            const title = data.title || 'テスト通知';
-//            const body = data.body || 'テスト通知が送信されました';
-//            const icon = '/img/pet_hoso_cat.png';
+//		// サーバーからデータを取得
+//		fetch('/attendance/test', {
+//			method: 'POST',
+//			headers: { 'Content-Type': 'application/json' },
+//			body: JSON.stringify({ buttonType: 'reject' })
+//		})
+//			.then(response => response.json())
+//			.then(data => {
+//				console.log('２' + data.title);
+//				const title = data.title || 'テスト通知';
+//           		const body = data.message || 'テスト通知が送信されました';
+//            	const icon = '/img/pet_hoso_cat.png';
 //
-//            const showNotification = () => new Notification(title, { body, icon });
+//				const showNotification = () => new Notification(title, { body, icon });
 //
-//            if (Notification.permission === 'granted') {
-//                showNotification();
-//            } else {
-//                Notification.requestPermission().then(permission => {
-//                    if (permission === 'granted') showNotification();
-//                });
-//            }
-//        })
-//        .catch(error => console.error('Error:', error));
-//    });
+//				if (Notification.permission === 'granted') {
+//					showNotification();
+//				} else {
+//					Notification.requestPermission().then(permission => {
+//						if (permission === 'granted') showNotification();
+//					});
+//				}
+//			})
+//			.catch(error => console.error('Error:', error));
+//	});
 //});
-
-// テスト２ボタン押下時
-document.addEventListener('DOMContentLoaded', function() {
-	document.getElementById('test-btn').addEventListener('click', function() {
-
-		// サーバーからデータを取得
-		fetch('/attendance/test', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ buttonType: 'reject' })
-		})
-			.then(response => response.json())
-			.then(data => {
-				console.log('２' + data.title);
-				const title = data.title || 'テスト通知';
-           		const body = data.message || 'テスト通知が送信されました';
-            	const icon = '/img/pet_hoso_cat.png';
-
-				const showNotification = () => new Notification(title, { body, icon });
-
-				if (Notification.permission === 'granted') {
-					showNotification();
-				} else {
-					Notification.requestPermission().then(permission => {
-						if (permission === 'granted') showNotification();
-					});
-				}
-			})
-			.catch(error => console.error('Error:', error));
-	});
-});
 
 
 

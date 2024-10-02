@@ -28,6 +28,13 @@
     	ON users.id = s.user_id
     	WHERE users.role = 'Manager'
     </select>
+    
+    <!-- サブスクリプション情報がデータベースに存在するか確認 -->
+    <select id="existsByUserIdAndEndpoint" resultType="Integer">
+    	SELECT COUNT(*)
+    	FROM subscriptions
+    	WHERE user_id = #{userId} AND endpoint = #{endpoint}
+    </select>
 
 	
 </mapper>

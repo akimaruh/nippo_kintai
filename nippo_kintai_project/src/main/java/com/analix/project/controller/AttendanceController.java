@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,7 +21,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
-import com.analix.project.entity.Notifications;
 import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.service.AttendanceService;
@@ -226,11 +224,13 @@ public class AttendanceController {
 		}
 		informationService.approveRequestInsertNotifications(user.getName(), approveYearMonth);
 		redirectAttributes.addFlashAttribute("message", message);
-// プッシュ通知
+		// プッシュ通知
 		try {
-			String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請があります\"}";
+			String payload = "{\"title\":\"【コントローラ】\",\"body\":\"申請があります\"}";
 			webPushService.sendRequestPush(payload);
+			System.out.println("承認申請:通知が正常に送信されました！");
 		} catch (GeneralSecurityException | IOException | JoseException e) {
+			System.out.println("承認申請:通知送信中にエラーが発生しました: " + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -301,8 +301,11 @@ public class AttendanceController {
 				informationService.approveInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending approve request: " + request);
 				try {
-					webPushService.sendApprovePush(userId);
+					String payload = "{\"title\":\"【コントローラ】\",\"body\":\"承認されました\"}";
+					webPushService.sendApprovePush(userId, payload);
 					System.out.println("承認:通知が正常に送信されました！");
+					System.out.println("承認：payload: " + payload);
+					System.out.println("承認：userId: " + userId);
 				} catch (GeneralSecurityException | IOException | JoseException e) {
 					System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
 					e.printStackTrace();
@@ -317,34 +320,34 @@ public class AttendanceController {
 				informationService.rejectInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending reject request: " + request);
 				try {
-					webPushService.sendRejectPush(userId);
+					String payload = "{\"title\":\"【コントローラ】\",\"body\":\"却下されました\"}";
+					webPushService.sendRejectPush(userId, payload);
 				} catch (GeneralSecurityException | IOException | JoseException e) {
 					e.printStackTrace();
 				}
-				
 			}
 //		}
 
 		return "redirect:/attendance/regist";
 	}
-//	テストボタン押下
-	@PostMapping("/attendance/test")
-	public ResponseEntity<Notifications> testBtn(HttpSession session) {
-	    Users user = (Users) session.getAttribute("loginUser");
-	    Integer userId = (Integer) user.getId();
-	    Notifications data = new Notifications();
- 
-	    try {
-	        webPushService.sendTestPush(userId);
-	        data.setTitle("テストテストコントローラ");
-	        data.setMessage("テスト通知です");
-	    } catch (GeneralSecurityException | IOException | JoseException e) {
-	        e.printStackTrace();
-	        data.setTitle("エラー");
-	        data.setMessage("通知の送信中にエラーが発生しました");
-	    }
- 
-	    return ResponseEntity.ok(data);
-	}
+////	テストボタン押下
+//	@PostMapping("/attendance/test")
+//	public ResponseEntity<Notifications> testBtn(HttpSession session) {
+//	    Users user = (Users) session.getAttribute("loginUser");
+//	    Integer userId = (Integer) user.getId();
+//	    Notifications data = new Notifications();
+// 
+//	    try {
+//	        webPushService.sendTestPush(userId);
+//	        data.setTitle("テストテストコントローラ");
+//	        data.setMessage("テスト通知です");
+//	    } catch (GeneralSecurityException | IOException | JoseException e) {
+//	        e.printStackTrace();
+//	        data.setTitle("エラー");
+//	        data.setMessage("通知の送信中にエラーが発生しました");
+//	    }
+// 
+//	    return ResponseEntity.ok(data);
+//	}
 
 }
