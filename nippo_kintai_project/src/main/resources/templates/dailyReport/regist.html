@@ -54,7 +54,7 @@
 						<div th:if="${message}" class="alert alert-info">
 							<p th:text="${message}"></p>
 						</div>
-						<form id="dailyReport" name="dailyReportForm" method="post" action="/dailyReport/change">
+						<form id="dailyReport" name="dailyReportForm" method="get" action="/dailyReport/change">
 							<strong>対象日付：</strong>
 
 							<input type="date" name="date" th:value="${targetDate}" id="today" />

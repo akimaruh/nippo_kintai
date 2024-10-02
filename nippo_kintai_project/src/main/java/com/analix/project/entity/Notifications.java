@@ -20,7 +20,9 @@ public class Notifications {
 	//通知種類
 	String notificationType;
 	//対象権限
-	String targetRole; 
+	String targetRole;
+	//URL
+	String url;
 	
 	//ユーザー通知リスト
 //	List<UserNotifications> userNotificationsList;

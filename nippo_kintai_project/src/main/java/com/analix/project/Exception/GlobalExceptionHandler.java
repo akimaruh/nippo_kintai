@@ -23,9 +23,11 @@
 //	@Autowired
 //	private EmailService emailService;
 //	
+//	
 //	@ExceptionHandler(Exception.class)
 //    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 //    public void handleException(Exception ex) {
+//		
 //		List<Users> users = userMapper.findUserListByRole(Constants.CODE_VAL_ADMIN);
 //		// 通知へ登録
 //		informationService.insertErrorNotifications(ex,users);

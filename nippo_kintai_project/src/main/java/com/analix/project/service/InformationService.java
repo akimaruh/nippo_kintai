@@ -18,6 +18,7 @@ import com.analix.project.mapper.NotificationsMapper;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.mapper.UserNotificationsMapper;
 import com.analix.project.util.Constants;
+import com.analix.project.util.CreateUrlUtil;
 
 @Service
 public class InformationService {
@@ -56,7 +57,7 @@ public class InformationService {
 	}
 
 	/**
-	 * 通知テーブルエンティティ作成
+	 * 通知テーブルエンティティ作成(日報勤怠忘れ・システム障害・承認申請)
 	 * @param title
 	 * @param message
 	 * @param type
@@ -68,7 +69,32 @@ public class InformationService {
 		notification.setTitle(title);
 		notification.setMessage(message);
 		notification.setNotificationType(type);
+		notification.setUrl(CreateUrlUtil.createUrl(type));
+		
 		//notification.setCreatedAt(date);
+		
+		notificationsMapper.insertNotifications(notification);
+		return notification;
+	}
+	
+	/**
+	 * 通知テーブルエンティティ作成(承認・却下)	
+	 * @param title
+	 * @param message
+	 * @param type
+	 * @param date
+	 * @return
+	 */
+	private Notifications createNotification(String title, String message, String type, YearMonth yearMonth) {
+		Notifications notification = new Notifications();
+		notification.setTitle(title);
+		notification.setMessage(message);
+		notification.setNotificationType(type);
+		notification.setUrl(CreateUrlUtil.createUrl(type, yearMonth));
+		
+		
+		//notification.setCreatedAt(date);
+		
 		notificationsMapper.insertNotifications(notification);
 		return notification;
 	}
@@ -134,7 +160,7 @@ public class InformationService {
 		// 承認通知作成
 		Notifications approveNotifications = createNotification("承認",
 				targetYearMonth+"の承認申請が承認されました。",
-				"承認");
+				"承認",targetYearMonth);
 		Integer approveNotificationId = notificationsMapper.getLastInsertId();
 		insertUserNotifications(userId, approveNotificationId);
 		return "登録完了";
@@ -149,7 +175,7 @@ public class InformationService {
 		// 却下通知作成
 		Notifications rejectNotifications = createNotification("却下",
 				targetYearMonth+"の承認申請が却下されました。",
-				"却下");
+				"却下",targetYearMonth);
 		Integer rejectNotificationId = notificationsMapper.getLastInsertId();
 		insertUserNotifications(userId, rejectNotificationId);
 		return "登録完了";

@@ -4,10 +4,10 @@
 	<insert id="insertNotifications" useGeneratedKeys="true"
 		keyProperty="id">
 		INSERT INTO notifications (title, message,
-		notification_type,
+		notification_type,url,
 		target_role)
 		VALUES (#{notification.title},
-		#{notification.message}, #{notification.notificationType},
+		#{notification.message}, #{notification.notificationType},#{notification.url},
 		#{notification.targetRole})
 	</insert>
 
@@ -23,6 +23,7 @@
 		<result column="message" property="message" />
 		<result column="created_at" property="createdAt" />
 		<result column="notification_type" property="notificationType" />
+		<result column="url" property="url"/>
 		<collection property="userNotificationsDto"
 			ofType="com.analix.project.dto.UserNotificationsDto">
 			<id column="notification_id" property="notificationId" />
@@ -39,6 +40,7 @@
 		notifications.message,
 		notifications.created_at,
 		notifications.notification_type,
+		notifications.url,
 		user_notifications.id AS
 		notification_id,
 		user_notifications.user_id,
