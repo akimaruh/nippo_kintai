@@ -93,7 +93,7 @@
 						</div>
 
 						<div class="container mb-3 row">
-							<span class="col-sm-4 col-form-label">パスワード</span>
+							<label for="password" class="col-sm-4 col-form-label">パスワード</label>
 							<div class="col-sm-8 password-container">
 								<input type="text" name="password" class="form-control" th:field="*{password}"
 									style="display: none;" />
@@ -140,7 +140,7 @@
 						</div>
 
 						<div class="container mb-3 row ">
-							<label for="name" class="col-sm-4 col-form-label">email</label>
+							<label for="email" class="col-sm-4 col-form-label">email</label>
 							<div class="col-sm-6">
 								<input type="text" class="form-control" th:field="*{email}" />
 								<span class="text-danger" th:errors="*{email}"></span>

@@ -184,7 +184,7 @@ function forceDesabled() {
  */
 //削除確認
 function delcheck() {
-	let check = window.confirm(inputRegistedDepartment.value + 'を登録から削除します。本当によろしいですか？');
+	let check = window.confirm(inputRegistedDepartment.value + 'を廃止します。本当によろしいですか？');
 	if (check) {
 		console.log('削除するって');
 		return true;
@@ -195,7 +195,7 @@ function delcheck() {
 }
 
 function activecheck() {
-	let check = window.confirm(inputDeletedDepartment.value + 'を有効化します。よろしいですか？');
+	let check = window.confirm(inputDeletedDepartment.value + 'を復元します。よろしいですか？');
 	if (check) {
 		console.log('削除するって');
 		return true;
