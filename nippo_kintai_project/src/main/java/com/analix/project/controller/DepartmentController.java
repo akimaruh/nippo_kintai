@@ -79,7 +79,7 @@ public class DepartmentController {
 		} else {
 			Byte status = departmentService.getDepartmentStatus(newName);
 			if (status == 0) {
-				redirectAttributes.addFlashAttribute("error", "この部署名は無効化されています。");
+				redirectAttributes.addFlashAttribute("error", "この部署は廃止されています。廃止済部署の復元から復元可能です。");
 				redirectAttributes.addFlashAttribute("newName", newName);
 			} else {
 				redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です。");
@@ -125,7 +125,7 @@ public class DepartmentController {
 		} else {
 			Byte status = departmentService.getDepartmentStatus(newName);
 			if (status == 0) {
-				redirectAttributes.addFlashAttribute("error", "この部署名は無効化されています。");
+				redirectAttributes.addFlashAttribute("error", "この部署は廃止されています。廃止済部署の復元から復元可能です。");
 				redirectAttributes.addFlashAttribute("newName", newName);
 			} else if (status == 1) {
 				redirectAttributes.addFlashAttribute("error", "変更に失敗しました。");
@@ -166,14 +166,14 @@ public class DepartmentController {
 		boolean hasUsers = departmentService.userDepartment(exsistsName);
 
 		if (hasUsers) {
-			redirectAttributes.addFlashAttribute("error", "この部署にはユーザーがいるため削除できません。");
+			redirectAttributes.addFlashAttribute("error", "この部署にはユーザーがいるため廃止できません。");
 		} else {
 			boolean isDelete = departmentService.deleteDepartment(exsistsName);
 
 			if (isDelete) {
-				redirectAttributes.addFlashAttribute("message", exsistsName + "を削除しました。");
+				redirectAttributes.addFlashAttribute("message", exsistsName + "を廃止しました。");
 			} else {
-				redirectAttributes.addFlashAttribute("error", "削除に失敗しました。");
+				redirectAttributes.addFlashAttribute("error", "廃止に失敗しました。");
 			}
 		}
 		return "redirect:/department/regist";
@@ -210,9 +210,9 @@ public class DepartmentController {
 		boolean isUpdate = departmentService.updateDepartmentToActive(inactiveName);
 
 		if (isUpdate) {
-			redirectAttributes.addFlashAttribute("message", inactiveName + "を有効化しました。");
+			redirectAttributes.addFlashAttribute("message", inactiveName + "を復元しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("error", "有効化に失敗しました。");
+			redirectAttributes.addFlashAttribute("error", "復元に失敗しました。");
 		}
 		return "redirect:/department/regist";
 
