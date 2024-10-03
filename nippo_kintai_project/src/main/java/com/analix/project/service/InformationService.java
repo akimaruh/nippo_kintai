@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,7 +138,8 @@ public class InformationService {
 	 * @param userId
 	 * @return
 	 */
-	public String approveRequestInsertNotifications(String name,YearMonth approveYearMonth) {
+	@Async
+	public void approveRequestInsertNotifications(String name,YearMonth approveYearMonth) {
 		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
 		// 承認申請通知作成
 		Notifications approveRequestNotifications = createNotification("承認申請",
@@ -147,8 +149,6 @@ public class InformationService {
 		for (Users manager : managerList) {
 			insertUserNotifications(manager.getId(), approveRequestNotificationId);
 		}
-
-		return "登録完了";
 	}
 
 	/**
@@ -156,14 +156,15 @@ public class InformationService {
 	 * @param userId
 	 * @return
 	 */
-	public String approveInsertNotifications(Integer userId,YearMonth targetYearMonth) {
+	@Async
+	public void approveInsertNotifications(Integer userId,YearMonth targetYearMonth) {
 		// 承認通知作成
 		Notifications approveNotifications = createNotification("承認",
 				targetYearMonth+"の承認申請が承認されました。",
 				"承認",targetYearMonth);
 		Integer approveNotificationId = notificationsMapper.getLastInsertId();
 		insertUserNotifications(userId, approveNotificationId);
-		return "登録完了";
+		
 	}
 
 	/**
@@ -171,24 +172,30 @@ public class InformationService {
 	 * @param userId
 	 * @return
 	 */
-	public String rejectInsertNotifications(Integer userId,YearMonth targetYearMonth) {
+	@Async
+	public void rejectInsertNotifications(Integer userId,YearMonth targetYearMonth) {
 		// 却下通知作成
 		Notifications rejectNotifications = createNotification("却下",
 				targetYearMonth+"の承認申請が却下されました。",
 				"却下",targetYearMonth);
 		Integer rejectNotificationId = notificationsMapper.getLastInsertId();
 		insertUserNotifications(userId, rejectNotificationId);
-		return "登録完了";
+		
 	}
-
-	public String insertErrorNotifications(Exception ex, List<Users> users) {
+	/**
+	 * システム障害通知作成
+	 * @param ex
+	 * @param users
+	 * @return
+	 */
+	@Async
+	public void insertErrorNotifications(Exception ex, List<Users> users) {
 		String errorMessage = "以下のエラーが発生しました:\n\n" + ex.getMessage();
 		Notifications errorNotifications = createNotification("システム障害発生", errorMessage, "システム障害");
 		Integer errorNotificationId = notificationsMapper.getLastInsertId();
 		for (Users admin : users) {
 			insertUserNotifications(admin.getId(), errorNotificationId);
 		}
-		return "登録完了";
 
 	}
 
@@ -198,7 +205,8 @@ public class InformationService {
 	 * @param unsubmittedAttendanceUserList
 	 * @return
 	 */
-	public String insertNotificationsForBatch(List<Users> unsubmittedDailyReportUserList,
+	@Async
+	public void insertNotificationsForBatch(List<Users> unsubmittedDailyReportUserList,
 			List<Users> unsubmittedAttendanceUserList) {
 		// 日報通知作成
 		Notifications dailyReportNotifications = createNotification("日報未提出",
@@ -223,7 +231,6 @@ public class InformationService {
 		insertUserNotificationsForBatch(userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER),
 				managerNotificationId);
 
-		return "登録成功";
 	}
 
 	/**

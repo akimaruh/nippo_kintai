@@ -384,3 +384,6 @@ body {
 /*.dropdown:hover .dropdown-content {
 			display: block;
 		}*/
+#input-registed-department {
+	cursor: pointer;
+}
