@@ -52,7 +52,9 @@
 		ON notifications.id =
 		user_notifications.notification_id
 		WHERE user_notifications.user_id = #{userId}
-		AND user_notifications.status = "未読";
+		AND user_notifications.status = "未読"
+		ORDER BY notifications.id DESC
+		
 	</select>
 
 </mapper>

@@ -78,14 +78,22 @@ public class DailyReportController {
 	 */
 	@GetMapping(path = "/dailyReport/change")
 	public String changeDailyReportRegistPage(@ModelAttribute DailyReportForm dailyReportForm,
-			HttpSession session, Model model, @RequestParam("date") String date) {
+			HttpSession session, Model model, @RequestParam("date") String date,RedirectAttributes redirectAttributes)  {
 
 		// ヘッダー:ステータス部分
 		Users user = (Users) session.getAttribute("loginUser");
 		Integer userId = user.getId();
 		model.addAttribute(userId);
+		
 		LocalDate targetDate;
+		//パースエラーの場合強制で初期表示に戻る
+		try {
 		targetDate = LocalDate.parse(date);
+		}catch(Exception e){
+			
+			redirectAttributes.addFlashAttribute("error","今日以前の日付を選択してください。");
+			return "redirect:/dailyReport/regist" ;
+		}
 
 		System.out.println("コントローラ" + targetDate);
 		String statusName = dailyReportService.findStatusByUserId(userId, targetDate);

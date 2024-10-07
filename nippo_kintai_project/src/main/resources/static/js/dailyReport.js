@@ -16,21 +16,24 @@
 //カレンダー選択後日報表示反映
 const inputDate = document.getElementById("today");
 
+
 inputDate.addEventListener('change', (event) => {
+	
 	// 今日の日付を取得（"yyyy-mm-dd"形式）
+	
 	var today = new Date().toLocaleDateString("ja-JP", {
 		year: "numeric", month: "2-digit",
 		day: "2-digit"
 	}).split('/').join('-');
-
+	
+	
 	// 日付のバリデーション
 	let validation = true;
 	
-	if (inputDate.value > today) {
+	if (inputDate.value > today ||inputDate.value=="") {
 		document.getElementById('dateError').innerHTML = "今日以前の日報を選んでください";
 		validation = false;
-
-		// 入力行を削除
+		// 入力行を削除・追加ボタンを非表示
 		del();
 	} else {
 		document.getElementById('dateError').innerHTML = ""; // エラーメッセージをクリア
