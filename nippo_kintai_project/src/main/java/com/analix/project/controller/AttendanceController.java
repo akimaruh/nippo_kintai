@@ -27,6 +27,7 @@ import com.analix.project.service.AttendanceService;
 import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
 import com.analix.project.service.WebPushService;
+import com.analix.project.util.MessageUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -220,7 +221,8 @@ public class AttendanceController {
 				approveYearMonthAtDay);
 		for (MonthlyAttendanceReqDto request : requests) {
 			System.out.println("Sending request: " + request);
-			emailService.sendRequestEmail(request);
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendRequestEmail(request, mailMessage);
 		}
 		informationService.approveRequestInsertNotifications(user.getName(), approveYearMonth);
 		redirectAttributes.addFlashAttribute("message", message);
@@ -295,7 +297,8 @@ public class AttendanceController {
 			if ("approve".equals(action)) {
 				//				attendanceService.updateStatusApprove(userId, targetYearMonth);
 				String message = attendanceService.updateStatusApprove(userId, targetYearMonthAtDay);
-				emailService.sendApproveEmail(userId,targetYearMonth);
+		        String mailMessage = MessageUtil.mailCommonMessage();
+				emailService.sendApproveEmail(userId,targetYearMonth, mailMessage);
 				redirectAttributes.addFlashAttribute("message", message);
 				informationService.approveInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending approve request: " + request);
@@ -311,7 +314,8 @@ public class AttendanceController {
 			} else if ("reject".equals(action)) {
 				//				attendanceService.updateStatusReject(userId, targetYearMonth);
 				String message = attendanceService.updateStatusReject(userId, targetYearMonthAtDay);
-				emailService.sendRejectEmail(userId,targetYearMonth);
+				String mailMessage = MessageUtil.mailCommonMessage();
+				emailService.sendRejectEmail(userId,targetYearMonth, mailMessage);
 				redirectAttributes.addFlashAttribute("message", message);
 				informationService.rejectInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending reject request: " + request);

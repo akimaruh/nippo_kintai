@@ -13,11 +13,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Users;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class EmailService {
@@ -30,6 +34,7 @@ public class EmailService {
 	private AttendanceService attendanceService;
 	@Autowired
 	private DailyReportService dailyReportService;
+
 	@Async
 	public void sendEmail(String to, String subject, String content) {
 		SimpleMailMessage message = new SimpleMailMessage();
@@ -110,6 +115,17 @@ public class EmailService {
 		System.out.println("バッチメール送信処理終了");
 
 	}
+	
+	public String mailCommonMessage(){
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+		String message = "\n" +
+				"下記よりご確認ください。\n" +
+				baseUrl + "\n" +
+				"※当メールは送信専用となっております。";
+		
+		return message;
+	}
 
 	/**
 	 * 各ボタン押下時のメール送信
@@ -119,14 +135,14 @@ public class EmailService {
 	 * @param request
 	 */
 	@Async
-	public void sendRequestEmail(MonthlyAttendanceReqDto request) {
+	public void sendRequestEmail(MonthlyAttendanceReqDto request, String mailMessage) {
 		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
 		for (Users manager : managerList) {
 			int year = request.getTargetYearMonth().getYear();
 			int month = request.getTargetYearMonth().getMonthValue();
 			YearMonth targetYearMonth = YearMonth.of(year, month);
 			String subject = "【日報勤怠アプリ】勤怠承認申請";
-			String content = request.getName() + "さんの" + targetYearMonth + "の承認申請があります。";
+			String content = request.getName() + "さんの" + targetYearMonth + "の承認申請があります。\n" + mailMessage;
 			System.out.println("Service managerEmail: " + manager.getEmail() + manager.getName());
 			sendEmail(manager.getEmail(), subject, content);
 		}
@@ -138,13 +154,14 @@ public class EmailService {
 	 * @param request
 	 */
 	@Async
-	public void sendApproveEmail(Integer userId,YearMonth targetYearMonth) {
+	public void sendApproveEmail(Integer userId,YearMonth targetYearMonth, String mailMessage) {
+		
 		String subject = "【日報勤怠アプリ】承認";
 		String email =userMapper.findEmailByUserId(userId);
 //		int year = request.getTargetYearMonth().getYear();
 //		int month = request.getTargetYearMonth().getMonthValue();
 //		YearMonth targetYearMonth = YearMonth.of(year, month);
-		String content = targetYearMonth + "の承認申請が承認されました。";
+		String content = targetYearMonth + "の承認申請が承認されました。\n" + mailMessage;
 		sendEmail(email, subject, content);
 	}
 
@@ -153,13 +170,13 @@ public class EmailService {
 	 * @param request
 	 */
 	@Async
-	public void sendRejectEmail(Integer userId,YearMonth targetYearMonth) {
+	public void sendRejectEmail(Integer userId,YearMonth targetYearMonth, String mailMessage) {
 		String subject = "【日報勤怠アプリ】却下";
 		String email =userMapper.findEmailByUserId(userId);
 //		int year = request.getTargetYearMonth().getYear();
 //		int month = request.getTargetYearMonth().getMonthValue();
 //		YearMonth targetYearMonth = YearMonth.of(year, month);
-		String content = targetYearMonth + "の承認申請が却下されました。";
+		String content = targetYearMonth + "の承認申請が却下されました。\n" + mailMessage;
 		sendEmail(email, subject, content);
 	}
 
