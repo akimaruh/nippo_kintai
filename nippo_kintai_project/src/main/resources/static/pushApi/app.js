@@ -3,7 +3,7 @@ Notification.requestPermission().then(function(permission) { // 現在の許可�
     if (permission === 'granted') {
         // ユーザーが通知を許可した場合の処理
         console.log('通知の許可が得られました。');
-
+ 
         // ブラウザがService Workerをサポートしているか確認し、/sw.jsを登録
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/pushApi/sw.js')
@@ -32,7 +32,7 @@ Notification.requestPermission().then(function(permission) { // 現在の許可�
         console.warn('通知の許可が得られませんでした:', permission);
     }
 });
-
+ 
 // ユーザーのサブスクリプション情報を取得してサーバーに送信
 function sendSubscriptionToServer(subscription) {
     fetch('/subscribe', {
@@ -59,7 +59,7 @@ function sendSubscriptionToServer(subscription) {
         console.error('サブスクリプションの送信中にエラーが発生しました:', error);
     });
 };
-
+ 
 // Base64の変換
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);

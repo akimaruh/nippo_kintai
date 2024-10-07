@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.analix.project.dto.SubscriptionDto;
-import com.analix.project.entity.Subscriptions;
 import com.analix.project.entity.Users;
 import com.analix.project.service.WebPushService;
 
@@ -35,15 +34,15 @@ public class PushNotificationController {
     	return ResponseEntity.ok().build(); // 成功時には200を返す
     }
     
-    // 通知を送りたいユーザーのサブスクリプション情報がデータベースに存在するか確認
-    @PostMapping("/checkSubscription")
-    public ResponseEntity<Boolean> checkSubscription(@RequestBody Subscriptions subscriptions){
-    	Integer userId = subscriptions.getUserId();
-    	String endpoint = subscriptions.getEndpoint();
-    	
-    	boolean exists = webPushService.checkSubscriptionExists(userId, endpoint);
-    	return ResponseEntity.ok(exists);
-    }
+    // 通知を送りたいユーザー(マネージャー)のサブスクリプション情報がデータベースに存在するか確認
+//    @PostMapping("/checkSubscription")
+//    public ResponseEntity<Boolean> checkSubscription(@RequestBody Subscriptions subscriptions){
+//    	Integer userId = subscriptions.getUserId();
+//    	String endpoint = subscriptions.getEndpoint();
+//    	
+//    	boolean exists = webPushService.checkSubscriptionExists(userId, endpoint);
+//    	return ResponseEntity.ok(exists);
+//    }
     
 //	@PostMapping("/send")
 //	public ResponseEntity<String> sendNotification(@RequestBody NotificationRequest request) {

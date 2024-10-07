@@ -226,9 +226,8 @@ public class AttendanceController {
 		redirectAttributes.addFlashAttribute("message", message);
 		// プッシュ通知
 		try {
-			String payload = "{\"title\":\"【コントローラ】\",\"body\":\"申請があります\"}";
+			String payload = "{\"title\":\"【日報勤怠アプリ】勤怠承認申請\",\"body\":\"承認申請があります。\"}";
 			webPushService.sendRequestPush(payload);
-			System.out.println("承認申請:通知が正常に送信されました！");
 		} catch (GeneralSecurityException | IOException | JoseException e) {
 			System.out.println("承認申請:通知送信中にエラーが発生しました: " + e.getMessage());
 			e.printStackTrace();
@@ -301,11 +300,8 @@ public class AttendanceController {
 				informationService.approveInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending approve request: " + request);
 				try {
-					String payload = "{\"title\":\"【コントローラ】\",\"body\":\"承認されました\"}";
+					String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が承認されました。\"}";
 					webPushService.sendApprovePush(userId, payload);
-					System.out.println("承認:通知が正常に送信されました！");
-					System.out.println("承認：payload: " + payload);
-					System.out.println("承認：userId: " + userId);
 				} catch (GeneralSecurityException | IOException | JoseException e) {
 					System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
 					e.printStackTrace();
@@ -320,34 +316,15 @@ public class AttendanceController {
 				informationService.rejectInsertNotifications(userId, targetYearMonth);
 //				System.out.println("Sending reject request: " + request);
 				try {
-					String payload = "{\"title\":\"【コントローラ】\",\"body\":\"却下されました\"}";
+					String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が却下されました。再度申請を行ってください。\"}";
 					webPushService.sendRejectPush(userId, payload);
 				} catch (GeneralSecurityException | IOException | JoseException e) {
+					System.out.println("却下:通知送信中にエラーが発生しました: " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
-//		}
 
 		return "redirect:/attendance/regist";
 	}
-////	テストボタン押下
-//	@PostMapping("/attendance/test")
-//	public ResponseEntity<Notifications> testBtn(HttpSession session) {
-//	    Users user = (Users) session.getAttribute("loginUser");
-//	    Integer userId = (Integer) user.getId();
-//	    Notifications data = new Notifications();
-// 
-//	    try {
-//	        webPushService.sendTestPush(userId);
-//	        data.setTitle("テストテストコントローラ");
-//	        data.setMessage("テスト通知です");
-//	    } catch (GeneralSecurityException | IOException | JoseException e) {
-//	        e.printStackTrace();
-//	        data.setTitle("エラー");
-//	        data.setMessage("通知の送信中にエラーが発生しました");
-//	    }
-// 
-//	    return ResponseEntity.ok(data);
-//	}
 
 }

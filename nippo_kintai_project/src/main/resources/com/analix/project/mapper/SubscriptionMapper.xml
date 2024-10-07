@@ -17,24 +17,5 @@
 		ORDER BY created_at DESC
 		LIMIT 1
     </select>
-    
-	<!-- マネージャーのサブスクリプション情報を取得 -->
-    <select id="getManagerSubscriptions" resultType="com.analix.project.entity.Subscriptions">
-    	SELECT users.id AS userId,
-    	users.role,
-    	s.endpoint, s.p256dh, s.auth
-    	FROM users
-    	JOIN subscriptions s
-    	ON users.id = s.user_id
-    	WHERE users.role = 'Manager'
-    </select>
-    
-    <!-- サブスクリプション情報がデータベースに存在するか確認 -->
-    <select id="existsByUserIdAndEndpoint" resultType="Integer">
-    	SELECT COUNT(*)
-    	FROM subscriptions
-    	WHERE user_id = #{userId} AND endpoint = #{endpoint}
-    </select>
 
-	
 </mapper>

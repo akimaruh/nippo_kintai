@@ -1,87 +1,134 @@
-// ServiceWorkerはクライアント側で通知を受信するために必要
+//// ServiceWorkerはクライアント側で通知を受信するために必要
+//
+//self.addEventListener('push', function(event) {
+//	console.log('プッシュ通知を受信しました');
+//	
+//	const data = event.data ? event.data.json() : { title: 'デフォルトタイトル', body: 'デフォルトメッセージ' };
+//    const title = data.title || '通知';
+//    const options = {
+//        body: data.body || '通知が届きました',
+//        icon: '/img/nippo_kintai_icon.jpeg'
+//    };
+//	
+//	// 受信した通知をブラウザに表示
+//	event.waitUntil(
+//        self.registration.showNotification(title, options) // 受信した通知をブラウザに表示する部分
+//    );
+//    
+//});
 
+// プッシュイベントをリッスン
 self.addEventListener('push', function(event) {
-	console.log('プッシュ通知を受信しました');
-	
-	const data = event.data ? event.data.json() : { title: 'デフォルトタイトル', body: 'デフォルトメッセージ' };
-    const title = data.title || '通知';
+    console.log('プッシュイベントを受信:', event);
+ 
+    let data = {};
+    if (event.data) {
+        try {
+            data = event.data.json();
+        } catch (e) {
+            console.error('プッシュデータのJSON解析に失敗しました:', e);
+            data = { title: '通知', body: event.data.text() };
+        }
+    }
+ 
+    const title = data.title || 'デフォルトタイトル';
     const options = {
-        body: data.body || '通知が届きました',
-        icon: '/img/nippo_kintai_icon.jpeg'
+        body: data.body || 'デフォルト本文',
+        icon: data.icon || '/img/nippo_kintai_icon.jpeg', // 通知アイコンのパス
+        badge: data.badge || '/img/nippo_kintai_icon.jpeg', // バッジアイコンのパス
+        data: data.url || '/', // 通知クリック時に開くURL
+        // その他のオプション（actionsなど）を追加可能
     };
-	
-	// 受信した通知をブラウザに表示
-	event.waitUntil(
-        self.registration.showNotification(title, options) // 受信した通知をブラウザに表示する部分
+ 
+    event.waitUntil(
+        self.registration.showNotification(title, options)
     );
-    
+});
+ 
+// 通知がクリックされた際のイベントをリッスン
+self.addEventListener('notificationclick', function(event) {
+    console.log('通知がクリックされました:', event.notification);
+ 
+    event.notification.close(); // 通知を閉じる
+ 
+    // 通知のデータに基づいてウィンドウを開く
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            for (const client of clientList) {
+                if (client.url === event.notification.data && 'focus' in client)
+                    return client.focus();
+            }
+            if (clients.openWindow)
+                return clients.openWindow(event.notification.data);
+        })
+    );
 });
 
 
 
 
 // 承認ボタン押下時
-const approveBtn = document.getElementById('approve-btn');
-
-if (approveBtn) {
-	approveBtn.addEventListener('click', function() {
-
-		// サーバーからデータを取得
-		fetch('/attendance/update', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ buttonType: 'approve' })
-		})
-			.then(response => response.json())
-			.then(data => {
-				const title = data.title || '【日報勤怠アプリ】承認';  // サーバーからのタイトルを使う
-				const body = data.body || '申請が承認されました。';  // サーバーからの本文を使う
-				const icon = '/img/nippo_kintai_icon.jpeg';
-
-				const showNotification = () => new Notification(title, { body, icon });
-
-				if (Notification.permission === 'granted') {
-					showNotification();
-				} else {
-					Notification.requestPermission().then(permission => {
-						if (permission === 'granted') showNotification();
-					});
-				}
-			})
-			.catch(error => console.error('Error:', error));
-	});
-}
+//const approveBtn = document.getElementById('approve-btn');
+//
+//if (approveBtn) {
+//	approveBtn.addEventListener('click', function() {
+//
+//		// サーバーからデータを取得
+//		fetch('/attendance/update', {
+//			method: 'POST',
+//			headers: { 'Content-Type': 'application/json' },
+//			body: JSON.stringify({ buttonType: 'approve' })
+//		})
+//			.then(response => response.json())
+//			.then(data => {
+//				const title = data.title || '【日報勤怠アプリ】承認';  // サーバーからのタイトルを使う
+//				const body = data.body || '申請が承認されました。';  // サーバーからの本文を使う
+//				const icon = '/img/nippo_kintai_icon.jpeg';
+//
+//				const showNotification = () => new Notification(title, { body, icon });
+//
+//				if (Notification.permission === 'granted') {
+//					showNotification();
+//				} else {
+//					Notification.requestPermission().then(permission => {
+//						if (permission === 'granted') showNotification();
+//					});
+//				}
+//			})
+//			.catch(error => console.error('Error:', error));
+//	});
+//}
 
 // 却下ボタン押下時
-const rejectBtn = document.getElementById('reject-btn');
-if (rejectBtn) {
-	rejectBtn.addEventListener('click', function() {
-
-		// サーバーからデータを取得
-		fetch('/attendance/update', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ buttonType: 'reject' })
-		})
-			.then(response => response.json())
-			.then(data => {
-				const title = data.title || '【日報勤怠アプリ】却下';  // サーバーからのタイトルを使う
-				const body = data.body || '申請が却下されました。再度申請を行ってください。';  // サーバーからの本文を使う
-				const icon = '/img/nippo_kintai_icon.jpeg';
-
-				const showNotification = () => new Notification(title, { body, icon });
-
-				if (Notification.permission === 'granted') {
-					showNotification();
-				} else {
-					Notification.requestPermission().then(permission => {
-						if (permission === 'granted') showNotification();
-					});
-				}
-			})
-			.catch(error => console.error('Error:', error));
-	});
-}
+//const rejectBtn = document.getElementById('reject-btn');
+//if (rejectBtn) {
+//	rejectBtn.addEventListener('click', function() {
+//
+//		// サーバーからデータを取得
+//		fetch('/attendance/update', {
+//			method: 'POST',
+//			headers: { 'Content-Type': 'application/json' },
+//			body: JSON.stringify({ buttonType: 'reject' })
+//		})
+//			.then(response => response.json())
+//			.then(data => {
+//				const title = data.title || '【日報勤怠アプリ】却下';  // サーバーからのタイトルを使う
+//				const body = data.body || '申請が却下されました。再度申請を行ってください。';  // サーバーからの本文を使う
+//				const icon = '/img/nippo_kintai_icon.jpeg';
+//
+//				const showNotification = () => new Notification(title, { body, icon });
+//
+//				if (Notification.permission === 'granted') {
+//					showNotification();
+//				} else {
+//					Notification.requestPermission().then(permission => {
+//						if (permission === 'granted') showNotification();
+//					});
+//				}
+//			})
+//			.catch(error => console.error('Error:', error));
+//	});
+//}
 		
 
 
