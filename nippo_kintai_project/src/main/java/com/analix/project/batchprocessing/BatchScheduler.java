@@ -7,6 +7,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Configuration
 @EnableScheduling
@@ -17,8 +18,8 @@ public class BatchScheduler {
 	@Autowired
 	private Job job;
 
-//	@Scheduled(cron = "0 50 13 * * MON-FRI")
-//	@Scheduled(initialDelay = 10000, fixedRate = 10000)
+	@Scheduled(cron = "0 50 13 * * MON-FRI")
+//	@Scheduled(initialDelay = 5000, fixedRate = 10000000)
 	public void runBatchJob() throws Exception {
 		JobParameters jobParameters = new JobParametersBuilder()
 				.addLong("time", System.currentTimeMillis())
