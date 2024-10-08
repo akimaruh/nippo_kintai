@@ -11,6 +11,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -20,6 +21,7 @@ import com.analix.project.service.AttendanceService;
 import com.analix.project.service.DailyReportService;
 import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
+import com.analix.project.service.WebPushService;
 
 @Configuration
 public class BatchJobConfig {
@@ -35,18 +37,25 @@ public class BatchJobConfig {
 
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private WebPushService webPushService;
 	@Autowired
 	private PlatformTransactionManager transactionManager;
+	
+	 @Value("${app.baseUrl}")
+	    private String baseUrl;
 
 	// Jobの定義
 	@Bean
 	public Job dailyReportAndAttendanceJob(JobRepository jobRepository, Step collectUnsubmittedDailyReportUsersStep,
-			Step collectUnsubmittedAttendanceUsersStep, Step sendInfoStep, Step sendEmailsStep) {
+			Step collectUnsubmittedAttendanceUsersStep, Step sendInfoStep, Step sendEmailsStep,Step sendWebPushStep) {
 		return new JobBuilder("dailyReportAndAttendanceJob", jobRepository)
 				.start(collectUnsubmittedDailyReportUsersStep)
 				.next(collectUnsubmittedAttendanceUsersStep)
 				.next(sendInfoStep)
 				.next(sendEmailsStep)
+				.next(sendWebPushStep)
 
 				.build();
 	}
@@ -146,36 +155,38 @@ public class BatchJobConfig {
 					Map<String, List<Users>> umsubmitMap = new HashMap<>();
 					umsubmitMap.put("dailyReport", unsubmittedDailyReportUserList);
 					umsubmitMap.put("attendance", unsubmittedAttendanceUserList);
-
+					
+					
 					// メールサービスでメール送信
 					emailService.sendForgetRegistEmails(umsubmitMap);
 					return RepeatStatus.FINISHED;
 				}, transactionManager).build();
 	}
+	
+	// プッシュ通知送信Step
+		@Bean
+		public Step sendWebPushStep(JobRepository jobRepository) {
+			return new StepBuilder("sendWebPushStep", jobRepository)
+					.tasklet((contribution, chunkContext) -> {
+						List<Users> unsubmittedDailyReportUserList = (List<Users>) chunkContext.getStepContext()
+								.getStepExecution().getJobExecution()
+								.getExecutionContext()
+								.get("dailyReportUsers");
+						List<Users> unsubmittedAttendanceUserList = (List<Users>) chunkContext.getStepContext()
+								.getStepExecution().getJobExecution()
+								.getExecutionContext().get("attendanceUsers");
 
-	//	@Bean
-	//	public Step sendEmailsStep(JobRepository jobRepository) {
-	//		return new StepBuilder("sendEmailsStep", jobRepository)
-	//				.tasklet((contribution, chunkContext) -> {
-	//					//					Object dailyReportUsersObj = chunkContext.getStepContext().getStepExecution().getExecutionContext().get("dailyReportUsers");
-	//					//					if (dailyReportUsersObj instanceof List<?>) {
-	//					//					    List<Users> umsubmittedDailyReportUserList = (List<Users>) dailyReportUsersObj;
-	//					//					}
-	//					//					// ExecutionContextから未提出者リストを取得
-	//					//					ExecutionContext stepContext = chunkContext.getStepContext().getStepExecution()
-	//					//							.getExecutionContext();
-	//					//					List<Users> umsubmittedDailyReportUserList = (List<Users>) stepContext.get("dailyReportUsers");
-	//					//					List<Users> umsubmittedAttendanceUserList = (List<Users>) stepContext.get("attendanceUsers");
-	//					//
-	//					//					// 未提出リストをマップにまとめてメール送信
-	//					//					Map<String, List<Users>> umsubmitMap = new HashMap<>();
-	//					//					umsubmitMap.put("dailyReport", umsubmittedDailyReportUserList);
-	//					//					umsubmitMap.put("attendance", umsubmittedAttendanceUserList);
-	//
-	//					// メールサービスでメール送信
-	//					emailService.sendForgetRegistEmails();
-	//					return RepeatStatus.FINISHED;
-	//				}, transactionManager).build();
-	//	}
+//						// 未提出リストをマップにまとめてメール送信
+//						Map<String, List<Users>> umsubmitMap = new HashMap<>();
+//						umsubmitMap.put("dailyReport", unsubmittedDailyReportUserList);
+//						umsubmitMap.put("attendance", unsubmittedAttendanceUserList);
+
+						// メールサービスでメール送信
+						webPushService.sendForgetRegistPush(unsubmittedDailyReportUserList,unsubmittedAttendanceUserList);
+						return RepeatStatus.FINISHED;
+					}, transactionManager).build();
+		}
+
+	
 
 }

@@ -18,7 +18,7 @@ public class BatchScheduler {
 	@Autowired
 	private Job job;
 
-	@Scheduled(cron = "0 50 13 * * MON-FRI")
+	@Scheduled(cron = "0 34 17 * * MON-FRI")
 //	@Scheduled(initialDelay = 5000, fixedRate = 10000000)
 	public void runBatchJob() throws Exception {
 		JobParameters jobParameters = new JobParametersBuilder()
