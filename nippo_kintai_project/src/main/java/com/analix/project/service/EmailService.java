@@ -13,15 +13,12 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Users;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
-
-import jakarta.servlet.http.HttpServletRequest;
+import com.analix.project.util.MessageUtil;
 
 @Service
 public class EmailService {
@@ -34,7 +31,14 @@ public class EmailService {
 	private AttendanceService attendanceService;
 	@Autowired
 	private DailyReportService dailyReportService;
-
+	@Autowired
+	private MessageUtil messageUtil;
+	
+	
+	
+	/*
+	 * 
+	 */
 	@Async
 	public void sendEmail(String to, String subject, String content) {
 		SimpleMailMessage message = new SimpleMailMessage();
@@ -48,21 +52,17 @@ public class EmailService {
 			System.out.println("メール送信失敗: " + e.getMessage());
 		}
 	}
-	
+	/**
+	 * 日報勤怠忘れメール送信
+	 * @param umsubmitMap
+	 */
 	public void sendForgetRegistEmails(Map<String, List<Users>> umsubmitMap) {
-		//	public void sendForgetRegistEmails() {
 		//日報未提出者リストと、勤怠未提出者リストにそれぞれ分ける
 		List<Users> umsubmittedDailyReportUserList = umsubmitMap.get("dailyReport");
 		List<Users> umsubmittedAttendanceUserList = umsubmitMap.get("attendance");
-		//		List<Users> umsubmittedDailyReportUserList = dailyReportService.registCheck();
-		//		List<Users> umsubmittedAttendanceUserList = attendanceService.registCheck();
+		
 		System.out.println(umsubmittedDailyReportUserList);
 		System.out.println(umsubmittedAttendanceUserList);
-		//				// 勤怠未提出者リストをセットに変換
-		//				Set<Users> unsubmittedAttendanceUsers = new HashSet<>(umsubmittedAttendanceUserList);
-		//		
-		//				// 日報未提出者リストをセットに変換
-		//				Set<Users> unsubmittedDailyReportUsers = new HashSet<>(umsubmittedDailyReportUserList);
 
 		//メールを送るグループを作成
 		//勤怠未提出者リスト
@@ -84,7 +84,7 @@ public class EmailService {
 							.map(Users::getName).collect(Collectors.joining(","))
 					+ Constants.LINE_SEPARATOR +
 					"勤怠未提出者:" + umsubmittedAttendanceUserList.stream()
-							.map(Users::getName).collect(Collectors.joining(","));
+							.map(Users::getName).collect(Collectors.joining(","))+ messageUtil.mailCommonMessageForBatch();
 
 			sendEmail(manager.getEmail(), "【日報勤怠アプリ】日報・勤怠未提出者一覧", managerMessage);
 		}
@@ -94,21 +94,21 @@ public class EmailService {
 		if (unsubmittedAttendanceOnlyList != null) {
 			//勤怠未提出者に通知を送信
 			for (Users unsubmittedAttendanceOnly : unsubmittedAttendanceOnlyList) {
-				String userMessage = "本日の勤怠が未提出です。早急に提出してください。";
+				String userMessage = "本日の勤怠が未提出です。早急に提出してください。"+ messageUtil.mailCommonMessageForBatch();
 				sendEmail(unsubmittedAttendanceOnly.getEmail(), "【日報勤怠アプリ】勤怠未提出", userMessage);
 			}
 		}
 		if (unsubmittedDailyReportOnlyList != null) {
 			//日報未提出者に通知を送信
 			for (Users unsubmittedDailyReportOnly : unsubmittedDailyReportOnlyList) {
-				String userMessage = "本日の日報が未提出です。早急に提出してください。";
+				String userMessage = "本日の日報が未提出です。早急に提出してください。" + messageUtil.mailCommonMessageForBatch();
 				sendEmail(unsubmittedDailyReportOnly.getEmail(), "【日報勤怠アプリ】日報未提出", userMessage);
 			}
 		}
 		if (unsubmittedBothList != null) {
 			//両方未提出者に通知を送信
 			for (Users unsubmittedBoth : unsubmittedBothList) {
-				String userMessage = "本日の日報・勤怠が未提出です。早急に提出してください。";
+				String userMessage = "本日の日報・勤怠が未提出です。早急に提出してください。" + messageUtil.mailCommonMessageForBatch();
 				sendEmail(unsubmittedBoth.getEmail(), "【日報勤怠アプリ】日報・勤怠未提出", userMessage);
 			}
 		}
@@ -116,17 +116,6 @@ public class EmailService {
 
 	}
 	
-	public String mailCommonMessage(){
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
-		String message = "\n" +
-				"下記よりご確認ください。\n" +
-				baseUrl + "\n" +
-				"※当メールは送信専用となっております。";
-		
-		return message;
-	}
-
 	/**
 	 * 各ボタン押下時のメール送信
 	 */
