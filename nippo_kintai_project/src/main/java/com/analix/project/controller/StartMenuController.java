@@ -1,5 +1,6 @@
 package com.analix.project.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class StartMenuController {
-	
+
 	@Autowired
 	public AttendanceService attendanceService;
 	@Autowired
@@ -39,56 +40,28 @@ public class StartMenuController {
 	@RequestMapping(path = "/common/startMenu")
 	public String showMenu(HttpSession session, Model model) {
 
-//		// メッセージ
-//		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
-//		List<String> managerMassage = new ArrayList<>();
-//		List<String> regularMassage = new ArrayList<>();
-//		
-		
-//		String userName = user.getName();
-////
-//		for (MonthlyAttendanceReqDto dto : monthlyAttendanceReqList) {
-//			if (dto.getStatus() == 1) {
-//				String name = dto.getName();
-//				Date targetYearMonth = dto.getTargetYearMonth();
-//				Date date = dto.getDate();
-//				String message = "【勤怠】 " + name + "の" + targetYearMonth + "の承認申請があります。（" + date + "）";
-//				managerMassage.add(message);
-//
-//			} else if (dto.getStatus() == 2) {
-//				if (dto.getName().equals(userName)) {
-//					Date targetYearMonth = dto.getTargetYearMonth();
-//					LocalDate today = LocalDate.now();
-//					String message = "【承認】 " + targetYearMonth + "の承認申請が承認されました。（" + today + "）";
-//					regularMassage.add(message);
-//				}
-//			} else if (dto.getStatus() == 3) {
-//				if (dto.getName().equals(userName)) {
-//					Date targetYearMonth = dto.getTargetYearMonth();
-//					LocalDate today = LocalDate.now();
-//					String message = "【却下】 " + targetYearMonth + "の承認申請が却下されました。（" + today + "）";
-//					regularMassage.add(message);
-//				}
-//			}
-//		}
 		Users user = (Users) session.getAttribute("loginUser");
-		List<NotificationsDto> notificationsDtoList  = new ArrayList<>();
-		 notificationsDtoList = informationService.findNotification(user.getId());
+		List<NotificationsDto> notificationsDtoList = new ArrayList<>();
+		notificationsDtoList = informationService.findNotification(user.getId());
 		model.addAttribute("notificationsList", notificationsDtoList);
-//		model.addAttribute("regularMassage", regularMassage);
+		if (notificationsDtoList.isEmpty()) {
+			model.addAttribute("notificationsListMessage", "--現在、おしらせはありません。--");
+		}
+		LocalDate today = LocalDate.now();
+		//打刻ボタン活性チェック
+		boolean isStampingCheck = attendanceService.findTodaysStartTime(user.getId(),today);
+		model.addAttribute("isStampingCheck",isStampingCheck);
 
 		return "common/startMenu";
 	}
-	
-	
-	 
 
 	/**
 	 * 『ログオフ』ボタン押下後
 	 * @return ページを閉じる
 	 */
 	@RequestMapping(path = "/common/logoff", method = RequestMethod.POST)
-	public String logoff(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+	public String logoff(HttpServletRequest request, HttpServletResponse response,
+			RedirectAttributes redirectAttributes) {
 
 		HttpSession session = request.getSession(false);
 		if (session != null) {
@@ -96,7 +69,7 @@ public class StartMenuController {
 		}
 		redirectAttributes.addFlashAttribute("message", "ログオフしました。再度ログインしてください。");
 
-		return "redirect:/";//JavaScriptで閉じないならこっち
+		return "redirect:/";
 	}
 
 }

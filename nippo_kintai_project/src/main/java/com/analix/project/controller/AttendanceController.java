@@ -3,6 +3,7 @@ package com.analix.project.controller;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,7 +42,7 @@ public class AttendanceController {
 	private EmailService emailService;
 	@Autowired
 	private InformationService informationService;
-@Autowired
+	@Autowired
 	private WebPushService webPushService;
 
 	/**
@@ -216,7 +218,6 @@ public class AttendanceController {
 		//承認申請の登録更新
 		String message = attendanceService.insertMonthlyAttendanceReq(userId, approveYearMonthAtDay);
 
-		
 		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
 				approveYearMonthAtDay);
 		for (MonthlyAttendanceReqDto request : requests) {
@@ -286,49 +287,91 @@ public class AttendanceController {
 			@RequestParam("targetYearMonth") YearMonth targetYearMonth, @RequestParam("action") String action,
 			RedirectAttributes redirectAttributes) {
 		LocalDate targetYearMonthAtDay = targetYearMonth.atDay(1);
-		
-		
-		
-//		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
-//				targetYearMonthAtDay);
 
-//		for (MonthlyAttendanceReqDto request : requests) {
+		//		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
+		//				targetYearMonthAtDay);
 
-			if ("approve".equals(action)) {
-				//				attendanceService.updateStatusApprove(userId, targetYearMonth);
-				String message = attendanceService.updateStatusApprove(userId, targetYearMonthAtDay);
-		        String mailMessage = MessageUtil.mailCommonMessage();
-				emailService.sendApproveEmail(userId,targetYearMonth, mailMessage);
-				redirectAttributes.addFlashAttribute("message", message);
-				informationService.approveInsertNotifications(userId, targetYearMonth);
-//				System.out.println("Sending approve request: " + request);
-				try {
-					String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が承認されました。\"}";
-					webPushService.sendApprovePush(userId, payload);
-				} catch (GeneralSecurityException | IOException | JoseException e) {
-					System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
-					e.printStackTrace();
-				}
-				
+		//		for (MonthlyAttendanceReqDto request : requests) {
 
-			} else if ("reject".equals(action)) {
-				//				attendanceService.updateStatusReject(userId, targetYearMonth);
-				String message = attendanceService.updateStatusReject(userId, targetYearMonthAtDay);
-				String mailMessage = MessageUtil.mailCommonMessage();
-				emailService.sendRejectEmail(userId,targetYearMonth, mailMessage);
-				redirectAttributes.addFlashAttribute("message", message);
-				informationService.rejectInsertNotifications(userId, targetYearMonth);
-//				System.out.println("Sending reject request: " + request);
-				try {
-					String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が却下されました。再度申請を行ってください。\"}";
-					webPushService.sendRejectPush(userId, payload);
-				} catch (GeneralSecurityException | IOException | JoseException e) {
-					System.out.println("却下:通知送信中にエラーが発生しました: " + e.getMessage());
-					e.printStackTrace();
-				}
+		if ("approve".equals(action)) {
+			//				attendanceService.updateStatusApprove(userId, targetYearMonth);
+			String message = attendanceService.updateStatusApprove(userId, targetYearMonthAtDay);
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendApproveEmail(userId, targetYearMonth, mailMessage);
+			redirectAttributes.addFlashAttribute("message", message);
+			informationService.approveInsertNotifications(userId, targetYearMonth);
+			//				System.out.println("Sending approve request: " + request);
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が承認されました。\"}";
+				webPushService.sendApprovePush(userId, payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
 			}
 
+		} else if ("reject".equals(action)) {
+			//				attendanceService.updateStatusReject(userId, targetYearMonth);
+			String message = attendanceService.updateStatusReject(userId, targetYearMonthAtDay);
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendRejectEmail(userId, targetYearMonth, mailMessage);
+			redirectAttributes.addFlashAttribute("message", message);
+			informationService.rejectInsertNotifications(userId, targetYearMonth);
+			//				System.out.println("Sending reject request: " + request);
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が却下されました。再度申請を行ってください。\"}";
+				webPushService.sendRejectPush(userId, payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("却下:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
 		return "redirect:/attendance/regist";
+	}
+
+	/**
+	 * 処理メニュー画面『出勤』・『退勤』ボタン押下後 
+	 * @param action
+	 * @param userId
+	 * @param redirectAttributes
+	 * @return 処理メニュー画面
+	 */
+	@GetMapping("/attendance/stamping")
+	public String beginRegist(@RequestParam("action") String action, @RequestParam("userId") Integer userId,
+			RedirectAttributes redirectAttributes) {
+
+		LocalDate today = LocalDate.now();
+		LocalTime now = LocalTime.now();
+		//メッセージに打刻時間を入れたかったら↓の２行を使えます。
+		//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+		//		 String nowString = now.format(formatter);
+
+		boolean isRegist = false;
+		String message = null;
+		String error = null;
+
+		//『出勤』ボタン押下時
+		if ("begin".equals(action)) {
+			isRegist = attendanceService.insertStartTime(userId, today, now);
+			if (isRegist) {
+				message = "おはようございます。出勤を打刻しました。";
+			} else {
+				error = "打刻に失敗しました。";
+			}
+		}
+		//『退勤』ボタン押下時
+		if ("finish".equals(action)) {
+			isRegist = attendanceService.updateEndTime(userId, today, now);
+			if (isRegist) {
+				message = "退勤を打刻しました。本日もお疲れ様でした。";
+			} else {
+				error = "打刻に失敗しました。";
+			}
+		}
+		redirectAttributes.addFlashAttribute("message", message);
+		redirectAttributes.addFlashAttribute("error", error);
+
+		return "redirect:/common/startMenu";
 	}
 
 }

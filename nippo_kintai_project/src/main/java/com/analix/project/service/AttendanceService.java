@@ -1,8 +1,5 @@
 package com.analix.project.service;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -57,10 +54,10 @@ public class AttendanceService {
 	 * @return 勤怠一覧取得マッパー
 	 */
 	public List<DailyAttendanceForm> getFindAllDailyAttendance(Integer userId, YearMonth targetYearMonth) {
-		LocalDate targetYearMonthAtDay =targetYearMonth.atDay(1);
+		LocalDate targetYearMonthAtDay = targetYearMonth.atDay(1);
 		//1か月分の日付生成
 		List<LocalDate> dateList = generateMonthDates(targetYearMonthAtDay);
-		
+
 		//1か月分の日付が生成できていなかったらエラー表示をコントローラで行うためこの時点でnullを返す
 		if (dateList.contains(null)) {
 			return null;
@@ -75,7 +72,7 @@ public class AttendanceService {
 		// Attendance情報をLocalDateでインデックス化するMapを作成
 		Map<LocalDate, Attendance> attendanceMap = attendanceListSearchForUserIdAndYearMonth.stream()
 				.collect(Collectors.toMap(
-						attendance -> customDateUtil.convertToLocalDate(attendance.getDate()),
+						attendance -> attendance.getDate(),
 						attendance -> attendance));
 
 		for (LocalDate date : dateList) {
@@ -91,21 +88,19 @@ public class AttendanceService {
 				dailyAttendance.setUserId(attendance.getUserId());
 				dailyAttendance.setStatus(attendance.getStatus());
 
-				Time startTime = attendance.getStartTime();
-				Time endTime = attendance.getEndTime();
+				LocalTime startTime = attendance.getStartTime();
+				LocalTime endTime = attendance.getEndTime();
+				DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 				if (startTime != null) {
-					String newStartTime = new SimpleDateFormat("HH:mm").format(attendance.getStartTime());
-					dailyAttendance.setStartTime2(newStartTime);
+					String startTimeString = startTime.format(dateTimeFormatter);
+					dailyAttendance.setStartTime(startTimeString);
 				}
-
 				if (endTime != null) {
-					String newEndTime = new SimpleDateFormat("HH:mm").format(attendance.getEndTime());
-					dailyAttendance.setEndTime2(newEndTime);
+					String endTimeString = endTime.format(dateTimeFormatter);
+					dailyAttendance.setEndTime(endTimeString);
 				}
-
 				dailyAttendance.setRemarks(attendance.getRemarks());
 			}
-
 			dailyAttendanceList.add(dailyAttendance);
 		}
 
@@ -131,7 +126,8 @@ public class AttendanceService {
 	 */
 	public String insertMonthlyAttendanceReq(Integer userId, LocalDate targetYearMonthAtDay) {
 
-		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId, targetYearMonthAtDay);
+		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId,
+				targetYearMonthAtDay);
 
 		if (applicationStatus == null) {
 			MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
@@ -144,7 +140,7 @@ public class AttendanceService {
 
 		} else if (applicationStatus == 3) {
 			// statusを1(承認待ち)に更新
-			monthlyAttendanceReqMapper.updateStatusWaiting(userId,targetYearMonthAtDay);
+			monthlyAttendanceReqMapper.updateStatusWaiting(userId, targetYearMonthAtDay);
 		}
 
 		return "承認申請が完了しました。";
@@ -157,9 +153,7 @@ public class AttendanceService {
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq() {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
 	}
-	
-	
-	
+
 	/**
 	 * 承認申請リスト(usersテーブルと結合)
 	 * @param userId
@@ -181,24 +175,24 @@ public class AttendanceService {
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
 				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
 		String userName = monthlyAttendanceReqList.getName();
-//		LocalDate date = monthlyAttendanceReqList.getDate();
+		//		LocalDate date = monthlyAttendanceReqList.getDate();
 		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
 
 		return userName + "の" + targetYearMonth + "における承認申請が承認されました。";
 	}
-	
+
 	/**
 	 * status更新 却下
 	 * @param userId
 	 * @param targetYearMonth
 	 * @return 却下メッセージ
 	 */
-	public String updateStatusReject(Integer userId,  LocalDate targetYearMonthAtDay) {
+	public String updateStatusReject(Integer userId, LocalDate targetYearMonthAtDay) {
 		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonthAtDay);
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
 				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
 		String userName = monthlyAttendanceReqList.getName();
-//		LocalDate date = monthlyAttendanceReqList.getDate();
+		//		LocalDate date = monthlyAttendanceReqList.getDate();
 		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
 
 		return userName + "の" + targetYearMonth + "における承認申請が却下されました。";
@@ -225,8 +219,8 @@ public class AttendanceService {
 		int i = 0;
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
 
-			String startTime = dailyAttendanceForm.getStartTime2();
-			String endTime = dailyAttendanceForm.getEndTime2();
+			String startTime = dailyAttendanceForm.getStartTime();
+			String endTime = dailyAttendanceForm.getEndTime();
 			String remarks = dailyAttendanceForm.getRemarks();
 			Byte status = dailyAttendanceForm.getStatus();
 			List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
@@ -258,12 +252,12 @@ public class AttendanceService {
 			if (holidaySystem.contains(status)) {
 				if (startTime != "") {
 					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime",
 									"休日に出勤時間は入力できません"));
 				}
 				if (endTime != "") {
 					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime",
 									"休日に退勤時間は入力できません"));
 				}
 				i++;
@@ -275,10 +269,10 @@ public class AttendanceService {
 				//出勤時間も退勤時間も入力していない場合(以降の入力チェックが不要のためブレイク)
 				if (startTime == "" && endTime == "") {
 					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime",
 									"出勤時間を入力して下さい"));
 					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime",
 									"退勤時間を入力して下さい"));
 					i++;
 					continue;
@@ -286,13 +280,13 @@ public class AttendanceService {
 				//出勤時間または退勤時間のどちらかが空白の場合
 				if (endTime == "" && startTime != "") {
 					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime",
 									"退勤時間を入力して下さい"));
 				}
 
 				if (startTime == "" && endTime != "") {
 					result.addError(
-							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+							new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime",
 									"出勤時間を入力して下さい"));
 				}
 			}
@@ -317,7 +311,7 @@ public class AttendanceService {
 					Matcher matcher = pattern.matcher(startTime);
 					if (!matcher.find()) {
 						result.addError(
-								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime",
 										"HH:mm形式で入力して下さい"));
 					}
 				}
@@ -330,7 +324,7 @@ public class AttendanceService {
 					Matcher matcher = pattern.matcher(endTime);
 					if (!matcher.find()) {
 						result.addError(
-								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+								new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime",
 										"HH:mm形式で入力して下さい"));
 
 					}
@@ -350,10 +344,10 @@ public class AttendanceService {
 
 						if (startInputTime.isAfter(endInputTime)) {
 							result.addError(
-									new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime2",
+									new FieldError("attendanceFormList", "attendanceFormList[" + i + "].startTime",
 											"出勤時間は退勤時間より先になるように入力して下さい"));
 							result.addError(
-									new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime2",
+									new FieldError("attendanceFormList", "attendanceFormList[" + i + "].endTime",
 											"退勤時間は出勤時間より後になるように入力して下さい"));
 						}
 
@@ -388,15 +382,13 @@ public class AttendanceService {
 
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
 
-			//LocalDate型→java.sql.Date型
-			//String型→java.sql.Time型に変換
 			Byte status = dailyAttendanceForm.getStatus();
 			Integer registedUserId = dailyAttendanceForm.getUserId();
 			LocalDate date = dailyAttendanceForm.getDate();
-			String endTime = dailyAttendanceForm.getEndTime2();
-			String startTime = dailyAttendanceForm.getStartTime2();
-
-			Date convertedDate = java.sql.Date.valueOf(date);
+			String endTime = dailyAttendanceForm.getEndTime();
+			String startTime = dailyAttendanceForm.getStartTime();
+			LocalTime convertedStartTime = null;
+			LocalTime convertedEndTime = null;
 
 			if (endTime != null && !endTime.trim().isEmpty()) {
 
@@ -411,8 +403,8 @@ public class AttendanceService {
 						if (startTime.matches("\\d{2}:\\d{2}")) {
 							startTime = startTime + ":00";
 						}
-						Time convertedStartTime = java.sql.Time.valueOf(startTime);
-						dailyAttendanceForm.setStartTime(convertedStartTime);
+						convertedStartTime = LocalTime.parse(startTime);
+						//						dailyAttendanceForm.setStartTime(convertedStartTime);
 					} catch (IllegalArgumentException e) {
 						// 無効なフォーマットの場合のエラーハンドリング
 
@@ -430,8 +422,8 @@ public class AttendanceService {
 							endTime = endTime + ":00";
 						}
 
-						Time convertedEndTime = java.sql.Time.valueOf(endTime);
-						dailyAttendanceForm.setEndTime(convertedEndTime);
+						convertedEndTime = LocalTime.parse(endTime);
+						//						dailyAttendanceForm.setEndTime(convertedEndTime);
 					} catch (IllegalArgumentException e) {
 						// 無効なフォーマットの場合のエラーハンドリング
 
@@ -442,11 +434,11 @@ public class AttendanceService {
 			Attendance registAttendance = new Attendance();
 
 			registAttendance.setUserId(userId);
-			registAttendance.setDate(convertedDate);
+			registAttendance.setDate(date);
 			registAttendance.setStatus(status);
 			registAttendance.setRemarks(dailyAttendanceForm.getRemarks());
-			registAttendance.setStartTime(dailyAttendanceForm.getStartTime());
-			registAttendance.setEndTime(dailyAttendanceForm.getEndTime());
+			registAttendance.setStartTime(convertedStartTime);
+			registAttendance.setEndTime(convertedEndTime);
 
 			if (status != null) {
 				if (registedUserId == null) {
@@ -476,7 +468,7 @@ public class AttendanceService {
 	 */
 	public List<LocalDate> generateMonthDates(LocalDate targetYearMonth) {
 
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate start = targetYearMonth;
 		LocalDate end = start.plusMonths(1).minusDays(1);
 
@@ -487,14 +479,86 @@ public class AttendanceService {
 
 		return dates;
 	}
-	
-	//ステータスを取得する
-		public List<Users> registCheck() {
-			LocalDate today = LocalDate.now();
-			List<Users> unSubmitterList = attendanceMapper.attendanceUnsubmittedPersonList(today);
-			System.out.println(unSubmitterList);
-			return unSubmitterList;
 
-		}
+	//ステータスを取得する
+	public List<Users> registCheck() {
+		LocalDate today = LocalDate.now();
+		List<Users> unSubmitterList = attendanceMapper.attendanceUnsubmittedPersonList(today);
+		System.out.println(unSubmitterList);
+		return unSubmitterList;
+
+	}
+	/**
+	 * 本日出勤打刻済みか確認
+	 * @param userId
+	 * @param today
+	 * @return 本日出勤打刻しているかの真偽
+	 */
+	public boolean findTodaysStartTime(Integer userId, LocalDate today) {
+		return attendanceMapper.todaysStartTimeExistCheck(userId,today);
+	}
+
+	/**
+	 * 出勤登録
+	 * @param userId
+	 * @param today
+	 * @param now
+	 * @return 反映結果
+	 * 
+	 */
+	public boolean insertStartTime(Integer userId, LocalDate today, LocalTime now) {
+		//勤怠ステータスを判別する
+		Byte status = determineStatus(userId, today, now);
+		Attendance attendance = new Attendance();
+		attendance.setUserId(userId);
+		attendance.setDate(today);
+		attendance.setStatus(status);
+		attendance.setStartTime(now);
+
+		boolean isRegistStartTime = false;
+		//インサートできなかったら自動でアップデートに切り替えるマッパーを利用
+		isRegistStartTime = attendanceMapper.upsertStartTime(attendance);
+		return isRegistStartTime;
+
+	}
+
+	/**
+	 * 退勤登録
+	 * @param userId
+	 * @param today
+	 * @param now
+	 * @return 反映結果
+	 */
+	public boolean updateEndTime(Integer userId, LocalDate today, LocalTime now) {
+		//勤怠ステータスを判別する
+		Byte status = determineStatus(userId, today, now);
+		Attendance attendance = new Attendance();
+		attendance.setUserId(userId);
+		attendance.setDate(today);
+		attendance.setStatus(status);
+		attendance.setEndTime(now);
+
+		boolean isRegistEndTime = false;
+		//退勤時間更新
+		isRegistEndTime = attendanceMapper.updateEndTime(attendance);
+		return isRegistEndTime;
+
+	}
+
+	/**
+	 * 勤怠ステータス判別(実装予定)	
+	 * @param userId
+	 * @param today
+	 * @param now
+	 * @return
+	 */
+	Byte determineStatus(Integer userId, LocalDate today, LocalTime now) {
+		Byte status = null;
+		//今後ユーザー毎に定時を設定できるようにユーザーIDを引数にしている。
+
+		status = 0;
+
+		return status;
+	}
 
 }

@@ -53,7 +53,6 @@ public class InformationService {
 			notificationsDto.setMessage(createMessage);
 
 		}
-		System.out.println(notificationsDtoList);
 		return notificationsDtoList;
 	}
 

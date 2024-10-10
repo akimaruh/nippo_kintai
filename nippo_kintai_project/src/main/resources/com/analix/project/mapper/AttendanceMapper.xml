@@ -65,17 +65,51 @@
 		LEFT JOIN attendance
 		ON
 		users.id
-		= attendance.user_id AND attendance.date = #{today}
+		= attendance.user_id AND attendance.date
+		= #{today}
 		WHERE
 		attendance.user_id IS NULL
 		AND users.role
 		= "Regular"
-		OR users.role
+		OR
+		users.role
 		="UnitManager";
 
 
 	</select>
 
+	<insert id="upsertStartTime" useGeneratedKeys="true"
+		keyProperty="id" parameterType="com.analix.project.entity.Attendance">
+		INSERT INTO attendance (id, user_id,
+		status, date, start_time)
+		VALUES (#{attendance.id},
+		#{attendance.userId}, #{attendance.status},
+		#{attendance.date},
+		#{attendance.startTime})
+		ON DUPLICATE KEY UPDATE
+		status =
+		#{attendance.status},
+		start_time = #{attendance.startTime};
 
+	</insert>
+
+	<update id="updateEndTime"
+		parameterType="com.analix.project.entity.Attendance">
+		UPDATE attendance
+		SET status = #{attendance.status},
+		end_time = #{attendance.endTime}
+		WHERE user_id = #{attendance.userId}
+		AND date = #{attendance.date};
+	</update>
+
+	<select id="todaysStartTimeExistCheck" resultType="boolean">
+		 SELECT EXISTS (
+        SELECT 1 
+        FROM attendance 
+        WHERE user_id = #{userId} 
+        AND date = #{today} 
+        AND start_time != ''
+    );
+	</select>
 
 </mapper>

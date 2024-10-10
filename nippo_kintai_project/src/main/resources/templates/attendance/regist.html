@@ -154,7 +154,7 @@
 												<td th:text="${name}"></td>
 												<td th:text="${#temporals.format(yearMonth,'yyyy/MM')}"></td>
 												<td th:text="${date}"></td>
-<!--												<td th:text="${#temporals.format.date, 'yyyy/MM/dd')}"></td>-->
+<!--												<td th:text="${#temporals.format(date, 'yyyy/MM/dd')}"></td>-->
 											</tr>
 										</th:block>
 									</tbody>
@@ -270,22 +270,22 @@
 													<td class="w-10">
 														<input type="text" class="form-control"
 															th:errorclass="is-invalid"
-															th:name="|attendanceFormList[${stat.index}].startTime2|"
-															th:value="${dailyAttendanceForm.startTime2}"
+															th:name="|attendanceFormList[${stat.index}].startTime|"
+															th:value="${dailyAttendanceForm.startTime}"
 															th:disabled="${status == 1 || status == 2}" />
 														<span class="invalid-feedback" id="startTime-errors"
-															th:errors="*{attendanceFormList[__${stat.index}__].startTime2}"></span>
+															th:errors="*{attendanceFormList[__${stat.index}__].startTime}"></span>
 
 
 													</td>
 													<td class="w-10">
 														<input type="text" class="form-control"
 															th:errorclass="is-invalid"
-															th:name="|attendanceFormList[${stat.index}].endTime2|"
-															th:value="${dailyAttendanceForm.endTime2}"
+															th:name="|attendanceFormList[${stat.index}].endTime|"
+															th:value="${dailyAttendanceForm.endTime}"
 															th:disabled="${status == 1 || status == 2}" />
 														<span class="invalid-feedback" id="endTime-errors"
-															th:errors="*{attendanceFormList[__${stat.index}__].endTime2}"></span>
+															th:errors="*{attendanceFormList[__${stat.index}__].endTime}"></span>
 													</td>
 													<td class="w-10">
 														<input type="text" class="form-control"
@@ -333,18 +333,18 @@
 												</th:block>
 												<tr>
 													<td
-														th:text="${#temporals.format(attendanceReq.date.toLocalDate(), 'M/d')}">
+														th:text="${#temporals.format(attendanceReq.date, 'M/d')}">
 													</td>
 													<td
-														th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.toLocalDate().dayOfWeek)}">
+														th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(attendanceReq.date.dayOfWeek)}">
 													</td>
 													<td id="status-${attendanceReq.id}"
 														th:text="${attendanceReq.status}"></td>
 													<td
-														th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime.toLocalTime(), 'HH:mm') : '-'}">
+														th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime, 'HH:mm') : '-'}">
 													</td>
 													<td
-														th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime.toLocalTime(), 'HH:mm') : '-'}">
+														th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime, 'HH:mm') : '-'}">
 													</td>
 													<td th:text="${attendanceReq.remarks}"></td>
 												</tr>

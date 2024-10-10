@@ -51,5 +51,25 @@ public interface AttendanceMapper {
 	 * @return 勤怠未提出者のリスト
 	 */
 	public List<Users> attendanceUnsubmittedPersonList(@Param("today") LocalDate today);
-
+	
+	/**
+	 * 出勤打刻済レコード数確認
+	 * @param userId
+	 * @param today
+	 * @return 該当レコード数
+	 */
+	public boolean todaysStartTimeExistCheck(@Param("userId") Integer userId, @Param("today") LocalDate today);
+	
+	/**
+	 * 勤怠出勤打刻新規登録or更新
+	 * @param attendance
+	 */
+	public boolean upsertStartTime(@Param("attendance") Attendance attendance);
+	
+	/**
+	 * 勤怠退勤打刻更新
+	 * @param attendance
+	 * @return 
+	 */
+	public boolean updateEndTime(@Param("attendance") Attendance attendance);
 }
