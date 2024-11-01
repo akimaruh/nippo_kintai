@@ -72,4 +72,10 @@ public interface AttendanceMapper {
 	 * @return 
 	 */
 	public boolean updateEndTime(@Param("attendance") Attendance attendance);
+	
+	/**
+	 * 訂正申請承認後(訂正テーブルをもとに勤怠情報を更新)
+	 * @param id 訂正ID
+	 */
+	public int updateAttendanceFromCorrection(@Param("id") Integer id);
 }

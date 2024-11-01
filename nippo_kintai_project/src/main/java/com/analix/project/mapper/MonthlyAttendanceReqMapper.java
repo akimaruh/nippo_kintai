@@ -47,12 +47,14 @@ public interface MonthlyAttendanceReqMapper {
 	/*
 	 * status更新 承認
 	 */
-	public void updateStatusApprove(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
+	public void updateApproveStatus(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
 	
 	/*
-	 * status更新 却下
+	 * status更新・却下理由追加 却下
 	 */
-	public void updateStatusReject(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
+	public void updateRejectStatusAndComment(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay, @Param("comment") String comment);
+	
+
 	
 	/*
 	 * ユーザー名取得

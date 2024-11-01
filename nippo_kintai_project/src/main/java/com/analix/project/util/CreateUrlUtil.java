@@ -28,10 +28,12 @@ public class CreateUrlUtil {
 		case "日報勤怠未提出":
 			pass = "";
 			break;
-		case "承認申請提出":
+		case "月次申請提出":
 			pass = "/attendance/regist";
 			break;
-
+		case "訂正申請提出":
+			pass = "/attendance/regist";
+			break;
 		case "システム障害":
 			pass = "";
 			break;

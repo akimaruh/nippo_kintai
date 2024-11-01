@@ -111,5 +111,19 @@
         AND start_time != ''
     );
 	</select>
+	
+	<!-- 訂正申請承認後-->
+	<update id="updateAttendanceFromCorrection" parameterType="Integer">
+		UPDATE attendance a
+		JOIN attendance_correction ac
+		ON a.user_id = ac.user_id
+		AND a.date = ac.date
+		SET
+		a.status = ac.status,
+		a.start_time = ac.start_time,
+		a.end_time = ac.end_time,
+		a.remarks = ac.remarks
+		WHERE ac.id = #{id}
+	</update>
 
 </mapper>

@@ -60,7 +60,7 @@
 	</update>
 
 	<!-- 承認 -->
-	<update id="updateStatusApprove" parameterType="map">
+	<update id="updateApproveStatus" parameterType="map">
 		UPDATE
 		monthly_attendance_req
 		SET status = 2
@@ -68,11 +68,11 @@
 		target_year_month = #{targetYearMonth}
 	</update>
 
-	<!-- 却下 -->
-	<update id="updateStatusReject" parameterType="map">
+	<!-- 却下 ステータス変更・却下理由追加-->
+	<update id="updateRejectStatusAndComment" parameterType="map">
 		UPDATE
 		monthly_attendance_req
-		SET status = 3
+		SET status = 3, comment = #{comment}
 		WHERE user_id = #{userId} AND
 		target_year_month = #{targetYearMonth}
 	</update>
