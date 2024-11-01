@@ -2,6 +2,7 @@ package com.analix.project.service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,9 +48,10 @@ public class InformationService {
 			String title = notificationsDto.getTitle();
 			String message = notificationsDto.getMessage();
 			LocalDate createDate = notificationsDto.getCreatedAt();
+			// 日付のフォーマットをString型に変換 yyyy/MM/dd
+			String createDateStr = createDate.format(DateTimeFormatter.ofPattern("yyyy/M/d"));
 
-			String createMessage = "【" + title + "】" + message + "(" + createDate + ")";
-
+			String createMessage = "【" + title + "】" + message + "(" + createDateStr + ")";
 			notificationsDto.setMessage(createMessage);
 
 		}
@@ -133,54 +135,107 @@ public class InformationService {
 	}
 
 	/**
-	 * 承認申請通知作成
+	 * 月次申請通知作成
 	 * @param userId
 	 * @return
 	 */
 	@Async
 	public void approveRequestInsertNotifications(String name,YearMonth approveYearMonth) {
 		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
+		String approveYearMonthStr = approveYearMonth.format(DateTimeFormatter.ofPattern("yyyy/MM"));
 		// 承認申請通知作成
-		Notifications approveRequestNotifications = createNotification("承認申請",
-				name+"さんの"+approveYearMonth+"の承認申請があります。",
-				"承認申請提出");
+		Notifications approveRequestNotifications = createNotification("月次申請",
+				name+"さんの"+approveYearMonthStr+"の月次申請があります。",
+				"月次申請提出");
 		Integer approveRequestNotificationId = notificationsMapper.getLastInsertId();
 		for (Users manager : managerList) {
 			insertUserNotifications(manager.getId(), approveRequestNotificationId);
 		}
-	}
+	}	
 
 	/**
-	 * 承認通知作成
+	 * 月次承認通知作成
 	 * @param userId
 	 * @return
 	 */
 	@Async
-	public void approveInsertNotifications(Integer userId,YearMonth targetYearMonth) {
+	public void approveInsertNotifications(Integer userId, YearMonth targetYearMonth) {
+		String targetYearMonthStr = targetYearMonth.format(DateTimeFormatter.ofPattern("yyyy/MM"));
 		// 承認通知作成
 		Notifications approveNotifications = createNotification("承認",
-				targetYearMonth+"の承認申請が承認されました。",
-				"承認",targetYearMonth);
+				targetYearMonthStr + "の月次申請が承認されました。",
+				"承認", targetYearMonth);
 		Integer approveNotificationId = notificationsMapper.getLastInsertId();
 		insertUserNotifications(userId, approveNotificationId);
-		
 	}
 
 	/**
-	 * 却下通知作成
+	 * 月次却下通知作成
 	 * @param userId
 	 * @return
 	 */
 	@Async
 	public void rejectInsertNotifications(Integer userId,YearMonth targetYearMonth) {
+		String targetYearMonthStr = targetYearMonth.format(DateTimeFormatter.ofPattern("yyyy/MM"));
 		// 却下通知作成
 		Notifications rejectNotifications = createNotification("却下",
-				targetYearMonth+"の承認申請が却下されました。",
-				"却下",targetYearMonth);
+				targetYearMonthStr+"の月次申請が却下されました。",
+				"却下", targetYearMonth);
 		Integer rejectNotificationId = notificationsMapper.getLastInsertId();
 		insertUserNotifications(userId, rejectNotificationId);
-		
 	}
+	
+	/**
+	 * 訂正申請通知作成
+	 * @param userName
+	 * @param correctionDate
+	 */
+	@Async
+	public void correctionRequestInsertNotifications(String userName, String correctionDate) {
+		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
+		String formattedCorrectionDate = correctionDate.replace("-", "/"); // yyyy/MM
+		Notifications correctionRequestNotifications = createNotification("訂正申請",
+				userName + "さんの" + formattedCorrectionDate + "の訂正申請があります。",
+				"訂正申請提出");
+		Integer correctionReqestNotificationId = notificationsMapper.getLastInsertId();
+		for (Users manager : managerList) {
+			insertUserNotifications(manager.getId(), correctionReqestNotificationId);
+		}
+	}
+	
+	/**
+	 * 訂正承認通知作成
+	 * @param userId
+	 * @param formattedDate
+	 * @param targetYearMonth
+	 */
+	@Async
+	public void correctionApproveInsertNotifications(Integer userId, String formattedDate, YearMonth targetYearMonth) {
+		Notifications correctionApproveNotifications = createNotification("承認",
+				formattedDate + "の訂正申請が承認されました。",
+				"承認", targetYearMonth);
+		Integer correctionApproveNotificationId = notificationsMapper.getLastInsertId();
+		insertUserNotifications(userId, correctionApproveNotificationId);
+	}
+	
+	/**
+	 * 訂正却下通知作成
+	 * @param userId
+	 * @param formattedDate
+	 * @param targetYearMonth
+	 */
+	@Async
+	public void correctionRejectInsertNotifications(Integer userId, String formattedDate, YearMonth targetYearMonth) {
+		Notifications correctionRejectNotifications = createNotification("却下",
+				formattedDate + "の訂正申請が却下されました。",
+				"却下", targetYearMonth);
+		Integer correctionRejectNotificationId = notificationsMapper.getLastInsertId();
+		insertUserNotifications(userId, correctionRejectNotificationId);
+	}
+	
+	
+	
+	
 	/**
 	 * システム障害通知作成
 	 * @param ex

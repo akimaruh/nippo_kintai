@@ -120,7 +120,7 @@ public class EmailService {
 	 * 各ボタン押下時のメール送信
 	 */
 	/**
-	 * 勤怠承認申請提出時
+	 * 勤怠月次申請提出時
 	 * @param request
 	 */
 	@Async
@@ -130,17 +130,18 @@ public class EmailService {
 			int year = request.getTargetYearMonth().getYear();
 			int month = request.getTargetYearMonth().getMonthValue();
 			YearMonth targetYearMonth = YearMonth.of(year, month);
-			String subject = "【日報勤怠アプリ】勤怠承認申請";
-			String content = request.getName() + "さんの" + targetYearMonth + "の承認申請があります。\n" + mailMessage;
+			String subject = "【日報勤怠アプリ】勤怠月次申請";
+			String content = request.getName() + "さんの" + targetYearMonth + "の月次申請があります。\n" + mailMessage;
 			System.out.println("Service managerEmail: " + manager.getEmail() + manager.getName());
 			sendEmail(manager.getEmail(), subject, content);
 		}
 	}
 
-	 
 	/**
-	 * 承認時
-	 * @param request
+	 * 月次申請承認時
+	 * @param userId
+	 * @param targetYearMonth
+	 * @param mailMessage
 	 */
 	@Async
 	public void sendApproveEmail(Integer userId,YearMonth targetYearMonth, String mailMessage) {
@@ -150,13 +151,15 @@ public class EmailService {
 //		int year = request.getTargetYearMonth().getYear();
 //		int month = request.getTargetYearMonth().getMonthValue();
 //		YearMonth targetYearMonth = YearMonth.of(year, month);
-		String content = targetYearMonth + "の承認申請が承認されました。\n" + mailMessage;
+		String content = targetYearMonth + "の月次申請が承認されました。\n" + mailMessage;
 		sendEmail(email, subject, content);
 	}
 
 	/**
-	 * 却下時
-	 * @param request
+	 * 月次申請却下時
+	 * @param userId
+	 * @param targetYearMonth
+	 * @param mailMessage
 	 */
 	@Async
 	public void sendRejectEmail(Integer userId,YearMonth targetYearMonth, String mailMessage) {
@@ -165,7 +168,53 @@ public class EmailService {
 //		int year = request.getTargetYearMonth().getYear();
 //		int month = request.getTargetYearMonth().getMonthValue();
 //		YearMonth targetYearMonth = YearMonth.of(year, month);
-		String content = targetYearMonth + "の承認申請が却下されました。\n" + mailMessage;
+		String content = targetYearMonth + "の月次申請が却下されました。\n" + mailMessage;
+		sendEmail(email, subject, content);
+	}
+	
+
+	/**
+	 * 勤怠訂正申請提出時
+	 * @param userName
+	 * @param correctionDate
+	 * @param mailMessage
+	 */
+	@Async
+	public void sendCorrectionRequestEmail(String userName, String correctionDate, String mailMessage) {
+		String formattedCorrectionDate = correctionDate.replace("-", "/"); // yyyy/MM
+		List<Users> managerList = userMapper.findUserListByRole(Constants.CODE_VAL_MANAGER);
+		for (Users manager : managerList) {
+			String subject = "【日報勤怠アプリ】勤怠訂正申請";
+			String content = userName + "さんの" + formattedCorrectionDate + "の訂正申請があります。\n" + mailMessage;
+			sendEmail(manager.getEmail(), subject, content);
+		}
+	}
+
+	 /**
+	  * 訂正申請承認時
+	  * @param userId
+	  * @param formattedDate
+	  * @param mailMessage
+	  */
+	@Async
+	public void sendCorrectionApproveEmail(Integer userId, String formattedDate, String mailMessage) {
+		String subject = "【日報勤怠アプリ】承認";
+		String email =userMapper.findEmailByUserId(userId);
+		String content = formattedDate + "の訂正申請が承認されました。\n" + mailMessage;
+		sendEmail(email, subject, content);
+	}
+	
+	/**
+	 * 訂正申請却下時
+	 * @param userId
+	 * @param formattedDate
+	 * @param mailMessage
+	 */
+	@Async
+	public void sendCorrectionRejectEmail(Integer userId, String formattedDate, String mailMessage) {
+		String subject = "【日報勤怠アプリ】却下";
+		String email =userMapper.findEmailByUserId(userId);
+		String content = formattedDate + "の訂正申請が却下されました。\n" + mailMessage;
 		sendEmail(email, subject, content);
 	}
 

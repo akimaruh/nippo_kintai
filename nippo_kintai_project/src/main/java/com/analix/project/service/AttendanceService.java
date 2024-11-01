@@ -19,9 +19,12 @@ import org.springframework.validation.FieldError;
 
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
+import com.analix.project.entity.AttendanceCorrection;
 import com.analix.project.entity.Users;
+import com.analix.project.form.AttendanceCorrectionForm;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.form.DailyAttendanceForm;
+import com.analix.project.mapper.AttendanceCorrectionMapper;
 import com.analix.project.mapper.AttendanceMapper;
 import com.analix.project.mapper.MonthlyAttendanceReqMapper;
 import com.analix.project.util.AttendanceUtil;
@@ -35,6 +38,9 @@ public class AttendanceService {
 	private MonthlyAttendanceReqMapper monthlyAttendanceReqMapper;
 	@Autowired
 	private CustomDateUtil customDateUtil;
+	@Autowired
+	private AttendanceCorrectionMapper attendanceCorrectionMapper;
+
 
 	/**
 	 * ヘッダー:ステータス部分取得
@@ -153,6 +159,14 @@ public class AttendanceService {
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq() {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
 	}
+	
+	/**
+	 * 訂正申請取得
+	 * @return 承認申請リスト
+	 */
+	public List<AttendanceCorrection> getAttendanceCorrection() {
+		return attendanceCorrectionMapper.findAllAttendanceCorrection();
+	}
 
 	/**
 	 * 承認申請リスト(usersテーブルと結合)
@@ -165,13 +179,13 @@ public class AttendanceService {
 	}
 
 	/**
-	 * status更新 承認
+	 * 月次申請承認 status更新
 	 * @param userId
-	 * @param targetYearMonth
+	 * @param targetYearMonthAtDay
 	 * @return 承認メッセージ
 	 */
 	public String updateStatusApprove(Integer userId, LocalDate targetYearMonthAtDay) {
-		monthlyAttendanceReqMapper.updateStatusApprove(userId, targetYearMonthAtDay);
+		monthlyAttendanceReqMapper.updateApproveStatus(userId, targetYearMonthAtDay);
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
 				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
 		String userName = monthlyAttendanceReqList.getName();
@@ -182,30 +196,115 @@ public class AttendanceService {
 	}
 
 	/**
-	 * status更新 却下
+	 * 月次申請却下 却下理由、status更新
 	 * @param userId
-	 * @param targetYearMonth
+	 * @param targetYearMonthAtDay
+	 * @param comment
 	 * @return 却下メッセージ
 	 */
-	public String updateStatusReject(Integer userId, LocalDate targetYearMonthAtDay) {
-		monthlyAttendanceReqMapper.updateStatusReject(userId, targetYearMonthAtDay);
+	public String updateStatusReject(Integer userId, LocalDate targetYearMonthAtDay, String comment) {
+		monthlyAttendanceReqMapper.updateRejectStatusAndComment(userId, targetYearMonthAtDay, comment);
 		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
 				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
 		String userName = monthlyAttendanceReqList.getName();
+				
 		//		LocalDate date = monthlyAttendanceReqList.getDate();
 		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
 
 		return userName + "の" + targetYearMonth + "における承認申請が却下されました。";
 	}
-
+	
 	/**
-	 * 承認申請者情報取得
+	 * 訂正申請承認 勤怠情報を更新
+	 * @param id
+	 * @param confirmer
+	 * @return true:承認成功 false:失敗
+	 */
+	public boolean updateApproveCorrection(Integer id, String confirmer) {
+		boolean isAttendanceUpdate = attendanceMapper.updateAttendanceFromCorrection(id) > 0;
+		boolean isCorrectionUpdate = attendanceCorrectionMapper.updateApproveCorrection(confirmer, id) > 0;
+		return isAttendanceUpdate && isCorrectionUpdate;
+	}
+	
+	/**
+	 * 訂正申請却下 却下理由、削除フラグ、確認者更新
+	 * @param confirmer
+	 * @param rejectionReason
+	 * @param id
+	 * @return true:却下成功 false:失敗
+	 */
+	public boolean updateRejectCorrection(String confirmer, String rejectionReason, Integer id) {
+		return attendanceCorrectionMapper.updateRejectCorrection(confirmer, rejectionReason, id);
+	}
+	
+	/**
+	 * 月次申請者情報取得
 	 * @param userId
 	 * @param targetYearMonth
-	 * @return 承認申請者の勤怠リスト
+	 * @return 月次申請者の勤怠リスト
 	 */
 	public List<Attendance> findByUserIdAndYearMonth(Integer userId, YearMonth targetYearMonth) {
 		return attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
+	}
+	
+	/**
+	 * 対象の訂正申請情報取得
+	 * @param userId
+	 * @param date 対象の日付（年月日）
+	 * @return 訂正申請者の勤怠情報
+	 */
+	public AttendanceCorrection findCorrectionByUserIdAndDate(Integer userId, String date){
+		return attendanceCorrectionMapper.findAttendanceByUserIdAndDate(userId, date);
+	}
+	
+	
+	/**
+	 * 対象の却下された訂正申請リスト取得
+	 * @param userId
+	 * @param targetYearMonth 対象の年月
+	 * @return 訂正申請者の却下勤怠リスト
+	 */
+	public List<AttendanceCorrection> findRejectedByUserIdAndYearMonth(Integer userId, YearMonth targetYearMonth){
+		return attendanceCorrectionMapper.findRejectedAttendanceByUserIdAndYearMonth(userId, targetYearMonth);
+	}
+	
+	/**
+	 * 対象の申請中の訂正申請リスト取得
+	 */
+	public List<AttendanceCorrection> findRequestedByUserIdAndYearMonth(Integer userId, YearMonth targetYearMonth){
+		return attendanceCorrectionMapper.findReqestedCorrectionByUserIdAndYearMonth(userId, targetYearMonth);
+	}
+	
+	
+//	/**
+//	 * 対象のユーザーidとページ番号に基づいて訂正情報を取得
+//	 * @param userId
+//	 * @param page ページ番号(0から始まる)
+//	 * @param pageSize 1ページ当たりの項目数
+//	 * @return 訂正情報のリスト
+//	 */
+//	public List<AttendanceCorrection> getCorrectionsByUserId(Integer userId, Integer page, Integer pageSize){
+//		// オフセットを計算(ページ番号 * 1ページ当たりの件数)
+//		Integer offset = page * pageSize;
+//		return attendanceCorrectionMapper.findCorrections(userId, offset, pageSize);
+//	}
+//	
+//	/**
+//	 * 対象のユーザーIDの訂正申請の総件数を取得
+//	 * @param userId
+//	 * @return 訂正申請の総件数
+//	 */
+//	public Integer countCorrectionsByUserId(Integer userId) {
+//		return attendanceCorrectionMapper.countCorrections(userId);
+//	}
+	
+	
+	/**
+	 * 却下理由【訂正申請】×ボタン押下(却下フラグ0に更新)
+	 * @param correctionId
+	 */
+	public void updateRejectFlg(Integer correctionId) {
+		attendanceCorrectionMapper.updateRejectFlg(correctionId);
 	}
 
 	/**
@@ -218,7 +317,6 @@ public class AttendanceService {
 
 		int i = 0;
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceFormList.getAttendanceFormList()) {
-
 			String startTime = dailyAttendanceForm.getStartTime();
 			String endTime = dailyAttendanceForm.getEndTime();
 			String remarks = dailyAttendanceForm.getRemarks();
@@ -560,5 +658,210 @@ public class AttendanceService {
 
 		return status;
 	}
+
+	// 訂正入力チェック
+	public void correctionValidationForm(AttendanceCorrectionForm correctionForm, BindingResult result) {
+		System.out.println("サービスクラスの入力チェック");
+		
+		String startTime = correctionForm.getStartTime();
+		String endTime = correctionForm.getEndTime();
+		String remarks = correctionForm.getRemarks();
+		Byte status = correctionForm.getStatus();
+		List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
+		List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
+		
+		System.out.println("フォームの中身" + correctionForm);
+		System.out.println("開始時間: " + startTime);
+		
+		// startTimeのチェック
+	    if (startTime == null) {
+	        result.addError(new FieldError("correctionForm", "startTime", "開始時間は必須です。"));
+	        System.out.println(result.getFieldError().getDefaultMessage());
+	    } else {
+	        // startTimeが適切なフォーマットかチェック（例: HH:mm）
+	        if (!startTime.matches("\\d{2}:\\d{2}")) {
+	            result.addError(new FieldError("correctionForm", "startTime", "開始時間はHH:mm形式で入力してください。"));
+	            System.out.println(result.getFieldError().getDefaultMessage());
+	        }
+	    }
+
+	    // endTimeのチェック
+	    if (endTime == null) {
+	        result.addError(new FieldError("correctionForm", "endTime", "終了時間は必須です。"));
+	        System.out.println(result.getFieldError().getDefaultMessage());
+	    } else {
+	        // endTimeが適切なフォーマットかチェック（例: HH:mm）
+	        if (!endTime.matches("\\d{2}:\\d{2}")) {
+	            result.addError(new FieldError("correctionForm", "endTime", "終了時間はHH:mm形式で入力してください。"));
+	            System.out.println(result.getFieldError().getDefaultMessage());
+	        }
+	    }
+		
+		//備考欄
+	    System.out.println("備考欄の内容: " + remarks);
+
+		if (remarks != null && !remarks.isEmpty()) {
+			System.err.println("備考欄チェック");
+		    System.out.println("備考欄の内容: " + remarks);
+		    
+		    String regex = "[^\\x00-\\x7F]";
+		    Pattern pattern = Pattern.compile(regex);
+		    Matcher matcher = pattern.matcher(remarks);
+		    
+		    if (remarks.length() > 20) {
+		        result.addError(new FieldError("correctionForm", "remarks", "20字以内で入力して下さい"));
+		        FieldError fieldError = result.getFieldError("remarks");
+		        if (fieldError != null) {
+		            System.out.println(fieldError.getDefaultMessage());
+		        }
+		    }
+			if (!matcher.find()) {
+				result.addError(new FieldError("correctionForm", "remarks","全角で入力して下さい"));
+				System.out.println(result.getFieldError().getDefaultMessage());
+			}
+			if (status == null) {
+				result.addError(new FieldError("correctionForm", "status","勤怠状況を入力して下さい"));
+				System.out.println(result.getFieldError().getDefaultMessage());
+			}
+		}
+//		//休日系統
+//		if (holidaySystem.contains(status)) {
+//			if (!startTime.isEmpty()) {
+//				result.addError(new FieldError("correctionForm", "startTime","休日に出勤時間は入力できません"));
+//			}
+//			if (!endTime.isEmpty()) {
+//				result.addError(new FieldError("correctionForm", "endTime","休日に退勤時間は入力できません"));
+//			}
+//		}
+//
+//		//出勤系統
+//		if (attendanceSystem.contains(status)) {
+//			//出勤時間も退勤時間も入力していない場合(以降の入力チェックが不要のためブレイク)
+//			if (startTime.isEmpty() && endTime.isEmpty()) {
+//				System.out.println("出勤系統で時間null");
+//				result.addError(new FieldError("correctionForm", "startTime", "出勤時間を入力して下さい"));
+//				result.addError(new FieldError("correctionForm", "endTime", "退勤時間を入力して下さい"));
+//			}
+//			//出勤時間または退勤時間のどちらかが空白の場合
+//			if (endTime == "" && startTime != "") {
+//				result.addError(new FieldError("correctionForm", "endTime", "退勤時間を入力して下さい"));
+//			}
+//
+//			if (startTime == "" && endTime != "") {
+//				result.addError(new FieldError("correctionForm", "startTime", "出勤時間を入力して下さい"));
+//			}
+//		}
+//		//桁数補足
+//		if (startTime != "" || endTime != "") {
+//
+//			if (startTime.matches("\\d{1}:\\d{2}")) {
+//				startTime = "0" + startTime;
+//			}
+//			if (endTime.matches("\\d{1}:\\d{2}")) {
+//				endTime = "0" + endTime;
+//			}
+//
+//			//DateTimeParseException eで同じことやっているのでコメントアウト
+//			//出勤時刻の形式が不正な場合
+//			if (startTime != "") {
+//				// HH:mm形式の時刻を検出する正規表現
+//				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+//
+//				// パターンをコンパイル
+//				Pattern pattern = Pattern.compile(regex);
+//				Matcher matcher = pattern.matcher(startTime);
+//				if (!matcher.find()) {
+//					result.addError(new FieldError("correctionForm", "startTime", "HH:mm形式で入力して下さい"));
+//				}
+//			}
+//			//退勤時刻の形式が不正な場合
+//			if (endTime != "") {
+//				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+//
+//				// パターンをコンパイル
+//				Pattern pattern = Pattern.compile(regex);
+//				Matcher matcher = pattern.matcher(endTime);
+//				if (!matcher.find()) {
+//					result.addError(new FieldError("correctionForm", "endTime","HH:mm形式で入力して下さい"));
+//
+//				}
+//			}
+//
+//			LocalTime startInputTime;
+//			LocalTime endInputTime;
+//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+//
+//			//出勤時間＞退勤時間の場合
+//
+//			try {
+//				startInputTime = LocalTime.parse(startTime, formatter);
+//
+//				try {
+//					endInputTime = LocalTime.parse(endTime, formatter);
+//
+//					if (startInputTime.isAfter(endInputTime)) {
+//						result.addError(
+//								new FieldError("correctionForm", "startTime", "出勤時間は退勤時間より先になるように入力して下さい"));
+//						result.addError(
+//								new FieldError("correctionForm", "endTime", "退勤時間は出勤時間より後になるように入力して下さい"));
+//					}
+//
+//				} catch (DateTimeParseException e) {
+//
+//				}
+//
+//			} catch (DateTimeParseException e) {
+//
+//			}
+//
+//		}
+//		if ((startTime != "" && endTime != "") && status == null) {
+//			result.addError(new FieldError("correctionForm", "status", "勤怠状況を入力して下さい"));
+//
+//		}
+	}
+	
+	/**
+	 * 勤怠訂正モーダルの申請ボタン押下後
+	 * @param correctionForm
+	 */
+	public String registCorrection(AttendanceCorrectionForm correctionForm) {
+		AttendanceCorrection correction = new AttendanceCorrection();
+		correction.setUserId(correctionForm.getUserId());
+		correction.setStatus(correctionForm.getStatus());
+
+		// 日付 2024/01/01から2024-01-01へ変換してdateを設定
+		System.out.println("コレクションフォーム" + correctionForm);
+		System.out.println("ゲットdate" + correctionForm.getDate());
+		String formattedDate = correctionForm.getDate().replace("/", "-");
+		correction.setDate(LocalDate.parse(formattedDate));
+		
+		// 出勤時間 nullじゃなかったらparseする,nullだったらそのまま
+		if (correctionForm.getStartTime() != null && !correctionForm.getStartTime().isEmpty()) {
+		    correction.setStartTime(LocalTime.parse(correctionForm.getStartTime()));
+		} else {
+		    correction.setStartTime(null);
+		}
+
+		// 退勤時間
+		if (correctionForm.getEndTime() != null && !correctionForm.getEndTime().isEmpty()) {
+		    correction.setEndTime(LocalTime.parse(correctionForm.getEndTime()));
+		} else {
+		    correction.setEndTime(null);
+		}
+
+	    correction.setCorrectionReason(correctionForm.getCorrectionReason());
+	    correction.setRejectionReason(correctionForm.getRejectionReason());
+		correction.setRemarks(correctionForm.getRemarks());
+		correction.setApplicationDate(LocalDate.now());
+		correction.setRejectFlg((byte) 0);
+
+		attendanceCorrectionMapper.registAttendanceCorrection(correction);
+
+		return correctionForm.getDate().replace("-", "/") + "の訂正申請が完了しました。";
+	}
+
+
+	
 
 }
