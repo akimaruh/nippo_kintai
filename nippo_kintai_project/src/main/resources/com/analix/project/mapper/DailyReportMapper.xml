@@ -8,13 +8,23 @@
 		AND date = #{targetDate}
 	</select>
 
-	<select id="countRegistedDailyReportByTargetDate"
-		resultType="int">
-		SELECT count(*) FROM daily_report
-		WHERE user_id = #{userId}
-		AND date = #{targetDate}
-	</select>
+	<!-- <select id="countRegistedDailyReportByTargetDate" -->
+	<!-- resultType="int"> -->
+	<!-- SELECT count(*) FROM daily_report -->
+	<!-- WHERE user_id = #{userId} -->
+	<!-- AND date = #{targetDate} -->
+	<!-- </select> -->
 
+	<select id="registedDailyReportByTargetDateExistCheck"
+		resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM daily_report
+		WHERE user_id =
+		#{userId}
+		AND date = #{targetDate}
+		);
+	</select>
 	<insert id="registDailyReport" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.DailyReport">
 		INSERT INTO
@@ -26,19 +36,23 @@
 		keyProperty="id"
 		parameterType="com.analix.project.entity.DailyReportDetail">
 		INSERT INTO
-		daily_report_detail(user_id,date,time,content)
-		values(#{dailyReportDetail.userId},#{dailyReportDetail.date},#{dailyReportDetail.time},#{dailyReportDetail.content})
+		daily_report_detail(user_id,date,work_id,time,content)
+		values(#{dailyReportDetail.userId},#{dailyReportDetail.date},#{dailyReportDetail.workId},#{dailyReportDetail.time},#{dailyReportDetail.content})
 	</insert>
 
 	<update id="updateDailyReportDetail"
 		parameterType="com.analix.project.entity.DailyReportDetail">
 		UPDATE daily_report_detail
-		SET time =
+		SET work_id=
+		#{dailyReportDetail.workId},
+		time =
 		#{dailyReportDetail.time},
-		content = #{dailyReportDetail.content}
+		content =
+		#{dailyReportDetail.content}
 		WHERE
 		id=#{dailyReportDetail.id}
-		AND user_id=#{dailyReportDetail.userId}
+		AND
+		user_id=#{dailyReportDetail.userId}
 		AND
 		date =#{dailyReportDetail.date}
 	</update>
@@ -54,16 +68,19 @@
 
 	<resultMap type="com.analix.project.dto.DailyReportDto"
 		id="dailyReportDto">
-		<id column="id" property="id" />
+		<id column="report_id" property="reportId" />
 		<result column="user_id" property="userId" />
 		<result column="date" property="date" />
 		<result column="status" property="status" />
+		<result column="name" property="userName" />
 
 		<collection property="dailyReportDetailDtoList"
 			ofType="com.analix.project.dto.DailyReportDetailDto">
-			<id column="daily_report_detail_id" property="id" />
+			<id column="report_detail_id" property="reportDetailId" />
 			<result column="user_id" property="userId" />
 			<result column="date" property="date" />
+			<result column="work_id" property="workId" />
+			<result column="work_name" property="workName" />
 			<result column="time" property="time" />
 			<result column="content" property="content" />
 		</collection>
@@ -72,25 +89,180 @@
 		resultMap="dailyReportDto">
 
 		SELECT
-		daily_report.id,
+		daily_report.id AS report_id,
 		daily_report.user_id,
 		daily_report.date,
 		daily_report.status,
 		daily_report_detail.id AS
-		daily_report_detail_id,
+		report_detail_id,
+		daily_report_detail.work_id,
 		daily_report_detail.time,
 		daily_report_detail.content
 		FROM daily_report
 		INNER JOIN
 		daily_report_detail
-		ON daily_report.user_id =
+		ON
+		daily_report.user_id =
 		daily_report_detail.user_id
-		AND daily_report.date =
+		AND daily_report.date
+		=
 		daily_report_detail.date
 		WHERE daily_report.user_id = #{userId}
 		AND
 		daily_report.date = #{targetDate}
 	</select>
+
+	<select id="getAllDatilReportListByTargetDate"
+		resultMap="dailyReportDto">
+		SELECT
+		daily_report.id AS report_id,
+		daily_report.user_id,
+		users.name,
+		daily_report.date,
+		daily_report.status,
+		daily_report_detail.id AS
+		report_detail_id,
+		daily_report_detail.work_id,
+		work.work_name,
+		daily_report_detail.time,
+		daily_report_detail.content
+		FROM daily_report
+		INNER JOIN
+		users
+		ON
+		daily_report.user_id = users.id
+		INNER JOIN
+		daily_report_detail
+		ON
+		daily_report.user_id =
+		daily_report_detail.user_id
+		AND daily_report.date
+		=
+		daily_report_detail.date
+		INNER JOIN
+		work
+		ON
+		daily_report_detail.work_id =
+		work.work_id
+		WHERE daily_report.date = #{targetDate}
+		ORDER BY
+		daily_report.status ,daily_report.id
+	</select>
+
+	<resultMap type="com.analix.project.dto.DailyReportDto"
+		id="dailyReportDtoForAMonth">
+		<id column="report_id" property="reportId" />
+		<result column="user_id" property="userId" />
+		<result column="date" property="date" />
+		<result column="user_name" property="userName" />
+		<result column="time_per_day" property="timePerDay" />
+
+		<collection property="dailyReportDetailDtoList"
+			ofType="com.analix.project.dto.DailyReportDetailDto">
+			<id column="report_detail_id" property="reportDetailId" />
+			<result column="work_id" property="workId" />
+			<result column="work_name" property="workName" />
+			<result column="time" property="time" />
+			<result column="content" property="content" />
+		</collection>
+	</resultMap>
+	<select id="dailyReportListForAMonth"
+		resultMap="dailyReportDtoForAMonth">
+		SELECT
+		daily_report.id AS report_id,
+		daily_report.user_id,
+		users.name AS user_name,
+		daily_report.date,
+		work.work_name,
+		daily_report_detail.id AS report_detail_id,
+		daily_report_detail.time,
+		daily_report_detail.content
+		FROM daily_report
+		INNER JOIN
+		users
+		ON
+		daily_report.user_id = users.id
+		INNER JOIN
+		daily_report_detail
+		ON
+		daily_report.user_id =
+		daily_report_detail.user_id
+		AND daily_report.date
+		=
+		daily_report_detail.date
+		INNER JOIN
+		work
+		ON
+		daily_report_detail.work_id =
+		work.work_id
+		WHERE daily_report.user_id=#{userId}
+		AND
+		DATE_FORMAT(daily_report.date, '%Y-%m') = #{targetYearMonth}
+		ORDER BY
+		daily_report.date ,report_id
+	</select>
+
+	<select id="getTimePerDate" resultType="map">
+		SELECT
+		daily_report.date
+		AS date,
+		SUM(daily_report_detail.time) AS
+		total_time
+		FROM
+		daily_report
+		INNER JOIN daily_report_detail
+		ON
+		daily_report.user_id =
+		daily_report_detail.user_id
+		AND daily_report.date
+		=
+		daily_report_detail.date
+		WHERE daily_report.user_id=#{userId}
+		GROUP BY
+		daily_report.date
+		HAVING
+		DATE_FORMAT(daily_report.date,
+		'%Y-%m') =
+		#{targetYearMonth};
+	</select>
+
+
+	<select id="getTimePerMonth" resultType="integer">
+		SELECT SUM(time) AS
+		timePerMonth
+		FROM daily_report_detail
+		WHERE user_id=#{userId}
+		AND
+		DATE_FORMAT(daily_report_detail.date, '%Y-%m') =
+		#{targetYearMonth};
+	</select>
+
+	<select id="getWorkTimeByProcess" resultType="map">
+		SELECT
+		work.work_name AS workName, SUM(daily_report_detail.time) AS time
+		FROM
+		daily_report
+		INNER JOIN
+		daily_report_detail
+		ON
+		daily_report.user_id =
+		daily_report_detail.user_id
+		AND
+		daily_report.date
+		=
+		daily_report_detail.date
+		INNER JOIN work
+		ON
+		daily_report_detail.work_id =
+		work.work_id
+		WHERE
+		daily_report.user_id = #{userId}
+		AND
+		DATE_FORMAT(daily_report.date, '%Y-%m') = #{targetYearMonth}
+		GROUP BY
+		work.work_id,work.work_name;
+	</select>
+
 
 	<delete id="deleteDailyReportDetail">
 		DELETE FROM daily_report_detail
@@ -106,15 +278,17 @@
 		FROM users
 		LEFT JOIN daily_report
 		ON users.id
-		= daily_report.user_id AND daily_report.date = #{today}
+		= daily_report.user_id AND
+		daily_report.date = #{today}
 		WHERE
 		daily_report.user_id IS NULL
-		AND users.role
-		= "Regular"
-		OR users.role
-		="UnitManager";
+		AND
+		users.role
+		IN("Regular","UnitManager");
 
 	</select>
+
+
 
 
 </mapper>

@@ -61,4 +61,11 @@ public interface UserMapper {
 	 */
 	String findEmailByUserId(@Param("userId") Integer userId);
 	
+	/**
+	 * ユーザー名またはユーザーIDであいまい検索
+	 * @param userKeyword
+	 * @return
+	 */
+	List<Users> searchForUserNameAndId (@Param("userKeyword")String userKeyword);
+	
 }

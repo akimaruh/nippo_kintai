@@ -3,6 +3,7 @@ package com.analix.project.controller;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import com.analix.project.dto.NotificationsDto;
 import com.analix.project.entity.Users;
 import com.analix.project.mapper.NotificationsMapper;
 import com.analix.project.service.AttendanceService;
+import com.analix.project.service.DailyReportService;
 import com.analix.project.service.InformationService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +32,8 @@ public class StartMenuController {
 	public InformationService informationService;
 	@Autowired
 	public NotificationsMapper notificationsMapper;
+	@Autowired
+	public DailyReportService dailyReportService;
 
 	/**
 	 * 初期表示
@@ -38,8 +42,8 @@ public class StartMenuController {
 	 * @return 処理メニュー画面
 	 */
 	@RequestMapping(path = "/common/startMenu")
-	public String showMenu(HttpSession session, Model model) {
-
+	public String showMenu(HttpSession session, String modal,Model model) {
+		
 		Users user = (Users) session.getAttribute("loginUser");
 		List<NotificationsDto> notificationsDtoList = new ArrayList<>();
 		notificationsDtoList = informationService.findNotification(user.getId());
@@ -49,9 +53,11 @@ public class StartMenuController {
 		}
 		LocalDate today = LocalDate.now();
 		//打刻ボタン活性チェック
-		boolean isStampingCheck = attendanceService.findTodaysStartTime(user.getId(),today);
-		model.addAttribute("isStampingCheck",isStampingCheck);
-
+		boolean isStampingCheck = attendanceService.findTodaysStartTime(user.getId(), today);
+		model.addAttribute("isStampingCheck", isStampingCheck);
+		//作業プルダウンのデータ取得
+		Map<String, Integer> workMap = dailyReportService.pulldownWork();
+		model.addAttribute("workMap", workMap);	
 		return "common/startMenu";
 	}
 

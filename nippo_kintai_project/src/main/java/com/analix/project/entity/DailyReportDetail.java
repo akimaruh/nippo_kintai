@@ -12,6 +12,8 @@ public class DailyReportDetail {
 	private Integer userId;
 	/*日付*/
 	private LocalDate date;
+	/*作業ID*/
+	private Integer workId;
 	/*時間*/
 	private Integer time;
 	/*内容*/

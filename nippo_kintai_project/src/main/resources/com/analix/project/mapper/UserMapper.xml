@@ -12,7 +12,7 @@
 		<result column="email" property="email" />
 		<result column="tel" property="tel" />
 	</resultMap>
-	
+
 	<select id="findUserDataByUserName"
 		resultType="com.analix.project.entity.Users">
 		SELECT
@@ -91,7 +91,7 @@
 		WHERE users.role
 		= #{role}
 	</select>
-	
+
 	<select id="findEmailByUserId" resultType="String">
 		SELECT
 		email
@@ -100,5 +100,23 @@
 		WHERE
 		id = #{userId}
 	</select>
+
+	<select id="searchForUserNameAndId"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		id,
+		name
+		FROM
+		users
+		WHERE name
+		LIKE CONCAT('%',
+		#{userKeyword}, '%')
+		OR
+		id LIKE CONCAT('%', #{userKeyword}, '%')
+		ORDER BY id ASC
+	
+
+	</select>
+
 
 </mapper>

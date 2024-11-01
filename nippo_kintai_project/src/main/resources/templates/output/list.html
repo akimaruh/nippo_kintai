@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
+
+<head>
+	<meta charset="UTF-8">
+	<title>帳票出力</title>
+</head>
+
+<body>
+	<div class="col-6">
+		<form th:action="@{/output/dailyReportOutput}" method="get" id="output-form">
+			<div class="row">
+				<div class="col-3">
+
+					<div class="row">
+						<span>ユーザー検索：</span>
+						<input type="text" class="form-control" name="userKeyword" th:value="${userKeyword}"
+							id="user-search" />
+					</div>
+					<div class="row">
+						<span>ユーザー名：</span>
+						<select name="userId" class="form-select">
+							<th:block th:each="map:${userNameAndIdMap}">
+								<option value="5" th:text="${map.key}"></option>
+							</th:block>
+						</select>
+					</div>
+				</div>
+				<div class="col-6">
+					<span>対象年月：</span>
+					<input type="month" class="col-6 form-control" name="targetYearMonth"
+						th:value="${targetYearMonth}" />
+				</div>
+
+
+			</div>
+		</form>
+		<div class="me-2">
+		<button class="btn btn-primary mt-2" form="output-form" disabled>勤怠帳票</button>
+		<button class="btn btn-primary mt-2" form="output-form" disabled>勤怠日報帳票</button>
+		<button class="btn btn-primary mt-2" form="output-form" disabled>日報帳票</button>
+		<p th:text="${error}" class="text-danger" th:if="${error}"></p>
+		</div>
+	</div>
+	<!--		<input type="hidden" name="targetYearMonth" th:value="${targetYearMonth}" />-->
+	<!--		<input type="hidden" name="userId" th:value="${userId}" />-->
+
+
+	<script th:src="@{/js/output.js}"></script>
+
+</body>
+
+</html>
+
+</html>

@@ -14,4 +14,9 @@ public class DailyReportForm {
 	private LocalDate date;
 	@Valid
 	private List<DailyReportDetailForm> dailyReportFormDetailList;
+	
+	/*ステータス*/
+	private Integer status;
+	/*ユーザ名*/
+	private String name;
 }
