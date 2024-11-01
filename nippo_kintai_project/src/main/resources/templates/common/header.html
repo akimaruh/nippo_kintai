@@ -1,0 +1,55 @@
+<html xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+<meta charset="UTF-8" />
+<div th:fragment="layout-header" th:remove="tag">
+	<div class="header">
+
+		<nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: rgb(140, 202, 247);">
+			<div class="container d-flex justify-content-between">
+				<div class="row">
+					<div class="container-fluid">
+						<span class="navbar-text">
+							<div>
+								<strong>ユーザー名：</strong>
+								<span th:text="${session.loginUser.name}"></span>
+							</div>
+
+							<strong>ユーザーID：</strong>
+							<span th:text="${session.loginUser.id}" id="userId"></span>
+
+							<div>
+								<strong>ステータス：</strong>
+								<span th:if="${statusName !=null}">
+									<span th:text="${statusName}" id="statusName"></span>
+								</span>
+								<span th:if="${statusFlg !=null}">
+									<span th:text="${statusFlg}"></span>
+								</span>
+							</div>
+
+
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="ms-auto d-flex flex-row-reverse">
+						<div class="p-2">
+							<form th:action="@{/common/logoff}" method="post">
+								<button type="submit" class="btn-yellow">ログオフ</button>
+							</form>
+						</div>
+
+						<th:block th:if="@{/common/startMenu}">
+							<div class="p-2">
+								<a href="/common/startMenu">
+									<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
+								</a>
+							</div>
+						</th:block>
+					</div>
+				</div>
+			</div>
+		</nav>
+	</div>
+</div>
+
+</html>

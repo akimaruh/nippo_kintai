@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.analix.project.dto.SubscriptionDto;
@@ -28,9 +29,11 @@ public class WebPushService {
 	private SubscriptionMapper subscriptionMapper;
 	@Autowired
 	private UserMapper userMapper;
-
-	private static final String publicKey = "BArVuQbjZTEJRRpTzjbCXuOwQICl9S7_iIo4fkabReXkAzf6JSALcV4kpHT1vbiPHYM2Ab6PVKG44J3SybWgxXw "; // 公開鍵を設定
-	private static final String privateKey = "aO_SOpoXHN1jBvcKDMwaVMTSuQk8XdS7T1fbOUjSiIs"; // 秘密鍵を設定
+	
+	@Value("${app.publicKey}")
+	private  String publicKey;  // 公開鍵を設定
+	@Value("${app.privateKey}")
+	private  String privateKey; // 秘密鍵を設定
 
 	public void sendPushNotification(Subscription subscription, String payload,Integer userId)
 			throws GeneralSecurityException, IOException, JoseException {
@@ -73,6 +76,7 @@ public class WebPushService {
 	public void sendForgetRegistPush(List<Users> unsubmittedDailyReportUserList,
 			List<Users> unsubmittedAttendanceUserList)
 			throws GeneralSecurityException, IOException, JoseException {
+		
 
 		//日報提出忘れ
 		for (Users unsubmittedDailyReportUser : unsubmittedDailyReportUserList) {

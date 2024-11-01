@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class DailyReportDto {
 	/*日報ID*/
-	private Integer id;
+	private Integer reportId;
 	/*ユーザID*/
 	private Integer userId;
 	/*日付*/
@@ -16,5 +16,10 @@ public class DailyReportDto {
 	private Integer status;
 	/*日報詳細*/
 	private List<DailyReportDetailDto> dailyReportDetailDtoList;
+	
+	/*ユーザ名*/
+	private String userName;
+	/*1日の作業時間*/
+	private Integer timePerDay;
 
 }

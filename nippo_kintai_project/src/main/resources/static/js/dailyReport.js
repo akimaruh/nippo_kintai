@@ -18,19 +18,22 @@ const inputDate = document.getElementById("today");
 
 
 inputDate.addEventListener('change', (event) => {
-	
+
 	// 今日の日付を取得（"yyyy-mm-dd"形式）
-	
+
 	var today = new Date().toLocaleDateString("ja-JP", {
 		year: "numeric", month: "2-digit",
 		day: "2-digit"
 	}).split('/').join('-');
-	
-	
+
+
+	// 日付のバリデーション
+	const inputDateValue = new Date(inputDate.value);
+	const todayDate = new Date(today);
 	// 日付のバリデーション
 	let validation = true;
-	
-	if (inputDate.value > today ||inputDate.value=="") {
+
+	if (inputDateValue > todayDate || inputDateValue == "") {
 		document.getElementById('dateError').innerHTML = "今日以前の日報を選んでください";
 		validation = false;
 		// 入力行を削除・追加ボタンを非表示
@@ -39,11 +42,13 @@ inputDate.addEventListener('change', (event) => {
 		document.getElementById('dateError').innerHTML = ""; // エラーメッセージをクリア
 	}
 
-	if (!validation) {
-		event.preventDefault();
-	} else {
+	if (validation) {
 		// フォームを送信
 		document.getElementById("dailyReport").submit();
+
+	} else {
+		event.preventDefault();
+
 	}
 });
 //入力行を削除・追加ボタンを非表示にする関数
@@ -62,24 +67,28 @@ function del() {
 	submitButton.style.display = "none";
 }
 //日付を別のinputタブに反映
-document.getElementById('dailyReport-form').addEventListener('submit', function() {
-	const date = document.getElementById('today').value;
-	// 同じクラス名を持つすべての要素を取得
-	const hiddenDateElements = document.getElementsByClassName('hidden-date');
+let dailyReportForm = document.getElementById('dailyReport-form');
+if (dailyReportForm != null) {
+	dailyReportForm.addEventListener('submit', function() {
+		const date = document.getElementById('today').value;
+		// 同じクラス名を持つすべての要素を取得
+		const hiddenDateElements = document.getElementsByClassName('hidden-date');
 
-	// すべての要素に対して値を設定
-	for (let i = 0; i < hiddenDateElements.length; i++) {
-		hiddenDateElements[i].value = date;
-	}
-	return true;
-});
+		// すべての要素に対して値を設定
+		for (let i = 0; i < hiddenDateElements.length; i++) {
+			hiddenDateElements[i].value = date;
+		}
+		return true;
+	});
+
 
 //日付を別のinputタブに反映
 document.getElementById('dailyReport-form').addEventListener('submit', function() {
 	const date = document.getElementById('today').value;
 	document.getElementById('hidden-date').value = date;
 	return true;
-});
+})
+};
 
 // テーブルの行追加・削除
 // 参照：https://qiita.com/forever---searcher/items/7901217dc811d72687f8
@@ -106,27 +115,47 @@ function add() {
 	inpDate.value = inputDate.innerHTML;
 	tr.appendChild(inpDate);
 
-	// 1つ目のtd
+	//	作業の列
 	let td1 = document.createElement("td");
-	let inp1 = document.createElement("input");
-	inp1.type = "number";
-	inp1.className = "form-control";
-	inp1.min = "0"
-	inp1.name = `dailyReportFormDetailList[${rowCount}].time`; // name属性を設定
-	td1.appendChild(inp1);
-	tr.appendChild(td1);
+	let selct1 = document.createElement("select");
 
-	// 2つ目のtd
+	// workMapからオプションを生成して追加
+	selct1.innerHTML = createSelectOptions(workArray);
+	selct1.className = "form-select";
+	selct1.name = `dailyReportFormDetailList[${rowCount}].workId`; // name属性を設定
+	td1.appendChild(selct1);
+	//	selct1.appendChild(op1);
+	tr.appendChild(td1);
+	// 作業時間の列
 	let td2 = document.createElement("td");
 	let inp2 = document.createElement("input");
-	inp2.type = "text";
+	inp2.type = "number";
 	inp2.className = "form-control";
-	inp2.name = `dailyReportFormDetailList[${rowCount}].content`; // name属性を設定
+	inp2.min = "0"
+	inp2.name = `dailyReportFormDetailList[${rowCount}].time`; // name属性を設定
 	td2.appendChild(inp2);
 	tr.appendChild(td2);
 
+	// 作業内容の列
+	let td3 = document.createElement("td");
+	let inp3 = document.createElement("input");
+	inp3.type = "text";
+	inp3.className = "form-control";
+	inp3.name = `dailyReportFormDetailList[${rowCount}].content`; // name属性を設定
+	td3.appendChild(inp3);
+	tr.appendChild(td3);
+
 	tblBody.appendChild(tr);
 	rowCount++;
+}
+
+//プルダウンリストの作成
+function createSelectOptions(workArray) {
+	let options = '<option value=""></option>'; // 空のオプションを追加
+	workArray.forEach(({ key, value }) => {
+		options += `<option value="${value}">${key}</option>`;
+	});
+	return options; // 生成したオプションのHTMLを返す
 }
 //ダメだったらこっち試す
 //	function add() {
@@ -148,7 +177,7 @@ function add() {
 //	}
 //};
 
-//「提出」ボタン：活性化/非活性
+////「提出」ボタン：活性化/非活性
 document.addEventListener("DOMContentLoaded", function() {
 	var submitBtn = document.getElementById("submitBtn");
 	var dailyReportTbl = document.getElementById("dailyReportTbl");
@@ -161,14 +190,14 @@ document.addEventListener("DOMContentLoaded", function() {
 		function updateSubmitBtn() {
 			var rows = dailyReportTbl.querySelectorAll("tbody tr");
 			var isAllRowsEmpty = true; // 全ての行が空であるかどうかのフラグ
-			var isAnyRowPartiallyFilled = false; // いずれかの行が列の1つだけが埋まっているかどうかのフラグ
+			var isAnyRowPartiallyFilled = false; // いずれかの行のいずれかの列が埋まっているかどうかのフラグ
 
 			if (statusName === '承認済') {
 				submitBtn.disabled = true;
 
 				// 行の入力フィールドを全て非活性にする
 				for (var i = 0; i < rows.length; i++) {
-					var inputs = rows[i].querySelectorAll("input");
+					var inputs = rows[i].querySelectorAll("input,select");
 					for (var j = 0; j < inputs.length; j++) {
 						inputs[j].disabled = true;
 					}
@@ -178,42 +207,50 @@ document.addEventListener("DOMContentLoaded", function() {
 
 			// '承認済' でない場合、行の入力フィールドを活性にする
 			for (var i = 0; i < rows.length; i++) {
-				var inputs = rows[i].querySelectorAll("input");
+				var inputs = rows[i].querySelectorAll("input,select");
 				for (var j = 0; j < inputs.length; j++) {
 					inputs[j].disabled = false;
 				}
 			}
-
 			// 行の入力フィールドをチェック
 			for (var i = 0; i < rows.length; i++) {
-				var inputs = rows[i].querySelectorAll("input"); // 現在の行のすべての入力フィールドを取得
 				var nonEmptyInputsCount = 0; // 現在の行で空でない入力フィールドのカウント
+				var columns = rows[i].querySelectorAll("td"); // 現在の行のすべての <td> 要素を取得
+				console.log("columns" + columns.length);
+				for (var j = 0; j < columns.length; j++) {
 
-				for (var j = 0; j < inputs.length; j++) {
-					if (inputs[j].value !== "") { // 入力フィールドが空でないかチェック
-						nonEmptyInputsCount++;
+					var inputs = columns[j].querySelectorAll("input, select"); // 現在の列のすべての入力フィールドを取得
+					for (var k = 0; k < inputs.length; k++) {
+						if (inputs[k].value !== "") { // 入力フィールドが空でないかチェック
+							console.log("inputs[k].value" + inputs[k].value);
+							nonEmptyInputsCount++;
+						}
 					}
 				}
+				console.log("rows[" + i + "]入力フィールド何か入ってたら＋１する。nonEmptyInputsCount" + nonEmptyInputsCount);
+				console.log("nonEmptyInputsCount < inputs.lengthの真偽");
+				console.log(nonEmptyInputsCount < columns.length);
 
 				// 現在の行にデータがあれば、isAllRowsEmptyをfalseに設定
 				if (nonEmptyInputsCount > 0) {
 					isAllRowsEmpty = false;
-				}
-
-				// 現在の行の入力フォームのうち、1列だけ埋まっている場合のフラグ設定
-				if (nonEmptyInputsCount === 1) {
-					isAnyRowPartiallyFilled = true;
+					// 現在の行の入力フォームのうち、埋まっている列が１以上列数未満の場合フラグ設定
+					if (nonEmptyInputsCount < columns.length) {
+						console.log("isAnyRowPartiallyFilled = true 通過します。");
+						isAnyRowPartiallyFilled = true;
+					}
 				}
 			}
-
-			// shouldDisableButtonは非活性にするべきか、するための条件を満たしているかみたいな意味
+			//入力フィールドのデータが入っている行において、一つでも空欄があったら提出ボタンは非活性とする。
 			var shouldDisableButton = isAllRowsEmpty !== isAnyRowPartiallyFilled;
 			submitBtn.disabled = shouldDisableButton;
+			console.log("提出ボタン活性非活性確認メソッド発火");
+			console.log("isAllRowsEmpty" + isAllRowsEmpty);
+			console.log("isAnyRowPartiallyFilled" + isAnyRowPartiallyFilled);
 		}
 
 		// input=入力された時(値が更新された時)にupdateSubmitBtnを呼び出す
 		dailyReportTbl.addEventListener("input", updateSubmitBtn);
-
 		// ページロード時にボタンの状態を更新する
 		updateSubmitBtn();
 	}

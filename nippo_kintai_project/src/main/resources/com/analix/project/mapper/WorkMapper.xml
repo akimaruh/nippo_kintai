@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.analix.project.mapper.WorkMapper">
+
+	<!-- 有効な部署名の検索 -->
+	<select id="findAllWorkName"
+		resultType="com.analix.project.entity.Work">
+		SELECT work_id,work_name FROM work
+		ORDER BY work_id ASC
+	</select>
+	</mapper>

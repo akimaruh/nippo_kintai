@@ -245,5 +245,17 @@ public class UserService {
 		return departmentMap;
 
 	}
+	
+	public Map<String,Integer> searchForUserNameAndId(String userKeyword){
+		System.out.println("サービス通った:"+userKeyword);
+		List<Users> userNameAndIdList = userMapper.searchForUserNameAndId(userKeyword);
+		System.out.println("マッパー返ってきた："+userNameAndIdList);
+		Map<String,Integer> userNameAndIdMap = new LinkedHashMap<>();
+		for(Users userNameAndId:userNameAndIdList) {
+			userNameAndIdMap.put(userNameAndId.getName(),userNameAndId.getId());
+		}
+		System.out.println(userNameAndIdMap);
+		return userNameAndIdMap;
+	}
 
 }
