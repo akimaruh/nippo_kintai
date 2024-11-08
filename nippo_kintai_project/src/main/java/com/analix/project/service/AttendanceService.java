@@ -862,14 +862,16 @@ public class AttendanceService {
 		
 		// 出勤時間 nullじゃなかったらparseする,nullだったらそのまま
 		if (correctionForm.getStartTime() != null && !correctionForm.getStartTime().isEmpty()) {
-		    correction.setStartTime(LocalTime.parse(correctionForm.getStartTime()));
+			String formattedStartTime = formatTime(correctionForm.getStartTime());
+		    correction.setStartTime(LocalTime.parse(formattedStartTime));
 		} else {
 		    correction.setStartTime(null);
 		}
 
 		// 退勤時間
 		if (correctionForm.getEndTime() != null && !correctionForm.getEndTime().isEmpty()) {
-		    correction.setEndTime(LocalTime.parse(correctionForm.getEndTime()));
+			String formattedEndTime = formatTime(correctionForm.getEndTime());
+		    correction.setEndTime(LocalTime.parse(formattedEndTime));
 		} else {
 		    correction.setEndTime(null);
 		}
@@ -883,6 +885,26 @@ public class AttendanceService {
 		attendanceCorrectionMapper.registAttendanceCorrection(correction);
 
 		return correctionForm.getDate().replace("-", "/") + "の訂正申請が完了しました。";
+	}
+	
+	/**
+	 * 1桁の時間や分を2桁に補完
+	 * @param time
+	 * @return
+	 */
+	private String formatTime(String time) {
+		// 時間と分を分割
+		String[] timeParts = time.split(":");
+		// 時間が1桁の場合は先頭に0を追加
+		if (timeParts[0].length() == 1) {
+			timeParts[0] = "0" + timeParts[0];
+		}
+		// 分が1桁の場合は先頭に0を追加
+		if (timeParts[1].length() == 1) {
+			timeParts[1] = "0" + timeParts[1];
+		}
+		// 時間と分を再度結合して返す
+		return timeParts[0] + ":" + timeParts[1];
 	}
 
 
