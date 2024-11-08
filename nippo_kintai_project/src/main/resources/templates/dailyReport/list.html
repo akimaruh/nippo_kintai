@@ -14,10 +14,13 @@
 			<div class="card" style="background-color: rgb(255, 255, 255);">
 				<div class="card-body">
 					<div class="mt-4">
+						<div th:if="${error}" class="alert alert-danger">
+							<p th:text="${error}"></p>
+						</div>
 						<form id="dailyReport" name="dailyReportForm" method="get" action="/dailyReport/list/change">
 							<strong>対象日付：</strong>
 
-							<input type="date" name="date" th:value="${targetDate}" id="today" />
+							<input type="date" name="date" th:value="${targetDate}" id="date" />
 							<span id="dateError" class="text-danger"></span>
 						</form>
 					</div>
@@ -31,7 +34,8 @@
 										<div class="mt-3">
 
 											<th:block th:if="${session.loginUser.role=='Manager'}">
-												<span th:if="${dailyReportForm.status ==1 &&dailyReportForm.date lt today}">
+												<span
+													th:if="${dailyReportForm.status ==1 &&dailyReportForm.date lt today}">
 													<button class="btn-yellow">承認</button>
 													<input type="hidden" name="userId"
 														th:value="${dailyReportForm.userId}" />
@@ -39,7 +43,8 @@
 														th:value="${dailyReportForm.date}" />
 												</span>
 
-												<span th:if="${dailyReportForm.status ==2 &&dailyReportForm.date lt today}">
+												<span
+													th:if="${dailyReportForm.status ==2 &&dailyReportForm.date lt today}">
 													<button class="btn btn-light" disabled>承認済み</button>
 												</span>
 

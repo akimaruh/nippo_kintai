@@ -14,26 +14,21 @@
 //window.onload = setTodayDate;
 
 //カレンダー選択後日報表示反映
-const inputDate = document.getElementById("today");
-
-
+const inputDate = document.getElementById("date");
 inputDate.addEventListener('change', (event) => {
 
 	// 今日の日付を取得（"yyyy-mm-dd"形式）
-
 	var today = new Date().toLocaleDateString("ja-JP", {
 		year: "numeric", month: "2-digit",
 		day: "2-digit"
 	}).split('/').join('-');
-
-
 	// 日付のバリデーション
 	const inputDateValue = new Date(inputDate.value);
 	const todayDate = new Date(today);
 	// 日付のバリデーション
 	let validation = true;
 
-	if (inputDateValue > todayDate || inputDateValue == "") {
+	if (inputDateValue > todayDate || inputDateValue == '') {
 		document.getElementById('dateError').innerHTML = "今日以前の日報を選んでください";
 		validation = false;
 		// 入力行を削除・追加ボタンを非表示
@@ -70,7 +65,7 @@ function del() {
 let dailyReportForm = document.getElementById('dailyReport-form');
 if (dailyReportForm != null) {
 	dailyReportForm.addEventListener('submit', function() {
-		const date = document.getElementById('today').value;
+		const date = document.getElementById('date').value;
 		// 同じクラス名を持つすべての要素を取得
 		const hiddenDateElements = document.getElementsByClassName('hidden-date');
 
@@ -84,7 +79,7 @@ if (dailyReportForm != null) {
 
 //日付を別のinputタブに反映
 document.getElementById('dailyReport-form').addEventListener('submit', function() {
-	const date = document.getElementById('today').value;
+	const date = document.getElementById('date').value;
 	document.getElementById('hidden-date').value = date;
 	return true;
 })

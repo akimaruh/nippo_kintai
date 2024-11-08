@@ -17,13 +17,15 @@
 							<span th:text="${session.loginUser.id}" id="userId"></span>
 
 							<div>
-								<strong>ステータス：</strong>
-								<span th:if="${statusName !=null}">
-									<span th:text="${statusName}" id="statusName"></span>
-								</span>
-								<span th:if="${statusFlg !=null}">
-									<span th:text="${statusFlg}"></span>
-								</span>
+								<th:block th:if="${statusName !=null || statusFlg !=null}">
+									<strong>ステータス：</strong>
+									<span th:if="${statusName !=null}">
+										<span th:text="${statusName}" id="statusName"></span>
+									</span>
+									<span th:if="${statusFlg !=null}">
+										<span th:text="${statusFlg}"></span>
+									</span>
+								</th:block>
 							</div>
 
 

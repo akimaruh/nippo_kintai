@@ -265,6 +265,7 @@ function modalForSubmit(event,dailyReportDetailForm) {
 window.addEventListener("DOMContentLoaded", (event) => {
 	
     // サーバからのエラー情報を取得
+	if(document.querySelector("[data-open-modal]")){
     const openModal = document.querySelector("[data-open-modal]").dataset.openModal;
     const modalError = document.querySelector("[data-modal-error]").dataset.modalError;
     console.log(errorMessages);
@@ -273,6 +274,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("contentError").innerHTML =errorMessages['content'] ?? '';
     console.log(openModal);
     console.log(modalError);
+    
 
     // エラーがある場合にモーダルを再表示し、エラーメッセージを表示
     if (openModal === "true") {
@@ -296,7 +298,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
         // エラーメッセージをモーダルに表示
         document.getElementById("modalErrorMessage").textContent = modalError;
     }
-});
+}});
 
 
 ////workId

@@ -25,22 +25,33 @@
 		</div>
 
 		<th:block th:if="${useBootstrap}">
+			<input type="submit" class="btn btn-primary mt-2" id="excel-button" value="Excel" form="excel"/>
+			<input type="submit" class="btn btn-primary mt-2" id="pdf-button" value="PDF" form="pdf" />
+			<input type="button" class="btn btn-primary mt-2" value="戻る" onclick="history.back();" />
 			<form th:action="@{http://localhost:8080/output/dailyReportOutput/pdf}" method="post" target="_blank"
-				id="imageForm">
-				<input type="submit" class="btn btn-primary mt-2" id="pdf-button" value="PDF" />
-				<input type="button" class="btn btn-primary mt-2" value="戻る" onclick="history.back();"/>
+				id="pdf">
 				<input type="hidden" name="userId" th:value="${userId}" />
 				<input type="hidden" name="userName" th:value="${userName}" />
 				<input type="hidden" name="targetYearMonth" th:value="${targetYearMonth}" />
 				<input type="hidden" name="image" id="hiddenImageField" />
 			</form>
+			<form th:action="@{http://localhost:8080/output/dailyReportOutput/excel}" method="post" target="_blank" name="dailyReportExcelOutputForm" id="excel">
+<!--				<input type="hidden" name="userId" th:value="${userId}" />-->
+<!--				<input type="hidden" name="userName" th:value="${userName}" />-->
+<!--				<input type="hidden" name="targetYearMonth" th:value="${targetYearMonth}" />-->
+				
+				<!--				<input type="hidden" name="image" id="hiddenImageField" />-->
+<!--				<input type="hidden" name="dailyReportDtoList" th:value="${generateList}" />-->
+<!--				<input type="hidden" name="dailyReportSummaryDto" th:value="${dailyReportSummary}" />-->
+			</form>
+
 		</th:block>
 		<div class="col-10">
 			<div class="content">
 				<div class="row">
 					<div style="width: auto">
 						<canvas id="myChart">
-							<img th:src="${image}" alt="Image"/>
+							<img th:src="${image}" alt="Image" />
 						</canvas>
 						<script th:src="@{https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js}"></script>
 						<script th:inline="javascript">

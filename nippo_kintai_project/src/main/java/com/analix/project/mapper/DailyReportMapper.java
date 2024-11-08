@@ -55,6 +55,13 @@ public interface DailyReportMapper {
 	 * @return 反映結果
 	 */
 	public boolean registDailyReportDetail(@Param("dailyReportDetail") DailyReportDetail dailyReportDetail);
+	
+	/**
+	 * 日報詳細一括登録
+	 * @param insertList
+	 * @return
+	 */
+	public boolean batchInsertDailyReportDetails(@Param("insertList") List<DailyReportDetail> insertList);
 
 	/**
 	 * 日報詳細更新
@@ -62,6 +69,13 @@ public interface DailyReportMapper {
 	 * @return 反映結果
 	 */
 	public boolean updateDailyReportDetail(@Param("dailyReportDetail") DailyReportDetail dailyReportDetail);
+	
+	/**
+	 * 日報詳細一括更新
+	 * @param updateList
+	 * @return
+	 */
+	public boolean batchUpdateDailyReportDetails(@Param("updateList") List<DailyReportDetail> updateList);
 
 	/**
 	 * 日報ステータス更新
@@ -92,6 +106,13 @@ public interface DailyReportMapper {
 	 * @return 反映結果
 	 */
 	public boolean deleteDailyReportDetail(@Param("id") Integer id);
+	
+	/**
+	 * 日報詳細まとめて削除
+	 * @param deleteList
+	 * @return
+	 */
+	public boolean deleteDailyReportDetails(@Param("deleteList") List<Integer> deleteList);
 
 	/**
 	 * 日報未提出者一覧取得

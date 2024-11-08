@@ -1,7 +1,6 @@
 package com.analix.project.controller;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,22 +41,24 @@ public class StartMenuController {
 	 * @return 処理メニュー画面
 	 */
 	@RequestMapping(path = "/common/startMenu")
-	public String showMenu(HttpSession session, String modal,Model model) {
+	public String showMenu(HttpSession session, String modal, Model model) {
 		
 		Users user = (Users) session.getAttribute("loginUser");
-		List<NotificationsDto> notificationsDtoList = new ArrayList<>();
-		notificationsDtoList = informationService.findNotification(user.getId());
+		LocalDate today = LocalDate.now();
+
+		
+		List<NotificationsDto> notificationsDtoList = informationService.findNotification(user.getId());
+		//打刻ボタン活性チェック
+		boolean isStampingCheck = attendanceService.findTodaysStartTime(user.getId(), today);
+		//作業プルダウンのデータ取得
+		Map<String, Integer> workMap = dailyReportService.pulldownWork();
+		
 		model.addAttribute("notificationsList", notificationsDtoList);
 		if (notificationsDtoList.isEmpty()) {
 			model.addAttribute("notificationsListMessage", "--現在、おしらせはありません。--");
 		}
-		LocalDate today = LocalDate.now();
-		//打刻ボタン活性チェック
-		boolean isStampingCheck = attendanceService.findTodaysStartTime(user.getId(), today);
 		model.addAttribute("isStampingCheck", isStampingCheck);
-		//作業プルダウンのデータ取得
-		Map<String, Integer> workMap = dailyReportService.pulldownWork();
-		model.addAttribute("workMap", workMap);	
+		model.addAttribute("workMap", workMap);
 		return "common/startMenu";
 	}
 

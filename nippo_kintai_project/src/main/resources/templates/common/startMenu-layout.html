@@ -40,13 +40,13 @@
 							</form>
 						</div>
 
-<!--						<th:block th:if="@{/common/startMenu}">-->
-<!--							<div class="p-2">-->
-<!--								<a href="/common/startMenu">-->
-<!--									<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
-<!--								</a>-->
-<!--							</div>-->
-<!--						</th:block>-->
+						<!--						<th:block th:if="@{/common/startMenu}">-->
+						<!--							<div class="p-2">-->
+						<!--								<a href="/common/startMenu">-->
+						<!--									<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
+						<!--								</a>-->
+						<!--							</div>-->
+						<!--						</th:block>-->
 					</div>
 				</div>
 			</div>
@@ -55,6 +55,12 @@
 
 	<!-- メインコンテンツ -->
 	<main class="container content">
+		<noscript>
+			<div class="alert alert-danger">
+				<p>このサイトではJavaScriptが使われています。<br>JavaScriptを有効にしてください。</p>
+			</div>
+
+		</noscript>
 		<div id="main" th:replace="${body}"></div>
 	</main>
 

@@ -23,6 +23,7 @@ import com.analix.project.form.DailyReportForm;
 import com.analix.project.form.DailyReportGroup;
 import com.analix.project.form.StartMenuDailyReportGroup;
 import com.analix.project.service.DailyReportService;
+import com.analix.project.util.CustomDateUtil;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -31,6 +32,8 @@ public class DailyReportController {
 
 	@Autowired
 	private DailyReportService dailyReportService;
+	@Autowired
+	private CustomDateUtil customDateUtil;
 
 	/**
 	 * 初期表示
@@ -44,7 +47,6 @@ public class DailyReportController {
 			@ModelAttribute DailyReportForm dailyReportForm,
 			HttpSession session,
 			Model model) {
-
 		// ヘッダー部分
 		Users user = (Users) session.getAttribute("loginUser");
 		Integer userId = user.getId();
@@ -59,9 +61,7 @@ public class DailyReportController {
 		model.addAttribute("targetDate", targetDate);
 
 		// 日報取得
-		//	    if (dailyReportForm.getDailyReportFormDetailList() == null) {
 		dailyReportForm = dailyReportService.getDailyReport(userId, targetDate);
-		//	    }
 
 		// モデルにデータを追加
 		addModelAttributes(model, dailyReportForm, userId, targetDate);
@@ -83,7 +83,6 @@ public class DailyReportController {
 
 		// ステータスの取得
 		String statusName = dailyReportService.findStatusByUserId(userId, targetDate);
-		System.out.println(statusName);
 		//作業プルダウンのデータ取得
 		Map<String, Integer> workMap = dailyReportService.pulldownWork();
 
@@ -91,7 +90,7 @@ public class DailyReportController {
 		model.addAttribute("dailyReport", dailyReportForm);
 		model.addAttribute("workMap", workMap);
 		model.addAttribute("targetDate", targetDate);
-		
+
 	}
 
 	/**
@@ -104,14 +103,28 @@ public class DailyReportController {
 	 */
 	@GetMapping(path = "/dailyReport/change")
 	public String changeDailyReportRegistPage(@ModelAttribute DailyReportForm dailyReportForm,
-			HttpSession session, Model model, @RequestParam("date") LocalDate targetDate,
+			HttpSession session, Model model, @RequestParam("date") String date,
 			RedirectAttributes redirectAttributes) {
 
 		// ヘッダー:ステータス部分
 		Users user = (Users) session.getAttribute("loginUser");
 		Integer userId = user.getId();
-		model.addAttribute(userId);
-		// 日報取得
+//		model.addAttribute(userId);
+
+		LocalDate targetDate;
+		
+		//パースエラーの場合強制で初期表示に戻る
+		try {
+			targetDate = LocalDate.parse(date);
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "今日以前の日付を選択してください。");
+			return "redirect:/dailyReport/regist";
+		}
+
+		String statusName = dailyReportService.findStatusByUserId(userId, targetDate);
+		model.addAttribute("statusName", statusName);
+
+		//日報取得
 		dailyReportForm = dailyReportService.getDailyReport(userId, targetDate);
 		// モデルにデータを追加
 		addModelAttributes(model, dailyReportForm, userId, targetDate);
@@ -121,46 +134,49 @@ public class DailyReportController {
 
 	/**
 	 * 『提出』ボタン押下後
-	 * @param submittedDailyReportForm
+	 * @param dailyReportForm
+	 * @param result
+	 * @param session
+	 * @param redirectAttributes
+	 * @param model
 	 * @return
 	 */
+
 	@RequestMapping(path = "/dailyReport/regist/complete", method = RequestMethod.POST)
 	public String submitDailyReport(
 			@Validated(DailyReportGroup.class) @ModelAttribute("dailyReport") DailyReportForm dailyReportForm,
 			BindingResult result,
 			HttpSession session, RedirectAttributes redirectAttributes, Model model) {
-		System.out.println("フォーム受け取りほやほや" + dailyReportForm);
-		//		String idAfterDecision = (id == "") ? "0" : id;
-		//		dailyReportForm.setId(Integer.parseInt(idAfterDecision));
-		//		dailyReportForm.setUserId(Integer.parseInt(userId));
-		//		LocalDate targetDate = LocalDate.parse(date);
-		//		dailyReportForm.setDate(targetDate);
-		LocalDate targetDate = dailyReportForm.getDate();
 		boolean isRegistComplete = false;
 
-		//		// バリデーショングループの指定
-		//		validator.validate(dailyReportForm, result, DailyReportGroup.class);
+		LocalDate targetDate = dailyReportForm.getDate();
+		//登録完了チェックを初期化
+		//		boolean isRegistComplete = false;
+
 		if (result.hasErrors()) {
 			// モデルにデータを追加
 			addModelAttributes(model, dailyReportForm, dailyReportForm.getUserId(), targetDate);
-
 			model.addAttribute("error", "日報の登録が失敗しました。");
-
 			return "/dailyReport/regist"; // バリデーションエラーがあれば、再度フォームを表示
 		}
-
-		System.out.println("登録" + dailyReportForm);
-
-		isRegistComplete = dailyReportService.registDailyReportService(dailyReportForm);
-		//ステータスを提出済承認前に変更
-		dailyReportService.updateDailyReportStatus(dailyReportForm);
-
-		redirectAttributes.addFlashAttribute("targetDate", targetDate);
-		if (isRegistComplete = true) {
-			redirectAttributes.addFlashAttribute("message", "日報の登録が完了しました。");
-		} else if (isRegistComplete = false) {
-			redirectAttributes.addFlashAttribute("error", "日報の登録が失敗しました。");
+		//日報登録
+		try {
+			isRegistComplete = dailyReportService.registDailyReportService(dailyReportForm);
+		} catch (Exception e) {
+			System.out.println("トランザクション内でエラーが発生しました: " + e.getMessage());
+			isRegistComplete = false;
 		}
+
+		if (isRegistComplete == true) {
+			System.out.println("isRegistComplete = true通過");
+			redirectAttributes.addFlashAttribute("message",
+					customDateUtil.dateHyphenSlashConverter(targetDate) + "の日報の登録が完了しました。");
+		} else if (isRegistComplete == false) {
+			System.out.println("isRegistComplete = false通過");
+			redirectAttributes.addFlashAttribute("error",
+					customDateUtil.dateHyphenSlashConverter(targetDate) + "日報の登録が失敗しました。");
+		}
+		redirectAttributes.addFlashAttribute("targetDate", targetDate);
 		return "redirect:/dailyReport/regist";
 
 	}
@@ -178,53 +194,33 @@ public class DailyReportController {
 	public String submitDailyReportAtStartMenu(
 			@Validated(StartMenuDailyReportGroup.class) @ModelAttribute("dailyReportDetailForm") DailyReportDetailForm dailyReportdetailForm,
 			BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-		// エラーメッセージを格納するMap
 		Map<String, String> errorMessages = new HashMap<>();
-
 		// フィールドごとのエラーメッセージを収集
 		result.getFieldErrors().forEach(error -> {
 			errorMessages.put(error.getField(), error.getDefaultMessage());
 		});
-
-		//入力チェック(お知らせ見える版)
 		if (result.hasErrors()) {
-
-			//作業プルダウンのデータ取得
-			//			Map<String, Integer> workMap = dailyReportService.pulldownWork();
-			//			redirectAttributes.addFlashAttribute("workMap", workMap);
 			redirectAttributes.addFlashAttribute("dailyReportDetailForm", dailyReportdetailForm);
 			redirectAttributes.addFlashAttribute("modalError", "日報の登録に失敗しました。");
-
 			redirectAttributes.addFlashAttribute("openModal", true);
 			redirectAttributes.addFlashAttribute("errorMessages", errorMessages);
-			System.out.println("入力チェックエラーあり");
-			System.out.println(result.getAllErrors());
+
 			//再度モーダルを開きエラー内容表示
 			return "redirect:/common/startMenu";
 		}
-		//		//入力チェック(お知らせが消える版)
-		//		if (result.hasErrors()) {
-		//			String modal = "modal";
-		//			//作業プルダウンのデータ取得
-		//			Map<String, Integer> workMap = dailyReportService.pulldownWork();
-		//			model.addAttribute("workMap", workMap);
-		//			model.addAttribute("dailyReportDetailForm", dailyReportdetailForm);
-		//			model.addAttribute("modal", modal);
-		//			//再度モーダルを開きエラー内容表示
-		//			return "/common/startMenu";
-		//		}
-		//本日の日付を取得
+
 		LocalDate today = LocalDate.now();
 		dailyReportdetailForm.setDate(today);
 		//通常の日報登録方法用に変換＆日報登録
 		boolean isRegistAtStartMenu = dailyReportService.registDailyReportAtStartMenu(dailyReportdetailForm);
 
 		if (isRegistAtStartMenu) {
-			redirectAttributes.addFlashAttribute("reportMessage", "日報の登録が完了しました。");
+			redirectAttributes.addFlashAttribute("reportMessage",
+					customDateUtil.dateHyphenSlashConverter(today) + "の日報の登録が完了しました。");
 		} else {
-			redirectAttributes.addFlashAttribute("reportError", "日報の登録に失敗しました。");
+			redirectAttributes.addFlashAttribute("reportError",
+					customDateUtil.dateHyphenSlashConverter(today) + "日報の登録に失敗しました。");
 		}
-		System.out.println("提出完了");
 		return "redirect:/common/startMenu";
 
 	}
@@ -238,11 +234,12 @@ public class DailyReportController {
 	 */
 	@RequestMapping(path = "/dailyReport/list")
 	public String showDailyReportListPage(Model model) {
-		// Model から Flash attribute を取得(提出完了後処理)
-		LocalDate today =  LocalDate.now();
+	
+		LocalDate today = LocalDate.now();
 		LocalDate yesterday = today.minusDays(1);
 		LocalDate targetDate = (LocalDate) model.getAttribute("targetDate");
 		// targetDate が null の場合、デフォルトとして前日の日付を使用
+		//承認処理を行えるのは当日より前の日報のため初期表示は前日とする
 		targetDate = (targetDate != null) ? targetDate : yesterday;
 		model.addAttribute("targetDate", targetDate);
 		model.addAttribute("today", today);
@@ -259,8 +256,18 @@ public class DailyReportController {
 	 */
 	@RequestMapping(path = "/dailyReport/list/change")
 	public String changeDailyReportListPage(Model model,
-			@RequestParam("date") LocalDate targetDate) {
+			@RequestParam("date") String date, RedirectAttributes redirectAttributes) {
 		LocalDate today = LocalDate.now();
+		LocalDate targetDate;
+		//パースエラーの場合強制で初期表示に戻る
+		try {
+			targetDate = LocalDate.parse(date);
+		} catch (Exception e) {
+
+			redirectAttributes.addFlashAttribute("error", "今日以前の日付を選択してください。");
+			return "redirect:/dailyReport/list";
+		}
+
 		model.addAttribute("today", today);
 		addModelAttributes(model, targetDate);
 		return "/dailyReport/list";

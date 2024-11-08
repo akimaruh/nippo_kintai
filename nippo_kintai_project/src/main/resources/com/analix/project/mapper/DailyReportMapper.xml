@@ -40,6 +40,18 @@
 		values(#{dailyReportDetail.userId},#{dailyReportDetail.date},#{dailyReportDetail.workId},#{dailyReportDetail.time},#{dailyReportDetail.content})
 	</insert>
 
+	<insert id="batchInsertDailyReportDetails"
+		useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.analix.project.entity.DailyReportDetail">
+		INSERT INTO daily_report_detail (user_id, date, work_id, time,
+		content)
+		VALUES
+		<foreach collection="insertList" item="insertList" separator=",">
+			(#{insertList.userId}, #{insertList.date}, #{insertList.workId},
+			#{insertList.time}, #{insertList.content})
+		</foreach>
+	</insert>
+
 	<update id="updateDailyReportDetail"
 		parameterType="com.analix.project.entity.DailyReportDetail">
 		UPDATE daily_report_detail
@@ -55,6 +67,19 @@
 		user_id=#{dailyReportDetail.userId}
 		AND
 		date =#{dailyReportDetail.date}
+	</update>
+
+	<update id="batchUpdateDailyReportDetails"
+		parameterType="com.analix.project.entity.DailyReportDetail">
+		<foreach collection="updateList" item="update">
+			UPDATE daily_report_detail
+			SET work_id = #{update.workId},
+			time = #{update.time},
+			content = #{update.content}
+			WHERE id = #{update.id}
+			AND user_id = #{update.userId}
+			AND date = #{update.date}
+		</foreach>
 	</update>
 
 	<update id="updateDailyReportStatus"
@@ -267,6 +292,15 @@
 	<delete id="deleteDailyReportDetail">
 		DELETE FROM daily_report_detail
 		WHERE id = #{id}
+	</delete>
+
+	<delete id="deleteDailyReportDetails">
+		DELETE FROM daily_report_detail
+		WHERE id IN
+		<foreach item="id" collection="deleteList" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
 	</delete>
 
 	<select id="dailyReportUnsubmittedPersonList"

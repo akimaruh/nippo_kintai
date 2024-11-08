@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
 
 <head>
 	<meta charset="UTF-8">
@@ -15,40 +15,6 @@
 </head>
 
 <body>
-
-
-
-	<!-- ヘッダー -->
-	<div class="container mt-3 mb-3">
-		<div class="d-flex align-items-center gap-5">
-			<div>
-				<strong>ユーザー名：</strong>
-				<span th:text="${session.loginUser.name}"></span>
-			</div>
-			<div>
-				<strong>ユーザーID：</strong>
-				<span th:text="${session.loginUser.id}"></span>
-			</div>
-
-			<div class="ms-auto d-flex gap-2">
-				<a href="/common/startMenu">
-					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
-				</a>
-
-				<form th:action="@{/common/logoff}" method="post">
-					<button type="submit" class="btn-yellow">ログオフ</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<!-- ヘッダー -->
-	<noscript>
-		<div class="alert alert-danger">
-			<p>このサイトではJavaScriptが使われています。<br>JavaScriptを有効にしてください。</p>
-		</div>
-
-	</noscript>
-
 	<div class="container d-flex justify-content-center mb-5 mt-5" id="regist">
 		<div class="col-md-6">
 			<div class="card" style="background-color: rgb(255, 255, 255);">
