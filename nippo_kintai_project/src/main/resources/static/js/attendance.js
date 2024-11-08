@@ -276,61 +276,99 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 【却下モーダル】モーダルの表示、「却下」ボタン押下でフォーム送信
 document.addEventListener('DOMContentLoaded', function() {
-	const rejectModalBtn = document.getElementById('rejectModalBtn');
+    const rejectModalBtn = document.getElementById('rejectModalBtn');
+    const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+    const rejectBtn = document.getElementById('reject-btn');
+    const rejectForm = document.getElementById('reject-form');
+    const rejectWarning = document.getElementById("rejectWarning");
+    const modalErrorMessage = document.getElementById("modalErrorMessage");
+    // 月次
+    const commentReasonInput = document.getElementById("commentReasonInput");
+    const rejectCommentError = document.getElementById("rejectCommentError");
+    // 訂正
+    const rejectionReasonInput = document.getElementById("rejectionReasonInput");
+    const rejectionReasonError = document.getElementById("rejectionReasonError");
 
-	if (rejectModalBtn) {
-		const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
-		rejectModalBtn.addEventListener('click', function() {
-			rejectModal.show();
-		});
-	}
+    // モーダル表示
+    if (rejectModalBtn) {
+        rejectModalBtn.addEventListener('click', function() {
+            rejectModal.show();
+        });
+    }
+
+    // フォーム送信
+    rejectBtn.addEventListener('click', function() {
+        rejectForm.submit();
+    });
+
+    // 入力チェック エラー時にモーダル再表示
+    if (document.querySelector("[data-open-modal]")) {
+        const openModal = document.querySelector("[data-open-modal]").dataset.openModal;
+        const modalError = document.querySelector("[data-modal-error]").dataset.modalError;
+
+        // rejectionReasonErrorやcommentReasonErrorのエラーメッセージを表示
+        // 月次
+        if (rejectCommentError) {
+            rejectCommentError.innerHTML = errorMessages['comment'] ?? '';
+        }
+        // 訂正
+        if (rejectionReasonError) {
+            rejectionReasonError.innerHTML = errorMessages['rejectionReason'] ?? '';
+        }
+
+        // モーダル再表示時の処理
+        if (openModal === "true") {
+			// 月次
+            if (commentReasonInput) {
+                const commentValue = commentReasonInput.value;
+                commentReasonInput.value = commentValue;
+            }
+            // 訂正
+            if (rejectionReasonInput) {
+                const rejectionReasonValue = rejectionReasonInput.value;
+                rejectionReasonInput.value = rejectionReasonValue;
+            }
+           
+            // モーダル表示
+            rejectModal.show();
+
+            // モーダルエラーメッセージを表示
+            modalErrorMessage.textContent = modalError;
+
+            // 警告メッセージを非表示にする
+            rejectWarning.style.display = "none";
+        }
+    }
 });
-document.getElementById('reject-btn').addEventListener('click', function() {
-	document.getElementById('reject-form').submit();
-});
 
-// 【却下ボタン】月次/訂正のformaction動的変更
-document.addEventListener('DOMContentLoaded', function() {
-	const rejectBtn = document.getElementById('reject-btn');
-	const rejectForm = document.getElementById('reject-form');
 
-	rejectBtn.addEventListener('click', function() {
-		let formAction;
 
-		// 条件に応じてformactionを変更
-		if (window.location.pathname === '/attendance/approveRequests') {
-			formAction = '/attendance/rejectMonthly';
-		} else if (window.location.pathname === '/attendance/correctionRequests') {
-			formAction = '/attendance/rejectCorrection';
-		}
 
-		rejectForm.action = formAction;
-
-		rejectForm.submit();
-	});
-});
-
+//// 【承認ボタン】月次/訂正のformaction動的変更
+//document.addEventListener('DOMContentLoaded', function() {
+//	const approveBtn = document.getElementById('approve-btn');
+//	const approveForm = document.getElementById('approve-form');
+//
+//	if (approveBtn) {
+//		approveBtn.addEventListener('click', function() {
+//			let formAction;
+//
+//			if (window.location.pathname === '/attendance/approveRequests') {
+//				formAction = '/attendance/approveMonthly';
+//			} else if (window.location.pathname === '/attendance/correctionRequests') {
+//				formAction = '/attendance/approveCorrection';
+//			}
+//
+//			approveForm.action = formAction;
+//			approveForm.submit();
+//		});
+//	}
+//});
 // 【承認ボタン】月次/訂正のformaction動的変更
-document.addEventListener('DOMContentLoaded', function() {
-	const approveBtn = document.getElementById('approve-btn');
-	const approveForm = document.getElementById('approve-form');
+function setAction(action) {
+    document.getElementById('form-action').value = action;
+}
 
-	if (approveBtn) {
-		approveBtn.addEventListener('click', function() {
-			let formAction;
-
-			if (window.location.pathname === '/attendance/approveRequests') {
-				formAction = '/attendance/approveMonthly';
-			} else if (window.location.pathname === '/attendance/correctionRequests') {
-				formAction = '/attendance/approveCorrection';
-			}
-
-			approveForm.action = formAction;
-
-			approveForm.submit();
-		});
-	}
-});
 
 
 

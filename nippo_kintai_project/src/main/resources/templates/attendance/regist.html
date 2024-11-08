@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="
+http://www.thymeleaf.org
+" th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
 
 <head>
 	<meta charset="UTF-8">
@@ -11,39 +13,40 @@
 </head>
 
 <body>
-<!--	<script th:inline="javascript">-->
-<!--		let correctionForm = /*[[${attendanceCorrectionForm}]]*/ {};-->
-<!--	</script>-->
+	<script th:inline="javascript">
+		let correctionForm = /*[[${correctionForm}]]*/ {};
+		const errorMessages = /*[[${errorMessages}]]*/ {};
+	</script>
 
 	<!-- ヘッダー -->
-	<div class="container mt-3 mb-3">
-		<div class="d-flex align-items-center gap-5">
-			<div>
-				<strong>ユーザー名：</strong>
-				<span th:text="${session.loginUser.name}"></span>
-			</div>
-			<div>
-				<strong>ユーザーID：</strong>
-				<span th:text="${session.loginUser.id}"></span>
-			</div>
-			<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
-				<div>
-					<strong>ステータス：</strong>
-					<span th:text="${statusFlg}"></span>
-				</div>
-			</span>
+<!--	<div class="container mt-3 mb-3">-->
+<!--		<div class="d-flex align-items-center gap-5">-->
+<!--			<div>-->
+<!--				<strong>ユーザー名：</strong>-->
+<!--				<span th:text="${session.loginUser.name}"></span>-->
+<!--			</div>-->
+<!--			<div>-->
+<!--				<strong>ユーザーID：</strong>-->
+<!--				<span th:text="${session.loginUser.id}"></span>-->
+<!--			</div>-->
+<!--			<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">-->
+<!--				<div>-->
+<!--					<strong>ステータス：</strong>-->
+<!--					<span th:text="${statusFlg}"></span>-->
+<!--				</div>-->
+<!--			</span>-->
 
-			<div class="ms-auto d-flex gap-2">
-				<a href="/common/startMenu">
-					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
-				</a>
+<!--			<div class="ms-auto d-flex gap-2">-->
+<!--				<a href="/common/startMenu">-->
+<!--					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
+<!--				</a>-->
 
-				<form th:action="@{/common/logoff}" method="post">
-					<button type="submit" class="btn-yellow">ログオフ</button>
-				</form>
-			</div>
-		</div>
-	</div>
+<!--				<form th:action="@{/common/logoff}" method="post">-->
+<!--					<button type="submit" class="btn-yellow">ログオフ</button>-->
+<!--				</form>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
 	<!-- ヘッダー -->
 
 	<div class="container mt-5 mb-5 d-flex justify-content-center">
@@ -105,7 +108,7 @@
 											data-bs-target="#rejectModal" id="rejectModalBtn"
 											th:disabled="${attendanceList == null && correction == null}">却下</button>
 										<button type="submit" id="approve-btn" form="approve-form"
-											class="btn-yellow mx-2"
+											class="btn-yellow mx-2" onclick="setAction('approve')"
 											th:disabled="${attendanceList == null && correction == null}">承認</button>
 
 									</div>
@@ -361,8 +364,7 @@
 						<!-- 【マネージャ権限】 -->
 						
 						<!-- 月次承認申請 -->
-						<th:block
-							th:if="${session.loginUser.role == 'Manager' && (currentPath == '/attendance/regist' || currentPath == '/attendance/approveRequests')}">
+						<th:block th:if="${session.loginUser.role == 'Manager' && (currentPath == '/attendance/regist' || action == 'monthly')}">
 							<div class="card container mt-3 mb-3 border">
 								<table class="table table-hover sortabletable dataTable no-footer" id="user-table" role="grid"
 									aria-describedby="user-table_info">
@@ -374,35 +376,24 @@
 										</tr>
 									</thead>
 									<tbody>
-										<th:block th:each="MonthlyList : ${monthlyAttendanceReqList}" th:if="${MonthlyList.status == 1}">
+										<th:block th:each="monthlyReq : ${monthlyAttendanceReqList}" th:if="${monthlyReq.status == 1}">
 											<tr>
 												<td>
-													<form th:action="@{/attendance/approveRequests}" method="post">
-														<input type="hidden" name="userId" th:value="${MonthlyList.userId}" />
-														<input type="hidden" name="targetYearMonth" th:value="${MonthlyList.targetYearMonth}" />
-														<input type="hidden" name="name" th:value="${MonthlyList.name}" />
-														<input type="hidden" name="date" th:value="${MonthlyList.date}" />
-														<input type="hidden" name="formattedYearMonth"
-															th:value="${#temporals.format(MonthlyList.targetYearMonth, 'yyyy/MM')}" />
-														<input type="hidden" name="formattedDate"
-															th:value="${#temporals.format(MonthlyList.date, 'yyyy/MM/dd')}" />
-														<button type="submit" class="btn btn-link p-0 m-0"
-															th:text="${MonthlyList.name}"></button>
+													<form th:action="@{/attendance/approveRequests/monthlyId={id}(id=${monthlyReq.id})}" method="get">
+														<button type="submit" class="btn btn-link p-0 m-0" th:text="${monthlyReq.name}"></button>
 													</form>
 												</td>
 												<!--		targetDateをLocalDate型でDBに格納するようになったので若干変更-->
-												<td th:text="${#temporals.format(MonthlyList.targetYearMonth, 'yyyy/MM')}">
-												</td>
-												<td th:text="${#temporals.format(MonthlyList.date, 'yyyy/MM/dd')}"></td>
+												<td th:text="${#temporals.format(monthlyReq.targetYearMonth, 'yyyy/MM')}"></td>
+												<td th:text="${#temporals.format(monthlyReq.date, 'yyyy/MM/dd')}"></td>
 												<!--		変更ここまで										-->
 											</tr>
 										</th:block>
-										<th:block th:if="${currentPath == '/attendance/approveRequests'}">
+										<th:block th:if="${action == 'monthly'}">
 											<tr>
-												<td th:text="${name}"></td>
-												<td th:text="${formattedYearMonth}"></td>
-												<td th:text="${formattedDate}"></td>
-												<!--											<td th:text="${#temporals.format(date, 'yyyy/MM/dd')}"></td>-->
+												<td th:text="${monthlyDto.name}"></td>
+												<td th:text="${monthlyDto.yearMonthStr}"></td>
+												<td th:text="${monthlyDto.formattedDate}"></td>
 											</tr>
 										</th:block>
 									</tbody>
@@ -412,8 +403,7 @@
 						<!-- 月次承認申請終わり -->
 
 						<!-- 訂正承認申請 -->
-						<th:block
-							th:if="${session.loginUser.role == 'Manager' && (currentPath == '/attendance/regist' || currentPath == '/attendance/correctionRequests')}">
+						<th:block th:if="${session.loginUser.role == 'Manager' && (currentPath == '/attendance/regist' || action == 'correction')}">
 							<div class="card container mt-3 mb-3 border">
 								<table class="table table-hover sortabletable dataTable no-footer" id="" role="grid"
 									aria-describedby="user-table_info">
@@ -428,26 +418,18 @@
 										<tr th:each="correctionList : ${attendanceCorrectionList}"
 											th:if="${correctionList.rejectFlg == 0 && correctionList.confirmer == null}">
 											<td>
-												<form th:action="@{/attendance/correctionRequests}" method="post">
-													<input type="hidden" name="userId" th:value="${correctionList.userId}" />
-													<input type="hidden" name="userName" th:value="${correctionList.userName}" />
-													<input type="hidden" name="date" th:value="${correctionList.date}" />
-													<input type="hidden" name="formattedDate"
-														th:value="${#temporals.format(correctionList.date, 'yyyy/MM/dd')}" />
-													<input type="hidden" name="formattedApplicationDate"
-														th:value="${#temporals.format(correctionList.applicationDate, 'yyyy/MM/dd')}" />
-													<button type="submit" class="btn btn-link p-0 m-0"
-														th:text="${correctionList.userName}"></button>
+												<form th:action="@{/attendance/correctionRequests/correctionId={id}(id=${correctionList.id})}"
+													method="get" name="attendanceCorrectionForm">
+													<button type="submit" class="btn btn-link p-0 m-0" th:text="${correctionList.userName}"></button>
 												</form>
 											</td>
 											<td th:text="${#temporals.format(correctionList.date, 'yyyy/MM/dd')}"></td>
-											<!--											<td th:text="${#temporals.format(correctionList.date, 'yyyy/MM')}"></td>-->
 											<td th:text="${#temporals.format(correctionList.applicationDate, 'yyyy/MM/dd')}"></td>
 						
-										<tr th:if="${currentPath == '/attendance/correctionRequests'}">
-											<td th:text="${userName}"></td>
-											<td th:text="${formattedDate}"></td>
-											<td th:text="${formattedApplicationDate}"></td>
+										<tr th:if="${action == 'correction'}">
+											<td th:text="${correctionDto.userName}"></td>
+											<td th:text="${correctionDto.formattedDate}"></td>
+											<td th:text="${correctionDto.formattedApplicationDate}"></td>
 										</tr>
 						
 										</tr>
@@ -458,7 +440,7 @@
 						<!-- 訂正承認申請 -->
 
 						<!-- 訂正理由 -->
-						<th:block th:if="${session.loginUser.role == 'Manager' && currentPath == '/attendance/correctionRequests'}">
+						<th:block th:if="${session.loginUser.role == 'Manager' && action == 'correction'}">
 							<div class="card mt-3 mb-3">
 								<div class="card-header">
 									<strong>訂正理由 【訂正申請】</strong>
@@ -466,7 +448,7 @@
 								<div class="card-body">
 									<th:block th:each="attendance : ${attendanceList}">
 										<th:block
-											th:if="${attendance.date != null && #temporals.format(attendance.date, 'yyyy/MM/dd') == formattedDate}">
+											th:if="${attendance.date != null && #temporals.format(attendance.date, 'yyyy/MM/dd') == correctionDto.formattedDate}">
 											<span style="color: gray;"
 												th:text="'訂正前：[' + ${T(com.analix.project.util.AttendanceUtil).getAttendanceStatus(attendance.status)} + '][' +
 													${(attendance.startTime != null && attendance.endTime != null) ? attendance.startTime + '~' + attendance.endTime : ' - '} + 
@@ -484,7 +466,10 @@
 						<!-- 「承認申請者」押下後 -->
 						<th:block th:if="${session.loginUser.role == 'Manager' && currentPath != '/attendance/regist'}">
 							<div class="card container mt-3 mb-3 border">
-								<form id="approve-form" method="post" action="">
+								<form id="approve-form" method="post" th:action="${action == 'monthly' ? '/attendance/approveMonthly' : '/attendance/approveCorrection'}">
+									<input type="hidden" name="action" id="form-action" />
+<!--									<input type="hidden" name="targetYearMonth" th:value="${session.targetYearMonth}" />-->
+									
 									<table class="table table-hover sortabletable dataTable no-footer" id="attendance-table" role="grid"
 										aria-describedby="attendance-table_info">
 										<thead>
@@ -499,12 +484,9 @@
 										</thead>
 						
 										<!-- 月次 -->
-										<th:block th:if="${session.targetType == 'monthly'}">
+										<th:block th:if="${action == 'monthly'}">
 											<tbody>
-												<input type="hidden" name="targetYearMonth" th:value="${session.targetYearMonth}" />
 												<th:block th:each="attendanceReq,stat : ${attendanceList}">
-													<input type="hidden" name="userId" th:value="${attendanceReq.userId}" />
-						
 													<tr>
 														<td th:text="${#temporals.format(attendanceReq.date, 'M/d')}">
 														</td>
@@ -526,12 +508,9 @@
 										<!-- /月次 -->
 						
 										<!-- 訂正 -->
-										<th:block th:if="${session.targetType == 'correction'}">
+										<th:block th:if="${action == 'correction'}">
 											<tbody>
 												<tr>
-<!--													<input type="hidden" name="targetYearMonth" th:value="${session.targetYearMonth}" />-->
-													<input type="hidden" name="confirmer" th:value="${session.loginUser.name}" />
-													<input type="hidden" name="userId" th:value="${correction.userId}" />
 													<input type="hidden" name="id" th:value="${correction.id}" />
 													<td th:text="${#temporals.format(correction.date, 'M/d')}"></td>
 													<td th:text="${#temporals.format(correction.date, 'EEE')}"></td>
@@ -568,59 +547,67 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">却下</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+						onclick="location.href=window.location.href"></button>
 				</div>
 	
 				<div class="modal-body">
-	
-					<div class="alert alert-warning" role="alert">
+					<div class="alert alert-warning" role="alert" id="rejectWarning">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
 							class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
 							<path
 								d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
 						</svg>
-						<th:block th:if="${currentPath == '/attendance/approveRequests'}">
+						<th:block th:if="${action == 'monthly'}">
 							<span th:text="${modalMessage}"></span>
 						</th:block>
 	
-						<th:block th:if="${currentPath == '/attendance/correctionRequests'}">
+						<th:block th:if="${action == 'correction'}">
 							<span th:text="${modalMessage}"></span>
 						</th:block>
-	
 					</div>
+					<p id="modalErrorMessage" class="alert alert-danger" role="alert" th:if="${modalError}"> [[${modalError}]]</p>
 	
 					<!-- 却下フォーム -->
-					<form id="reject-form" method="post" action="">
+					<form id="reject-form" method="post"
+						th:action="@{/attendance/{action}(action=${action == 'monthly' ? 'rejectMonthly' : 'rejectCorrection'})}">
+
+						<input type="hidden" name="action" th:value="${action}" />
 	
 						<!-- 月次申請 -->
-						<th:block th:if="${currentPath == '/attendance/approveRequests'}">
-							<input type="hidden" name="userId" th:value="${attendanceList[0].userId}" />
-							<input type="hidden" name="targetYearMonth" th:value="${session.targetYearMonth}" />
-							<input type="hidden" name="action" value="reject-monthly" />
+						<th:block th:if="${action == 'monthly'}">
+							<input type="hidden" name="id" th:value="${id}" />
+							<div class="container mb-3 row">
+								<label class="col-sm-4 col-form-label">・却下理由：</label>
+								<div class="col-sm-8">
+									<textarea class="form-control" rows="3" name="comment" id="commentReasonInput"
+										th:text="${correction}"></textarea>
+									<span id="rejectCommentError" class="text-danger"></span>
+								</div>
+							</div>
 						</th:block>
 						<!-- /月次申請 -->
 	
 						<!-- 訂正申請 -->
-						<th:block th:if="${currentPath == '/attendance/correctionRequests'}">
+						<th:block th:if="${action == 'correction'}">
 							<input type="hidden" name="userId" th:value="${correction.userId}" />
 							<input type="hidden" name="id" th:value="${correction.id}" />
-							<input type="hidden" name="action" value="reject-correction" />
-						</th:block>
-	
-						<!-- 共通部分 -->
-						<inputpe="hidden" name="action" value="reject" />
-						<div class="container mb-3 row">
-							<label class="col-sm-4 col-form-label">・却下理由：</label>
-							<div class="col-sm-8">
-								<textarea class="form-control" rows="3" name="rejectionReason"></textarea>
-<!--								<div class="text-danger" th:errors=""></div>-->
+							<input type="hidden" name="date" th:value="${correction.date}" />
+							<div class="container mb-3 row">
+								<label class="col-sm-4 col-form-label">・却下理由：</label>
+								<div class="col-sm-8">
+									<textarea class="form-control" rows="3" name="rejectionReason" id="rejectionReasonInput"
+										th:text="${rejectionReason}"></textarea>
+									<span id="rejectionReasonError" class="text-danger"></span>
+								</div>
 							</div>
-						</div>
-						<!-- /共通部分 -->
+						</th:block>
 				</div>
 				<div class="modal-footer">
-					<button type="submit" class="btn btn-primary" form="reject-form" id="reject-btn">却下</button>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+					<button type="submit" class="btn btn-primary" form="reject-form" id="reject-btn"
+						data-action="${action}">却下</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						onclick="location.href=window.location.href">閉じる</button>
 				</div>
 				</form>
 				<!-- /却下フォーム -->
@@ -628,6 +615,8 @@
 		</div>
 	</div>
 	<!-- /却下ボタン押下時モーダル -->
+	<!-- エラーメッセージやモーダル表示判定用の属性 -->
+	<input type="hidden" th:data-open-modal="${openModal}" th:data-modal-error="${modalError}">
 
 	<!-- 訂正申請モーダル -->
 	<div class="modal fade" id="correctionModal" data-bs-backdrop="static" tabindex="-1"
@@ -710,11 +699,11 @@
 
 	<!-- BootstrapのJavaScriptとPopper.js -->
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+<!--	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>-->
 
 	<!-- 自分のJavaScript -->
 	<script th:src="@{/js/attendance.js}"></script>
-	<script th:src="@{/pushApi/sw.js}"></script>
+<!--	<script th:src="@{/pushApi/sw.js}"></script>-->
 
 </body>
 

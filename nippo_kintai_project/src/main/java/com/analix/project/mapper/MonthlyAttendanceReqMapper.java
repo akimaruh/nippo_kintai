@@ -44,15 +44,22 @@ public interface MonthlyAttendanceReqMapper {
 	 */
 	public void updateStatusWaiting(@Param("userId") Integer userId, @Param("attendanceDate") LocalDate attendanceDate);
 	
-	/*
-	 * status更新 承認
+	/**
+	 * 月次idからデータ（ユーザーId、申請者、対象日付、申請日）取得
+	 * @param id 月次id
+	 * @return 
 	 */
-	public void updateApproveStatus(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay);
+	public MonthlyAttendanceReqDto findMonthlyDataById(@Param("id") Integer id);
 	
 	/*
-	 * status更新・却下理由追加 却下
+	 * 月次申請承認後（status更新）
 	 */
-	public void updateRejectStatusAndComment(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay, @Param("comment") String comment);
+	public boolean updateApproveStatus(@Param("userId") Integer userId, @Param("targetYearMonthAtDay") LocalDate targetYearMonthAtDay);
+	
+	/*
+	 * 月次申請却下後（status更新・却下理由追加）
+	 */
+	public boolean updateRejectStatusAndComment(@Param("userId") Integer userId, @Param("targetYearMonth") LocalDate targetYearMonthAtDay, @Param("comment") String comment);
 	
 
 	

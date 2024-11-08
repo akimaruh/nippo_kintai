@@ -1,6 +1,7 @@
 package com.analix.project.dto;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import lombok.Data;
 
@@ -25,8 +26,15 @@ public class MonthlyAttendanceReqDto {
 	private String role;
 	/** 却下理由 */
 	private String comment;
+
 	
-//	/** 年月 */
-//	private String yearMonth;
+	// フォーマット済み日付フィールド
+	private YearMonth formattedYearMonth; // yyyy-MM
+	private String YearMonthStr; // yyyy/MM 表示用
+	
+	private String formattedDate; // yyyy/MM/dd ひょうじよう
+//	private LocalDate targetYearMonthAtDay; // yyyy-MM-01 承認のとこ
+
+	
 	
 }

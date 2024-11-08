@@ -144,14 +144,14 @@ public class EmailService {
 	 * @param mailMessage
 	 */
 	@Async
-	public void sendApproveEmail(Integer userId,YearMonth targetYearMonth, String mailMessage) {
+	public void sendApproveEmail(Integer userId, String yearMonthStr, String mailMessage) {
 		
 		String subject = "【日報勤怠アプリ】承認";
 		String email =userMapper.findEmailByUserId(userId);
 //		int year = request.getTargetYearMonth().getYear();
 //		int month = request.getTargetYearMonth().getMonthValue();
 //		YearMonth targetYearMonth = YearMonth.of(year, month);
-		String content = targetYearMonth + "の月次申請が承認されました。\n" + mailMessage;
+		String content = yearMonthStr + "の月次申請が承認されました。\n" + mailMessage;
 		sendEmail(email, subject, content);
 	}
 
@@ -162,13 +162,13 @@ public class EmailService {
 	 * @param mailMessage
 	 */
 	@Async
-	public void sendRejectEmail(Integer userId,YearMonth targetYearMonth, String mailMessage) {
+	public void sendRejectEmail(Integer userId,String yearMonthStr, String mailMessage) {
 		String subject = "【日報勤怠アプリ】却下";
 		String email =userMapper.findEmailByUserId(userId);
 //		int year = request.getTargetYearMonth().getYear();
 //		int month = request.getTargetYearMonth().getMonthValue();
 //		YearMonth targetYearMonth = YearMonth.of(year, month);
-		String content = targetYearMonth + "の月次申請が却下されました。\n" + mailMessage;
+		String content = yearMonthStr + "の月次申請が却下されました。\n" + mailMessage;
 		sendEmail(email, subject, content);
 	}
 	

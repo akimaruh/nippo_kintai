@@ -5,7 +5,6 @@ import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +26,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.analix.project.dto.AttendanceCorrectionDto;
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
 import com.analix.project.entity.AttendanceCorrection;
 import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceCorrectionForm;
 import com.analix.project.form.AttendanceFormList;
+import com.analix.project.form.MonthlyAttendanceReqForm;
+import com.analix.project.form.RejectAttendanceCorrectionGroup;
 import com.analix.project.service.AttendanceService;
 import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
@@ -107,7 +110,7 @@ public class AttendanceController {
 	public String attendanceDisplay(@RequestParam int year, @RequestParam int month,
 			Model model, HttpSession session, AttendanceFormList attendanceFormList) {
 		
-		model.addAttribute("currentPath", "/attendance/regist/display");
+		model.addAttribute("currentPath", "/attendance/regist/display"); // これもどうにかする
 
 		//バラバラに取得した年と月を合体(yyyy-MM)
 		YearMonth targetYearMonth = YearMonth.of(year, month);
@@ -149,7 +152,6 @@ public class AttendanceController {
 		//ステータス名とDB格納のステータス値どちらもフロントに渡す
 		model.addAttribute("statusFlg", statusFlg);
 		model.addAttribute("status", status);
-		//		session.setAttribute("yearMonth", targetYearMonth);
 
 		//ユーザーIDと年月の値を渡して取得した勤怠日付と勤怠情報を勤怠フォームリストへセット
 		attendanceFormList.setAttendanceFormList(attendanceService.getFindAllDailyAttendance(userId, targetYearMonth));
@@ -243,8 +245,6 @@ public class AttendanceController {
 	 * @param session
 	 * @param model
 	 * @param redirectAttributes
-	 * @param targetYearMonth 
-	 * @param request 
 	 * @return
 	 */
 	@RequestMapping(path = "/attendance/approveRequestComplete", method = RequestMethod.POST)
@@ -257,7 +257,7 @@ public class AttendanceController {
 		YearMonth approveYearMonth = (YearMonth) session.getAttribute("yearMonth");
 		//月次勤怠テーブルの対象年月はyyyy-MM-01で格納されているので形を合わせる
 		LocalDate approveYearMonthAtDay = approveYearMonth.atDay(1);
-
+		// リダイレクト先のURL用に取得
 		int year = approveYearMonth.getYear();
 		int month = approveYearMonth.getMonthValue();
 
@@ -287,77 +287,77 @@ public class AttendanceController {
 
 	/**
 	 * 『月次：承認申請者』リンク押下後
-	 * @param userId
-	 * @param targetYearMonth
+	 * @param id
 	 * @param model
 	 * @param session
 	 * @param attendanceFormList
 	 * @return
 	 */
-	@PostMapping("/attendance/approveRequests")
-	public String showApproveRequests(@RequestParam("userId") Integer userId,
-			@RequestParam("targetYearMonth") LocalDate targetYearMonthAtDay,
-			@RequestParam("name") String name, @RequestParam("date") String date,
-			@RequestParam("formattedYearMonth") String formattedYearMonth,
-			@RequestParam("formattedDate") String formattedDate,
-			Model model, HttpSession session,
+	@GetMapping("/attendance/approveRequests/monthlyId={id}")
+	public String showApproveRequests(@PathVariable("id") Integer id, Model model, HttpSession session,
 			AttendanceFormList attendanceFormList) {
 		
-		session.setAttribute("targetType", "monthly");
-		model.addAttribute("currentPath", "/attendance/approveRequests");
+		// action == 'monthly'
+		model.addAttribute("action", "monthly");
 		
-		System.out.println(targetYearMonthAtDay); // yyyy-MM-01
-		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
-		session.setAttribute("targetYearMonth", targetYearMonth); // yyyy-MM
+		// 月次idからdto取得してsessionにセット（userId, name, date, targetYearMonth, formattedしたやつ）
+		MonthlyAttendanceReqDto monthlyDto = attendanceService.getMonthlyDataById(id);
+		session.setAttribute("monthlyDto", monthlyDto);
+		Integer userId = monthlyDto.getUserId();
+		String name = monthlyDto.getName();
+		YearMonth formattedYearMonth = monthlyDto.getFormattedYearMonth(); 
+		String yearMonthStr = monthlyDto.getYearMonthStr();
 
-		//		String yearMonth = targetYearMonth.substring(0, 7); // String型に変換　/2024-01/-01
-		//		LocalDate ldYearMonth = LocalDate.parse(yearMonth);
-		//		System.out.println(ldYearMonth);
-
-		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, targetYearMonth);
-
+		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, formattedYearMonth);
 		model.addAttribute("attendanceList", attendanceList);
-		model.addAttribute("formattedYearMonth", formattedYearMonth); //yyyy/MM
-		model.addAttribute("formattedDate", formattedDate); // yyyy/MM/dd
-		model.addAttribute("name", name);
+		model.addAttribute("monthlyDto", monthlyDto);
 		
 		// モーダルのメッセージ
-		String modalMessage = name + "さんの" + formattedYearMonth + "の月次申請を却下しますか？";
+		String modalMessage = name + "さんの" + yearMonthStr + "の月次申請を却下しますか？";
 		model.addAttribute("modalMessage", modalMessage);
+		
+		// エラーがあった場合の情報を渡す
+		model.addAttribute("openModal", session.getAttribute("openModal"));
+		model.addAttribute("modalError", session.getAttribute("modalError"));
+		model.addAttribute("errorMessages", session.getAttribute("errorMessages"));
+		
+	    // セッションにモーダル表示のフラグを設定しない
+	    session.removeAttribute("openModal"); // 初期表示でモーダルは開かない
+	    session.removeAttribute("modalError");
 
 		return "/attendance/regist";
 	}
 	
 	/**
 	 * 『訂正：承認申請者』リンク押下後
-	 * @param userId
-	 * @param date
-	 * @param userName
-	 * @param formattedDate yyyy/MM/dd
+	 * @param id
+	 * @param correctionForm
 	 * @param model
 	 * @param session
 	 * @return
 	 */
-	@PostMapping("/attendance/correctionRequests")
-	public String showCorrectionRequests(@RequestParam("userId") Integer userId, @RequestParam("date") String dateStr, 
-			@RequestParam("userName") String userName, @RequestParam("formattedDate") String formattedDate, 
-			@RequestParam("formattedApplicationDate") String formattedApplicationDate, Model model, HttpSession session) {
-		AttendanceCorrection correction = attendanceService.findCorrectionByUserIdAndDate(userId, dateStr);
+	@GetMapping("/attendance/correctionRequests/correctionId={id}")
+	public String showCorrectionRequests(@PathVariable("id") Integer id, @ModelAttribute("correctionForm") AttendanceCorrectionForm correctionForm,  
+			Model model, HttpSession session) {
 		
-		session.setAttribute("targetType", "correction");
-		session.setAttribute("userName", userName);
-		session.setAttribute("date", dateStr);
-		session.setAttribute("formattedDate", formattedDate);
+		// action == 'correction'
+		model.addAttribute("action", "correction");
 		
-		model.addAttribute("currentPath", "/attendance/correctionRequests");
+		// 訂正idからdto取得してsessionにセット（userId, userName, date, applicationDate, formattedしたやつ）
+		AttendanceCorrectionDto correctionDto = attendanceService.getCorrectionDataById(id);
+		model.addAttribute("correctionDto", correctionDto);
+		session.setAttribute("correctionDto", correctionDto);
+		Integer userId = correctionDto.getUserId();
+		String userName = correctionDto.getUserName();
+		LocalDate date = correctionDto.getDate(); 
+		String formattedDate = correctionDto.getFormattedDate();
+			    
+		// 訂正した勤怠表表示
+		AttendanceCorrection correction = attendanceService.findCorrectionByUserIdAndDate(userId, date);
 		model.addAttribute("correction", correction);
-		model.addAttribute("userName", userName);
-//		String formattedDate = date.replace("-", "/");
-		model.addAttribute("formattedDate", formattedDate); // yyyy/MM/dd
-		model.addAttribute("formattedApplicationDate", formattedApplicationDate); // yyyy/MM/dd
 		
 		// 訂正前の情報を表示するための処理
-		YearMonth targetYearMonth = YearMonth.parse(dateStr.substring(0, 7)); // dateをyyyy-MMにしてYearMonth型に変換
+		YearMonth targetYearMonth = YearMonth.of(date.getYear(), date.getMonth()); // yyyy-MMに変換
 		List<Attendance> attendanceList = attendanceService.findByUserIdAndYearMonth(userId, targetYearMonth);
 		model.addAttribute("attendanceList", attendanceList);
 		
@@ -365,35 +365,59 @@ public class AttendanceController {
 		String modalMessage = userName + "さんの" + formattedDate + "の訂正申請を却下しますか？";
 		model.addAttribute("modalMessage", modalMessage);
 		
+		// エラーがあった場合の情報を渡す
+		model.addAttribute("openModal", session.getAttribute("openModal"));
+		model.addAttribute("modalError", session.getAttribute("modalError"));
+		model.addAttribute("errorMessages", session.getAttribute("errorMessages"));
+		
+	    // セッションにモーダル表示のフラグを設定しない
+	    session.removeAttribute("openModal"); // 初期表示でモーダルは開かない
+	    session.removeAttribute("modalError");
+		
 		return "/attendance/regist";
 	}
 	
 	/**
 	 * 月次申請『承認』ボタン押下後
-	 * @param userId
-	 * @param targetYearMonth
 	 * @param redirectAttributes
+	 * @param session
 	 * @return
 	 */
 	@PostMapping("/attendance/approveMonthly")
-	public String approveStatus(@RequestParam("userId") Integer userId, @RequestParam("targetYearMonth") YearMonth targetYearMonth, RedirectAttributes redirectAttributes) {
+	public String approveMonthly(RedirectAttributes redirectAttributes, HttpSession session) {
+
+		// sessionからmonthlyDtoを取得
+		MonthlyAttendanceReqDto monthlyDto = (MonthlyAttendanceReqDto) session.getAttribute("monthlyDto");
+		Integer userId = monthlyDto.getUserId();
+		String name = monthlyDto.getName();
+		String yearMonthStr = monthlyDto.getYearMonthStr();
+		YearMonth formattedYearMonth = monthlyDto.getFormattedYearMonth();
+		LocalDate targetYearMonthAtDay = formattedYearMonth.atDay(1);
 		
-		LocalDate targetYearMonthAtDay = targetYearMonth.atDay(1);
-		String message = attendanceService.updateStatusApprove(userId, targetYearMonthAtDay);
-		String mailMessage = MessageUtil.mailCommonMessage();
-		emailService.sendApproveEmail(userId, targetYearMonth, mailMessage);
-		redirectAttributes.addFlashAttribute("message", message);
-		informationService.approveInsertNotifications(userId, targetYearMonth);
-		
-		// プッシュ通知送信
-		try {
-			String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が承認されました。\"}";
-			webPushService.sendApprovePush(userId, payload);
-		} catch (GeneralSecurityException | IOException | JoseException e) {
-			System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
-			e.printStackTrace();
+		// 承認処理
+		boolean isApprove = attendanceService.updateStatusApprove(userId, targetYearMonthAtDay);
+		String message;
+
+		if (isApprove) {
+			message = name + "の" + yearMonthStr + "における承認申請が承認されました。";
+			// メール送信
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendApproveEmail(userId, yearMonthStr, mailMessage);
+			// お知らせ
+			informationService.approveInsertNotifications(userId, formattedYearMonth);
+			// プッシュ通知送信
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が承認されました。\"}";
+				webPushService.sendApprovePush(userId, payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else {
+			message = "承認に失敗しました。";
 		}
-		
+
+		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:/attendance/regist";
 	}
 		
@@ -406,24 +430,68 @@ public class AttendanceController {
 	 * @return
 	 */
 	@PostMapping("/attendance/rejectMonthly")
-	public String rejectStatus(@RequestParam("userId") Integer userId, @RequestParam("targetYearMonth") YearMonth targetYearMonth, @RequestParam("comment") String comment, RedirectAttributes redirectAttributes) {
+	public String rejectMonthly(@Validated @ModelAttribute("monthlyForm") MonthlyAttendanceReqForm monthlyForm,
+			BindingResult result, @RequestParam("id") Integer id, RedirectAttributes redirectAttributes, HttpSession session) {
+
+		// sessionからmonthlyDtoを取得
+		MonthlyAttendanceReqDto monthlyDto = (MonthlyAttendanceReqDto) session.getAttribute("monthlyDto");
+		System.out.println("却下Dto" + monthlyDto);
+		Integer userId = monthlyDto.getUserId();
+		String name = monthlyDto.getName();
+		String yearMonthStr = monthlyDto.getYearMonthStr();
+		YearMonth formattedYearMonth = monthlyDto.getFormattedYearMonth();
+		LocalDate targetYearMonthAtDay = formattedYearMonth.atDay(1);
 		
-		LocalDate targetYearMonthAtDay = targetYearMonth.atDay(1);
-		String message = attendanceService.updateStatusReject(userId, targetYearMonthAtDay, comment);
-		String mailMessage = MessageUtil.mailCommonMessage();
-		emailService.sendRejectEmail(userId, targetYearMonth, mailMessage);
-		redirectAttributes.addFlashAttribute("message", message);
-		informationService.rejectInsertNotifications(userId, targetYearMonth);
-		
-		// プッシュ通知送信
-		try {
-			String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が却下されました。再度申請を行ってください。\"}";
-			webPushService.sendRejectPush(userId, payload);
-		} catch (GeneralSecurityException | IOException | JoseException e) {
-			System.out.println("却下:通知送信中にエラーが発生しました: " + e.getMessage());
-			e.printStackTrace();
+		// エラーメッセージを格納するMap
+		Map<String, String> errorMessages = new HashMap<>();
+
+		// フィールドごとのエラーメッセージを収集
+		result.getFieldErrors().forEach(error -> {
+			errorMessages.put(error.getField(), error.getDefaultMessage());
+		});
+
+		// 入力チェック
+		if (result.hasErrors()) {
+			// セッションにエラー情報を保存
+			session.setAttribute("openModal", true); // モーダルを開くフラグ
+			session.setAttribute("modalError", "エラーがあります。"); // エラーメッセージ
+			session.setAttribute("errorMessages", errorMessages); // フィールドエラーメッセージ
+
+			// リダイレクト時にモーダルを再表示
+			redirectAttributes.addFlashAttribute("openModal", true);
+			redirectAttributes.addFlashAttribute("modalError", "エラーがあります。");
+			redirectAttributes.addFlashAttribute("errorMessages", errorMessages);
+
+			redirectAttributes.addFlashAttribute("action", "monthly");
+			redirectAttributes.addFlashAttribute("id", id);
+
+			return "redirect:/attendance/approveRequests/monthlyId=" + id;
 		}
-		
+
+		// 却下処理
+		boolean isReject = attendanceService.updateStatusReject(userId, targetYearMonthAtDay, monthlyForm.getComment());
+		String message;
+
+		if (isReject) {
+			message = name + "の" + yearMonthStr + "における承認申請が却下されました。";
+			// メール送信
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendRejectEmail(userId, yearMonthStr, mailMessage);
+			// お知らせ
+			informationService.rejectInsertNotifications(userId, formattedYearMonth);
+			// プッシュ通知送信
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が却下されました。再度申請を行ってください。\"}";
+				webPushService.sendRejectPush(userId, payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("却下:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else {
+			message = "却下に失敗しました。";
+		}
+		redirectAttributes.addFlashAttribute("message", message);
+
 		return "redirect:/attendance/regist";
 	}
 
@@ -437,22 +505,26 @@ public class AttendanceController {
 	 * @return
 	 */
 	@PostMapping("/attendance/approveCorrection")
-	public String approveCorrection(@RequestParam("id") Integer id, @RequestParam("userId") Integer userId,
-			@RequestParam("confirmer") String confirmer, RedirectAttributes redirectAttributes, HttpSession session) {
-		String userName = (String) session.getAttribute("userName");
-		String formattedDate = (String) session.getAttribute("formattedDate");
-		String dateStr = (String) session.getAttribute("date");
-		// dateStrをLocalDateに変換
-		LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd")); // フォーマットを調整
-		YearMonth targetYearMonth = YearMonth.from(localDate); // YearMonthを生成
+	public String approveCorrection(@ModelAttribute("correctionForm") AttendanceCorrectionForm correctionForm,
+			@RequestParam("id") Integer id,
+			RedirectAttributes redirectAttributes, HttpSession session) {
 
-		// 処理
+		// sessionからcorrectionDtoを取得
+		AttendanceCorrectionDto correctionDto = (AttendanceCorrectionDto) session.getAttribute("correctionDto");
+		Integer userId = correctionDto.getUserId();
+		String formattedDate = correctionDto.getFormattedDate();
+		YearMonth targetYearMonth = YearMonth.of(correctionDto.getDate().getYear(), correctionDto.getDate().getMonth());
+
+		String confirmer = ((Users) session.getAttribute("loginUser")).getName();
+		correctionForm.setConfirmer(confirmer);
+
+		// 承認処理
 		boolean isApprove = attendanceService.updateApproveCorrection(id, confirmer);
 		String message;
 
 		if (isApprove) {
-			message = userName + "の" + formattedDate + "に訂正申請が承認されました。";
-			// メール
+			message = correctionDto.getUserName() + "の" + formattedDate + "に訂正申請が承認されました。";
+			// メール送信
 			String mailMessage = MessageUtil.mailCommonMessage();
 			emailService.sendCorrectionApproveEmail(userId, formattedDate, mailMessage);
 			// お知らせ
@@ -461,12 +533,11 @@ public class AttendanceController {
 		} else {
 			message = "承認に失敗しました。";
 
-			redirectAttributes.addFlashAttribute("message", message);
-
 		}
+		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:/attendance/regist";
 	}
-	
+
 	/**
 	 * 訂正申請『却下』ボタン押下後
 	 * @param id
@@ -476,37 +547,66 @@ public class AttendanceController {
 	 * @return
 	 */
 	@PostMapping("/attendance/rejectCorrection")
-	public String rejectCorrection(@RequestParam("id") Integer id, @RequestParam("userId") Integer userId,
-			@RequestParam("rejectionReason") String rejectionReason, RedirectAttributes redirectAttributes,
-			HttpSession session, Model model) {
-		
-		Users user = (Users) session.getAttribute("loginUser");
-		String confirmer = user.getName();
-		String userName = (String)session.getAttribute("userName");
-		String formattedDate = (String)session.getAttribute("formattedDate");
-		String dateStr = (String)session.getAttribute("date");
-		// dateStrをLocalDateに変換
-	    LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd")); // フォーマットを調整
-	    YearMonth targetYearMonth = YearMonth.from(localDate); // YearMonthを生成
-		
-	    // 処理
-		boolean isReject = attendanceService.updateRejectCorrection(confirmer, rejectionReason, id);
+	public String rejectCorrection(
+			@Validated(RejectAttendanceCorrectionGroup.class) @ModelAttribute("correctionForm") AttendanceCorrectionForm correctionForm,
+			BindingResult result,
+			@RequestParam("action") String action, @RequestParam("id") Integer id,
+			RedirectAttributes redirectAttributes, HttpSession session) {
+
+		// エラーメッセージを格納するMap
+		Map<String, String> errorMessages = new HashMap<>();
+
+		// フィールドごとのエラーメッセージを収集
+		result.getFieldErrors().forEach(error -> {
+			errorMessages.put(error.getField(), error.getDefaultMessage());
+		});
+
+		// 入力チェック
+		if (result.hasErrors()) {
+			// セッションにエラー情報を保存
+			session.setAttribute("openModal", true); // モーダルを開くフラグ
+			session.setAttribute("modalError", "エラーがあります。"); // エラーメッセージ
+			session.setAttribute("errorMessages", errorMessages); // フィールドエラーメッセージ
+
+			System.out.println("エラーある" + result.getFieldErrors());
+			redirectAttributes.addFlashAttribute("correctionForm", correctionForm);
+			redirectAttributes.addFlashAttribute("modalError", "エラーがあります。");
+			redirectAttributes.addFlashAttribute("openModal", true);
+			redirectAttributes.addFlashAttribute("errorMessages", errorMessages);
+			
+			redirectAttributes.addFlashAttribute("action", "correction");
+			redirectAttributes.addFlashAttribute("id", id);
+
+			return "redirect:/attendance/correctionRequests/correctionId=" + id;
+		}
+
+		// sessionからcorrectionDtoを取得
+		AttendanceCorrectionDto correctionDto = (AttendanceCorrectionDto) session.getAttribute("correctionDto");
+		Integer userId = correctionDto.getUserId();
+		String formattedDate = correctionDto.getFormattedDate();
+		YearMonth targetYearMonth = YearMonth.of(correctionDto.getDate().getYear(), correctionDto.getDate().getMonth());
+
+		String confirmer = ((Users) session.getAttribute("loginUser")).getName();
+		correctionForm.setConfirmer(confirmer);
+		correctionForm.setRejectionReason(correctionForm.getRejectionReason());
+
+		// 処理
+		boolean isReject = attendanceService.updateRejectCorrection(correctionForm);
 		String message;
-		
+
 		if (isReject) {
-			message = userName + "の" + formattedDate + "における訂正申請が却下されました。";
+			message = correctionDto.getUserName() + "の" + formattedDate + "における訂正申請が却下されました。";
 			// メール
 			String mailMessage = MessageUtil.mailCommonMessage();
 			emailService.sendCorrectionRejectEmail(userId, formattedDate, mailMessage);
 			// お知らせ
 			informationService.correctionRejectInsertNotifications(userId, formattedDate, targetYearMonth);
-			
+
 		} else {
 			message = "却下に失敗しました。";
 		}
-		
+
 		redirectAttributes.addFlashAttribute("message", message);
-		
 		return "redirect:/attendance/regist";
 	}
 
@@ -555,45 +655,6 @@ public class AttendanceController {
 		return "redirect:/common/startMenu";
 	}
 		
-//	/**
-//	 * 勤怠訂正モーダルの申請ボタン押下後
-//	 * @param correctionForm
-//	 * @param model
-//	 * @param redirectAttributes
-//	 * @return
-//	 */
-//	@PostMapping("/attendance/correction")
-//	@ResponseBody
-//	public ResponseEntity<Map<String, Object>> correctionReq(
-//			@Validated @RequestBody AttendanceCorrectionForm correctionForm, BindingResult result, HttpSession session) {
-//
-//		Map<String, Object> response = new HashMap<>();
-//
-//		// 入力チェック
-//		attendanceService.correctionValidationForm(correctionForm, result);
-//
-//		// 入力チェックエラ－時
-//		if (result.hasErrors()) {
-//			String errorMessage = result.getFieldError().getDefaultMessage();
-//			response.put("succses", false);
-//			response.put("message", errorMessage);
-//			System.out.println("エラー時");
-//		} else {
-//			//正常な場合、データベースに登録
-//			String message = attendanceService.registCorrection(correctionForm);
-//			response.put("succes", true);
-//			response.put("message", message);
-//			
-//			//リダイレクト先の情報を返す
-//			YearMonth targetYearMonth = (YearMonth) session.getAttribute("yearMonth");
-//			int year = targetYearMonth.getYear();
-//			int month = targetYearMonth.getMonthValue();
-//			response.put("year", year);
-//			response.put("month", month);
-//		}
-//
-//		return ResponseEntity.ok(response);
-//	}
 	
 	/**
 	 * 勤怠訂正モーダルの申請ボタン押下後
@@ -606,7 +667,7 @@ public class AttendanceController {
 	@PostMapping("/attendance/correction")
 	public ResponseEntity<Map<String, Object>> correctionReq(
 			@Validated @RequestBody AttendanceCorrectionForm correctionForm,
-			HttpSession session, BindingResult result, RedirectAttributes redirectAttributes) {
+			BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
 
 		Map<String, Object> response = new HashMap<>();
 
@@ -618,13 +679,13 @@ public class AttendanceController {
 			return ResponseEntity.badRequest().body(response); // エラー時のレスポンス
 		}
 
-
 		// リダイレクト先の情報をセッションに格納
 		YearMonth targetYearMonth = (YearMonth) session.getAttribute("yearMonth");
 		int year = targetYearMonth.getYear();
 		int month = targetYearMonth.getMonthValue();
 		
 		// エラーがなければ
+		System.out.println("申請モーダル：" + correctionForm);
 		String message = attendanceService.registCorrection(correctionForm);
 		response.put("success", true);
 		response.put("message", message);
@@ -643,8 +704,6 @@ public class AttendanceController {
 		return ResponseEntity.ok(response); // 成功時のレスポンス
 	}
 
-
-	
 	/**
 	 * 却下理由【訂正申請】×ボタン押下(却下フラグ0に更新)
 	 * @param correctionId
@@ -661,7 +720,5 @@ public class AttendanceController {
 		
 		return "redirect:/attendance/regist/display?year=" + year + "&month=" + month;
 	}
-	
-	
 
 }

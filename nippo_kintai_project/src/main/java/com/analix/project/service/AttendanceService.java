@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+import com.analix.project.dto.AttendanceCorrectionDto;
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
 import com.analix.project.entity.AttendanceCorrection;
@@ -45,7 +46,7 @@ public class AttendanceService {
 	/**
 	 * ヘッダー:ステータス部分取得
 	 * @param userId
-	 * @param attendanceDate
+	 * @param targetYearMonthAtDay
 	 * @return 月次勤怠承認テーブルのステータス
 	 */
 	public Integer findStatusByUserId(Integer userId, LocalDate targetYearMonthAtDay) {
@@ -127,7 +128,7 @@ public class AttendanceService {
 	/**
 	 *「承認申請」ボタン押下後
 	 * @Param userId
-	 * @Param attendanceDate
+	 * @Param targetYearMonthAtDay
 	 * @return メッセージ
 	 */
 	public String insertMonthlyAttendanceReq(Integer userId, LocalDate targetYearMonthAtDay) {
@@ -177,41 +178,64 @@ public class AttendanceService {
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReqByUserId(Integer userId, LocalDate targetYearMonth) {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReqByUserId(userId, targetYearMonth);
 	}
-
+	
 	/**
-	 * 月次申請承認 status更新
-	 * @param userId
-	 * @param targetYearMonthAtDay
-	 * @return 承認メッセージ
+	 * 『月次：承認申請者』リンク押下後
+	 * 月次idからデータ（ユーザーid、申請者、対象年月日、申請日）を取得
+	 * @param id 月次id
+	 * @return monthlyDto 月次データ
 	 */
-	public String updateStatusApprove(Integer userId, LocalDate targetYearMonthAtDay) {
-		monthlyAttendanceReqMapper.updateApproveStatus(userId, targetYearMonthAtDay);
-		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
-				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
-		String userName = monthlyAttendanceReqList.getName();
-		//		LocalDate date = monthlyAttendanceReqList.getDate();
-		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
-
-		return userName + "の" + targetYearMonth + "における承認申請が承認されました。";
+	public MonthlyAttendanceReqDto getMonthlyDataById(Integer id) {
+		MonthlyAttendanceReqDto monthlyDto = monthlyAttendanceReqMapper.findMonthlyDataById(id);
+		// 日付のフォーマット処理
+		YearMonth formattedYearMonth = YearMonth.from(monthlyDto.getTargetYearMonth());
+		String yearMonthStr = formattedYearMonth.format(DateTimeFormatter.ofPattern("yyyy/MM"));
+		String formattedDate = customDateUtil.dateHyphenSlashConverter(monthlyDto.getDate());
+		// フォーマット済みの値をDtoにセット
+		monthlyDto.setFormattedYearMonth(formattedYearMonth); // YearMonth型（yyyy-MM）
+		monthlyDto.setYearMonthStr(yearMonthStr); // String型（yyyy/MM）
+		monthlyDto.setFormattedDate(formattedDate); // String型（yyyy/MM/dd）
+		
+		return monthlyDto;
+	}
+	
+	/**
+     * 『訂正：承認申請者』リンク押下後
+     * 訂正idからデータ（ユーザーId、申請者、対象日付、申請日）を取得
+     * @param id 訂正id
+     * @return correctionDto 訂正データ
+     */
+	public AttendanceCorrectionDto getCorrectionDataById(Integer id) {
+		AttendanceCorrectionDto correctionDto = attendanceCorrectionMapper.findCorrectionDataById(id);
+		// 日付のフォーマット処理（String型yyyy/MM/dd）
+		String formattedDate = customDateUtil.dateHyphenSlashConverter(correctionDto.getDate());
+		String formattedApplicationDate = customDateUtil.dateHyphenSlashConverter(correctionDto.getApplicationDate());
+		// フォーマット済みの値をDtoにセット
+		correctionDto.setFormattedDate(formattedDate); // String型（yyyy/MM/dd）
+		correctionDto.setFormattedApplicationDate(formattedApplicationDate); // String型（yyyy/MM/dd）
+		
+		return correctionDto;
 	}
 
 	/**
-	 * 月次申請却下 却下理由、status更新
+	 * 月次申請承認 statusを2に更新
+	 * @param userId
+	 * @param targetYearMonthAtDay
+	 * @return true:承認成功 false:失敗
+	 */
+	public boolean updateStatusApprove(Integer userId, LocalDate targetYearMonthAtDay) {
+		return monthlyAttendanceReqMapper.updateApproveStatus(userId, targetYearMonthAtDay);
+	}
+
+	/**
+	 * 月次申請却下 却下理由、statusを3に更新
 	 * @param userId
 	 * @param targetYearMonthAtDay
 	 * @param comment
-	 * @return 却下メッセージ
+	 * @return
 	 */
-	public String updateStatusReject(Integer userId, LocalDate targetYearMonthAtDay, String comment) {
-		monthlyAttendanceReqMapper.updateRejectStatusAndComment(userId, targetYearMonthAtDay, comment);
-		MonthlyAttendanceReqDto monthlyAttendanceReqList = monthlyAttendanceReqMapper
-				.findMonthlyAttendanceReqByUserId(userId, targetYearMonthAtDay);
-		String userName = monthlyAttendanceReqList.getName();
-				
-		//		LocalDate date = monthlyAttendanceReqList.getDate();
-		YearMonth targetYearMonth = YearMonth.of(targetYearMonthAtDay.getYear(), targetYearMonthAtDay.getMonthValue());
-
-		return userName + "の" + targetYearMonth + "における承認申請が却下されました。";
+	public boolean updateStatusReject(Integer userId, LocalDate targetYearMonthAtDay, String comment) {
+		return monthlyAttendanceReqMapper.updateRejectStatusAndComment(userId, targetYearMonthAtDay, comment);
 	}
 	
 	/**
@@ -233,8 +257,8 @@ public class AttendanceService {
 	 * @param id
 	 * @return true:却下成功 false:失敗
 	 */
-	public boolean updateRejectCorrection(String confirmer, String rejectionReason, Integer id) {
-		return attendanceCorrectionMapper.updateRejectCorrection(confirmer, rejectionReason, id);
+	public boolean updateRejectCorrection(AttendanceCorrectionForm correctionForm) {
+		return attendanceCorrectionMapper.updateRejectCorrection(correctionForm);
 	}
 	
 	/**
@@ -253,7 +277,7 @@ public class AttendanceService {
 	 * @param date 対象の日付（年月日）
 	 * @return 訂正申請者の勤怠情報
 	 */
-	public AttendanceCorrection findCorrectionByUserIdAndDate(Integer userId, String date){
+	public AttendanceCorrection findCorrectionByUserIdAndDate(Integer userId, LocalDate date){
 		return attendanceCorrectionMapper.findAttendanceByUserIdAndDate(userId, date);
 	}
 	
