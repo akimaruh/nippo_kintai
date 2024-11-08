@@ -58,6 +58,19 @@
 		WHERE user_id = #{userId} AND
 		target_year_month = #{attendanceDate}
 	</update>
+	
+	<!-- 月次idからデータ（ユーザーId、申請者、対象日付、申請日）取得-->
+	<select id="findMonthlyDataById"
+		resultType="com.analix.project.dto.MonthlyAttendanceReqDto">
+		SELECT
+		users.name AS name, ma.user_id, ma.target_year_month, ma.date
+		FROM
+		monthly_attendance_req ma
+		JOIN
+		users ON ma.user_id = users.id
+		WHERE
+		ma.id = #{id}
+	</select>
 
 	<!-- 承認 -->
 	<update id="updateApproveStatus" parameterType="map">
@@ -65,7 +78,7 @@
 		monthly_attendance_req
 		SET status = 2
 		WHERE user_id = #{userId} AND
-		target_year_month = #{targetYearMonth}
+		target_year_month = #{targetYearMonthAtDay}
 	</update>
 
 	<!-- 却下 ステータス変更・却下理由追加-->

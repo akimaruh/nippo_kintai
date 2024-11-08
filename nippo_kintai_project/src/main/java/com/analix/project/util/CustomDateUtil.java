@@ -18,7 +18,10 @@ public class CustomDateUtil {
 	}
 	
 	
-    
+	//LocalDate→String型のyyyy/MM/ddへ変換
+	public String dateHyphenSlashConverter(LocalDate localDate) {
+		return localDate.toString().replace("-", "/");
+	}
     
 
 }

@@ -20,13 +20,26 @@
 		resultType="com.analix.project.entity.AttendanceCorrection">
 		SELECT
 		users.name AS user_name,
-		ac.id AS correction_id,
+		ac.id,
 		ac.user_id, ac.status, ac.date, ac.start_time, ac.end_time,
 		ac.remarks, ac.correction_reason, ac.rejection_reason, ac.application_date, ac.confirmer, ac.reject_flg
 		FROM
 		attendance_correction ac
 		JOIN
 		users ON ac.user_id = users.id
+	</select>
+	
+	<!-- 訂正idからデータ（ユーザーId、申請者、対象日付、申請日）取得-->
+	<select id="findCorrectionDataById"
+		resultType="com.analix.project.dto.AttendanceCorrectionDto">
+		SELECT
+		users.name AS user_name, ac.user_id, ac.date, ac.application_date
+		FROM
+		attendance_correction ac
+		JOIN
+		users ON ac.user_id = users.id
+		WHERE
+		ac.id = #{id}
 	</select>
 	
 	<!-- userIdとdateを条件に検索して取得-->
@@ -58,11 +71,11 @@
 	</select>
 	
 	<!-- 訂正申請却下後 -->
-	<update id="updateRejectCorrection" parameterType="Map">
+	<update id="updateRejectCorrection" parameterType="com.analix.project.form.AttendanceCorrectionForm">
 		UPDATE attendance_correction
-		SET reject_flg = 1, rejection_reason = #{rejectionReason},
-		confirmer = #{confirmer}
-		WHERE id = #{id}
+		SET reject_flg = 1, rejection_reason = #{correctionForm.rejectionReason},
+		confirmer = #{correctionForm.confirmer}
+		WHERE id = #{correctionForm.id}
 	</update>
 	
 	<!-- 承認申請承認後 -->
