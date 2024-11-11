@@ -6,8 +6,15 @@
 	<!-- 全件取得 -->
 	<select id="findByIdAndPassword"
 		resultType="com.analix.project.entity.Users">
-		SELECT * FROM users
-		WHERE id = #{id} AND password = BINARY #{password}
-	</select>	
-	
+		SELECT 
+		users.id,
+		users.name,
+		users.role,
+		users.department_id,
+		users.start_date
+		FROM users
+		WHERE id = #{id} AND
+		password = BINARY #{password}
+	</select>
+
 </mapper>

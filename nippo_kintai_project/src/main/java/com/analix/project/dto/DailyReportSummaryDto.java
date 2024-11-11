@@ -1,6 +1,6 @@
 package com.analix.project.dto;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import lombok.Data;
 
@@ -10,6 +10,6 @@ public class DailyReportSummaryDto {
  private Integer timePerMonth;
  
  /*1カ月当たりの各工程での総作業時間*/
- private Map<String,Integer> workTimeByProcessMapList;
+ private LinkedHashMap<String,Integer> workTimeByProcessMapList;
  
 }

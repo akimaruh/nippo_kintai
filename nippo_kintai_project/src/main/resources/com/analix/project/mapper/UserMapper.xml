@@ -117,6 +117,21 @@
 	
 
 	</select>
+	
+	<select id="findUserDataForDisplay"
+		resultType="com.analix.project.entity.Users">
+		SELECT 
+		users.id,
+		users.name,
+		department.name AS
+		department_name
+		FROM users
+		INNER JOIN department
+		ON
+		users.department_id =
+		department.department_id
+		WHERE id = #{id}
+	</select>
 
 
 </mapper>

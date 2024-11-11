@@ -21,6 +21,13 @@ public interface UserMapper {
 	Users findUserDataByUserName (@Param("name") String name);
 	
 	/**
+	 * 表示用ユーザー情報取得
+	 * @param id
+	 * @return ユーザーID,ユーザー名,部署名
+	 */
+	Users findUserDataForDisplay(@Param("id") Integer id);
+	
+	/**
 	 * 新規ユーザーID払い出し用
 	 * @return DB内ユーザーIDの最大値
 	 */

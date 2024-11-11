@@ -1,6 +1,7 @@
 package com.analix.project.util;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,9 @@ public class CustomDateUtil {
 	public String dateHyphenSlashConverter(LocalDate localDate) {
 		return localDate.toString().replace("-", "/");
 	}
-    
+    //YearMonth→String型のyyyy/MMへ変換
+	public String yearMonthHyphenSlashConverter(YearMonth yearMonth) {
+		return yearMonth.toString().replace("-", "/");
+	}
 
 }

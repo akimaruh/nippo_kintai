@@ -862,6 +862,7 @@ public class AttendanceService {
 		
 		// 出勤時間 nullじゃなかったらparseする,nullだったらそのまま
 		if (correctionForm.getStartTime() != null && !correctionForm.getStartTime().isEmpty()) {
+			System.out.println(correctionForm.getStartTime());
 		    correction.setStartTime(LocalTime.parse(correctionForm.getStartTime()));
 		} else {
 		    correction.setStartTime(null);
