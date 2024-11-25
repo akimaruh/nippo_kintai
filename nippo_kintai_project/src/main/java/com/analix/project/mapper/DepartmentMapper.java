@@ -5,7 +5,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.analix.project.dto.DepartmentUserDto;
 import com.analix.project.entity.Department;
+import com.analix.project.form.DepartmentForm;
 
 @Mapper
 public interface DepartmentMapper {
@@ -33,7 +35,7 @@ public interface DepartmentMapper {
 	 * 新部署名登録
 	 * @param department
 	 */
-	public void registDepartment(@Param("department") Department department);
+	public void registDepartment(@Param("departmentForm") DepartmentForm departmentForm);
 
 	/**
 	 * 部署名変更
@@ -67,5 +69,12 @@ public interface DepartmentMapper {
 	 * @return カウント数
 	 */
 	public Integer getUsersCountByDepartmentName(@Param("name") String name);
+	
+	/**
+	 * 部署IDに紐づくユーザー情報取得
+	 * @param departmentId
+	 * @return
+	 */
+	public List<DepartmentUserDto> findUsersByDepartmentId(@Param("departmentId") Integer departmentId);
 
 }
