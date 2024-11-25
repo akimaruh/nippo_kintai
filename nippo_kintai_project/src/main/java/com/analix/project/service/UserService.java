@@ -1,34 +1,42 @@
 package com.analix.project.service;
 
-import java.text.DateFormat;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.analix.project.dto.UserCsvInputDto;
 import com.analix.project.entity.Department;
 import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
 import com.analix.project.mapper.DepartmentMapper;
 import com.analix.project.mapper.UserMapper;
+import com.analix.project.util.Constants;
+import com.analix.project.util.CustomDateUtil;
 
 @Service
 public class UserService {
 
 	private final UserMapper userMapper;
 	private final DepartmentMapper departmentMapper;
+	private final CustomDateUtil customDateUtil;
 
-	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper) {
+	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper, CustomDateUtil customDateUtil) {
 		this.userMapper = userMapper;
 		this.departmentMapper = departmentMapper;
-
+		this.customDateUtil = customDateUtil;
 	}
 
 	/**
@@ -36,30 +44,12 @@ public class UserService {
 	 * @param name
 	 * @return registUserForm
 	 */
-	public RegistUserForm getUserDataByUserName(String name, BindingResult result) {
-
-		if (name != null) {
-			String fullwidthRegex = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFFa-zA-Z]+$";
-			Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
-			Matcher nameMatcher = fullwidthPattern.matcher(name);
-
-			if (name.length() > 20) {
-				result.addError(
-						new FieldError("registUserForm", "name",
-								"20文字以内で入力してください"));
-			}
-			//空欄または全角以外で入力があった場合
-			if (!nameMatcher.find()) {
-				result.addError(
-						new FieldError("registUserForm", "name",
-								"全角で入力してください"));
-			}
-		}
+	public RegistUserForm getUserDataByEmployeeCode(Integer inputEmployeeCode) {
 
 		//DBでユーザー検索
-		Users userDataBySearch = userMapper.findUserDataByUserName(name);
+		Users userDataBySearch = userMapper.findUserDataByEmployeeCode(inputEmployeeCode);
 		RegistUserForm registUserForm = new RegistUserForm();
-		//エンティティからフォームへ詰めなおし
+
 		if (userDataBySearch != null) {
 			registUserForm.setId(userDataBySearch.getId());
 			registUserForm.setName(userDataBySearch.getName());
@@ -68,108 +58,32 @@ public class UserService {
 			registUserForm.setDepartmentId(userDataBySearch.getDepartmentId());
 			registUserForm.setEmail(userDataBySearch.getEmail());
 			registUserForm.setDepartmentName(userDataBySearch.getDepartmentName());
-
-			//LocalDate型(yyyy-MM-dd)からString型(yyyy/MM/dd)へ変換
-			LocalDate startDate = userDataBySearch.getStartDate();
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-			String startDateString = startDate.format(dateTimeFormatter);
-
-			//DB保存の"9999-12-31"を外部表示用"9999/99/99"に戻す
-			if (startDateString.equals("9999/12/31")) {
-				startDateString = "9999/99/99";
-			}
-
-			registUserForm.setStartDate(startDateString);
+			registUserForm.setEmployeeCode(userDataBySearch.getEmployeeCode());
+			registUserForm.setStartDate(getStringStartDate(userDataBySearch.getStartDate()));
 		} else {
 			//ユーザーが存在しない場合新しいユーザーIDを払い出し
-			Integer NextUserId = userMapper.createNewId();
-			registUserForm.setId(NextUserId + 1);
+			Integer NextEmployeeCode = userMapper.createNewEmployeeCode();
+			registUserForm.setEmployeeCode(NextEmployeeCode + 1);
+			registUserForm.setInsertFlg(Constants.INSERT_FLG);
 		}
-
 		return registUserForm;
 	}
 
 	/**
-	 * 入力チェック
-	 * @param registUserForm
-	 * @param result
+	 * 利用開始日をLocalDate型から画面表示用に変換
+	 * @param startDate
+	 * @return String型startDate
 	 */
-	public boolean validationForm(RegistUserForm registUserForm, BindingResult result) {
-		String startDate = registUserForm.getStartDate();
-		String name = registUserForm.getName();
-		String password = registUserForm.getPassword();
-		String role = registUserForm.getRole();
-		Integer departmentId = registUserForm.getDepartmentId();
+	private String getStringStartDate(LocalDate startDate) {
+		//LocalDate型(yyyy-MM-dd)からString型(yyyy/MM/dd)へ変換
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		String stringStartDate = startDate.format(dateTimeFormatter);
 
-		String fullwidthRegex = "^[^ -~｡-ﾟ]+$";
-		Pattern fullwidthPattern = Pattern.compile(fullwidthRegex);
-		Matcher nameMatcher = fullwidthPattern.matcher(name);
-		//		if (name == "") {
-		//			result.addError(
-		//					new FieldError("registUserForm", "name",
-		//							"名前を入力してください"));
-		//		}
-		if (name.length() > 20) {
-			result.addError(
-					new FieldError("registUserForm", "name",
-							"全角20文字以内で入力してください"));
+		//DB保存の"9999-12-31"を外部表示用"9999/99/99"に戻す
+		if (stringStartDate.equals("9999/12/31")) {
+			stringStartDate = "9999/99/99";
 		}
-		//空欄または全角以外の入力があった場合
-		if (!nameMatcher.find()) {
-			result.addError(
-					new FieldError("registUserForm", "name",
-							"全角で入力してください"));
-		}
-		String alnumRegex = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFFa-zA-Z]+$";
-		Pattern alnumPattern = Pattern.compile(alnumRegex);
-		Matcher passwordMatcher = alnumPattern.matcher(password);
-		//		if (password == "") {
-		//			result.addError(
-		//					new FieldError("registUserForm", "password",
-		//							"パスワードを入力してください"));
-		//		}
-		if (password.length() > 16) {
-			result.addError(
-					new FieldError("registUserForm", "password",
-							"半角16文字以内で入力してください"));
-		}
-		//空欄または半角以外の入力があった場合
-		if (!passwordMatcher.find()) {
-			result.addError(
-					new FieldError("registUserForm", "password",
-							"半角で入力してください"));
-		}
-
-		if (role == "") {
-			result.addError(
-					new FieldError("registUserForm", "role",
-							"権限を選択してください"));
-		}
-		if (departmentId == 0 || departmentId == null) {
-			result.addError(
-					new FieldError("registUserForm", "departmentId",
-							"所属部署を選択してください"));
-		}
-
-		if (startDate.equals("9999/99/99")) {
-			return false;
-		}
-
-		else {
-			DateFormat format = DateFormat.getDateInstance();
-			// 日付/時刻解析を厳密に行う
-			format.setLenient(false);
-			try {
-				format.parse(startDate);
-				return false;
-
-			} catch (Exception e) {
-				result.addError(
-						new FieldError("registUserForm", "startDate",
-								"yyyy/MM/dd形式で入力して下さい"));
-				return true;
-			}
-		}
+		return stringStartDate;
 	}
 
 	/**
@@ -177,18 +91,19 @@ public class UserService {
 	 * @param users
 	 * @return 反映結果
 	 */
-	public String registUserData(RegistUserForm registUserForm, Integer id) {
+	public String registUserData(RegistUserForm registUserForm) {
 		System.out.println(registUserForm.getName());
 		Users registUser = new Users();
+		Integer id = registUserForm.getId();
 		String startDate = registUserForm.getStartDate();
 		String userName = registUserForm.getName();
+		Integer employeeCode = registUserForm.getEmployeeCode();
 
 		//"利用開始日に9999/99/99が入力されている場合
 		if (startDate.equals("9999/99/99")) {
 			//DBで保存できる最大日付へ変更
 			startDate = "9999/12/31";
 		}
-
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		LocalDate startDateLoalDate = LocalDate.parse(startDate, formatter);
 
@@ -198,34 +113,28 @@ public class UserService {
 		registUser.setStartDate(startDateLoalDate);
 		registUser.setEmail(registUserForm.getEmail());
 		registUser.setDepartmentId(registUserForm.getDepartmentId());
-		System.out.println(registUser.getName());
-		Integer userCheck = userMapper.countUserDataById(id,userName);
-		System.out.println("ユーザー合致数"+userCheck);
-		//ユーザー更新処理
-		if (userCheck == 1) {
-			registUser.setId(id);
-			boolean updateCheck = userMapper.updateUserData(registUser);
-			if (updateCheck == true) {
-				return userName + "を更新しました。";
-			} else {
-				return userName+"の登録が失敗しました。";
-			}
-		}
+		registUser.setEmployeeCode(employeeCode);
+		System.out.println(employeeCode);
 
 		//ユーザー登録処理
-		else if (userCheck == 0) {
-			boolean updateCheck = userMapper.insertUserData(registUser);
-			if (updateCheck == true) {
-				return userName + "を登録しました。";
+		if (registUserForm.getInsertFlg() == Constants.INSERT_FLG) {
+			if (userMapper.userExsistByEmployeeCode(employeeCode)) {
+				return "社員番号:" + employeeCode + "は既に登録されています。";
+
 			} else {
-				return userName+"の登録が失敗しました。";
+				boolean updateCheck = userMapper.insertUserData(registUser);
+				return updateCheck ? userName + "を登録しました。" : userName + "の登録が失敗しました。";
 			}
-
+			//ユーザー更新処理
 		} else {
-			//登録ユーザー重複時
-			return userName+"は既に登録されています。";
+			if (!employeeCode.equals(registUserForm.getBeforeEmployeeCode())
+					&& userMapper.userExsistByEmployeeCode(employeeCode)) {
+				return "社員番号:" + employeeCode + "は既に登録されています。";
+			}
+			registUser.setId(id);
+			boolean updateCheck = userMapper.updateUserData(registUser);
+			return updateCheck ? userName + "を更新しました。" : userName + "の更新が失敗しました。";
 		}
-
 	}
 
 	/**
@@ -241,21 +150,223 @@ public class UserService {
 			Integer departmentId = row.getDepartmentId();
 			departmentMap.put(departmentName, departmentId);
 		}
-
 		return departmentMap;
+	}
+
+	public List<Department> getAllDepartmentId() {
+
+		return departmentMapper.findAllDepartmentName();
 
 	}
-	
-	public Map<String,Integer> searchForUserNameAndId(String userKeyword){
-		System.out.println("サービス通った:"+userKeyword);
-		List<Users> userNameAndIdList = userMapper.searchForUserNameAndId(userKeyword);
-		System.out.println("マッパー返ってきた："+userNameAndIdList);
-		Map<String,Integer> userNameAndIdMap = new LinkedHashMap<>();
-		for(Users userNameAndId:userNameAndIdList) {
-			userNameAndIdMap.put(userNameAndId.getName(),userNameAndId.getId());
+
+	/**
+	 * 名前または社員番号でユーザー検索
+	 * @param userKeyword
+	 * @return 該当のユーザー名・社員番号MapList
+	 */
+	public Map<Integer, Users> searchForUserNameAndEmployeeCode(String userKeyword) {
+		System.out.println("サービス通った:" + userKeyword);
+		List<Users> userNameAndEmployeeCodeList = userMapper.searchForUserNameAndEmployeeCode(userKeyword);
+		System.out.println("マッパー返ってきた：" + userNameAndEmployeeCodeList);
+		Map<Integer, Users> userNameAndEmployeeCodeMap = new LinkedHashMap<>();
+		for (Users user : userNameAndEmployeeCodeList) {
+			userNameAndEmployeeCodeMap.put(user.getEmployeeCode(), user);
 		}
-		System.out.println(userNameAndIdMap);
-		return userNameAndIdMap;
+		System.out.println(userNameAndEmployeeCodeMap);
+		return userNameAndEmployeeCodeMap;
+	}
+
+	/**
+	 * インポートしたファイルをユーザーリスト化
+	 * @param file
+	 * @return インポートされたユーザーリスト
+	 */
+	public List<UserCsvInputDto> showImportList(MultipartFile file) {
+		try (InputStream inputStream = file.getInputStream();
+				BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+			List<UserCsvInputDto> insertList = new ArrayList<>();
+			//読み取ったCSVの行を入れるための変数を作成
+			String line;
+			//ヘッダーレコードを飛ばすためにあらかじめ１行だけ読み取っておく（ない場合は不要）
+			line = br.readLine();
+			//行がNULL（CSVの値がなくなる）になるまで処理を繰り返す
+			lineLabel: while ((line = br.readLine()) != null) {
+				System.out.println("line:" + line);
+				//Stringのsplitメソッドを使用してカンマごとに分割して配列にいれる
+				String[] csvSplit = line.split(",", Constants.USER_COLUMN_LENGTH);
+				for (int i = 0; i < csvSplit.length; i++) {
+					//社員番号を入力していない行は飛ばす
+					if (csvSplit[0] == "") {
+						continue lineLabel;
+					}
+				}
+				//分割した値をセットして登録
+				UserCsvInputDto user = new UserCsvInputDto();
+				user.setEmployeeCode(csvSplit[0]);
+				user.setPassword(csvSplit[1]);
+				user.setName(csvSplit[2]);
+				user.setRole(csvSplit[3]);
+				user.setDepartmentId(csvSplit[4]);
+				user.setStartDate(csvSplit[5]);
+				if (csvSplit[6].isEmpty()) {
+					user.setEmail(null);
+				} else {
+					user.setEmail(csvSplit[6]);
+				}
+				insertList.add(user);
+			}
+			br.close();
+			List<String> duplicationList = duplicationCheck(insertList);
+			System.out.println(duplicationList);
+			if (!duplicationList.isEmpty()) {
+
+				throw new IllegalStateException("社員番号が重複しています。社員番号" + duplicationList.toString());
+			}
+			return insertList;
+		} catch (IOException e) {
+			throw new IllegalStateException("CSVの読み込みに失敗しました。");
+
+		}
+	}
+
+	/**
+	 * CSV入力社員番号の重複チェック
+	 * @param insertList
+	 * @return
+	 */
+	public List<String> duplicationCheck(List<UserCsvInputDto> insertList) {
+		List<String> duplicationEmployeeList = new ArrayList<>();
+		List<String> list = new ArrayList<>();
+		for (UserCsvInputDto user : insertList) {
+			System.out.println(list);
+			String employeeCode = user.getEmployeeCode();
+			if (!list.contains(employeeCode)) {
+				list.add(employeeCode);
+			} else {
+				duplicationEmployeeList.add(employeeCode);
+			}
+		}
+		System.out.println(duplicationEmployeeList);
+		return duplicationEmployeeList;
+	}
+
+	/**
+	 * CSV入力フロー管理
+	 * @param userCsvInputDtoList
+	 * @return  処理結果
+	 */
+	public boolean handleCsvImport(List<UserCsvInputDto> userCsvInputDtoList) {
+		//String型から各プロパティの型に変換
+		List<Users> usersList = entityString(userCsvInputDtoList);
+		//社員番号からユーザーを検索
+		List<Users> findIdByEmployeeCodeList = userMapper.findIdByEmployeeCode(usersList);
+		//入力データの妥当性チェック
+		validateIntegrity(usersList, findIdByEmployeeCodeList);
+		//新規登録処理と更新登録処理に分ける
+		Map<String, List<Users>> classifiedLists = classifyUsers(usersList, findIdByEmployeeCodeList);
+		//処理開始
+		return importUsers(classifiedLists.get("insert"), classifiedLists.get("update"));
+	}
+
+	/**
+	 * DTOからエンティティへ格納
+	 * @param userCsvInputDtoList
+	 * @return DTOのデータを格納したエンティティリスト
+	 */
+	public List<Users> entityString(List<UserCsvInputDto> userCsvInputDtoList) {
+		List<Users> usersList = new ArrayList<>();
+		for (UserCsvInputDto userCsvInputDto : userCsvInputDtoList) {
+			Users user = new Users();
+			user.setEmployeeCode(Integer.parseInt(userCsvInputDto.getEmployeeCode()));
+			user.setPassword(userCsvInputDto.getPassword());
+			user.setName(userCsvInputDto.getName());
+			user.setRole(userCsvInputDto.getRole());
+			user.setDepartmentId(Integer.parseInt(userCsvInputDto.getDepartmentId()));
+			user.setStartDate(customDateUtil.formatDate(userCsvInputDto.getStartDate()));
+			user.setEmail(userCsvInputDto.getEmail());
+			usersList.add(user);
+		}
+		return usersList;
+	}
+
+	/**
+	 * 入力データの妥当性チェック
+	 * @param usersList
+	 * @param findIdByEmployeeCodeList
+	 */
+	public void validateIntegrity(List<Users> usersList, List<Users> findIdByEmployeeCodeList) {
+		//CSV入力データから社員番号、名前をマップ化
+		Map<Integer, String> usersCodeNameMap = usersList.stream()
+				.collect(Collectors.toMap(Users::getEmployeeCode, Users::getName));
+		//DBの社員番号抽出データから社員番号、名前をマップ化
+		Map<Integer, String> nameByEmployeeCodeMap = findIdByEmployeeCodeList.stream()
+				.collect(Collectors.toMap(Users::getEmployeeCode, Users::getName));
+		//２つのマップで一致しないバリューがあったらエラーを出して終了
+		for (Map.Entry<Integer, String> nameByEmployeeCodeEntry : nameByEmployeeCodeMap.entrySet()) {
+			System.out.println("nameByEmployeeCode" + nameByEmployeeCodeEntry);
+			for (Map.Entry<Integer, String> usersCodeNameEntry : usersCodeNameMap.entrySet()) {
+				System.out.println("usersCodeName" + usersCodeNameEntry);
+				if (usersCodeNameEntry.getKey().equals(nameByEmployeeCodeEntry.getKey())) {
+					if (usersCodeNameEntry.getValue().equals(nameByEmployeeCodeEntry.getValue())) {
+						continue;
+					}
+					throw new IllegalStateException("[社員番号:" + usersCodeNameEntry.getKey() + ",名前:"
+								+ usersCodeNameEntry.getValue() + "]" + "データベースと一致しない登録済みデータがあります");
+
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * 新規登録処理と更新登録処理に分ける
+	 * @param usersList
+	 * @return insert,update振り分け済みのMap
+	 */
+	public Map<String, List<Users>> classifyUsers(List<Users> usersList, List<Users> findIdByEmployeeCodeList) {
+		Map<String, List<Users>> classifiedLists = new HashMap<>();
+		// トランザクションの対象とするデータリスト
+		List<Users> insertList = new ArrayList<>();
+		List<Users> updateList = new ArrayList<>();
+
+		Map<Integer, Users> employeeCodeMap = findIdByEmployeeCodeList.stream()
+				.collect(Collectors.toMap(Users::getEmployeeCode, user -> user));
+
+		usersList.forEach(user -> {
+			Users existingUser = employeeCodeMap.get(user.getEmployeeCode());
+			if (existingUser != null) {
+				user.setId(existingUser.getId());
+				updateList.add(user);
+			} else {
+				insertList.add(user);
+			}
+		});
+		classifiedLists.put("insert", insertList);
+		classifiedLists.put("update", updateList);
+
+		return classifiedLists;
+
+	}
+
+	/**
+	 * データベースで登録・更新処理
+	 * @param insertList
+	 * @param updateList
+	 * @return 反映結果
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public boolean importUsers(List<Users> insertList, List<Users> updateList) {
+		System.out.println("importUsers入り:" + insertList);
+		if (!insertList.isEmpty()) {
+			System.out.println("Insert入り");
+			return userMapper.batchInsertUsers(insertList);
+		}
+		if (!updateList.isEmpty()) {
+			System.out.println("Update入り:" + updateList);
+			return userMapper.batchUpdateUsers(updateList);
+		}
+		return false;
 	}
 
 }

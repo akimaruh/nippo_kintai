@@ -1,5 +1,7 @@
 package com.analix.project.util;
 
+import java.util.List;
+
 /*
  * 定数クラス
  */
@@ -15,6 +17,9 @@ public interface Constants {
 	public static final String CODE_VAL_UNITMANAGER = "UnitManager";
 	/** ユーザー権限:社員 **/
 	public static final String CODE_VAL_REGULAR = "Regular";
+	/** ユーザー権限一覧 **/
+	public static final List<String> CODE_VAL_ROLE_ARRAY = List.of(CODE_VAL_ADMIN, CODE_VAL_MANAGER,
+			CODE_VAL_UNITMANAGER, CODE_VAL_REGULAR);
 
 	/** 日報提出ステータス：未提出 */
 	public static final Integer CODE_VAL_UNSUBMITTED = 0;
@@ -35,5 +40,9 @@ public interface Constants {
 			"作業⑤", "時間⑤", "総作業時間" };
 	/** 帳票に表示する１日の作業の最大種類数 **/
 	public static final int DISPLAY_WORK_QTY = 5;
+	/** ユーザーテーブルのカラム数 **/
+	public static final int USER_COLUMN_LENGTH = 7;
+	/** ユーザー登録で新規登録するフラグ **/
+	public static final byte INSERT_FLG = 1;
 
 }

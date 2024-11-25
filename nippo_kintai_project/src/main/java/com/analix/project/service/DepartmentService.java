@@ -1,6 +1,7 @@
 package com.analix.project.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,38 +13,52 @@ import com.analix.project.mapper.DepartmentMapper;
 
 @Service
 public class DepartmentService {
-	
+
 	@Autowired
 	DepartmentMapper departmentMapper;
-	
+
 	/**
 	 * 「登録済の部署」リスト
 	 * @return 部署リスト
 	 */
-	public List<Department> showDepartment(){
+	public List<Department> showDepartment() {
 		List<Department> departmentList = departmentMapper.findAllDepartmentName();
 		return departmentList;
 	}
-	
+
 	/**
 	 * 「無効な部署」リスト
 	 * @return 無効な部署リスト
 	 */
-	public List<Department> showInactiveDepartment(){
+	public List<Department> showInactiveDepartment() {
 		List<Department> inactiveDepartmentList = departmentMapper.findInactiveDepartment();
 
 		return inactiveDepartmentList;
 	}
-	
+
+	/**
+	 * 部署IDを全件取得
+	 * @return 部署ID全件
+	 */
+	public List<String> getAllDepartmentId() {
+		List<Integer> allDepartmentIdList = departmentMapper.findAllDepartmentId();
+		/*		Integer型のListをStreamを生成→中間操作(List内の要素をString.valueOf()でString型に加工)
+		  →終端操作(IntStream型からCollection型に変換)*/
+
+		List<String> allDepartmentIdStringList = allDepartmentIdList.stream().map(String::valueOf)
+				.collect(Collectors.toList());
+		return allDepartmentIdStringList;
+	}
+
 	/**
 	 * 部署の存在チェック
 	 * @param name 部署名
-	 * @return ture存在する false存在しない
+	 * @return 存在する部署数
 	 */
-	public Byte getDepartmentStatus(String name){
+	public Byte getDepartmentStatus(String name) {
 		return departmentMapper.findDepartmentStatusByName(name);
 	}
-	
+
 	/**
 	 * 「登録」ボタン押下
 	 * @param newName 新部署名
@@ -81,17 +96,17 @@ public class DepartmentService {
 		} else
 			return false; // 変更失敗(既に存在する)
 	}
-	
+
 	/**
 	 * 「削除」ボタン押下(論理削除)
 	 * @param exsistsName 登録済の部署名
 	 * @return true削除成功、false削除失敗
 	 */
 	public boolean deleteDepartment(String exsistsName) {
-        int deleteCount = departmentMapper.deleteDepartment(exsistsName);
-        return deleteCount > 0; // 行数が1以上なら成功
+		int deleteCount = departmentMapper.deleteDepartment(exsistsName);
+		return deleteCount > 0; // 行数が1以上なら成功
 	}
-	
+
 	/**
 	 * 「有効化」ボタン押下
 	 * @param inactiveName 無効な部署名
@@ -129,13 +144,13 @@ public class DepartmentService {
 			result.addError(
 					new FieldError("department", "newName", "新部署名を入力してください。"));
 		}
-		
+
 		// 登録済の部署名の必須チェック
 		if (requiredExsistsNameCheck && exsistsName == "") {
 			result.addError(
 					new FieldError("department", "exsistsName", "登録済の部署名を選択してください。"));
 		}
-		
+
 		// 削除済の部署名の必須チェック
 		if (requiredInactiveNameCheck && inactiveName == "") {
 			result.addError(
@@ -144,7 +159,7 @@ public class DepartmentService {
 
 		return true;
 	}
-	
+
 	/**
 	 * 部署IDに紐づくユーザー数のカウント
 	 * @param departmentId 部署Id
