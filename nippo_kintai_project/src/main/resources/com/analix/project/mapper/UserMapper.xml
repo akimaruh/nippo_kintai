@@ -10,10 +10,10 @@
 		<result column="department_name" property="departmentName" />
 		<result column="start_Date" property="startDate" />
 		<result column="email" property="email" />
-		<result column="tel" property="tel" />
+		<result column="employee_code" property="employeeCode" />
 	</resultMap>
 
-	<select id="findUserDataByUserName"
+	<select id="findUserDataByEmployeeCode"
 		resultType="com.analix.project.entity.Users">
 		SELECT
 		users.id,
@@ -23,7 +23,7 @@
 		users.department_id,
 		users.start_date,
 		users.email,
-		users.tel,
+		users.employee_code,
 		department.name AS
 		department_name
 		FROM users
@@ -31,18 +31,23 @@
 		ON
 		users.department_id =
 		department.department_id
-		WHERE users.name
-		= #{name}
+		WHERE users.employee_code
+		= #{employeeCode}
 	</select>
 
-	<select id="createNewId" resultType="integer">
-		SELECT max(id) FROM users;
+	<select id="createNewEmployeeCode" resultType="integer">
+		SELECT
+		max(employee_code) FROM users;
 
 	</select>
 
-	<select id="countUserDataById" resultType="integer">
-		SELECT count(*) FROM
-		users WHERE id = #{id};
+	<select id="userExsistByEmployeeCode" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM users
+		WHERE employee_code
+		= #{employeeCode}
+		);
 	</select>
 
 	<update id="updateUserData"
@@ -60,15 +65,18 @@
 		start_date =
 		#{users.startDate},
 		email =
-		#{users.email}
+		#{users.email},
+		employee_code =
+		#{users.employeeCode}
 		WHERE
-		id = #{users.id}
+		id =
+		#{users.id}
 	</update>
 	<insert id="insertUserData" useGeneratedKeys="true"
 		keyProperty="id" parameterType="com.analix.project.entity.Users">
 		INSERT INTO
-		users(name,password,role,department_id,start_date,email)
-		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate},#{users.email})
+		users(name,password,role,department_id,start_date,email,employee_code)
+		values(#{users.name},#{users.password},#{users.role},#{users.departmentId},#{users.startDate},#{users.email},#{users.employeeCode})
 	</insert>
 
 	<delete id="deleteUserData">
@@ -86,7 +94,7 @@
 		users.department_id,
 		users.start_date,
 		users.email,
-		users.tel
+		users.employee_code
 		FROM users
 		WHERE users.role
 		= #{role}
@@ -101,20 +109,155 @@
 		id = #{userId}
 	</select>
 
-	<select id="searchForUserNameAndId"
+	<select id="searchForUserNameAndEmployeeCode"
 		resultType="com.analix.project.entity.Users">
 		SELECT
 		id,
+		employee_code,
 		name
 		FROM
 		users
 		WHERE name
-		LIKE CONCAT('%',
+		LIKE
+		CONCAT('%',
 		#{userKeyword}, '%')
 		OR
-		id LIKE CONCAT('%', #{userKeyword}, '%')
-		ORDER BY id ASC
-	
+		employee_code LIKE CONCAT('%',
+		#{userKeyword},
+		'%')
+		ORDER BY
+		id ASC
+
+
+	</select>
+
+	<select id="findUserDataForDisplay"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		users.name,
+		users.employee_code,
+		department.name AS
+		department_name
+		FROM users
+		INNER JOIN
+		department
+		ON
+		users.department_id =
+		department.department_id
+		WHERE id =
+		#{id}
+	</select>
+
+	<insert id="batchInsertUsers"
+		parameterType="com.analix.project.entity.Users">
+		INSERT INTO
+		users(name,password,role,department_id,start_date,email,employee_code)
+		values
+		<foreach collection="insertList" item="insertList"
+			separator=",">
+			(#{insertList.name},#{insertList.password},#{insertList.role},#{insertList.departmentId},#{insertList.startDate},#{insertList.email},#{insertList.employeeCode})
+		</foreach>
+	</insert>
+
+	<update id="batchUpdateUsers"
+		parameterType="com.analix.project.entity.Users">
+		UPDATE users
+		<set>
+			name= CASE employee_code
+			<foreach collection="updateList" item="update">
+				WHEN
+				#{update.employeeCode}
+				THEN #{update.name}
+			</foreach>
+			END,
+			password= CASE employee_code
+			<foreach collection="updateList" item="update">
+				WHEN
+				#{update.employeeCode}
+				THEN #{update.password}
+			</foreach>
+			END,
+			role = CASE employee_code
+			<foreach collection="updateList" item="update">
+				WHEN
+				#{update.employeeCode}
+				THEN #{update.role}
+			</foreach>
+			END,
+			department_id = CASE employee_code
+			<foreach collection="updateList" item="update">
+				WHEN
+				#{update.employeeCode}
+				THEN #{update.departmentId}
+			</foreach>
+			END,
+			start_date = CASE employee_code
+			<foreach collection="updateList" item="update">
+				WHEN
+				#{update.employeeCode}
+				THEN #{update.startDate}
+			</foreach>
+			END,
+			email = CASE employee_code
+			<foreach collection="updateList" item="update">
+				WHEN
+				#{update.employeeCode}
+				THEN #{update.email}
+			</foreach>
+			END
+		</set>
+		WHERE employee_code IN
+		<foreach collection="updateList" item="update" open="("
+			separator="," close=")">
+			#{update.employeeCode}
+		</foreach>
+	</update>
+
+
+
+	<select id="findIdByEmployeeCodeAndName"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		id,
+		employee_code
+		FROM users
+		WHERE
+		<foreach collection="usersList" item="user" open="("
+			separator=" OR " close=")">
+			(employee_code = #{user.employeeCode} AND name
+			= #{user.name})
+		</foreach>
+
+	</select>
+
+	<select id="findIdByEmployeeCode"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		id,
+		name,
+		employee_code
+		FROM users
+		WHERE employee_code
+		IN
+		<foreach collection="usersList" item="users" open="("
+			separator="," close=")">
+			#{users.employeeCode}
+		</foreach>
+	</select>
+
+	<select id="findIdByName"
+		resultType="com.analix.project.entity.Users">
+		SELECT
+		id,
+		name,
+		employee_code
+		FROM users
+		WHERE name
+		IN
+		<foreach collection="usersList" item="users" open="("
+			separator="," close=")">
+			#{users.name}
+		</foreach>
 
 	</select>
 

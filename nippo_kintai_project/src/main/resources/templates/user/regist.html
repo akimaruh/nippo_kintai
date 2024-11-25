@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org" th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
 
 <head>
 	<meta charset="UTF-8">
@@ -13,20 +14,29 @@
 
 <body>
 	<!--	<h1 class="mb-4 text-center">ユーザー登録</h1>-->
+
 	<div th:if="${error}" class="alert alert-danger">
 		<p th:text="${error}"></p>
 	</div>
+	<div th:if="${errorMessageMap}" class="alert alert-danger">
+		<th:block th:each="errorMessages :${errorMessageMap}">
+			<span th:text="${errorMessages.key}"></span>
+			<th:block th:each="errorMessage: ${errorMessages.value}">
+				<span th:text="${errorMessage}"></span>
+			</th:block>
+			<br>
+		</th:block>
+	</div>
+
+
 	<div th:if="${message}" class="alert alert-info">
 		<p th:text="${message}"></p>
 	</div>
 
-	<!--	<div class="container d-flex flex-row-reverse">-->
-	<!--		<div>-->
-	<!--			<a href="/common/startMenu">-->
-	<!--				<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
-	<!--			</a>-->
-	<!--		</div>-->
-	<!--	</div>-->
+	<div id="error" class="alert alert-danger" style="display: none;">
+	</div>
+	<div id="succsess" class="alert alert-info" style="display: none;">
+	</div>
 
 	<div class="container d-flex justify-content-center mb-5 mt-5" id="regist">
 		<div class="col-md-6">
@@ -37,8 +47,29 @@
 				<div class="card-body" style="margin-right: 02px;">
 
 					<!-- 検索フォーム -->
-					<form th:action="@{/user/regist/search}" th:method="post" id="search-form"
+					<form th:action="@{/user/regist/search}" th:method="post" name="registUserForm" id="search-form"
 						th:object="${registUserForm}">
+						<div class="container mb-3 row">
+							<div class="col-4">
+								<label for="search-employeeCode" class="col-form-label">社員番号</label>
+							</div>
+							<div class="col-6">
+								<input type="text" class="form-control" th:field="*{employeeCode}"
+									id="search-employeeCode" />
+							</div>
+							<div class="col-2">
+								<input type="submit" value="検索" class="btn-yellow" />
+							</div>
+						</div>
+
+					</form>
+
+					<!-- 社員番号 -->
+					<div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(96, 175, 255);"></div>
+
+
+					<form th:object="${registUserForm}" th:action="@{/user/regist/complete}" method="post"
+						id="regist-form">
 						<div class="container mb-3 row ">
 							<label for="name" class="col-sm-4 col-form-label">ユーザー名</label>
 							<div class="col-sm-6">
@@ -46,24 +77,17 @@
 								<span class="text-danger" th:errors="*{name}"></span>
 								<span id="nameError" class="text-danger"></span>
 							</div>
-							<div class="col-sm-2">
-								<input type="submit" name="searchForUserName" value="検索" class="btn-yellow"
-									id="search" />
-							</div>
+
 						</div>
-					</form>
 
 
-					<div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(96, 175, 255);"></div>
-					<!-- <div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(179, 162, 199);"></div>-->
-
-					<!-- 登録フォーム -->
-					<form th:object="${registUserForm}" th:action="@{/user/regist/complete}" method="post"
-						id="regist-form">
 						<div class="container mb-3 row">
-							<label for="id" class="col-sm-4 col-form-label">ユーザーID</label>
-							<div class="col-sm-8">
-								<span th:text="*{id}" class="form-control-plaintext" id="regist-id"></span>
+							<div class="col-4">
+								<label for="employeeCode" class="col-form-label">社員番号</label>
+							</div>
+							<div class="col-6">
+								<input type="text" class="form-control" th:field="*{employeeCode}" />
+								<input type="hidden" name="beforeEmployeeCode" th:value="*{employeeCode}">
 							</div>
 						</div>
 
@@ -129,32 +153,222 @@
 							<div class="col-sm-8">
 								<input type="text" th:errorclass="is-invalid" class="form-control"
 									th:field="*{startDate}" placeholder="yyyy/MM/dd" />
-								<!--				<span class="invalid-feedback" th:errors="*{startDate}"></span>-->
 								<span class="text-danger" th:errors="*{startDate}"></span>
 								<span id="startDateError" class="text-danger"></span>
 							</div>
 						</div>
 
-						<!--								<div class="mx-auto p-1" style="width: 200px;">-->
-						<!--			    <div class="position-absolute top-50 start-50">-->
+						<!--						<div class="mx-auto p-1" style="width: 200px;">-->
+						<!--							<div class="position-absolute top-50 start-50">-->
 						<div class="container d-flex flex-row-reverse mt-3 mb-2">
-							<input type="hidden" name="name" id="hidden-name" />
+							<!--							<div class="col-1">-->
 							<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow"
 								style="margin-right: 20px;" />
 							<input type="hidden" name="id" th:value="*{id}" />
-							<!--		</div>-->
+							<input type="hidden" name="insertFlg" th:value="*{insertFlg != null ? insertFlg : 0}" />
+							<!--							</div>-->
+							<div class="col-2">
+								<label for="import-file" class="btn-yellow" id="import-btn">インポート</label>
+							</div>
 						</div>
 					</form>
 				</div>
 			</div>
+			<form th:action="@{/user/regist/import}" id="importSubmit-btn" method="post" enctype="multipart/form-data">
+				<button type="submit" class="btn btn-primary" style="opacity: 0;pointer-events: none">ボタン</button>
+			</form>
+
+			<input type="file" accept=".csv" name="importFile" id="import-file" class="form-control form-control-sm"
+				form="importSubmit-btn" style="opacity: 0;pointer-events: none" />
+			<!--style="opacity: 0;pointer-events: none"-->
 		</div>
 	</div>
 
-	<!--	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"-->
-	<!--		integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"-->
-	<!--		crossorigin="anonymous"></script>-->
-	<script th:src="@{/js/userRegist.js}"></script>
+
+
+	<!--	 CSV入力確認モーダルのHTML -->
+	<div class="modal fade" id="usersModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel">CSV読み込み一覧</h5>
+				</div>
+				<div class="modal-body">
+					<p id="modalErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
+
+					<table class="table table-hover table-bordered" id="usersTbl">
+						<thead style="background-color: white; ">
+							<tr>
+								<th width="10%">インポート</th>
+								<th width="10%">社員コード</th>
+								<th width="10%">ユーザー名</th>
+								<th width="10%">パスワード</th>
+								<th width="10%">部署ID</th>
+								<th width="10%">権限</th>
+								<th width="10%">email</th>
+								<th width="10%">利用開始日</th>
+							</tr>
+						</thead>
+						<tbody style="background-color: white; " id="users-tbody">
+							<!-- リストが空の場合のデフォルト行 -->
+
+							<th:block th:each="user,stat : ${usersList}">
+								<tr>
+									<td class="selectFlg"><input type="checkbox"
+											th:name="|usersList.[${stat.index}].import-checkbox|"></td>
+									<td class="employeeCode">[[${user.employeeCode}]]</td>
+									<td class="name">[[${user.name}]]</td>
+									<td class="password">[[${user.password}]]</td>
+									<td class="departmentId">[[${user.departmentId}]]</td>
+									<td class="role">[[${user.role}]]</td>
+									<td class="email">[[${user.email}]]</td>
+									<td class="startDate">[[${user.startDate}]]</td>
+								<tr>
+							</th:block>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
+						id="selective-import">インポート</button>
+					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
+						id="all-import">全件インポート</button>
+
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						onclick="location.href='/user/regist'">キャンセル</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- エラーメッセージやモーダル表示判定用の属性 -->
+		<input type="hidden" th:data-open-modal="${openModal}" th:data-modal-error="${modalError}">
+
+		<!--	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"-->
+		<!--		integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"-->
+		<!--		crossorigin="anonymous"></script>-->
+
+
+
+
+		<script>
+		/**
+ * CSV読み込み一覧フォームモーダル
+ */window.addEventListener("DOMContentLoaded", (event) => {
+	 // サーバからのエラー情報を取得
+	 if (document.querySelector("[data-open-modal]")) {
+		 const openModal = document.querySelector("[data-open-modal]").dataset.openModal;
+		 if (openModal === "true") {
+			 // モーダルを表示
+			 var csvInportModal = new bootstrap.Modal(document.getElementById('usersModal'));
+			 csvInportModal.show();
+		 }
+	 }
+ });
+
+
+			// チェックされた行のデータを取得するJavaScriptの例
+			function getSelectedRows(inputcontent) {
+				const selectedRows = [];
+				document.querySelectorAll(inputcontent).forEach(checkbox => {
+					const row = checkbox.closest('tr'); // チェックボックスの親行
+					console.log(row);
+					const rowData = {
+						employeeCode: row.querySelector('.employeeCode').textContent,
+						name: row.querySelector('.name').textContent,
+						password: row.querySelector('.password').textContent,
+						role: row.querySelector('.role').textContent,
+						departmentId: row.querySelector('.departmentId').textContent,
+						email: row.querySelector('.email').textContent,
+						startDate: row.querySelector('.startDate').textContent,
+					};
+					selectedRows.push(rowData);
+				});
+				return selectedRows;
+			}
+			//『インポート』ボタン押下後
+			document.getElementById("selective-import").addEventListener("click", (event) => {
+				const selectedRows = getSelectedRows('input[type="checkbox"]:checked');
+				sendInportData(selectedRows);
+
+			});
+			//『全件インポート』ボタン押下後
+			document.getElementById("all-import").addEventListener("click", (event) => {
+				const selectedRows = getSelectedRows('input[type="checkbox"]');
+				sendInportData(selectedRows);
+
+			});
+			//インポート開始
+			function sendInportData(selectedRows) {
+				if (selectedRows.length > 0) {
+					fetch('/user/regist/import/complete', {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'},
+						body: JSON.stringify(selectedRows)
+					}).then(response => {
+
+						if (response.ok) {
+							console.log('インポート成功')
+						} else {
+							console.log('インポート失敗');
+						}
+						return response.json();
+					}).then(data => {
+						console.dir(data);
+						console.log(data.message);
+						document.getElementById(`${data.status}`).style.display = '';
+						document.getElementById(`${data.status}`).innerHTML = data.message;
+
+					})
+				} else {
+
+					let csvInportModal = new bootstrap.Modal(document.getElementById('usersModal'));
+					csvInportModal.show();
+					document.getElementById('modalErrorMessage').style.display = '';
+					document.getElementById('modalErrorMessage').innerHTML = 'インポートする行を選択してください';
+
+				}
+			};
+			//ファイル選択後
+			let importFile = document.getElementById('import-file');
+			importFile.addEventListener('input', function (event) {
+				let importSubmit = document.getElementById('importSubmit-btn');
+				const fileName = importFile.value
+				const allowedExtensions = ['csv'];
+				const fileExtension = fileName.split('.').pop().toLowerCase();
+				if (!allowedExtensions.includes(fileExtension)) {
+					document.getElementById('error').style.display = '';
+					document.getElementById('error').innerHTML = '対応していないファイル形式です。csv形式のファイルを選択してください。';
+					return;
+				}
+				importSubmit.submit();
+			
+			});
+
+
+			//const allowExtensions = '.(csv)$'; // 許可する拡張子
+			//const onChangePicture = (file) => {
+			//if (file) { // ファイル存在チェック
+			//if (!file.match(allowExtensions)) { // 許可する拡張子以外の場合
+			//alert('拡張子が csv 以外のファイルはアップロードできません。');
+			//return; // 処理を中断
+			//}
+			//}
+			
+			//}
+
+
+
+
+
+
+
+
+		</script>
+		<script th:src="@{/js/userRegist.js}"></script>
 
 </body>
+
 
 </html>

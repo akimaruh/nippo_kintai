@@ -4,22 +4,26 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import org.springframework.validation.annotation.Validated;
+
 import lombok.Data;
 
 @Data
+@Validated
 public class Users implements Serializable {
 	private static final long serialVersionUID = 1L;
+
 	private Integer id;
 	private String password;
 	private String name;
 	private String role;
 	private Integer departmentId;
 	private String departmentName;
-
+	private String date;
 	private LocalDate startDate;
 	private Integer status; // ステータスフィールドを追加
 	private String email;
-	private String tel;
+	private Integer employeeCode;
 
 	@Override
 	public boolean equals(Object o) {
@@ -108,12 +112,18 @@ public class Users implements Serializable {
 		this.email = email;
 	}
 
-	public String getTel() {
-		return tel;
+	public Integer getEmployeeCode() {
+		return employeeCode;
 	}
 
-	public void setTel(String tel) {
-		this.tel = tel;
+	public void setEmployeeCode(Integer employeeCode) {
+		this.employeeCode = employeeCode;
+
 	}
 
+	//Streamで社員コード、名前の一致を確認できるメソッド作成
+	public boolean isMatch(Users other) {
+		return Objects.equals(this.employeeCode, other.getEmployeeCode()) &&
+				Objects.equals(this.name, other.getName());
+	}
 }

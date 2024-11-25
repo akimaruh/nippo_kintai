@@ -1,37 +1,37 @@
 //検索フォームのバリデーションチェック
-document.getElementById('search-form').addEventListener('submit', function(event) {
+//document.getElementById('search-form').addEventListener('submit', function(event) {
+//
+//	let name = document.getElementById('').value;
+//	const MAX_USERNAME_LENGTH = 21;
+//
+//
+//	let validation = true;
 
-	let name = document.getElementById('name').value;
-	const MAX_USERNAME_LENGTH = 21;
+//	if (name === "") {
+//		document.getElementById('nameError').innerHTML = "名前を入力してください";
+//		validation = false;
+//	} else if (name.length > MAX_USERNAME_LENGTH) {
+//		document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
+//		validation = false;
+//	} else if (!/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFa-zA-Z]+$/.test(name)) {
+//		document.getElementById('nameError').innerHTML = "漢字、全角カタカナ、半角英字のみ入力可能です";
+//		validation = false;
+//	} else {
+//		document.getElementById('nameError').innerHTML = "";
+//	}
+//	if (!validation) {
+//		event.preventDefault();
+//		validation = false;
+//	}
 
+//});
 
-	let validation = true;
-
-	if (name === "") {
-		document.getElementById('nameError').innerHTML = "名前を入力してください";
-		validation = false;
-	} else if (name.length > MAX_USERNAME_LENGTH) {
-		document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
-		validation = false;
-	} else if (!/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFa-zA-Z]+$/.test(name)) {
-		document.getElementById('nameError').innerHTML = "漢字、全角カタカナ、半角英字のみ入力可能です";
-		validation = false;
-	} else {
-		document.getElementById('nameError').innerHTML = "";
-	}
-	if (!validation) {
-		event.preventDefault();
-		validation = false;
-	}
-
-});
-
-//検索フォーム内のユーザー名を登録フォームにコピー
-document.getElementById('regist-form').addEventListener('submit', function(event) {
-	const username = document.getElementById('name').value;
-	document.getElementById('hidden-name').value = username;
-	return true;
-});
+////検索フォーム内の社員番号を登録フォームにコピー
+//document.getElementById('regist-form').addEventListener('submit', function(event) {
+//	const employeeCode = document.getElementById('employeeCode').value;
+//	document.getElementById('hidden-employeeCode').value = employeeCode;
+//	return true;
+//});
 
 // 登録フォームのバリデーションチェック
 document.getElementById('regist-form').addEventListener('submit', function(event) {
@@ -40,6 +40,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	let password = document.getElementById('password').value;
 	let role = document.getElementById('role').value;
 	let departmentId = document.getElementById('departmentId').value;
+//	let email = document.getElementById('email').value;
 	let startDate = document.getElementById('startDate').value;
 	const commandDate = "9999/99/99";
 	let date = new Date(startDate);
@@ -87,7 +88,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 		validation = false;
 	} else {
 		document.getElementById('departmentIdError').innerHTML = "";
-	}
+	}	
 
 	if (startDate === "") {
 		document.getElementById('startDateError').innerHTML = "利用開始日を入力してください";

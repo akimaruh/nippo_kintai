@@ -331,11 +331,11 @@ public class DailyReportService {
 		dailyReportSummaryDto.setTimePerMonth(dailyReportMapper.getTimePerMonth(userId, targetYearMonth));
 		List<Map<String, Object>> workTimeByProcessMapList = dailyReportMapper.getWorkTimeByProcess(userId,
 				targetYearMonth);
-		Map<String, Integer> workTimeByProcessMap = workTimeByProcessMapList.stream()
+		LinkedHashMap<String, Integer> workTimeByProcessMap = workTimeByProcessMapList.stream()
 				.collect(Collectors.toMap(
 						map -> map.get("workName").toString(),
 						map -> ((BigDecimal) map.get("time")).intValue(),
-						Integer::sum));
+						Integer::sum,LinkedHashMap::new));
 		dailyReportSummaryDto.setWorkTimeByProcessMapList(workTimeByProcessMap);
 		return dailyReportSummaryDto;
 

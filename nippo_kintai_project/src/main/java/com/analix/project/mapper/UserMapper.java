@@ -12,60 +12,102 @@ import com.analix.project.entity.Users;
  */
 @Mapper
 public interface UserMapper {
-	
+
 	/**
 	 * ユーザー検索
 	 * @param name
 	 * @return Usersエンティティ
 	 */
-	Users findUserDataByUserName (@Param("name") String name);
-	
+	Users findUserDataByEmployeeCode(@Param("employeeCode") Integer employeeCode);
+
+	/**
+	 * 表示用ユーザー情報取得
+	 * @param id
+	 * @return 社員番号,ユーザー名,部署名格納のエンティティ
+	 */
+	Users findUserDataForDisplay(@Param("id") Integer id);
+
 	/**
 	 * 新規ユーザーID払い出し用
 	 * @return DB内ユーザーIDの最大値
 	 */
-	Integer createNewId ();
-	
+	Integer createNewEmployeeCode();
+
 	/***
-	 * ユーザーデータのカウント
-	 * @param name
-	 * @return nameに該当するユーザーデータ数
+	 * ユーザーデータの存在チェック
+	 * @param employeeCode
+	 * @return employeeCodeが true：既に存在する false:存在しない 
 	 */
-	Integer countUserDataById (@Param("id") Integer id, @Param("name")String name);
+	boolean userExsistByEmployeeCode(@Param("employeeCode") Integer employeeCode);
+	
 	
 	/**
 	 * ユーザーデータ更新
 	 * @param registUser
 	 * @return 反映結果
 	 */
-	Boolean updateUserData (@Param("users") Users registUser);
-	
+	Boolean updateUserData(@Param("users") Users registUser);
+
 	/**
 	 * ユーザーデータ新規登録
 	 * @param registUser
 	 * @return 反映結果
 	 */
-	Boolean insertUserData (@Param("users") Users registUser);
-	
+	Boolean insertUserData(@Param("users") Users registUser);
+
 	/**
 	 * 権限ごとのユーザー抽出
 	 * @param role
-	 * @return
+	 * @return 該当のユーザーエンティティリスト
 	 */
 	List<Users> findUserListByRole(@Param("role") String role);
-	
+
 	/***
 	 * ユーザーのメールアドレス抽出
 	 * @param userId
-	 * @return
+	 * @return email
 	 */
 	String findEmailByUserId(@Param("userId") Integer userId);
-	
+
 	/**
 	 * ユーザー名またはユーザーIDであいまい検索
 	 * @param userKeyword
-	 * @return
+	 * @return 検索されたユーザーエンティティリスト
 	 */
-	List<Users> searchForUserNameAndId (@Param("userKeyword")String userKeyword);
-	
+	List<Users> searchForUserNameAndEmployeeCode(@Param("userKeyword") String userKeyword);
+
+	/**
+	 * ユーザー一括登録
+	 * @param insertList
+	 * @return 反映結果
+	 */
+	public boolean batchInsertUsers(@Param("insertList") List<Users> insertList);
+
+	/**
+	 * ユーザー一括更新
+	 * @param insertList
+	 * @return 反映結果
+	 */
+	public boolean batchUpdateUsers(@Param("updateList") List<Users> updateList);
+
+	/**
+	 * インポート用既存ユーザーID取得 
+	 * @param employeeCode
+	 * @return 社員番号、ID
+	 */
+	List<Users> findIdByEmployeeCodeAndName(@Param("usersList") List<Users> usersList);
+	/**
+	 * インポート用既存ユーザーID取得 
+	 * @param employeeCode
+	 * @return ID、名前、社員番号
+	 */
+	List<Users> findIdByEmployeeCode(@Param("usersList") List<Users> usersList);
+
+	/**
+	 * インポート用既存ユーザーID取得 
+	 * @param employeeCode
+	 * @return ID、名前、社員番号
+	 */
+	List<Users> findIdByName(@Param("usersList") List<Users> usersList);
+
 }

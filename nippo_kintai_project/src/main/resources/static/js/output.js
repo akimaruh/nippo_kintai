@@ -61,8 +61,8 @@ function userSearch() {
 				//console.log(key);
 				if (data.hasOwnProperty(key)) {
 					const option = document.createElement('option');
-					option.value = data[key];
-					option.textContent = key;
+					option.value = data[key].id;
+					option.textContent =  data[key].name + '('+ key + ')' ;
 					select.appendChild(option);
 				}
 			}

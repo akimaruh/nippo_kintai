@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.analix.project.entity.UserNotificationRequest;
 import com.analix.project.entity.UserSearchRequest;
+import com.analix.project.entity.Users;
 import com.analix.project.service.DailyReportService;
 import com.analix.project.service.InformationService;
 import com.analix.project.service.UserService;
@@ -53,9 +54,9 @@ public class RequestController {
 	 * @return 出力する元データ
 	 */
 	@PostMapping(path = "/output/userSearch")
-	public Map<String, Integer> searchForOutputUser(@RequestBody UserSearchRequest request) {
-		Map<String, Integer> userNameAndIdMap = userService.searchForUserNameAndId(request.getUserKeyword());
-		return userNameAndIdMap;
+	public Map<Integer, Users> searchForOutputUser(@RequestBody UserSearchRequest request) {
+		Map<Integer, Users> userNameAndEmployeeCodeMap = userService.searchForUserNameAndEmployeeCode(request.getUserKeyword());
+		return userNameAndEmployeeCodeMap;
 
 	}
 

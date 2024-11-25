@@ -52,7 +52,7 @@ public class LoginController {
 
 		Users user = new Users();
 		user = loginService.findByIdAndPassword(id, password);
-
+		System.out.println(user);
 		if (user != null) {
 
 			// 利用開始日チェック
@@ -70,6 +70,7 @@ public class LoginController {
 				return "redirect:/common/startMenu";
 
 			} else if ("UnitManager".equals(role) || "Manager".equals(role) || "Regular".equals(role)) {
+				
 				return "redirect:/common/startMenu";
 
 			} else {
