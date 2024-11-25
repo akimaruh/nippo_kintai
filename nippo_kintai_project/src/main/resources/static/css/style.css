@@ -518,7 +518,7 @@ body {
 }
 
 #footer {
-	position: fixed;
+/*	position: fixed;*/
 	bottom: 0;
 	height: 60px;
 	width: 100%;

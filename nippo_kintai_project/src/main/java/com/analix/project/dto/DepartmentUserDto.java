@@ -9,6 +9,8 @@ public class DepartmentUserDto {
 	private String userName;
 	/** 権限 */
 	private String role;
+	/** 社員番号 */
+	private Integer employeeCode;
 	/** 部署名 */
 	private String departmentName;
 	/** アクティブフラグ */

@@ -68,16 +68,17 @@
 <!--		WHERE department.department_id = #{departmentId}-->
 <!--	</select>-->
 	
-	<!-- 部署IDに紐づくユーザー情報取得(部署IDで検索→ユーザー名、権限、部署名、isActive取得) -->
+	<!-- 部署IDに紐づくユーザー情報取得(部署IDで検索→ユーザー名、権限、社員番号、部署名、isActive取得) -->
 	<resultMap id="departmentUserMap" type="com.analix.project.dto.DepartmentUserDto">
 		<result property="userName" column="user_name"/>
 		<result property="role" column="role"/>
+		<result property="employeeCode" column="employee_code" />
 		<result property="departmentId" column="department_id"/>
 		<result property="isActive" column="is_active"/>
 	</resultMap>
 	
 	<select id="findUsersByDepartmentId" resultMap="departmentUserMap">
-		SELECT u.name AS user_name, u.role, d.name AS department_name, d.is_active
+		SELECT u.name AS user_name, u.role, u.employee_code, d.name AS department_name, d.is_active
 		FROM users u
 		JOIN department d
 		ON u.department_id = d.department_id

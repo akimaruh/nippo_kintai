@@ -142,7 +142,7 @@
 									</thead>
 									<tbody class="table-light">
 										<tr th:each="departmentUser : ${departmentUserList}">
-											<td>30074</td>
+											<td th:text="${departmentUser.employeeCode}"></td>
 											<td th:text="${departmentUser.userName}"></td>
 											<td th:text="${departmentUser.role}"></td>
 											<td><button type="submit" class="btn btn-link" style="padding: 0.8rem 1.3rem;">
