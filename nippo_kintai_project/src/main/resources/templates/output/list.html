@@ -8,45 +8,51 @@
 </head>
 
 <body>
-	<div class="col-6">
-		<form th:action="@{/output/dailyReportOutput}" method="get" id="output-form">
-			<div class="row">
-				<div class="col-3">
 
-					<div class="row">
-						<span>ユーザー検索：</span>
-						<input type="text" class="form-control" name="userKeyword" th:value="${userKeyword}"
-							id="user-search" />
-					</div>
-					<div class="row">
-						<span>ユーザー名：</span>
-						<select name="userId" class="form-select">
-							<th:block th:each="map:${userNameAndIdMap}">
-								<option value="5" th:text="${map.key}"></option>
-							</th:block>
-						</select>
-					</div>
+	<div class="container d-flex justify-content-center mb-5 mt-5">
+		<div class="col-md-6">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				
+				<div class="card-body">
+						<form th:action="@{/output/dailyReportOutput}" method="get" id="output-form">
+							<div class="col-12">
+								<div class="col-12 mt-3 mb-3">
+									<span>ユーザー検索：</span>
+									<input type="text" class="form-control" name="userKeyword" th:value="${userKeyword}"
+										id="user-search" />
+								</div>
+
+								<div class="col-12 mt-3 mb-3">
+									<span>ユーザー名：</span>
+									<select name="userId" class="form-select">
+										<th:block th:each="map:${userNameAndIdMap}">
+											<option value="5" th:text="${map.key}"></option>
+										</th:block>
+									</select>
+								</div>
+
+								<div class="col-12 mt-3 mb-5">
+									<span>対象年月：</span>
+									<input type="month" class="col-6 form-control" name="targetYearMonth"
+										th:value="${targetYearMonth}" />
+								</div>
+							</div>
+						</form>
+
+						<div class="me-2">
+							<button class="btn btn-secondary mt-2" form="output-form" disabled>勤怠帳票</button>
+							<button class="btn btn-secondary mt-2" form="output-form" disabled>勤怠日報帳票</button>
+							<button class="btn btn-secondary mt-2" form="output-form" disabled>日報帳票</button>
+							<p th:text="${error}" class="text-danger" th:if="${error}"></p>
+						</div>
+						
 				</div>
-				<div class="col-6">
-					<span>対象年月：</span>
-					<input type="month" class="col-6 form-control" name="targetYearMonth"
-						th:value="${targetYearMonth}" />
-				</div>
-
-
 			</div>
-		</form>
-		<div class="me-2">
-		<button class="btn btn-primary mt-2" form="output-form" disabled>勤怠帳票</button>
-		<button class="btn btn-primary mt-2" form="output-form" disabled>勤怠日報帳票</button>
-		<button class="btn btn-primary mt-2" form="output-form" disabled>日報帳票</button>
-		<p th:text="${error}" class="text-danger" th:if="${error}"></p>
 		</div>
 	</div>
+
 	<!--		<input type="hidden" name="targetYearMonth" th:value="${targetYearMonth}" />-->
 	<!--		<input type="hidden" name="userId" th:value="${userId}" />-->
-
-
 	<script th:src="@{/js/output.js}"></script>
 
 </body>

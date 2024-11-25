@@ -1,13 +1,14 @@
 package com.analix.project.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
+import com.analix.project.dto.DepartmentUserDto;
 import com.analix.project.entity.Department;
+import com.analix.project.form.DepartmentForm;
 import com.analix.project.mapper.DepartmentMapper;
 
 @Service
@@ -49,13 +50,13 @@ public class DepartmentService {
 	 * @param newName 新部署名
 	 * @return true登録成功、false登録失敗
 	 */
-	public boolean registDepartment(String newName) {
-		Byte status = getDepartmentStatus(newName);
+	public boolean registDepartment(String name) {
+		Byte status = getDepartmentStatus(name);
 
 		if (status == null) {
-			Department department = new Department();
-			department.setName(newName);
-			departmentMapper.registDepartment(department);
+			DepartmentForm departmentForm = new DepartmentForm();
+			departmentForm.setName(name);
+			departmentMapper.registDepartment(departmentForm);
 			return true; // 登録成功
 		} else if (status == 0) {
 			return false; // 登録失敗(無効化)
@@ -112,48 +113,87 @@ public class DepartmentService {
 	 * @param result
 	 * @return
 	 */
-	public boolean validationForm(Department department, boolean checkLength, boolean requiredNewNameCheck,
-			boolean requiredExsistsNameCheck, boolean requiredInactiveNameCheck, BindingResult result) {
-		String newName = department.getNewName();
-		String exsistsName = department.getExsistsName();
-		String inactiveName = department.getInactiveName();
+//	public boolean validationForm(Department department, boolean checkLength, boolean requiredNameCheck, 
+//			boolean requiredNewNameCheck, boolean requiredExsistsNameCheck, boolean requiredInactiveNameCheck, BindingResult result) {
+//		String name = department.getName();
+//		String newName = department.getNewName();
+//		String exsistsName = department.getExsistsName();
+//		String inactiveName = department.getInactiveName();
+//
+//		// 文字数チェック
+//		if (checkLength && name != null && name.length() > 100) {
+//			result.addError(
+//					new FieldError("department", "name", "100文字以内で入力してください。"));
+//		}
+//
+//		// 新部署名の必須チェック
+//		if (requiredNameCheck && (name == null || name.isEmpty())) {
+//			result.addError(
+//					new FieldError("department", "name", "新部署名を入力してください。"));
+//		}
+//		
+//		// 文字数チェック
+//		if (checkLength && newName != null && newName.length() > 100) {
+//			result.addError(
+//					new FieldError("department", "newName", "100文字以内で入力してください。"));
+//		}
+//
+//		// 新部署名の必須チェック
+//		if (requiredNewNameCheck && (newName == null || newName.isEmpty())) {
+//			result.addError(
+//					new FieldError("department", "newName", "新部署名を入力してください。"));
+//		}
+//		
+//		// 登録済の部署名の必須チェック
+//		if (requiredExsistsNameCheck && (exsistsName == null || exsistsName.isEmpty())) {
+//			result.addError(
+//					new FieldError("department", "exsistsName", "登録済の部署名を選択してください。"));
+//		}
+//		
+//		// 削除済の部署名の必須チェック
+//		if (requiredInactiveNameCheck && (inactiveName == null || inactiveName.isEmpty())) {
+//			result.addError(
+//					new FieldError("department", "inactiveName", "削除済の部署名を選択してください。"));
+//		}
+//
+//		return true;
+//	}
 
-		// 文字数チェック
-		if (checkLength && newName.length() > 100) {
-			result.addError(
-					new FieldError("department", "newName", "100文字以内で入力してください。"));
-		}
-
-		// 新部署名の必須チェック
-		if (requiredNewNameCheck && newName == "") {
-			result.addError(
-					new FieldError("department", "newName", "新部署名を入力してください。"));
-		}
-		
-		// 登録済の部署名の必須チェック
-		if (requiredExsistsNameCheck && exsistsName == "") {
-			result.addError(
-					new FieldError("department", "exsistsName", "登録済の部署名を選択してください。"));
-		}
-		
-		// 削除済の部署名の必須チェック
-		if (requiredInactiveNameCheck && inactiveName == "") {
-			result.addError(
-					new FieldError("department", "inactiveName", "削除済の部署名を選択してください。"));
-		}
-
-		return true;
+	/**
+	 * 部署IDに紐づくユーザー数のカウント
+	 * @param departmentId 部署ID
+	 * @return カウント数
+	 */
+//	public Integer userDepartment(Integer departmentId) {
+//		return departmentMapper.getUsersCountByDepartmentId(departmentId);
+//	}
+	
+	public Integer getUserCountByDepartmentId(Integer departmentId) {
+		List<DepartmentUserDto> usersList = departmentMapper.findUsersByDepartmentId(departmentId);
+		return usersList.size(); // size()でユーザー数を取得
 	}
 	
 	/**
-	 * 部署IDに紐づくユーザー数のカウント
-	 * @param departmentId 部署Id
-	 * @return true存在する false存在しない
+	 * 部署に所属しているユーザー取得
+	 * @param departmentId 部署ID
+	 * @return
 	 */
-	public boolean userDepartment(String name) {
-		Integer usersCount = departmentMapper.getUsersCountByDepartmentName(name);
-		System.out.println(usersCount);
-		return usersCount > 0;
+	public List<DepartmentUserDto> getUsersByDepartmentId(Integer departmentId) {
+		return departmentMapper.findUsersByDepartmentId(departmentId);
+	}
+	
+	/**
+	 * 部署IDを全件取得
+	 * @return 部署ID全件
+	 */
+	public List<String> getAllDepartmentId() {
+		List<Integer> allDepartmentIdList = departmentMapper.findAllDepartmentId();
+		/*		Integer型のListをStreamを生成→中間操作(List内の要素をString.valueOf()でString型に加工)
+		  →終端操作(IntStream型からCollection型に変換)*/
+ 
+		List<String> allDepartmentIdStringList = allDepartmentIdList.stream().map(String::valueOf)
+				.collect(Collectors.toList());
+		return allDepartmentIdStringList;
 	}
 
 }

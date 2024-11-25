@@ -19,11 +19,11 @@
 
 
 	<!--	<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">-->
-	
 
-	
+
+
 	<div class="container mt-5 mb-5 d-flex justify-content-center">
-		<div class="col-md-10">
+		<div class="col-xl-10 col-md-10 col-12">
 			<div class="card" style="background-color: rgb(255, 255, 255);">
 				<div class="card-body">
 					<div class="mt-4">
@@ -35,117 +35,147 @@
 						</div>
 						<form id="dailyReport" name="dailyReportForm" method="get" action="/dailyReport/change">
 							<strong>対象日付：</strong>
-
-							<input type="date" name="date" th:value="${targetDate}" id="date" />
+							<div class="col-xl-2 col-md-3 col-8">
+								<input type="date" name="date" class="form-control" th:value="${targetDate}"
+									id="date" />
+							</div>
 							<span id="dateError" class="text-danger"></span>
 						</form>
 					</div>
-				</div>
-				
-				<!--「提出」初期表示は非活性(作業時間、内容が入力されると活性化)-->
-				<!-- 既に提出済みの場合は非活性にする-->
-				<div class="container d-flex flex-row-reverse">
-					<button type="submit" id="submitBtn" class="btn-yellow" form="dailyReport-form"
-						th:disabled="${statusName == '承認済'}">提出</button>
-				</div>
-				<div class="container mt-3 mb-3">
-					<form th:object="${dailyReport}" th:action="@{/dailyReport/regist/complete}" method="post"
-						id="dailyReport-form">
 
-						<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
-						<input type="hidden" name="id" th:value="*{id == null ? 0:id }" />
-						<input type="hidden" name="date" class="hidden-date" />
-						<!-- カレンダーの日付からdateを取得 -->
-						<table class="table table-hover table-bordered" id="dailyReportTbl">
-							<thead style="background-color: white; ">
-								<tr>
-									<th width="15%">作業</th>
-									<th width="15%">作業時間（h）</th>
-									<th width="50%">作業内容</th>
-								</tr>
-							</thead>
-							<tbody style="background-color: white; " id="dailyReport-tbody">
 
-								<!-- リストが空の場合のデフォルト行 -->
-								<th:block th:if="*{dailyReportFormDetailList==null || dailyReportFormDetailList.empty}">
-									<input type="hidden" name="dailyReportFormDetailList[0].userId"
-										th:value="${session.loginUser.id}" />
-									<input type="hidden" name="dailyReportFormDetailList[0].date" class="hidden-date" />
-									<tr>
-										<td><select name="dailyReportFormDetailList[0].workId" class="form-select">
-												<option value="">
-												</option>
-												<option th:each="work : ${workMap}" th:value="${work.value}"
-													th:text="${work.key}">
-												</option>
-											</select>
-										</td>
-										<td><input type="number" class="form-control"
-												name="dailyReportFormDetailList[0].time" min="0" /></td>
-										<td><input type="text" class="form-control"
-												name="dailyReportFormDetailList[0].content" /></td>
-									</tr>
-								</th:block>
-								<!--								ここまで-->
-								<!--データベースからリストを取ってきた場合-->
-								<th:block th:each="dailyReportDetail, stat : *{dailyReportFormDetailList}">
-									<th:block>
-										<input type="hidden" th:name="|dailyReportFormDetailList[${stat.index}].id|"
-											th:value="${dailyReportDetail.id !=null ? dailyReportDetail.id : 0}" />
-										<input type="hidden" th:name="|dailyReportFormDetailList[${stat.index}].userId|"
-											th:value="${dailyReportDetail.userId !=null ? dailyReportDetail.userId : 0}" />
-										<input type="hidden" id="hidden-date"
-											th:name="|dailyReportFormDetailList[${stat.index}].date|"
-											th:value="${dailyReportDetail.date}" />
 
-									</th:block>
-									<tr>
+					<div class="mt-3 mb-3 border">
+						<div class="col-xl-12 col-md-12 col-12">
+							<div class="card" style="background-color: white;">
+								<div class="card-body">
 
-										<td><select class="form-select"
-												th:field="*{dailyReportFormDetailList[__${stat.index}__].workId}">
-												<option value=""></option>
-												<option th:each="work : ${workMap}" th:value="${work.value}"
-													th:text="${work.key}">
-												</option>
-											</select>
-											<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].workId')}"
-												class="text-danger"
-												th:errors="*{dailyReportFormDetailList[__${stat.index}__].workId}">
+									<!--「提出」初期表示は非活性(作業時間、内容が入力されると活性化)-->
+									<!-- 既に提出済みの場合は非活性にする-->
+									<div class="container d-flex flex-row-reverse">
+										<button type="submit" id="submitBtn" class="btn-yellow" form="dailyReport-form"
+											th:disabled="${statusName == '承認済'}">提出</button>
+									</div>
+									<div class="container mt-3 mb-3">
+										<form th:object="${dailyReport}" th:action="@{/dailyReport/regist/complete}"
+											method="post" id="dailyReport-form">
+
+											<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
+											<input type="hidden" name="id" th:value="*{id == null ? 0:id }" />
+											<input type="hidden" name="date" class="hidden-date" />
+											<!-- カレンダーの日付からdateを取得 -->
+											<div class="col-xl-12 col-md-12 col-12 custom-table-responsive mt-3">
+												<table class="custom-table" id="dailyReportTbl">
+													<thead>
+														<tr>
+															<th width="20%">作業</th>
+															<th width="20%">作業時間（h）</th>
+															<th width="60%">作業内容</th>
+														</tr>
+													</thead>
+													<tbody id="dailyReport-tbody">
+
+														<!-- リストが空の場合のデフォルト行 -->
+														<th:block
+															th:if="*{dailyReportFormDetailList==null || dailyReportFormDetailList.empty}">
+															<input type="hidden"
+																name="dailyReportFormDetailList[0].userId"
+																th:value="${session.loginUser.id}" />
+															<input type="hidden"
+																name="dailyReportFormDetailList[0].date"
+																class="hidden-date" />
+															<tr>
+																<td><select name="dailyReportFormDetailList[0].workId"
+																		class="form-select">
+																		<option value="">
+																		</option>
+																		<option th:each="work : ${workMap}"
+																			th:value="${work.value}"
+																			th:text="${work.key}">
+																		</option>
+																	</select>
+																</td>
+																<td><input type="number" class="form-control"
+																		name="dailyReportFormDetailList[0].time"
+																		min="0" /></td>
+																<td><input type="text" class="form-control"
+																		name="dailyReportFormDetailList[0].content" />
+																</td>
+															</tr>
+														</th:block>
+														<!--								ここまで-->
+														<!--データベースからリストを取ってきた場合-->
+														<th:block
+															th:each="dailyReportDetail, stat : *{dailyReportFormDetailList}">
+															<th:block>
+																<input type="hidden"
+																	th:name="|dailyReportFormDetailList[${stat.index}].id|"
+																	th:value="${dailyReportDetail.id !=null ? dailyReportDetail.id : 0}" />
+																<input type="hidden"
+																	th:name="|dailyReportFormDetailList[${stat.index}].userId|"
+																	th:value="${dailyReportDetail.userId !=null ? dailyReportDetail.userId : 0}" />
+																<input type="hidden" id="hidden-date"
+																	th:name="|dailyReportFormDetailList[${stat.index}].date|"
+																	th:value="${dailyReportDetail.date}" />
+
+															</th:block>
+															<tr>
+
+																<td><select class="form-select"
+																		th:field="*{dailyReportFormDetailList[__${stat.index}__].workId}">
+																		<option value=""></option>
+																		<option th:each="work : ${workMap}"
+																			th:value="${work.value}"
+																			th:text="${work.key}">
+																		</option>
+																	</select>
+																	<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].workId')}"
+																		class="text-danger"
+																		th:errors="*{dailyReportFormDetailList[__${stat.index}__].workId}">
+																	</div>
+
+																</td>
+																<td><input type="number" class="form-control"
+																		th:field="*{dailyReportFormDetailList[__${stat.index}__].time}"
+																		min="0" />
+																	<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].time')}"
+																		class="text-danger"
+																		th:errors="*{dailyReportFormDetailList[__${stat.index}__].time}">
+																	</div>
+																</td>
+																<td><input type="text" class="form-control"
+																		th:field="*{dailyReportFormDetailList[__${stat.index}__].content}" />
+																	<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].content')}"
+																		class="text-danger"
+																		th:errors="*{dailyReportFormDetailList[__${stat.index}__].content}">
+																	</div>
+																</td>
+															</tr>
+														</th:block>
+														<!--								ここまで-->
+													</tbody>
+												</table>
 											</div>
+										</form>
+									</div>
 
-										</td>
-										<td><input type="number" class="form-control"
-												th:field="*{dailyReportFormDetailList[__${stat.index}__].time}"
-												min="0" />
-											<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].time')}"
-												class="text-danger"
-												th:errors="*{dailyReportFormDetailList[__${stat.index}__].time}">
-											</div>
-										</td>
-										<td><input type="text" class="form-control"
-												th:field="*{dailyReportFormDetailList[__${stat.index}__].content}" />
-											<div th:if="${#fields.hasErrors('dailyReportFormDetailList[__${stat.index}__].content')}"
-												class="text-danger"
-												th:errors="*{dailyReportFormDetailList[__${stat.index}__].content}">
-											</div>
-										</td>
-									</tr>
-								</th:block>
-								<!--								ここまで-->
-							</tbody>
-						</table>
-					</form>
-				</div>
 
-				<div class="container mb-5">
-					<input type="button" value="追加" onclick="add()" class="submitBtn" id="addBtn"
-						th:disabled="${statusName == '承認済'}" />
+									<div class="container mb-3">
+										<input type="button" value=" ＋ " onclick="add()"
+											class="btn btn-outline-light btn-sm" id="addBtn"
+											th:disabled="${statusName == '承認済'}" />
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 	<!--	</span>-->
-<script th:src="@{/js/dailyReport.js}"></script>
+	<script th:src="@{/js/dailyReport.js}"></script>
 </body>
 
 </html>

@@ -25,104 +25,44 @@ body {
 /*}*/
 
 
-/* ボタンを横並びにするコンテナ */
-.menu-container .container {
-	display: flex;
-	justify-content: space-between;
-	/* ボタンを等間隔に配置 */
-	width: 70%;
-	/* コンテナの幅を調整 */
-}
-
-.menu-container .col {
-	flex: 1;
-	/* 各列が均等に広がるように設定 */
-	display: flex;
-	justify-content: center;
-	/* ボタンを中央に配置 */
-}
-
-
-/* ボタン共通のスタイル */
-.menuBtn {
-	display: flex;
-	flex-direction: column;
-	/* アイコンと文字を縦に並べる */
-	align-items: center;
-	/* アイコンと文字を中央に揃える */
-	width: 150px;
-	/* 幅 */
-	height: 200px;
-	/* 高さ */
-	border: 1px solid transparent;
-	border-radius: .25rem;
-	/* ボーダーの角を丸める */
-	color: #000;
-	font-size: 1em;
-	/* 文字のサイズ */
-	text-align: center;
-
-	outline: none;
-	transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-	padding: 40px;
-	/* 内側の余白を追加 */
-	/*  box-shadow: 0 0 5px 1px rgb(231, 231, 231);*/
-	/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3);*/
-}
-
-/* アイコンのスタイル */
-.icon {
-	font-size: 24px;
-	/* アイコンのサイズ */
-	color: #000;
-	/* アイコンの色 */
-	margin-bottom: 8px;
-	/* アイコンとテキストの間隔 */
-}
-
-/* ボタン内のアイコンとテキストのスタイル */
-.menuBtn .icon {
-	font-size: 3.5em;
-	/* アイコンのサイズ */
-	color: rgb(58, 58, 58);
-	/* ボタンのテキスト色を継承 */
-	margin-bottom: 10px;
-	/* アイコンとテキストの間隔 */
-}
-
-.menuBtn .label {
-	font-size: 1em;
-	/* テキストのサイズ */
-	color: rgb(58, 58, 58);
-}
 
 /*黄色ボタン*/
 .btn-yellow {
-	display: inline-block;
-	/* ボタンをインラインブロックとして表示 */
-	color: #000;
-	/* テキストの色 */
-	text-align: center;
-	/* テキストを中央に配置 */
-	border: 1px solid transparent;
-	/* ボーダーの初期状態 */
-	padding: .400rem .9rem;
-	/* ボタンのパディング */
-	font-size: 1rem;
-	/* フォントサイズ */
-	line-height: 1.5;
-	/* 行の高さ */
-	border-radius: .25rem;
-	/* ボーダーの角を丸める */
-	transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-	/* トランジション効果 */
-	background-color: #ffff00;
-	/* ボタンの背景色 */
-	/*  border-color: #cccc00;  (元々)ボーダーの色 */
-	border-color: rgb(206, 206, 0);
-	/* ボーダーの色 */
-	white-space: nowrap;
-	/* 改行を防ぐ */
+	position: relative;
+    color: rgb(128, 128, 128);
+    border-radius: 1rem;
+    background-color: rgb(255, 255, 70);
+    border: none;
+    padding: 0.7rem 1.1rem;
+    box-shadow: 5px 5px 10px rgba(55, 94, 148, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.4);
+    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out, box-shadow 0.15s ease-in-out, color 0.15s ease-in-out;
+/*	display: inline-block;*/
+/*	 ボタンをインラインブロックとして表示 */
+/*	color: #000;*/
+/*	 テキストの色 */
+/*	text-align: center;*/
+/*	 テキストを中央に配置 */
+/*	border: 1px solid transparent;*/
+/*	 ボーダーの初期状態 */
+/*	padding: .400rem .9rem;*/
+/*	 ボタンのパディング */
+/*	font-size: 1rem;*/
+/*	 フォントサイズ */
+/*	line-height: 1.5;*/
+/*	 行の高さ */
+/*	border-radius: .25rem;*/
+/*	 ボーダーの角を丸める */
+/*	transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;*/
+/*	 トランジション効果 */
+/*	background-color: #ffff00;*/
+/*	 ボタンの背景色 */
+/*	  border-color: #cccc00;  (元々)ボーダーの色 */
+/*	border-color: rgb(206, 206, 0);*/
+/*	 ボーダーの色 */
+/*	white-space: nowrap;*/
+/*	 改行を防ぐ */
+/*	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  影 */
+
 }
 
 .btn-yellow:hover {
@@ -130,7 +70,6 @@ body {
 	/* ホバー時の背景色 */
 	border-color: #b84c00;
 	/* ホバー時のボーダーの色 */
-
 }
 
 .btn-yellow:focus,
@@ -143,6 +82,14 @@ body {
 .btn-yellow:disabled {
 	opacity: .45;
 	/* 無効時の不透明度 */
+}
+
+/* ボタンを押したときにへこんだような見た目 */
+.btn-yellow:active {
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.15), inset -2px -2px 5px rgba(255, 255, 255, 0.3);
+    transform: translateY(2px); /* 押されたようにボタンを下に移動させる */
+    background-color: #f5f500; /* 押下時の背景色 */
+    border-color: #b84c00; /* 押下時のボーダー色 */
 }
 
 .btn-yellow-sm {
@@ -181,7 +128,102 @@ body {
 }
 
 
+/*追加*/
+/* ボタンのコンテナ設定 */
+/*.button-container {*/
+/*    display: flex;*/
+/*    flex-wrap: wrap;*/
+/*    justify-content: space-between;  左右均等な間隔 */
 
+/*}*/
+
+/* カード風ボタンスタイル */
+.custom-card-btn {
+    width: 100%;
+    height: 230px;                        /* 通常時の高さ */
+    background-color: rgb(253, 247, 255);  /* 背景色 */
+    border: 1px solid rgb(190, 198, 220);  /* 枠線 */
+    border-radius: 8px;                    /* 角の丸み */
+    margin: 10px 0px 10px 0px;                      /* 上下のマージン */
+    padding: 40px;                         /* 内側余白 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影 */
+    text-align: center;                    /* 中央寄せ */
+    transition: transform 0.2s;            /* ホバー時のアニメーション */
+/*    cursor: pointer;*/
+    text-decoration: none;
+    color: #7b8ab8;                        /* 文字色 */
+    
+    display: flex;
+    flex-direction: column;                /* アイコンと文字を縦に並べる */
+    align-items: center;                   /* アイコンと文字を中央に揃える */
+    
+    font-size: 1.1em;                      /* 通常時の文字サイズ */
+}
+
+/* アイコンのスタイル */
+.custom-card-btn .icon {
+    font-size: 3.5em;                      /* 通常時のアイコンサイズ */
+    color: rgb(97, 97, 97);                        /* ボタンのテキスト色を継承 */
+    margin-bottom: 10px;                   /* アイコンとテキストの間隔 */
+}
+
+/* ホバー時のエフェクト */
+.custom-card-btn:hover {
+    transform: translateY(-5px);           /* 浮かび上がるようなエフェクト */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* デフォルト（PC画面）の場合は中央揃え */
+.row.d-flex {
+    justify-content:  space-around; /* 中央揃え */
+}
+
+/* レスポンシブデザイン: 小画面で2列 */
+@media (max-width: 768px) {
+	.row.d-flex {
+        justify-content: flex-start; /* 左揃え */
+    }
+    
+    .col-md-2 {
+        width: 25%;
+    }
+    
+    .custom-card-btn {
+        height: 170px;                     /* 小画面時の高さ */
+        font-size: 1.1em;                    /* 小画面時の文字サイズ */
+        padding: 20px;                     /* 小画面時の内側余白 */
+    }
+
+    .custom-card-btn .icon {
+        font-size: 2.5em;                  /* 小画面時のアイコンサイズ */
+    }
+    
+}
+
+/* スマホ画面 (576px以下): 2列、ボタンの高さを150px、文字サイズ調整 */
+@media (max-width: 576px) {
+	.row.d-flex {
+        justify-content: flex-start; /* 左揃え */
+    }
+    
+    .col-md-2 {
+        width: 50%;
+    }
+
+    .custom-card-btn {
+        height: 150px;                     /* スマホ時の高さ */
+        font-size: 1em;                    /* スマホ時の文字サイズ */
+        padding: 20px;                     /* スマホ時の内側余白 */
+    }
+
+    .custom-card-btn .icon {
+        font-size: 2.5em;                  /* スマホ時のアイコンサイズ */
+    }
+}
+/*追加ここまで*/
+
+
+/* ↓古いから新しいの作ったら消す↓ */
 /* オレンジボタン */
 .btn-orange {
 	background-color: rgb(255, 192, 0);
@@ -265,6 +307,80 @@ body {
 .btn-lightBlue:disabled {
 	opacity: .45;
 }
+
+/* ボタンを横並びにするコンテナ */
+.menu-container .container {
+	display: flex;
+	justify-content: space-between;
+	/* ボタンを等間隔に配置 */
+	width: 70%;
+	/* コンテナの幅を調整 */
+}
+
+.menu-container .col {
+	flex: 1;
+	/* 各列が均等に広がるように設定 */
+	display: flex;
+	justify-content: center;
+	/* ボタンを中央に配置 */
+}
+
+
+/* ボタン共通のスタイル */
+.menuBtn {
+	display: flex;
+	flex-direction: column;
+	/* アイコンと文字を縦に並べる */
+	align-items: center;
+	/* アイコンと文字を中央に揃える */
+	width: 150px;
+	/* 幅 */
+	height: 200px;
+	/* 高さ */
+	border: 1px solid transparent;
+	border-radius: .25rem;
+	/* ボーダーの角を丸める */
+	color: #000;
+	font-size: 1em;
+	/* 文字のサイズ */
+	text-align: center;
+
+	outline: none;
+	transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+	padding: 40px;
+	/* 内側の余白を追加 */
+	/*  box-shadow: 0 0 5px 1px rgb(231, 231, 231);*/
+	/*	box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3);*/
+}
+
+/* アイコンのスタイル */
+.icon {
+	font-size: 24px;
+	/* アイコンのサイズ */
+	color: #000;
+	/* アイコンの色 */
+	margin-bottom: 8px;
+	/* アイコンとテキストの間隔 */
+}
+
+/* ボタン内のアイコンとテキストのスタイル */
+.menuBtn .icon {
+	font-size: 3.5em;
+	/* アイコンのサイズ */
+	color: rgb(58, 58, 58);
+	/* ボタンのテキスト色を継承 */
+	margin-bottom: 10px;
+	/* アイコンとテキストの間隔 */
+}
+
+.menuBtn .label {
+	font-size: 1em;
+	/* テキストのサイズ */
+	color: rgb(58, 58, 58);
+}
+
+/* ↑古いから新しいの作ったら消す↑ */
+
 
 /*ユーザー画面*/
 .users-text {
@@ -415,4 +531,155 @@ body {
 /*マウスカーソル（指マーク）*/
 .pointer {
 	cursor: pointer
+}
+
+
+/* テーブルの基本スタイル */
+.custom-table {
+    width: 100%;
+    min-width: 400px; /* 必要に応じて最小幅を設定 */
+/*  	margin: 5em auto 2em;*/
+    border-collapse: collapse;
+    color: rgb(97, 97, 97);
+    background-color: #ffffff;
+    border-radius: 8px;        /* テーブルに少し角の丸みを追加 */
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.05), -4px -4px 8px rgba(255, 255, 255, 0.7); /* 控えめな陰影 */
+}
+
+/* 枠線のスタイル */
+.custom-table th, .custom-table td {
+    padding: 7px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+/*    background-color: #ffffff;  セルの背景色をホワイトに */
+}
+
+/* ヘッダーのスタイル */
+.custom-table thead {
+    background-color: #ffffff;
+    color: #7b8ab8;
+}
+
+/* 行の高さ */
+.custom-table tbody tr {
+    height: 41px;
+}
+
+/* ホバー時のスタイル */
+.custom-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* スマートフォン向けのスクロール対応 */
+.custom-table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* カスタム選択ボックス (form-select) のスタイル */
+.custom-form-select {
+    display: block;
+    height: 38px;
+    width: 100%;
+    padding: 0.1rem 1.75rem 0.1rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #7b8ab8;
+    background-color: #f0f5fa;
+    border: 0 solid rgba(55, 94, 148, 0.1);
+    border-radius: 0.375rem;
+    appearance: none;
+    box-shadow: inset 2px 2px 8px rgba(55, 94, 148, 0.3), inset -3px -2px 5px rgba(255, 255, 255, 0.8), inset 1px 1px 3px rgba(0, 0, 0, 0.1), inset -1px -1px 3px rgba(255, 255, 255, 0.7); /* 控えめなシャドウ */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237b8ab8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-size: 12px 12px;
+    background-position: right 0.75rem center;
+}
+
+/* フォーカス時のスタイル */
+.custom-form-select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0px 0px 0px 0.2rem rgba(0, 123, 255, 0.15); /* 控えめなフォーカスシャドウ */
+}
+
+/* 無効状態のスタイル */
+.custom-form-select[disabled] {
+    background-color: #e9ecef;
+    color: #6c757d;
+    box-shadow: none;
+}
+
+/* カスタム入力フォーム (form-control) のスタイル */
+.custom-form-control {
+    display: block;
+    height: 38px;
+    width: 100%;
+    padding: 0.1rem 0.8rem;  /* パディングを指定 */
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #7b8ab8; /* Bootstrapのカラー変数を使用 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #f0f5fa; /* 背景色 */
+    background-clip: padding-box;
+    border: 0 solid rgba(55, 94, 148, 0.1); /* Bootstrapのボーダー変数を使用 */
+    border-radius: 0.375rem; /* Bootstrapのボーダー角丸変数を使用 */
+    box-shadow: inset 2px 2px 8px rgba(55, 94, 148, 0.3), inset -3px -2px 5px rgba(255, 255, 255, 0.8), inset 1px 1px 3px rgba(0, 0, 0, 0.1), inset -1px -1px 3px rgba(255, 255, 255, 0.7); /* 内側シャドウ */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+
+/* フォーカス時のスタイル */
+.custom-form-control:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.15), inset -1px -1px 3px rgba(255, 255, 255, 0.8); /* 控えめな内側シャドウ */
+}
+
+
+/* 無効状態のスタイル */
+.custom-form-control[disabled] {
+    background-color: #e9ecef;
+    color: #6c757d;
+    box-shadow: none;
+}
+
+/* エラーメッセージの表示 */
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}
+
+/*部署管理画面のselect2レイアウト修正*/
+/*基本スタイル*/
+.select2-container--bootstrap-5 .select2-selection {
+    width: 100%;
+    height: 56px;
+    padding: 1rem 4.5rem 1rem 1.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #7b8ab8;
+    background-color: #f0f5fa;
+    border: 1px solid #f0f5fa; /* 必要なら変更 */
+    box-shadow: 5px 5px 10px rgba(55, 94, 148, .2), -5px -5px 10px rgba(255, 255, 255, .4);
+    border-radius: .25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    background-position: right 1.5rem center; /* アイコンの位置調整 */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237b8ab8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"); /* アイコン */
+}
+
+/* 選択後の色 */
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: #7b8ab8;
 }

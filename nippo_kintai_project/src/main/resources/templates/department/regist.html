@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org" th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
 
 <head>
 	<meta charset="UTF-8">
@@ -11,116 +12,404 @@
 	<link th:href="@{/css/style.css}" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+
 	<title>部署登録</title>
 </head>
 
 <body>
-	<div class="container d-flex justify-content-center mb-5 mt-5" id="regist">
-		<div class="col-md-6">
-			<div class="card" style="background-color: rgb(255, 255, 255);">
-				<div class="card-header" style="background-color: white; ">
-					<h3 class="text-center">部署管理</h3>
-				</div>
-				<div class="card-body" style="margin-right: 02px;">
+	<script th:inline="javascript">
+		const newNameErrorMessage = /*[[${newNameErrorMessage}]]*/ {};
+		const inputNewName = /*[[${inputNewName}]]*/ {};
+	</script>
 
-					<!-- エラー -->
-					<div th:if="${error}" class="alert alert-danger">
-						<p th:text="${error}"></p>
-					</div>
-					<div th:if="${message}" class="alert alert-info">
-						<p th:text="${message}"></p>
-					</div>
-					<!-- エラー -->
-
-					<form th:object="${department}" action="?" method="post" id="department-form">
-						<div class="container mb-3 row">
-							<div class="input-group">
-								<label for="input-registed-department" class="col-sm-4 col-form-label">登録済の部署名</label>
-
-								<div class="dropdown ms-2 col-sm-5 row">
-									<input type="text" class="form-select" th:value="${exsistsName}" name="exsistsName"
-										th:text="${department.name}" id="input-registed-department" readonly />
-									<div id="dropdownList" class="dropdown-content">
-										<input type="text" placeholder="検索..." name="dropdownSearch" />
-										<div data-value="${exsistsName}">[[*{exsistsName}]]</div>
-										<div id="emptyOption"></div>
-										<div th:each="department : ${departmentList}" th:data-value="${department.name}"
-											th:text="${department.name}"></div>
-									</div>
-								</div>
-								<div class="input-group-append ms-4 row">
-									<button type="submit" class="btn btn-light" id="delete-btn"
-										formaction="/department/regist/delete" onclick="return delcheck()">廃止</button>
-								</div>
-								<span class="text-danger" th:errors="*{exsistsName}" disabled></span>
-							</div>
-						</div>
-
-						<div class="container mb-3 row">
-							<label for="input-new-department" class="col-sm-4 col-form-label">新部署名</label>
-							<div class="col-sm-8">
-								<input type="text" class="form-control" th:value="${newName}" name="newName"
-									id="input-new-department" />
-								<span id="newNameError" class="text-danger"></span>
-								<!--java用-->
-								<span class="text-danger" th:errors="*{newName}"></span>
-							</div>
-						</div>
-
-						<!-- ボタン -->
-						<div class="container d-flex flex-row-reverse mt-3 mb-5">
-							<button type="submit" class="btn-yellow " id="modify-btn"
-								formaction="/department/regist/update" style="margin-right: 25px;" disabled>
-								変更</button>
-							<button type="submit" class="btn-yellow mx-2" id="regist-btn"
-								formaction="/department/regist/complete" disabled>登録</button>
-						</div>
-
-
-						<!-- ボタン -->
-					</form>
-					<!--					</div>-->
-					<div class="accordion accordion-flush mb-2" id="accordionExample">
-						<div class="accordion-item">
-							<div class="accordion-header" id="headingOne">
-								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-									data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-									廃止済部署の復元
-								</button>
-							</div>
-							<div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
-								data-bs-parent="#accordionExample">
-								<form action="/department/regist/active" method="post" id="activation-form">
-									<div class="container mt-2 mb-3 row">
-										<!--										<div class="input-group input-group-sm">-->
-										<label for="deleted-department" class="col-sm-4 col-form-label">廃止済の部署名</label>
-										<div class="col-sm-5">
-											<select class="form-select" th:value="${inactiveName}" name="inactiveName"
-												id="deleted-department">
-												<option th:value="${inactiveName}">[[*{inactiveName}]]</option>
-												<option th:each="inactiveList : ${inactiveDepartmentList}"
-													th:value="${inactiveList.name}" th:text="${inactiveList.name}">
-												</option>
-											</select>
-										</div>
-										<div class="col-sm-3">
-											<button type="submit" class="btn-yellow me-2" id="activation-btn"
-												onclick="return activecheck()" disabled>復元</button>
-										</div>
-									</div>
-
-									<span class="text-danger" th:errors="${department.inactiveName}"></span>
-								</form>
-
-							</div>
-						</div>
-					</div>
-				</div>
+	<div class="d-flex justify-content-center mb-5 mt-5">
+		<div class="card col-xl-7 col-md-10 col-12">
+			<div class="card-header">
+				<h3 class="text-center">部署管理</h3>
 			</div>
+			<div class="card-body">
 
+				<!-- エラー -->
+				<div th:if="${error}" class="alert alert-danger">
+					<p th:text="${error}" style="color: white;"></p>
+				</div>
+				<div th:if="${message}" class="alert alert-info">
+					<p th:text="${message}" style="color: white;"></p>
+				</div>
+				<!-- エラー -->
+
+				<!-- 部署登録 -->
+				<div class="card mb-3" style="background-color: rgb(255, 255, 255);">
+					<div class="card-header">部署登録</div>
+					<div class="card-body">
+				
+						<form th:object="${departmentForm}" action="/department/regist/complete" method="post"
+							id="department-form">
+							<div class="row">
+								<label for="name">部署名：</label>
+								<div class="col-xl-9 col-md-9 col-8">
+									<input type="text" class="form-control" th:field="*{name}">
+										<span class="text-danger" th:errors="*{name}"></span>
+								</div>
+								<div class="col-xl-3 col-md-3 col-4">
+									<button type="submit" class="btn-yellow">登録</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- /部署登録 -->
+
+				<!-- 部署一覧 -->
+				<div class="card mt-2 mb-3" style="background-color: rgb(255, 255, 255);">
+					<div class="card-header">部署一覧</div>
+					<div class="card-body">
+
+						<div class="mt-2 mb-4 custom-table-responsive">
+							<table class="custom-table" id="">
+								<thead>
+									<tr>
+										<th style="width: 20%;">部署ID</th>
+										<th style="width: 50%;">部署名</th>
+										<th colspan="3" style="width: 35%;"></th>
+									</tr>
+								</thead>
+								<tbody class="table-light">
+									<tr th:each="department : ${departmentList}">
+										<td th:text="${department.departmentId}"></td>
+										<td th:text="${department.name}"></td>
+
+										<!-- ユーザ ー-->
+										<form action="/department/regist/users" method="post" class="users-form">
+											<input type="hidden" name="departmentId" th:value="${department.departmentId}" />
+											<input type="hidden" name="name" th:value="${department.name}" />
+											<td><button type="submit" class="btn btn-link" style="padding: 0.7rem 1.2rem;">
+													<i class="bi bi-people-fill"></i>
+													<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light"
+														style="font-size: 10px;">
+														<span th:text="${userCountMap[department.departmentId]}"></span>
+													</span>
+												</button></td>
+										</form>
+
+										<!-- 変更（モーダル開く） -->
+										<td><button type="button" class="btn btn-link modify-btn" data-bs-toggle="modal"
+										data-bs-target="#modifyModal" th:data-department-name="${department.name}" style="padding: 0.7rem 1.2rem;">
+												<i class="bi bi-pencil-fill"></i>
+											</button></td>
+
+										<!-- 削除 -->
+										<form th:action="@{/department/regist/delete}" method="post">
+											<input type="hidden" name="exsistsName" th:value="${department.name}" id="deleteDepartmentName">
+											<input type="hidden" name="departmentId" th:value="${department.departmentId}" id="deleteDepartmentId">
+											<td><button type="submit" class="btn btn-link delete-btn" style="padding: 0.7rem 1.2rem;"
+													th:data-department-name="${department.name}">
+													<i class="bi bi-trash3"></i>
+												</button></td>
+										</form>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<!-- 復元ボタン -->
+						<form action="/department/regist/restore" method="post" id="restore-form">
+							<button type="submit" class="btn" th:disabled="${inactiveDepartmentList != null}">
+								<i class="bi bi-arrow-counterclockwise"></i>復元
+							</button>
+						</form>
+
+					</div>
+				</div>
+				<!-- /部署一覧 -->
+
+
+				<!-- 所属ユーザー -->
+				<th:block th:if="${departmentUserList != null and !#lists.isEmpty(departmentUserList)}">
+					<div class="card mt-2 mb-3" style="background-color: rgb(255, 255, 255);" id="所属ユーザー">
+						<div class="card-header">所属ユーザー<span th:text="${departmentName}"></span></div>
+						<div class="card-body">
+
+							<div class="mt-2 mb-3 custom-table-responsive">
+								<table class="custom-table" id="">
+									<thead>
+										<tr>
+											<th style="width: 20%;">社員番号</th>
+											<th>ユーザー名</th>
+											<th>権限</th>
+											<th colspan="1" style="width: 15%;">
+										</tr>
+									</thead>
+									<tbody class="table-light">
+										<tr th:each="departmentUser : ${departmentUserList}">
+											<td>30074</td>
+											<td th:text="${departmentUser.userName}"></td>
+											<td th:text="${departmentUser.role}"></td>
+											<td><button type="submit" class="btn btn-link" style="padding: 0.8rem 1.3rem;">
+													<i class="bi bi-people-fill"></i>
+												</button></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							
+						</div>
+					</div>
+				</th:block>
+				<!-- /所属ユーザー一覧 -->
+
+				<!-- 部署の復元 -->
+				<th:block th:if="${inactiveDepartmentList != null and !#lists.isEmpty(inactiveDepartmentList)}">
+					<div class="card mt-2 mb-3" style="background-color: rgb(255, 255, 255);" id="部署の復元">
+						<div class="card-header">廃止済み部署の復元</div>
+						<div class="card-body">
+
+							<div class="mt-2 mb-3 custom-table-responsive">
+								<table class="custom-table" id="">
+									<thead>
+										<tr>
+											<th style="width: 20%;">部署ID</th>
+											<th style="width: 50%;">部署名</th>
+											<th colspan="1" style="width: 10%;"></th>
+										</tr>
+									</thead>
+									<tbody class="table-light">
+										<tr th:each="inactiveDepartment : ${inactiveDepartmentList}" style="background-color: rgb(240, 240, 240);">
+											<td th:text="${inactiveDepartment.departmentId}"></td>
+											<td th:text="${inactiveDepartment.name}"></td>
+											<td>
+												<form action="/department/regist/active" method="post" class="restore-form">
+													<input type="hidden" name="inactiveName" th:value="${inactiveDepartment.name}" />
+													<button type="submit" class="btn btn-link restore-btn" style="padding: 0.8rem 1.3rem;"
+														th:data-department-name="${inactiveDepartment.name}">
+														<i class="bi bi-arrow-counterclockwise"></i></button>
+												</form>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							
+						</div>
+					</div>
+				</th:block>
+				<!-- /部署の復元 -->
+
+
+				<!-- 画面上部に遷移するボタン -->
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn btn-primary" id="pageTopBtn"><i class="bi bi-chevron-up"></i></button>
+				</div>
+				<!-- /画面上部に遷移するボタン -->
+
+			</div>
 		</div>
 	</div>
+
+
+	<!-- 変更モーダル -->
+	<div class="modal fade" id="modifyModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form th:object="${departmentForm}" id="modifyForm" action="/department/regist/update" method="post">
+					<div class="modal-header">
+						<h5 class="modal-title" id="modifyModalLabel">部署名変更</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+							onclick="location.href='/department/regist'"></button>
+					</div>
+	
+					<div class="modal-body">
+						<p id="modalErrorMessage" class="alert alert-danger" role="alert" th:if="${errorMessage}"></p>
+						<div class="mb-3">
+							<input type="hidden" name="exsistsName" id="hiddenExsistsName" />
+							<input type="text" class="form-control" th:field="*{newName}" th:id="exsistsName">
+							<!--							<span class="text-danger" th:errors="*{newName}" ></span>-->
+							<span class="text-danger" id="newNameError"></span>
+						</div>
+					</div>
+	
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">変更</button>
+					</div>
+	
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- /変更モーダル -->
+
+	<!-- エラーメッセージやモーダル表示判定用の属性 -->
+	<input type="hidden" id="modalSetting" th:data-open-modal="${openModal}" th:data-error-message="${errorMessage}">
+
+
+
+	<!--	<div class="container d-flex justify-content-center mb-5 mt-5" id="regist">-->
+	<!--		<div class="col-md-6">-->
+	<!--			<div class="card" style="background-color: rgb(255, 255, 255);">-->
+	<!--				<div class="card-header">-->
+	<!--					<h3 class="text-center">部署管理</h3>-->
+	<!--				</div>-->
+	<!--				<div class="card-body" style="margin-right: 02px;">-->
+
+	<!--					 エラー -->
+	<!--					<div th:if="${error}" class="alert alert-danger">-->
+	<!--						<p th:text="${error}"></p>-->
+	<!--					</div>-->
+	<!--					<div th:if="${message}" class="alert alert-info">-->
+	<!--						<p th:text="${message}"></p>-->
+	<!--					</div>-->
+	<!--					 エラー -->
+
+	<!--					<div class="mt-5 mb-5">-->
+	<!--						 セレクトボックス -->
+	<!--						<select class="form-select pref-select">-->
+	<!--							<option></option>-->
+	<!--							<option value="北海道">北海道</option>-->
+	<!--							<option value="青森県">青森県</option>-->
+	<!--							<option value="岩手県">岩手県</option>-->
+	<!--							<option value="宮城県">宮城県</option>-->
+	<!--							<option value="秋田県">秋田県</option>-->
+	<!--							<option value="山形県">山形県</option>-->
+	<!--							 以下省略 -->
+	<!--						</select>-->
+	<!--					</div>-->
+
+	<!--					 jQueryの読み込み -->
+	<!--					<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+	<!--					 select2のCSSとJSの読み込み -->
+	<!--					<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />-->
+	<!--					<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>-->
+
+	<!--					 select2-bootstrapテーマの読み込み -->
+	<!--					<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-5-theme/1.1.0/select2-bootstrap-5-theme.min.css"-->
+	<!--						rel="stylesheet" />-->
+	<!--					 Select2日本語化 -->
+	<!--					<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/i18n/ja.js"></script>-->
+	<!--					<link th:href="@{/css/style.css}" rel="stylesheet">-->
+
+	<!--					<script>-->
+	<!--						$(document).ready(function () {-->
+	<!--							// select2を適用-->
+	<!--							$('.pref-select').select2({-->
+	<!--								theme: "bootstrap-5", // select2のテーマにBootstrap5を指定-->
+	<!--								language: "ja"-->
+	<!--							});-->
+	<!--						});-->
+	<!--					</script>-->
+
+
+	<!--					<form th:object="${department}" action="?" method="post" id="department-form">-->
+	<!--						<div class="container">-->
+	<!--							<div>-->
+	<!--								<label for="input-registed-department" class="col-12 col-form-label">登録済の部署名</label>-->
+
+	<!--								<div class="col-12" id="input-registed-department">-->
+	<!--									<select class="form-select pref-select" th:value="${exsistsName}" name="exsistsName">-->
+	<!--										<option th:value="${exsistsName}" id="dropdownList">[[*{exsistsName}]]</option>-->
+	<!--										<option th:each="department : ${departmentList}" th:value="${department.name}"-->
+	<!--											th:text="${department.name}"></option>-->
+	<!--									</select>-->
+	<!--								</div>-->
+
+	<!--								<div class="input-group-append">-->
+	<!--									<button type="submit" class="btn btn-light" id="delete-btn" formaction="/department/regist/delete"-->
+	<!--										onclick="return delcheck()">廃止</button>-->
+	<!--								</div>-->
+	<!--								<span class="text-danger" th:errors="*{exsistsName}" disabled></span>-->
+	<!--							</div>-->
+	<!--						</div>-->
+
+	<!--					<form th:object="${department}" action="?" method="post" id="department-form">-->
+	<!--						<div class="container mb-3 row">-->
+	<!--							<div>-->
+	<!--								<label for="input-registed-department" class="col-sm-4 col-form-label">登録済の部署名</label>-->
+
+	<!--								<div class="dropdown ms-2 col-sm-5 row">-->
+	<!--									<input type="text" class="form-select" th:value="${exsistsName}" name="exsistsName"-->
+	<!--										th:text="${department.name}" id="input-registed-department" readonly />-->
+	<!--									<div id="dropdownList" class="dropdown-content">-->
+	<!--										<input type="text" placeholder="検索..." name="dropdownSearch" />-->
+	<!--										<div data-value="${exsistsName}">[[*{exsistsName}]]</div>-->
+	<!--										<div id="emptyOption"></div>-->
+	<!--										<div th:each="department : ${departmentList}" th:data-value="${department.name}"-->
+	<!--											th:text="${department.name}"></div>-->
+	<!--									</div>-->
+	<!--								</div>-->
+	<!--								<div class="input-group-append ms-4 row">-->
+	<!--									<button type="submit" class="btn btn-light" id="delete-btn"-->
+	<!--										formaction="/department/regist/delete" onclick="return delcheck()">廃止</button>-->
+	<!--								</div>-->
+	<!--								<span class="text-danger" th:errors="*{exsistsName}" disabled></span>-->
+	<!--							</div>-->
+	<!--						</div>-->
+
+	<!--						<div class="container mb-3 row">-->
+	<!--							<label for="input-new-department" class="col-sm-4 col-form-label">新部署名</label>-->
+	<!--							<div class="col-sm-8">-->
+	<!--								<input type="text" class="form-control" th:value="${newName}" name="newName"-->
+	<!--									id="input-new-department" />-->
+	<!--								<span id="newNameError" class="text-danger"></span>-->
+	<!--								java用-->
+	<!--								<span class="text-danger" th:errors="*{newName}"></span>-->
+	<!--							</div>-->
+	<!--						</div>-->
+
+	<!--						 ボタン -->
+	<!--						<div class="container d-flex flex-row-reverse mt-3 mb-5">-->
+	<!--							<button type="submit" class="btn-yellow " id="modify-btn"-->
+	<!--								formaction="/department/regist/update" style="margin-right: 25px;" disabled>-->
+	<!--								変更</button>-->
+	<!--							<button type="submit" class="btn-yellow mx-2" id="regist-btn"-->
+	<!--								formaction="/department/regist/complete" disabled>登録</button>-->
+	<!--						</div>-->
+
+
+	<!--						 ボタン -->
+	<!--					</form>-->
+	<!--										</div>-->
+	<!--					<div class="accordion accordion-flush mb-2" id="accordionExample">-->
+	<!--						<div class="accordion-item">-->
+	<!--							<div class="accordion-header" id="headingOne">-->
+	<!--								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"-->
+	<!--									data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">-->
+	<!--									廃止済部署の復元-->
+	<!--								</button>-->
+	<!--							</div>-->
+	<!--							<div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"-->
+	<!--								data-bs-parent="#accordionExample">-->
+	<!--								<form action="/department/regist/active" method="post" id="activation-form">-->
+	<!--									<div class="container mt-2 mb-3 row">-->
+	<!--																				<div class="input-group input-group-sm">-->
+	<!--										<label for="deleted-department" class="col-sm-4 col-form-label">廃止済の部署名</label>-->
+	<!--										<div class="col-sm-5">-->
+	<!--											<select class="form-select" th:value="${inactiveName}" name="inactiveName"-->
+	<!--												id="deleted-department">-->
+	<!--												<option th:value="${inactiveName}">[[*{inactiveName}]]</option>-->
+	<!--												<option th:each="inactiveList : ${inactiveDepartmentList}"-->
+	<!--													th:value="${inactiveList.name}" th:text="${inactiveList.name}">-->
+	<!--												</option>-->
+	<!--											</select>-->
+	<!--										</div>-->
+	<!--										<div class="col-sm-3">-->
+	<!--											<button type="submit" class="btn-yellow me-2" id="activation-btn"-->
+	<!--												onclick="return activecheck()" disabled>復元</button>-->
+	<!--										</div>-->
+	<!--									</div>-->
+
+	<!--									<span class="text-danger" th:errors="${department.inactiveName}"></span>-->
+	<!--								</form>-->
+
+	<!--							</div>-->
+	<!--						</div>-->
+	<!--					</div>-->
+	<!--				</div>-->
+	<!--			</div>-->
+
+	<!--		</div>-->
+	<!--	</div>-->
+
 	<script th:src="@{/js/department.js}"></script>
+
 </body>
 
 </html>
