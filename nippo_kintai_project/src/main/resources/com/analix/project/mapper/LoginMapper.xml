@@ -4,7 +4,7 @@
 <mapper namespace="com.analix.project.mapper.LoginMapper">
 
 	<!-- 全件取得 -->
-	<select id="findByIdAndPassword"
+	<select id="findByCodeAndPassword"
 		resultType="com.analix.project.entity.Users">
 		SELECT 
 		id,
@@ -14,7 +14,7 @@
 		start_date,
 		employee_code
 		FROM users
-		WHERE id = #{id} AND
+		WHERE employee_code = #{code} AND
 		password = BINARY #{password}
 	</select>
 

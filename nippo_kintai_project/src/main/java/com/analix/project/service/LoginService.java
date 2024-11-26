@@ -14,9 +14,9 @@ public class LoginService {
 	@Autowired
 	private LoginMapper loginMapper;
 
-	public Users findByIdAndPassword(String id, String password) {
-		Integer userId = Integer.parseInt(id);
-		return loginMapper.findByIdAndPassword(userId, password);
+	public Users findByIdAndPassword(String employeeCode, String password) {
+		Integer code = Integer.parseInt(employeeCode);
+		return loginMapper.findByCodeAndPassword(code, password);
 	}
 
 	// 利用開始日チェック

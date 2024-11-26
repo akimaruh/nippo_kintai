@@ -14,6 +14,6 @@ public interface LoginMapper {
 	 * @param password
 	 * @return ユーザー全件
 	 */
-	Users findByIdAndPassword(@Param("id") Integer id, @Param("password") String password);
+	Users findByCodeAndPassword(@Param("code") Integer code, @Param("password") String password);
 
 }

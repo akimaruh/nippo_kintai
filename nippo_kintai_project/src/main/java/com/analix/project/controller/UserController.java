@@ -110,10 +110,11 @@ public class UserController {
 		String registMessage = null;
 		if (result.hasErrors()) {
 			Map<String, Integer> departmentMap = userService.pulldownDepartment();
-			redirectAttributes.addFlashAttribute("registUserForm", registUserForm);
-			redirectAttributes.addFlashAttribute("departmentList", departmentMap);
-			redirectAttributes.addFlashAttribute("error", "エラー内容に従って修正してください");
-			return "redirect:/user/regist";
+			System.out.println(registUserForm);
+			model.addAttribute("registUserForm", registUserForm);
+			model.addAttribute("departmentList", departmentMap);
+			model.addAttribute("error", "エラー内容に従って修正してください");
+			return "user/regist";
 		}
 		registMessage = userService.registUserData(registUserForm);
 		if (registMessage.contains("登録しました") || registMessage.contains("更新しました")) {

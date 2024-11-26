@@ -13,8 +13,8 @@
 								<span th:text="${session.loginUser.name}"></span>
 							</div>
 
-							<strong>ユーザーID：</strong>
-							<span th:text="${session.loginUser.id}" id="userId"></span>
+							<strong>社員コード：</strong>
+							<span th:text="${session.loginUser.employeeCode}" id="employeeCode"></span>
 
 							<div>
 								<th:block th:if="${statusName !=null || statusFlg !=null}">
@@ -42,13 +42,12 @@
 
 						<th:block th:if="@{/common/startMenu}">
 							<div class="p-2">
-								<a href="/common/startMenu">
-<!--									<form th:action="@{/common/startMenu}" method="get">-->
+								<form th:action="@{/common/startMenu}" method="get">
 									<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
-<!--									</form>-->
-								</a>
+								</form>
+
 							</div>
-						</th:block>
+						
 					</div>
 				</div>
 			</div>
