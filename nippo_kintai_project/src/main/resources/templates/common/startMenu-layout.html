@@ -27,9 +27,8 @@
 								<span th:text="${session.loginUser.name}"></span>
 							</div>
 
-							<strong>ユーザーID：</strong>
-							<span th:text="${session.loginUser.id}" id="userId"></span>
-
+							<strong>社員コード：</strong>
+							<span th:text="${session.loginUser.employeeCode}" id="employeeCode"></span>
 						</span>
 					</div>
 				</div>
@@ -40,14 +39,6 @@
 								<button type="submit" class="btn-yellow">ログオフ</button>
 							</form>
 						</div>
-
-						<!--						<th:block th:if="@{/common/startMenu}">-->
-						<!--							<div class="p-2">-->
-						<!--								<a href="/common/startMenu">-->
-						<!--									<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
-						<!--								</a>-->
-						<!--							</div>-->
-						<!--						</th:block>-->
 					</div>
 				</div>
 			</div>

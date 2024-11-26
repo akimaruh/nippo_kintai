@@ -29,14 +29,14 @@ public class LoginController {
 	}
 
 	@PostMapping("/login")
-	public String login(@RequestParam("id") String id, @RequestParam("password") String password,
+	public String login(@RequestParam("employeeCode") String employeeCode, @RequestParam("password") String password,
 			HttpSession session, Model model) {
 
 		// ユーザーIDチェック
-		String idRegex = "^[0-9]{1,16}$";
-		Pattern idPattern = Pattern.compile(idRegex);
-		Matcher idMatcher = idPattern.matcher(id);
-		if (!idMatcher.matches()) {
+		String employeeCodeRegex = "^[0-9]{1,16}$";
+		Pattern employeeCodePattern = Pattern.compile(employeeCodeRegex);
+		Matcher employeeCodeMatcher = employeeCodePattern.matcher(employeeCode);
+		if (!employeeCodeMatcher.matches()) {
 			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 			return "common/login";
 		}
@@ -51,7 +51,7 @@ public class LoginController {
 		}
 
 		Users user = new Users();
-		user = loginService.findByIdAndPassword(id, password);
+		user = loginService.findByIdAndPassword(employeeCode, password);
 		System.out.println(user);
 		if (user != null) {
 
