@@ -7,11 +7,12 @@
 	<select id="findByIdAndPassword"
 		resultType="com.analix.project.entity.Users">
 		SELECT 
-		users.id,
-		users.name,
-		users.role,
-		users.department_id,
-		users.start_date
+		id,
+		name,
+		role,
+		department_id,
+		start_date,
+		employee_code
 		FROM users
 		WHERE id = #{id} AND
 		password = BINARY #{password}

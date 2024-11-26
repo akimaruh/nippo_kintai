@@ -134,6 +134,7 @@
 	<select id="findUserDataForDisplay"
 		resultType="com.analix.project.entity.Users">
 		SELECT
+		users.id,
 		users.name,
 		users.employee_code,
 		department.name AS
@@ -144,7 +145,7 @@
 		ON
 		users.department_id =
 		department.department_id
-		WHERE id =
+		WHERE users.id =
 		#{id}
 	</select>
 

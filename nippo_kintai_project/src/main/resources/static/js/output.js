@@ -3,17 +3,19 @@ const inputUserKeyword = document.getElementById("user-search");
 let typingTimer; // タイピングタイマー
 
 inputUserKeyword.addEventListener('input', () => {
+	let allButtons = document.querySelectorAll('button');
+	let select = document.getElementsByClassName('select');
 	clearTimeout(typingTimer);
 
 	typingTimer = setTimeout(() => {
 		if (inputUserKeyword.value != '') {
+			//			select.innerHTML = '';
 			userSearch();
 		}
 		// フォーム送信後に再度フォーカスを設定
 		inputUserKeyword.focus();
-		//各種日報集計ボタン活性メソッド
-		let allButtons = document.querySelectorAll('button');
-		let select = document.getElementsByClassName('select');
+		//		//各種日報集計ボタン活性メソッド
+
 		console.log(select);
 		if (select.innerHTML != '') {
 			console.log("セレクト何か入った");
@@ -24,12 +26,11 @@ inputUserKeyword.addEventListener('input', () => {
 			})
 		} else {
 			allButtons.forEach(button => {
-				button.disabled = true; // ボタンを活性化
+				button.disabled = true; // ボタンを非活性化
 			})
 		}
 	}, 250);
 });
-
 function userSearch() {
 	const keyword = document.getElementById('user-search').value;
 	// Ajaxリクエストを非同期で送信
@@ -62,8 +63,9 @@ function userSearch() {
 				if (data.hasOwnProperty(key)) {
 					const option = document.createElement('option');
 					option.value = data[key].id;
-					option.textContent =  data[key].name + '('+ key + ')' ;
+					option.textContent = data[key].name + '(' + key + ')';
 					select.appendChild(option);
+
 				}
 			}
 		})
@@ -72,3 +74,20 @@ function userSearch() {
 
 		});
 }
+
+const select = document.querySelector('select[name="userId"]');
+select.addEventListener('change', () => {
+
+	console.log('select入力感知');
+	const allButtons = document.querySelectorAll('button[form="output-form"]');
+	if (selectValue.innerHTML != '') {
+		allButtons.forEach(button => {
+			button.disabled = false; // ボタンを活性化
+
+		})
+	} else {
+		allButtons.forEach(button => {
+			button.disabled = true; // ボタンを非活性化
+		})
+	}
+});

@@ -54,21 +54,21 @@ public class OutputController {
 
 	/**
 	 *ユーザー・対象年月を選択し『日報帳票』ボタン押下後
-	 * @param userIdString
+	 * @param userIdString || defaultValue ="0"
 	 * @param targetYearMonth
 	 * @param model
 	 * @param redirectAttributes
 	 * @return 日報帳票画面(web画面出力)
 	 */
 	@RequestMapping(path = "/output/dailyReportOutput")
-	public String showDailyReportOutput(@RequestParam("userId") String userIdString,
+	public String showDailyReportOutput(@RequestParam(name = "userId", defaultValue = "0") String userIdString,
 			@RequestParam("targetYearMonth") YearMonth targetYearMonth, Model model,
 			RedirectAttributes redirectAttributes, HttpSession session) {
+		
 		Integer userId = Integer.parseInt(userIdString);
 
 		List<DailyReportDto> dailyReportList = dailyReportService
 				.getDailyReportListForOutput(userId, targetYearMonth);
-
 		if (dailyReportList.isEmpty()) {
 			redirectAttributes.addFlashAttribute("error", "登録された日報がありません");
 			return "redirect:/output/list";

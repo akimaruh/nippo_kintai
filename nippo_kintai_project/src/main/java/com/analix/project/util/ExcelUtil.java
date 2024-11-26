@@ -89,9 +89,9 @@ public class ExcelUtil {
 			String sheetName) {
 		Sheet sheet = workbook.getSheet(sheetName);
 		Row headerRow;
-		String[] labels = { "ユーザーID：", "ユーザー名：", "対象年月：" };
+		String[] labels = { "社員コード：", "ユーザー名：", "対象年月：" };
 		String[] values = {
-				userData.getId().toString(), // ユーザーID
+				userData.getEmployeeCode().toString(), // ユーザーID
 				userData.getName(), // ユーザー名
 				targetYearMonth.toString() // 対象年月
 		};
