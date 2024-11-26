@@ -301,6 +301,33 @@ window.addEventListener("DOMContentLoaded", (event) => {
 }});
 
 
+// 処理メニューボタンをドラッグで移動可能に
+document.addEventListener('DOMContentLoaded', function() {
+	const gridDemo = document.getElementById('gridDemo');
+
+	// SortableJsを適用
+	var sortable = new Sortable(gridDemo, {
+		animation: 150,
+
+		store: {
+			// 並び変えた順番をローカルストレージに保存(配列)
+			set: function(sortable) {
+				const order = sortable.toArray();
+				localStorage.setItem(userId + '_sortedOrder', JSON.stringify(order));  // ユーザーIDごとに保存
+			},
+
+			// 保存された順番をローカルストレージから取得
+			get: function(sortable) {
+				const order = JSON.parse(localStorage.getItem(userId + '_sortedOrder'));
+				if (order) {
+					return order;
+				}
+			}
+		}
+	});
+});
+
+
 ////workId
 //var workIdInputForm = document.getElementById("workIdInputForm");
 ////workIdInputForm.value = dailyReportDetailForm.workId; // 値を直接設定

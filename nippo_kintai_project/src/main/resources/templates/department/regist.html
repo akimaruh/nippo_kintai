@@ -43,22 +43,23 @@
 					<div class="card-header">部署登録</div>
 					<div class="card-body">
 				
-						<form th:object="${departmentForm}" action="/department/regist/complete" method="post"
-							id="department-form">
+						<form th:object="${departmentForm}" action="/department/regist/complete" method="post" id="department-form">
 							<div class="row">
 								<label for="name">部署名：</label>
 								<div class="col-xl-9 col-md-9 col-8">
 									<input type="text" class="form-control" th:field="*{name}">
-										<span class="text-danger" th:errors="*{name}"></span>
+									<span class="text-danger" th:errors="*{name}"></span>
 								</div>
 								<div class="col-xl-3 col-md-3 col-4">
 									<button type="submit" class="btn-yellow">登録</button>
 								</div>
 							</div>
 						</form>
+				
 					</div>
 				</div>
 				<!-- /部署登録 -->
+				
 
 				<!-- 部署一覧 -->
 				<div class="card mt-2 mb-3" style="background-color: rgb(255, 255, 255);">
@@ -69,14 +70,14 @@
 							<table class="custom-table" id="">
 								<thead>
 									<tr>
-										<th style="width: 20%;">部署ID</th>
+										<th style="width: 10%;"></th>
 										<th style="width: 50%;">部署名</th>
 										<th colspan="3" style="width: 35%;"></th>
 									</tr>
 								</thead>
 								<tbody class="table-light">
 									<tr th:each="department : ${departmentList}">
-										<td th:text="${department.departmentId}"></td>
+										<td style="color: gray;">：</td>
 										<td th:text="${department.name}"></td>
 
 										<!-- ユーザ ー-->
@@ -407,7 +408,9 @@
 
 	<!--		</div>-->
 	<!--	</div>-->
-
+	
+<!-- SortableJSライブラリのCDN(要素を並び替え) -->
+	<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 	<script th:src="@{/js/department.js}"></script>
 
 </body>

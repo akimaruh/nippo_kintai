@@ -13,191 +13,209 @@
 </head>
 
 <body>
-	<!--	<h1 class="mb-4 text-center">ユーザー登録</h1>-->
 
-	<div th:if="${error}" class="alert alert-danger">
-		<p th:text="${error}"></p>
-	</div>
-	<div th:if="${errorMessageMap}" class="alert alert-danger">
-		<th:block th:each="errorMessages :${errorMessageMap}">
-			<span th:text="${errorMessages.key}"></span>
-			<th:block th:each="errorMessage: ${errorMessages.value}">
-				<span th:text="${errorMessage}"></span>
-			</th:block>
-			<br>
-		</th:block>
-	</div>
+	
 
-
-	<div th:if="${message}" class="alert alert-info">
-		<p th:text="${message}"></p>
-	</div>
-
-	<div id="error" class="alert alert-danger" style="display: none;">
-	</div>
-	<div id="succsess" class="alert alert-info" style="display: none;">
-	</div>
-
-	<div class="container d-flex justify-content-center mb-5 mt-5" id="regist">
-		<div class="col-md-6">
-			<div class="card" style="background-color: rgb(255, 255, 255);">
-				<div class="card-header" style="background-color: white; ">
-					<h3 class="text-center">ユーザー管理</h3>
-				</div>
-				<div class="card-body" style="margin-right: 02px;">
-
-					<!-- 検索フォーム -->
-					<form th:action="@{/user/regist/search}" th:method="post" name="registUserForm" id="search-form"
-						th:object="${registUserForm}">
-						<div class="container mb-3 row">
-							<div class="col-4">
-								<label for="search-employeeCode" class="col-form-label">社員番号</label>
-							</div>
-							<div class="col-6">
-								<input type="text" class="form-control" th:field="*{employeeCode}"
-									id="search-employeeCode" />
-							</div>
-							<div class="col-2">
-								<input type="submit" value="検索" class="btn-yellow" />
-							</div>
-						</div>
-
-					</form>
-
-					<!-- 社員番号 -->
-					<div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(96, 175, 255);"></div>
-
-
-					<form th:object="${registUserForm}" th:action="@{/user/regist/complete}" method="post"
-						id="regist-form">
-						<div class="container mb-3 row ">
-							<label for="name" class="col-sm-4 col-form-label">ユーザー名</label>
-							<div class="col-sm-6">
-								<input type="text" class="form-control" th:field="*{name}" />
-								<span class="text-danger" th:errors="*{name}"></span>
-								<span id="nameError" class="text-danger"></span>
-							</div>
-
-						</div>
-
-
-						<div class="container mb-3 row">
-							<div class="col-4">
-								<label for="employeeCode" class="col-form-label">社員番号</label>
-							</div>
-							<div class="col-6">
-								<input type="text" class="form-control" th:field="*{employeeCode}" />
-								<input type="hidden" name="beforeEmployeeCode" th:value="*{employeeCode}">
-							</div>
-						</div>
-
-						<div class="container mb-3 row">
-							<label for="password" class="col-sm-4 col-form-label">パスワード</label>
-							<div class="col-sm-8 password-container">
-								<input type="text" name="password" class="form-control" th:field="*{password}"
-									style="display: none;" />
-								<button type="button" id="btn_passview">
-									<i id="view" class="fas fa-eye-slash"></i>
-								</button>
-							</div>
-							<div class="col-sm-4"></div>
-							<div class="col-sm-8">
-								<div id="passwordError" class="text-danger"></div>
-								<span class="text-danger" th:errors="*{password}"></span>
-							</div>
-						</div>
-
-						<div class="container mb-3 row">
-							<label for="role" class="col-sm-4 col-form-label">権限</label>
-							<div class="col-sm-8">
-								<select class="form-select" th:field="*{role}">
-									<option th:value="*{role}">[[*{role}]]</option>
-									<option value="Admin">Admin</option>
-									<option value="UnitManager">UnitManager</option>
-									<option value="Manager">Manager</option>
-									<option value="Regular">Regular</option>
-								</select>
-								<span class="text-danger" th:errors="*{role}"></span>
-								<span id="roleError" class="text-danger"></span>
-							</div>
-						</div>
-
-						<div class="container mb-3 row">
-							<label for="departmentId" class="col-sm-4 col-form-label">所属部署</label>
-							<div class="col-sm-8">
-								<select class="form-select" th:field="*{departmentId}">
-									<option th:value="*{departmentId}">[[*{departmentName}]]
-									</option>
-									<option th:each="department : ${departmentList}" th:value="${department.value}"
-										th:text="${department.key}">
-									</option>
-								</select>
-
-								<span class="text-danger" th:errors="*{departmentId}"></span>
-								<span id="departmentIdError" class="text-danger"></span>
-							</div>
-						</div>
-
-						<div class="container mb-3 row ">
-							<label for="email" class="col-sm-4 col-form-label">email</label>
-							<div class="col-sm-5">
-								<input type="text" class="form-control" th:field="*{email}" />
-								<span class="text-danger" th:errors="*{email}"></span>
-								<span id="emailError" class="text-danger"></span>
-							</div>
-
-						</div>
-
-						<div class="container mb-3 row">
-							<label for="startDate" class="col-sm-4 col-form-label">利用開始日</label>
-							<div class="col-sm-8">
-								<input type="text" th:errorclass="is-invalid" class="form-control"
-									th:field="*{startDate}" placeholder="yyyy/MM/dd" />
-								<span class="text-danger" th:errors="*{startDate}"></span>
-								<span id="startDateError" class="text-danger"></span>
-							</div>
-						</div>
-
-						<!--						<div class="mx-auto p-1" style="width: 200px;">-->
-						<!--							<div class="position-absolute top-50 start-50">-->
-						<div class="container d-flex flex-row-reverse mt-3 mb-2">
-							<!--							<div class="col-1">-->
-							<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow"
-								style="margin-right: 20px;" />
-							<input type="hidden" name="id" th:value="*{id}" />
-							<input type="hidden" name="insertFlg" th:value="*{insertFlg != null ? insertFlg : 0}" />
-							<!--							</div>-->
-							<div class="col-2">
-								<label for="import-file" class="btn-yellow" id="import-btn">インポート</label>
-							</div>
-						</div>
-					</form>
-				</div>
+	<div class="d-flex justify-content-center mb-5 mt-5" id="regist">
+		<div class="card col-xl-6 col-md-9 col-12">
+			<div class="card-header">
+				<h3 class="text-center">ユーザー管理</h3>
 			</div>
-			<form th:action="@{/user/regist/import}" id="importSubmit-btn" method="post" enctype="multipart/form-data">
-				<button type="submit" class="btn btn-primary" style="opacity: 0;pointer-events: none">ボタン</button>
-			</form>
+			<div class="card-body">
+		
+				<!-- エラー -->
+				<div th:if="${error}" class="alert alert-danger">
+					<p th:text="${error}" style="color: white;"></p>
+				</div>
+				<div th:if="${errorMessageMap}" class="alert alert-danger">
+					<th:block th:each="errorMessages :${errorMessageMap}">
+						<span th:text="${errorMessages.key}"></span>
+						<th:block th:each="errorMessage: ${errorMessages.value}">
+							<span th:text="${errorMessage}"></span>
+						</th:block>
+						<br>
+					</th:block>
+				</div>
+		
+				<div th:if="${message}" class="alert alert-info">
+					<p th:text="${message}"></p>
+				</div>
+		
+				<div id="error" class="alert alert-danger" style="display: none;"></div>
+				<div id="succsess" class="alert alert-info" style="display: none;"></div>
+				<!-- /エラー -->
+		
+				<!-- 検索フォーム -->
+				<div class="card mb-3" style="background-color: rgb(255, 255, 255);">
+					<div class="card-header">検索</div>
+					<div class="card-body">
+				<form th:action="@{/user/regist/search}" th:method="post" name="registUserForm" id="search-form"
+					th:object="${registUserForm}">
+					<div class="mb-1 mt-1 row">
+						<div class="col-xl-3 col-md-3 col-12">
+							<label for="search-employeeCode">社員番号：</label>
+						</div>
+						<div class="col-xl-7 col-md-7 col-12">
+							<input type="text" class="form-control" th:value="*{employeeCode}" name="employeeCode" id="search-employeeCode" />
+						</div>
+						<div class="col-xl-2 col-md-2 col-12">
+							<input type="submit" value="検索" class="btn-yellow" />
+						</div>
+					</div>
+				</form>
+					</div>
+				</div>
+				<!-- /検索フォーム -->
 
-			<input type="file" accept=".csv" name="importFile" id="import-file" class="form-control form-control-sm"
-				form="importSubmit-btn" style="opacity: 0;pointer-events: none" />
-			<!--style="opacity: 0;pointer-events: none"-->
+	
+<!--				<div class="mt-4 mb-4" style="padding: 10px,0px,0px,0px; border:3px solid rgb(96, 175, 255);"></div>-->
+
+				<!-- 登録フォーム -->
+				<div class="card mb-3" style="background-color: rgb(255, 255, 255);">
+					<div class="card-header">登録/変更</div>
+					<div class="card-body">
+						<form th:object="${registUserForm}" th:action="@{/user/regist/complete}" method="post" id="regist-form">
+							<!-- ユーザー名 -->
+							<div class="container mb-3 mt-3 row responsiveContainer">
+								<label for="name" class="col-xl-3 col-md-4 col-12">ユーザー名：</label>
+								<div class="col-xl-9 col-md-8 col-12">
+									<input type="text" class="form-control" th:field="*{name}" />
+									<span class="text-danger" th:errors="*{name}"></span>
+									<span id="nameError" class="text-danger"></span>
+								</div>
+							</div>
+							<!-- /ユーザー名 -->
+
+							<!-- 社員番号 -->
+							<div class="container mb-3 row responsiveContainer">
+								<label for="employeeCode" class="col-xl-3 col-md-3 col-12">社員番号：</label>
+								<div class="col-xl-9 col-md-9 col-12">
+									<input type="text" name="employeeCode" class="form-control" th:value="*{employeeCode}" id="employee" />
+									<input type="hidden" name="beforeEmployeeCode" th:value="*{employeeCode}">
+									<span class="text-danger" th:errors="*{employeeCode}"></span>
+									<span id="employeeCodeError" class="text-danger"></span>
+								</div>
+							</div>
+							<!-- /社員番号 -->
+				
+							<!-- パスワード -->
+							<div class="container mb-3 row responsiveContainer">
+								<label for="password" class="col-xl-3 col-md-3 col-12">パスワード：</label>
+								<div class="col-xl-9 col-md-9 col-12 password-container">
+									<input type="text" name="password" class="form-control" th:field="*{password}" style="display: none;" />
+									<button type="button" id="btn_passview">
+										<i id="view" class="fas fa-eye-slash"></i>
+									</button>
+									<div id="passwordError" class="text-danger"></div>
+									<span class="text-danger" th:errors="*{password}"></span>
+								</div>
+							</div>
+							<!-- /パスワード -->
+				
+							<!-- 権限 -->
+							<div class="container mb-3 row responsiveContainer">
+								<label for="role" class="col-xl-3 col-md-3 col-12">権限：</label>
+								<div class="col-xl-9 col-md-9 col-12">
+									<select class="form-select" th:field="*{role}">
+										<option th:value="*{role}">[[*{role}]]</option>
+										<option value="Admin">Admin</option>
+										<option value="UnitManager">UnitManager</option>
+										<option value="Manager">Manager</option>
+										<option value="Regular">Regular</option>
+									</select>
+									<span class="text-danger" th:errors="*{role}"></span>
+									<span id="roleError" class="text-danger"></span>
+								</div>
+							</div>
+							<!-- /権限 -->
+				
+							<!-- 所属部署 -->
+							<div class="container mb-3 row responsiveContainer">
+								<label for="departmentId" class="col-xl-3 col-md-3 col-12">所属部署：</label>
+								<div class="col-xl-9 col-md-9 col-12">
+									<select class="form-select" th:field="*{departmentId}">
+										<option th:value="*{departmentId}">[[*{departmentName}]]
+										</option>
+										<option th:each="department : ${departmentList}" th:value="${department.value}" th:text="${department.key}">
+										</option>
+									</select>
+									<span class="text-danger" th:errors="*{departmentId}"></span>
+									<span id="departmentIdError" class="text-danger"></span>
+								</div>
+							</div>
+							<!-- /所属部署 -->
+				
+							<!-- email -->
+							<div class="container mb-3 row responsiveContainer">
+								<label for="email" class="col-xl-3 col-md-3 col-12">email：</label>
+								<div class="col-xl-9 col-md-9 col-12">
+									<input type="text" class="form-control" th:field="*{email}" />
+									<span class="text-danger" th:errors="*{email}"></span>
+									<span id="emailError" class="text-danger"></span>
+								</div>
+							</div>
+							<!-- /email -->
+				
+							<!-- 利用開始日 -->
+							<div class="container mb-3 row responsiveContainer">
+								<label for="startDate" class="col-xl-3 col-md-3 col-12">利用開始日：</label>
+								<div class="col-xl-9 col-md-9 col-12">
+									<input type="text" th:errorclass="is-invalid" class="form-control" th:field="*{startDate}"
+										placeholder="yyyy/MM/dd" />
+									<span class="text-danger" th:errors="*{startDate}"></span>
+									<span id="startDateError" class="text-danger"></span>
+								</div>
+							</div>
+							<!-- /利用開始日 -->
+				
+							<!-- ボタン -->
+							<div class="d-flex justify-content-end">
+								<label for="import-file" class="btn-yellow me-2" id="import-btn">インポート</label>
+								<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" />
+								<input type="hidden" name="id" th:value="*{id}" />
+								<input type="hidden" name="insertFlg" th:value="*{insertFlg != null ? insertFlg : 0}" />
+							</div>
+							<!-- /ボタン -->
+				
+						</form>
+				
+						<!-- 非表示（インポートボタンと紐づいている）-->
+						<form th:action="@{/user/regist/import}" id="importSubmit-btn" method="post" enctype="multipart/form-data">
+							<button type="submit" class="btn btn-sm" style="opacity: 0; pointer-events: none">ボタン</button>
+						</form>
+				
+						<input type="file" accept=".csv" name="importFile" id="import-file" class="form-control form-control-sm"
+							form="importSubmit-btn" style="opacity: 0; pointer-events: none; height: 1%;"/>
+						<!-- /非表示 -->
+	
+					</div>
+				</div>
+				<!-- 登録フォーム -->
+				
+				<!-- 画面上部に遷移するボタン -->
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn btn-primary" id="pageTopBtn"><i class="bi bi-chevron-up"></i></button>
+				</div>
+				<!-- /画面上部に遷移するボタン -->
+				
+			</div>
 		</div>
 	</div>
-
-
-
-	<!--	 CSV入力確認モーダルのHTML -->
+	
+	
+	
+	<!-- CSV入力確認モーダルのHTML -->
 	<div class="modal fade" id="usersModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 		aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
-
+	
 				<div class="modal-header">
 					<h5 class="modal-title" id="modalLabel">CSV読み込み一覧</h5>
 				</div>
 				<div class="modal-body">
 					<p id="modalErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
-
+	
 					<table class="table table-hover table-bordered" id="usersTbl">
 						<thead style="background-color: white; ">
 							<tr>
@@ -213,7 +231,7 @@
 						</thead>
 						<tbody style="background-color: white; " id="users-tbody">
 							<!-- リストが空の場合のデフォルト行 -->
-
+	
 							<th:block th:each="user,stat : ${usersList}">
 								<tr>
 									<td class="selectFlg"><input type="checkbox"
@@ -233,14 +251,14 @@
 				<div class="modal-footer">
 					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
 						id="selective-import">インポート</button>
-					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
-						id="all-import">全件インポート</button>
-
+					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="all-import">全件インポート</button>
+	
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
 						onclick="location.href='/user/regist'">キャンセル</button>
 				</div>
 			</div>
 		</div>
+		<!-- /CSV入力確認モーダルのHTML -->
 
 		<!-- エラーメッセージやモーダル表示判定用の属性 -->
 		<input type="hidden" th:data-open-modal="${openModal}" th:data-modal-error="${modalError}">

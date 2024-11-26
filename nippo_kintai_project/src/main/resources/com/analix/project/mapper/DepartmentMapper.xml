@@ -83,6 +83,7 @@
 		JOIN department d
 		ON u.department_id = d.department_id
 		WHERE d.department_id = #{departmentId}
+		ORDER BY FIELD(u.role, 'Admin', 'UnitManager', 'Manager', 'Regular')
 	</select>
 	
 	<!-- 部署ID全件取得 -->

@@ -19,341 +19,236 @@
 		const errorMessages = /*[[${errorMessages}]]*/ {};
 	</script>
 
-	<!--	お知らせ-->
-	<div class="mt-2">
-		<div class="row justify-content-center">
-			<div class="col-md-12 col-12 mb-3">
-				<div class="card border-primary mb-3">
-					<div class="card-header fs-5 text-center">おしらせ</div>
-					<div class="card-body">
-						<div class="overflow-auto" style="max-height: 83px;">
-							<ul id="notifications-list">
-								<div class="text-center">
-									<span th:text="${notificationsListMessage}"></span>
-								</div>
-								<th:block th:each="notifications, stat : ${notificationsList}">
-									<li th:id="|notificationsList[${stat.index}]|">
-										<span
-											th:if="${notifications.notificationType != 'システム障害' && notifications.notificationType != '日報勤怠未提出'}">
-											<a href="${notifications.url}"
-												th:onclick="markAsRead(event, [[${notifications.id}]], [[${notifications.userNotificationsDto.userId}]], [[${notifications.url}]]);">
-												<span th:text="${notifications.message}"></span>
-											</a>
-										</span>
-										<span
-											th:if="${notifications.notificationType == 'システム障害' || notifications.notificationType == '日報勤怠未提出'}">
-											<a href=""
-												th:onclick="markAsReadForModal(event, [[${notifications.id}]], [[${notifications.userNotificationsDto.userId}]], [[${stat.index}]]);">
-												<div th:id="|notificationsList[${stat.index}].message|"
-													th:text="${notifications.message}" class="col-11 text-truncate">
-												</div>
-											</a>
-										</span>
-									</li>
-								</th:block>
-								<th:block
-									th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}"
-									th:each="notifications : ${notifications}">
-									<li>
-										<span th:text="${regularMassage}"></span>
-									</li>
-								</th:block>
-							</ul>
-						</div>
+
+
+	<!-- 外枠 -->
+	<div class="row justify-content-center mt-2">
+
+		<!-- お知らせ -->
+		<div class="col-md-12 col-12 mb-3">
+			<div class="card border-primary mb-3">
+				<div class="card-header fs-5 text-center">おしらせ</div>
+				<div class="card-body">
+					<div class="overflow-auto" style="max-height: 83px;">
+						<ul id="notifications-list">
+							<div class="text-center">
+								<span th:text="${notificationsListMessage}"></span>
+							</div>
+							<th:block th:each="notifications, stat : ${notificationsList}">
+								<li th:id="|notificationsList[${stat.index}]|">
+									<span
+										th:if="${notifications.notificationType != 'システム障害' && notifications.notificationType != '日報勤怠未提出'}">
+										<a href="${notifications.url}"
+											th:onclick="markAsRead(event, [[${notifications.id}]], [[${notifications.userNotificationsDto.userId}]], [[${notifications.url}]]);">
+											<span th:text="${notifications.message}"></span>
+										</a>
+									</span>
+									<span
+										th:if="${notifications.notificationType == 'システム障害' || notifications.notificationType == '日報勤怠未提出'}">
+										<a href=""
+											th:onclick="markAsReadForModal(event, [[${notifications.id}]], [[${notifications.userNotificationsDto.userId}]], [[${stat.index}]]);">
+											<div th:id="|notificationsList[${stat.index}].message|"
+												th:text="${notifications.message}" class="col-11 text-truncate">
+											</div>
+										</a>
+									</span>
+								</li>
+							</th:block>
+							<th:block
+								th:if="${session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager'}"
+								th:each="notifications : ${notifications}">
+								<li>
+									<span th:text="${regularMassage}"></span>
+								</li>
+							</th:block>
+						</ul>
 					</div>
 				</div>
 			</div>
-			<!--打刻機能-->
-			<div class="col-md-6 col-12 mb-3">
-				<div class="card border-primary mb-3">
-					<div class="card-header fs-5 text-center">打刻</div>
-					<div class="card-body">
-						<div th:if="${error}" class="alert alert-danger" style="color: white;">
-							<p th:text="${error}"></p>
-						</div>
-						<div th:if="${message}" class="alert alert-primary" style="color: white;">
-							<p class="text-center" th:text="${message}"></p>
-						</div>
-						
-						
-						<!--						勤怠をプルしたら↓に変更する-->
-						<!--						<div th:if="${attendanceError}" class="alert alert-danger">-->
-						<!--							<p th:text="${attendanceError}"></p>-->
-						<!--						</div>-->
-						<!--						<div th:if="${attendanceMessage}" class="alert alert-info">-->
-						<!--							<p class="text-center" th:text="${attendanceMessage}"></p>-->
-						<!--						</div>-->
-						<div class="text-center mb-2">
-							<strong class="fs-4" id="realtime"></strong>
-						</div>
-						<div class="d-flex justify-content-center">
-							<form th:action="@{/attendance/stamping}" method="get" class="d-flex">
-								<button type="submit" class="btn-yellow me-2 mb-2" th:disabled="${isStampingCheck != false}"
-									name="action" value="begin">出勤</button>
-								<button type="submit" class="btn-yellow mb-2" th:disabled="${isStampingCheck != true}"
-									name="action" value="finish">退勤</button>
+		</div>
+		<!-- /お知らせ -->
+
+		<!-- 打刻機能 -->
+		<div class="col-md-6 col-12 mb-3">
+			<div class="card border-primary mb-3">
+				<div class="card-header fs-5 text-center">打刻</div>
+				<div class="card-body">
+					<div th:if="${error}" class="alert alert-danger" style="color: white;">
+						<p th:text="${error}"></p>
+					</div>
+					<div th:if="${message}" class="alert alert-primary" style="color: white;">
+						<p class="text-center" th:text="${message}"></p>
+					</div>
+
+
+					<!--						勤怠をプルしたら↓に変更する-->
+					<!--						<div th:if="${attendanceError}" class="alert alert-danger">-->
+					<!--							<p th:text="${attendanceError}"></p>-->
+					<!--						</div>-->
+					<!--						<div th:if="${attendanceMessage}" class="alert alert-info">-->
+					<!--							<p class="text-center" th:text="${attendanceMessage}"></p>-->
+					<!--						</div>-->
+					<div class="text-center mb-2">
+						<strong class="fs-4" id="realtime"></strong>
+					</div>
+					<div class="d-flex justify-content-center">
+						<form th:action="@{/attendance/stamping}" method="get" class="d-flex">
+							<button type="submit" class="btn-yellow me-2 mb-2" th:disabled="${isStampingCheck != false}"
+								name="action" value="begin">出勤</button>
+							<button type="submit" class="btn-yellow mb-2" th:disabled="${isStampingCheck != true}"
+								name="action" value="finish">退勤</button>
+							<input type="hidden" name="userId"
+								th:value="${session.loginUser != null && session.loginUser.id != null ? session.loginUser.id : ''}" />
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /打刻機能 -->
+		
+		<!-- タイマー一体型日報 -->
+		<div class="col-md-6 col-12 mb-3">
+			<div class="card border-primary mb-3">
+				<div class="card-header fs-5 text-center">日報作業開始</div>
+				<div class="card-body">
+					<div th:if="${reportError}" class="alert alert-danger" style="color: white;">
+						<p th:text="${reportError}"></p>
+					</div>
+					<div th:if="${reportMessage}" class="alert alert-primary" style="color: white;">
+						<p class="text-center" th:text="${reportMessage}" id="submit-message"></p>
+					</div>
+					<div class="text-center mb-2">
+						<strong class="fs-4" id="timer">00:00:00</strong>
+					</div>
+					<div class="d-flex justify-content-center">
+						<!--							<form th:action="@{/attendance/stamping}" method="get" class="d-flex">-->
+						<form action="" method="get" class="d-flex">
+							<div class="d-flex justify-content-center flex-wrap">
+								<!--								<label>作業：</label>-->
+								<!--								<select name="workId" class="form-select me-2 mb-2" id="workId-At-timer">-->
+								<!--									<option value="">-->
+								<!--									</option>-->
+								<!--									<option th:each="work : ${workMap}" th:value="${work.value}" th:text="${work.key}">-->
+								<!--									</option>-->
+								<!--								</select>-->
+
+
+								<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="begin"
+									id="start">スタート</button>
+								<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="finish"
+									id="stop" disabled>ストップ</button>
+
+
+
+								<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="finish"
+									id="submit" disabled
+									th:onclick="modalForSubmit(event, [[${session.loginUser.id}]]);"> 提　出　</button>
+								<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="reset"
+									id="reset" disabled>リセット</button>
 								<input type="hidden" name="userId"
 									th:value="${session.loginUser != null && session.loginUser.id != null ? session.loginUser.id : ''}" />
-							</form>
-						</div>
+							</div>
+
+						</form>
 					</div>
 				</div>
 			</div>
-			<!--	タイマー一体型日報-->
-			<div class="col-md-6 col-12 mb-3">
-				<div class="card border-primary mb-3">
-					<div class="card-header fs-5 text-center">日報作業開始</div>
-					<div class="card-body">
-						<div th:if="${reportError}" class="alert alert-danger" style="color: white;">
-							<p th:text="${reportError}"></p>
-						</div>
-						<div th:if="${reportMessage}" class="alert alert-primary" style="color: white;">
-							<p class="text-center" th:text="${reportMessage}" id="submit-message"></p>
-						</div>
-						<div class="text-center mb-2">
-							<strong class="fs-4" id="timer">00:00:00</strong>
-						</div>
-						<div class="d-flex justify-content-center">
-							<!--							<form th:action="@{/attendance/stamping}" method="get" class="d-flex">-->
-							<form action="" method="get" class="d-flex">
-								<div class="d-flex justify-content-center flex-wrap">
-									<!--								<label>作業：</label>-->
-									<!--								<select name="workId" class="form-select me-2 mb-2" id="workId-At-timer">-->
-									<!--									<option value="">-->
-									<!--									</option>-->
-									<!--									<option th:each="work : ${workMap}" th:value="${work.value}" th:text="${work.key}">-->
-									<!--									</option>-->
-									<!--								</select>-->
-									
-									
-											<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="begin" id="start">スタート</button>
-											<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="finish" id="stop" disabled>ストップ</button>
-										
-								
-									
-											<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="finish" id="submit" disabled
-												th:onclick="modalForSubmit(event, [[${session.loginUser.id}]]);"> 提　出　</button>
-											<button type="submit" class="btn-yellow me-2 mb-2" name="action" value="reset" id="reset" disabled>リセット</button>
-											<input type="hidden" name="userId" th:value="${session.loginUser != null && session.loginUser.id != null ? session.loginUser.id : ''}" />
-								</div>
-								
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			<!-- 処理メニューボタン -->
-			<div class="col-md-12 col-12">
-				<div class="card">
-					<div class="card-body">
-						<div class="row d-flex" id="gridDemo">
-							<!-- 管理者 -->
-							<th:block th:if="${session.loginUser.role=='Admin'}">
-								<div class="col-xl-2 col-md-3 col-6">
-									<form th:action="@{/user/regist}" method="get">
-										<button type="submit" class="custom-card-btn">
-											<i class="fa-regular fa-address-book icon"></i>
-											<span class="label">ユーザ<br>情報登録</span>
-										</button>
-									</form>
-								</div>
-			
-								<div class="col-xl-2 col-md-3 col-6">
-									<form th:action="@{/department/regist}" method="get">
-										<button type="submit" class="custom-card-btn">
-											<i class="fa-solid fa-sitemap icon"></i>
-											<span class="label">部署管理</span>
-										</button>
-									</form>
-								</div>
-							</th:block>
-							<!-- /管理者 -->
-			
-							<!-- マネージャ -->
-							<th:block th:if="${session.loginUser.role=='Manager'}">
-								<div class="col-xl-2 col-md-3 col-6">
-									<form th:action="@{/attendance/regist}" method="get">
-										<button type="submit" class="custom-card-btn">
-											<i class="fa-solid fa-business-time icon"></i>
-											<span class="label">勤怠承認</span>
-										</button>
-									</form>
-								</div>
-								<div class="col-xl-2 col-md-3 col-6">
-									<form th:action="@{/dailyReport/list}" method="get">
-										<button type="submit" class="custom-card-btn">
-											<i class="fa-regular fa-pen-to-square icon"></i>
-											<span class="label">日報承認</span>
-										</button>
-									</form>
-								</div>
-							</th:block>
-							<!-- /マネージャ -->
-			
-							<!-- 社員 -->
-							<th:block th:if="${session.loginUser.role=='Regular' || session.loginUser.role=='UnitManager'}">
-								<div class="col-xl-2 col-md-3 col-6">
-									<form th:action="@{/attendance/regist}" method="get">
-										<button type="submit" class="custom-card-btn">
-											<i class="fa-solid fa-business-time icon"></i>
-											<span class="label">勤怠登録</span>
-										</button>
-									</form>
-								</div>
-			
-								<div class="col-xl-2 col-md-3 col-6">
-									<form th:action="@{/dailyReport/regist}" method="get">
-										<button type="submit" class="custom-card-btn">
-											<i class="fa-regular fa-pen-to-square icon"></i>
-											<span class="label">日報登録</span>
-										</button>
-									</form>
-								</div>
-							</th:block>
-							<!-- /社員 -->
-			
-							<!-- その他 -->
+		</div>
+		<!-- /タイマー一体型日報 -->
+
+		<!-- 処理メニューボタン -->
+		<div class="col-md-12 col-12">
+			<div class="card">
+				<div class="card-body">
+					<div class="row d-flex" id="gridDemo">
+
+						<!-- 管理者 -->
+						<th:block th:if="${session.loginUser.role=='Admin'}">
 							<div class="col-xl-2 col-md-3 col-6">
-								<form th:action="@{/output/list}" method="get">
+								<form th:action="@{/user/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-regular fa-pen-to-square icon"></i>
-										<span class="label">帳票出力</span>
+										<i class="fa-regular fa-address-book icon"></i>
+										<span class="label">ユーザ<br>情報登録</span>
 									</button>
 								</form>
 							</div>
-							<!-- /その他 -->
+
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/department/regist}" method="get">
+									<button type="submit" class="custom-card-btn">
+										<i class="fa-solid fa-sitemap icon"></i>
+										<span class="label">部署管理</span>
+									</button>
+								</form>
+							</div>
+						</th:block>
+						<!-- /管理者 -->
+
+						<!-- マネージャ -->
+						<th:block th:if="${session.loginUser.role=='Manager'}">
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/attendance/regist}" method="get">
+									<button type="submit" class="custom-card-btn">
+										<i class="fa-solid fa-business-time icon"></i>
+										<span class="label">勤怠承認</span>
+									</button>
+								</form>
+							</div>
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/dailyReport/list}" method="get">
+									<button type="submit" class="custom-card-btn">
+										<i class="fa-regular fa-pen-to-square icon"></i>
+										<span class="label">日報承認</span>
+									</button>
+								</form>
+							</div>
+						</th:block>
+						<!-- /マネージャ -->
+
+						<!-- 社員 -->
+						<th:block th:if="${session.loginUser.role=='Regular' || session.loginUser.role=='UnitManager'}">
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/attendance/regist}" method="get">
+									<button type="submit" class="custom-card-btn">
+										<i class="fa-solid fa-business-time icon"></i>
+										<span class="label">勤怠登録</span>
+									</button>
+								</form>
+							</div>
+
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/dailyReport/regist}" method="get">
+									<button type="submit" class="custom-card-btn">
+										<i class="fa-regular fa-pen-to-square icon"></i>
+										<span class="label">日報登録</span>
+									</button>
+								</form>
+							</div>
+						</th:block>
+						<!-- /社員 -->
+
+						<!-- その他 -->
+						<div class="col-xl-2 col-md-3 col-6">
+							<form th:action="@{/output/list}" method="get">
+								<button type="submit" class="custom-card-btn">
+									<i class="fa-regular fa-pen-to-square icon"></i>
+									<span class="label">帳票出力</span>
+								</button>
+							</form>
 						</div>
-							
-<!-- ドラッグ&ドロップで移動するやつ -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script>
-	const grid = document.getElementById('gridDemo');
+						<!-- /その他 -->
 
-	// 並び順を保存する関数
-	function saveOrder() {
-		const order = Array.from(grid.children).map(div => div.getAttribute('data-id')); // 各要素の data-id を取得
-		localStorage.setItem('gridOrder', JSON.stringify(order)); // JSON形式で保存
-	}
-
-	// 並び順を復元する関数
-	function loadOrder() {
-		const savedOrder = localStorage.getItem('gridOrder');
-		if (savedOrder) {
-			const order = JSON.parse(savedOrder); // JSONを配列に変換
-			order.forEach(id => {
-				const element = grid.querySelector(`[data-id="${id}"]`);
-				if (element) {
-					grid.appendChild(element); // 保存された順序に従って再配置
-				}
-			});
-		}
-	}
-
-	// 初期化
-	Sortable.create(grid, {
-		animation: 150,
-		chosenClass: 'chosen',
-		ghostClass: 'ghost',
-		onEnd: saveOrder, // 並び替え終了時に順序を保存
-	});
-
-	// ページ読み込み時に並び順を復元
-	loadOrder();
-</script>
-<!-- /ドラッグ&ドロップで移動するやつ -->
-
-						
 					</div>
 				</div>
 			</div>
-			<!-- /処理メニューボタン -->
-
-
-
-			
 		</div>
+		<!-- /処理メニューボタン -->
+
 	</div>
-
-	<!--	処理メニュー-->
-	<!--	<div class="menu-container">-->
-	<div class="container mt-2 mb-5 d-flex justify-content-center">
-		<div class="col-md-10 mt-2">
-			<!--			<div class="mt-5">-->
-			<div class="row">
-				<th:block th:if="${session.loginUser.role=='Admin'}">
-					<div class="col-md-4 col-6 mb-3">
-						<form th:action="@{/user/regist}" method="get">
-							<button type="submit" class="btn btn-primary">
-								<i class="fa-regular fa-address-book icon"></i>
-								<span class="label">ユーザ<br>情報登録</span>
-							</button>
-						</form>
-					</div>
-
-					<div class="col-md-4 col-6 mb-3">
-						<form th:action="@{/department/regist}" method="get">
-							<button type="submit" class="btn btn-primary btn-lg">
-								<i class="fa-solid fa-sitemap icon"></i>
-								<span class="label">部署管理</span>
-							</button>
-						</form>
-					</div>
-
-				</th:block>
-				<th:block th:if="${session.loginUser.role=='Manager'}">
-					<div class="col-md-4 col-6 mb-3">
-						<form th:action="@{/attendance/regist}" method="get">
-							<button type="submit" class="menuBtn btn-orange">
-								<i class="fa-solid fa-business-time icon"></i>
-								<span class="label">勤怠承認</span>
-							</button>
-						</form>
-					</div>
-					<div class="col-md-4 col-6 mb-3">
-						<form th:action="@{/dailyReport/list}" method="get">
-							<button type="submit" class="menuBtn btn-green">
-								<i class="fa-regular fa-pen-to-square icon"></i>
-								<span class="label">日報承認</span>
-							</button>
-						</form>
-					</div>
-				</th:block>
-				
-				<th:block th:if="${session.loginUser.role=='Regular' || session.loginUser.role=='UnitManager'}">
-					<div class="col-md-4 col-6 mb-3">
-						<form th:action="@{/attendance/regist}" method="get">
-							<button type="submit" class="menuBtn btn-orange">
-								<i class="fa-solid fa-business-time icon"></i>
-								<span class="label">勤怠登録</span>
-							</button>
-						</form>
-					</div>
-
-					<div class="col-md-4 col-6 mb-3">
-						<form th:action="@{/dailyReport/regist}" method="get">
-							<button type="submit" class="menuBtn btn-green">
-								<i class="fa-regular fa-pen-to-square icon"></i>
-								<span class="label">日報登録</span>
-							</button>
-						</form>
-					</div>
-				</th:block>
-				
-				<div class="col-md-4 col-6 mb-3">
-					<form th:action="@{/output/list}" method="get">
-						<button type="submit" class="menuBtn btn-purple">
-							<i class="fa-regular fa-pen-to-square icon"></i>
-							<span class="label">帳票出力</span>
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+	<!-- 外枠 -->
 
 
-	<!--	 お知らせモーダルのHTML -->
+	<!-- お知らせモーダルのHTML -->
 	<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -373,8 +268,9 @@
 			</div>
 		</div>
 	</div>
-	<!--	 モーダルのHTML -->
-	<!--	 日報提出モーダルのHTML -->
+	<!-- /お知らせモーダルのHTML -->
+
+	<!-- 日報提出モーダルのHTML -->
 	<div class="modal fade" id="dailyReportModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 		aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
@@ -430,9 +326,91 @@
 			</div>
 		</div>
 	</div>
+	<!-- /日報提出モーダルのHTML -->
+	
+	
+	<!-- 処理メニュー -->
+<!--	<div class="container mt-2 mb-5 d-flex justify-content-center">-->
+<!--		<div class="col-md-10 mt-2">-->
+<!--			<div class="row">-->
+<!--				<th:block th:if="${session.loginUser.role=='Admin'}">-->
+<!--					<div class="col-md-4 col-6 mb-3">-->
+<!--						<form th:action="@{/user/regist}" method="get">-->
+<!--							<button type="submit" class="btn btn-primary">-->
+<!--								<i class="fa-regular fa-address-book icon"></i>-->
+<!--								<span class="label">ユーザ<br>情報登録</span>-->
+<!--							</button>-->
+<!--						</form>-->
+<!--					</div>-->
+	
+<!--					<div class="col-md-4 col-6 mb-3">-->
+<!--						<form th:action="@{/department/regist}" method="get">-->
+<!--							<button type="submit" class="btn btn-primary btn-lg">-->
+<!--								<i class="fa-solid fa-sitemap icon"></i>-->
+<!--								<span class="label">部署管理</span>-->
+<!--							</button>-->
+<!--						</form>-->
+<!--					</div>-->
+	
+<!--				</th:block>-->
+<!--				<th:block th:if="${session.loginUser.role=='Manager'}">-->
+<!--					<div class="col-md-4 col-6 mb-3">-->
+<!--						<form th:action="@{/attendance/regist}" method="get">-->
+<!--							<button type="submit" class="menuBtn btn-orange">-->
+<!--								<i class="fa-solid fa-business-time icon"></i>-->
+<!--								<span class="label">勤怠承認</span>-->
+<!--							</button>-->
+<!--						</form>-->
+<!--					</div>-->
+<!--					<div class="col-md-4 col-6 mb-3">-->
+<!--						<form th:action="@{/dailyReport/list}" method="get">-->
+<!--							<button type="submit" class="menuBtn btn-green">-->
+<!--								<i class="fa-regular fa-pen-to-square icon"></i>-->
+<!--								<span class="label">日報承認</span>-->
+<!--							</button>-->
+<!--						</form>-->
+<!--					</div>-->
+<!--				</th:block>-->
+	
+<!--				<th:block th:if="${session.loginUser.role=='Regular' || session.loginUser.role=='UnitManager'}">-->
+<!--					<div class="col-md-4 col-6 mb-3">-->
+<!--						<form th:action="@{/attendance/regist}" method="get">-->
+<!--							<button type="submit" class="menuBtn btn-orange">-->
+<!--								<i class="fa-solid fa-business-time icon"></i>-->
+<!--								<span class="label">勤怠登録</span>-->
+<!--							</button>-->
+<!--						</form>-->
+<!--					</div>-->
+	
+<!--					<div class="col-md-4 col-6 mb-3">-->
+<!--						<form th:action="@{/dailyReport/regist}" method="get">-->
+<!--							<button type="submit" class="menuBtn btn-green">-->
+<!--								<i class="fa-regular fa-pen-to-square icon"></i>-->
+<!--								<span class="label">日報登録</span>-->
+<!--							</button>-->
+<!--						</form>-->
+<!--					</div>-->
+<!--				</th:block>-->
+	
+<!--				<div class="col-md-4 col-6 mb-3">-->
+<!--					<form th:action="@{/output/list}" method="get">-->
+<!--						<button type="submit" class="menuBtn btn-purple">-->
+<!--							<i class="fa-regular fa-pen-to-square icon"></i>-->
+<!--							<span class="label">帳票出力</span>-->
+<!--						</button>-->
+<!--					</form>-->
+<!--				</div>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
+	<!-- /処理メニュー -->
+	
+	
 	<!-- エラーメッセージやモーダル表示判定用の属性 -->
 	<input type="hidden" th:data-open-modal="${openModal}" th:data-modal-error="${modalError}">
-
+	
+	<!-- SortableJSライブラリのCDN(要素を並び替え) -->
+	<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 	<script th:src="@{/js/startMenu.js}"></script>
 </body>
 
