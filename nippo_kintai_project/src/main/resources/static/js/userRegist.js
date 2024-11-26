@@ -37,10 +37,11 @@
 document.getElementById('regist-form').addEventListener('submit', function(event) {
 
 	let name = document.getElementById('name').value;
+	let employeeCode = document.getElementById('employee').value;
 	let password = document.getElementById('password').value;
 	let role = document.getElementById('role').value;
 	let departmentId = document.getElementById('departmentId').value;
-//	let email = document.getElementById('email').value;
+	let email = document.getElementById('email').value;
 	let startDate = document.getElementById('startDate').value;
 	const commandDate = "9999/99/99";
 	let date = new Date(startDate);
@@ -48,7 +49,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	const MAX_USERNAME_LENGTH = 20;
 	const MAX_PASSWORD_LENGTH = 16;
 	const STARTDATE_LENGTH = 10;
-
+	const EMPLOYEECODE_LENGTH = 10;
 	let validation = true;
 
 	if (name === "") {
@@ -63,6 +64,20 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	} else {
 		document.getElementById('nameError').innerHTML = "";
 	}
+	
+	if (employeeCode === "") {
+		document.getElementById('employeeCodeError').innerHTML = "社員番号を入力してください";
+		validation = false;
+	} else if (employeeCode.length >= EMPLOYEECODE_LENGTH) {
+		document.getElementById('employeeError').innerHTML = "10桁以内で入力してください";
+		validation = false;
+	} else if (!/^[0-9]+$/.test(employeeCode)) {
+		document.getElementById('employeeError').innerHTML = "数字のみ入力可能です";
+		validation = false;
+	} else {
+		document.getElementById('employeeError').innerHTML = "";
+	}
+
 
 	if (password === "") {
 		document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
@@ -88,7 +103,13 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 		validation = false;
 	} else {
 		document.getElementById('departmentIdError').innerHTML = "";
-	}	
+	}
+	if (!email.includes("@")) {
+		document.getElementById('startDateError').innerHTML = "メールアドレスが不正です";
+		validation = false;
+	} else {
+		document.getElementById('startDateError').innerHTML = "";
+	}
 
 	if (startDate === "") {
 		document.getElementById('startDateError').innerHTML = "利用開始日を入力してください";
@@ -137,7 +158,7 @@ window.addEventListener('DOMContentLoaded', function() {
 //日付の入力補助機能
 document.getElementById('startDate').addEventListener('blur', function() {
 	let input = document.getElementById('startDate').value;
-console.log(input);
+	console.log(input);
 	// 「9999/99/99」は変更しない
 	if (input === "9999/99/99") return;
 
@@ -162,19 +183,19 @@ console.log(input);
 
 		// 日付の補正
 		const date = new Date(year, month - 1, day);
-//		const currentDate = new Date();
+		//		const currentDate = new Date();
 
-//		// 入力日が2年以内であることを確認
-//		const twoYearsLater = new Date();
-//		twoYearsLater.setFullYear(currentDate.getFullYear() +2);
+		//		// 入力日が2年以内であることを確認
+		//		const twoYearsLater = new Date();
+		//		twoYearsLater.setFullYear(currentDate.getFullYear() +2);
 
-//		if (date >= currentDate && date <= twoYearsLater) {
-			// 補正された日付を「yyyy/MM/dd」形式に修正
-			const formattedDate = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-			input = formattedDate;
-//		}
+		//		if (date >= currentDate && date <= twoYearsLater) {
+		// 補正された日付を「yyyy/MM/dd」形式に修正
+		const formattedDate = `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+		input = formattedDate;
+		//		}
 		console.log(input);
-		document.getElementById('startDate').value =input;
+		document.getElementById('startDate').value = input;
 	}
 });
 
