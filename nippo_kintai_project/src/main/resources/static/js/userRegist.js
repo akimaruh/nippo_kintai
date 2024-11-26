@@ -178,6 +178,33 @@ console.log(input);
 	}
 });
 
+// テキストボックスのレスポンシブ調整
+function adjustContainerClass() {
+	const containers = document.querySelectorAll('.responsiveContainer');
+	
+	containers.forEach(container => { 
+		if (window.innerWidth < 576) {
+			container.classList.remove('container'); // スマホサイズでは削除
+		} else {
+			container.classList.add('container'); // 大きいサイズでは追加
+		}
+	});
+}
+
+    adjustContainerClass();
+    window.addEventListener('resize', adjustContainerClass);
+    
+    
+// ボタン押下で画面上部に遷移
+const pageTopBtn = document.getElementById('pageTopBtn');
+pageTopBtn.addEventListener('click', () => {
+	window.scroll({
+		top: 0,
+		behavaior: "smoth",
+	});
+});
+
+
 //↓元々書いてあったやつ
 ////バリデーションチェック
 //document.getElementById('search-form').addEventListener('submit',function(event){
