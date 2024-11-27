@@ -15,10 +15,10 @@ import lombok.Data;
 public class RegistUserForm {
 
 	private Integer id;
-	@NotBlank(message = "パスワードを入力してください", groups = { RegistUserGroup.class })
-	@Size(max = 16, message = "16文字以内で入力してください", groups = { RegistUserGroup.class })
-	@Pattern(regexp = "^[0-9a-zA-Z\\-\\s]*$", message = "半角で入力してください")
-	private String password;
+//	@NotBlank(message = "パスワードを入力してください", groups = { RegistUserGroup.class })
+//	@Size(max = 16, message = "16文字以内で入力してください", groups = { RegistUserGroup.class })
+//	@Pattern(regexp = "^[0-9a-zA-Z\\-\\s]*$", message = "半角で入力してください")
+//	private String password;
 	@NotBlank(message = "名前を入力してください", groups = { RegistUserGroup.class })
 	@Size(max = 20, message = "20文字以内で入力してください", groups = { RegistUserGroup.class })
 	@Pattern(regexp = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF\\u20000-\\u2FA1F\\u3005\\u309D-\\u309E\\u30FD-\\u30FEa-zA-Z0-9０-９・ー'’\\-]+$", message = "全角または半角英字で入力してください", groups = {
@@ -36,8 +36,6 @@ public class RegistUserForm {
 	private String email;
 	@NotNull(message = "社員コードを入力してください", groups = { RegistUserGroup.class })
 	@Max(value = 999999999, message = "社員コードは9桁以内で入力して下さい。", groups = { SearchUserGroup.class, RegistUserGroup.class })
-//	@Pattern(regexp = "^[0-9]*$", message = "社員コードは数字で入力して下さい。", groups = { SearchUserGroup.class,
-//			RegistUserGroup.class })
 	private Integer employeeCode;
 	//新規登録フラグ
 	private short insertFlg;

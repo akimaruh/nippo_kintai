@@ -100,17 +100,17 @@
 							<!-- /社員番号 -->
 				
 							<!-- パスワード -->
-							<div class="container mb-3 row responsiveContainer">
-								<label for="password" class="col-xl-4 col-md-4 col-12">パスワード：</label>
-								<div class="col-xl-8 col-md-8 col-12 password-container">
-									<input type="text" name="password" class="form-control" th:field="*{password}" style="display: none;" />
-									<button type="button" id="btn_passview">
-										<i id="view" class="fas fa-eye-slash"></i>
-									</button>
-									<div id="passwordError" class="text-danger"></div>
-									<span class="text-danger" th:errors="*{password}"></span>
-								</div>
-							</div>
+<!--							<div class="container mb-3 row responsiveContainer">-->
+<!--								<label for="password" class="col-xl-4 col-md-4 col-12">パスワード：</label>-->
+<!--								<div class="col-xl-8 col-md-8 col-12 password-container">-->
+<!--									<input type="text" name="password" class="form-control" th:field="*{password}" style="display: none;" />-->
+<!--									<button type="button" id="btn_passview">-->
+<!--										<i id="view" class="fas fa-eye-slash"></i>-->
+<!--									</button>-->
+<!--									<div id="passwordError" class="text-danger"></div>-->
+<!--									<span class="text-danger" th:errors="*{password}"></span>-->
+<!--								</div>-->
+<!--							</div>-->
 							<!-- /パスワード -->
 				
 							<!-- 権限 -->
@@ -223,7 +223,6 @@
 								<th width="10%">インポート</th>
 								<th width="10%">社員コード</th>
 								<th width="10%">ユーザー名</th>
-								<th width="10%">パスワード</th>
 								<th width="10%">部署ID</th>
 								<th width="10%">権限</th>
 								<th width="10%">email</th>
@@ -239,7 +238,6 @@
 											th:name="|usersList.[${stat.index}].import-checkbox|"></td>
 									<td class="employeeCode">[[${user.employeeCode}]]</td>
 									<td class="name">[[${user.name}]]</td>
-									<td class="password">[[${user.password}]]</td>
 									<td class="departmentId">[[${user.departmentId}]]</td>
 									<td class="role">[[${user.role}]]</td>
 									<td class="email">[[${user.email}]]</td>
@@ -296,7 +294,6 @@
 					const rowData = {
 						employeeCode: row.querySelector('.employeeCode').textContent,
 						name: row.querySelector('.name').textContent,
-						password: row.querySelector('.password').textContent,
 						role: row.querySelector('.role').textContent,
 						departmentId: row.querySelector('.departmentId').textContent,
 						email: row.querySelector('.email').textContent,

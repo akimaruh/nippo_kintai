@@ -15,10 +15,10 @@ import lombok.Data;
 @Data
 @Validated
 public class UserCsvInputDto {
-	@NotBlank(message = "パスワードを入力してください。")
-	@Pattern(regexp = "^[0-9a-zA-Z\\-\\s]*$", message = "パスワードは半角16文字以内で入力してください。")
-	@Size(max = 16, message = "パスワードは半角16文字以内で入力してください。")
-	private String password;
+//	@NotBlank(message = "パスワードを入力してください。")
+//	@Pattern(regexp = "^[0-9a-zA-Z\\-\\s]*$", message = "パスワードは半角16文字以内で入力してください。")
+//	@Size(max = 16, message = "パスワードは半角16文字以内で入力してください。")
+//	private String password;
 	@NotBlank(message = "名前を入力してください。")
 	@Size(max = 20, message = "名前は全角20文字以内で入力してください。文字数ダメ")
 	@Pattern(regexp = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF\\u20000-\\u2FA1F\\u3005\\u309D-\\u309E\\u30FD-\\u30FEa-zA-Z0-9０-９・ー'’\\-]+$", message = "名前は全角20文字以内で入力してください。正規表現ダメ")

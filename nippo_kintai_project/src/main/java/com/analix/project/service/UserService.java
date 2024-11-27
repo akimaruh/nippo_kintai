@@ -25,6 +25,7 @@ import com.analix.project.mapper.DepartmentMapper;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
 import com.analix.project.util.CustomDateUtil;
+import com.analix.project.util.PasswordUtil;
 
 @Service
 public class UserService {
@@ -32,11 +33,13 @@ public class UserService {
 	private final UserMapper userMapper;
 	private final DepartmentMapper departmentMapper;
 	private final CustomDateUtil customDateUtil;
+	private final PasswordUtil passwordUtil;
 
-	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper, CustomDateUtil customDateUtil) {
+	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,PasswordUtil passwordUtil) {
 		this.userMapper = userMapper;
 		this.departmentMapper = departmentMapper;
 		this.customDateUtil = customDateUtil;
+		this.passwordUtil = passwordUtil;
 	}
 
 	/**
@@ -49,11 +52,12 @@ public class UserService {
 		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByEmployeeCode(inputEmployeeCode);
 		RegistUserForm registUserForm = new RegistUserForm();
-
+		
 		if (userDataBySearch != null) {
+			
 			registUserForm.setId(userDataBySearch.getId());
 			registUserForm.setName(userDataBySearch.getName());
-			registUserForm.setPassword(userDataBySearch.getPassword());
+//			registUserForm.setPassword(userDataBySearch.getPassword());
 			registUserForm.setRole(userDataBySearch.getRole());
 			registUserForm.setDepartmentId(userDataBySearch.getDepartmentId());
 			registUserForm.setEmail(userDataBySearch.getEmail());
@@ -98,7 +102,7 @@ public class UserService {
 		String startDate = registUserForm.getStartDate();
 		String userName = registUserForm.getName();
 		Integer employeeCode = registUserForm.getEmployeeCode();
-
+		String employeeCodeString = String.valueOf(registUserForm.getEmployeeCode());
 		//"利用開始日に9999/99/99が入力されている場合
 		if (startDate.equals("9999/99/99")) {
 			//DBで保存できる最大日付へ変更
@@ -107,7 +111,7 @@ public class UserService {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		LocalDate startDateLoalDate = LocalDate.parse(startDate, formatter);
 
-		registUser.setPassword(registUserForm.getPassword());
+//		registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(registUserForm.getPassword(), employeeCodeString));
 		registUser.setRole(registUserForm.getRole());
 		registUser.setName(userName);
 		registUser.setStartDate(startDateLoalDate);
@@ -118,10 +122,11 @@ public class UserService {
 
 		//ユーザー登録処理
 		if (registUserForm.getInsertFlg() == Constants.INSERT_FLG) {
-			if (userMapper.userExsistByEmployeeCode(employeeCode)) {
+			if (!userMapper.userExsistByEmployeeCode(employeeCode)) {
 				return "社員番号:" + employeeCode + "は既に登録されています。";
 
 			} else {
+				registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, employeeCodeString));
 				boolean updateCheck = userMapper.insertUserData(registUser);
 				return updateCheck ? userName + "を登録しました。" : userName + "の登録が失敗しました。";
 			}
@@ -203,15 +208,15 @@ public class UserService {
 				//分割した値をセットして登録
 				UserCsvInputDto user = new UserCsvInputDto();
 				user.setEmployeeCode(csvSplit[0]);
-				user.setPassword(csvSplit[1]);
-				user.setName(csvSplit[2]);
-				user.setRole(csvSplit[3]);
-				user.setDepartmentId(csvSplit[4]);
-				user.setStartDate(csvSplit[5]);
-				if (csvSplit[6].isEmpty()) {
+//				user.setPassword(csvSplit[1]);
+				user.setName(csvSplit[1]);
+				user.setRole(csvSplit[2]);
+				user.setDepartmentId(csvSplit[3]);
+				user.setStartDate(csvSplit[4]);
+				if (csvSplit[5].isEmpty()) {
 					user.setEmail(null);
 				} else {
-					user.setEmail(csvSplit[6]);
+					user.setEmail(csvSplit[5]);
 				}
 				insertList.add(user);
 			}
@@ -278,7 +283,7 @@ public class UserService {
 		for (UserCsvInputDto userCsvInputDto : userCsvInputDtoList) {
 			Users user = new Users();
 			user.setEmployeeCode(Integer.parseInt(userCsvInputDto.getEmployeeCode()));
-			user.setPassword(userCsvInputDto.getPassword());
+//			user.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, userCsvInputDto.getEmployeeCode()));
 			user.setName(userCsvInputDto.getName());
 			user.setRole(userCsvInputDto.getRole());
 			user.setDepartmentId(Integer.parseInt(userCsvInputDto.getDepartmentId()));
@@ -339,6 +344,7 @@ public class UserService {
 				user.setId(existingUser.getId());
 				updateList.add(user);
 			} else {
+				user.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, String.valueOf(user.getEmployeeCode())));
 				insertList.add(user);
 			}
 		});

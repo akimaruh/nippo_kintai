@@ -56,8 +56,6 @@
 		SET
 		name =
 		#{users.name},
-		password =
-		#{users.password},
 		role =
 		#{users.role},
 		department_id =
@@ -169,13 +167,6 @@
 				WHEN
 				#{update.employeeCode}
 				THEN #{update.name}
-			</foreach>
-			END,
-			password= CASE employee_code
-			<foreach collection="updateList" item="update">
-				WHEN
-				#{update.employeeCode}
-				THEN #{update.password}
 			</foreach>
 			END,
 			role = CASE employee_code

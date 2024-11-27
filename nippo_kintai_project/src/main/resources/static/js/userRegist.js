@@ -38,7 +38,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 
 	let name = document.getElementById('name').value;
 	let employeeCode = document.getElementById('employee').value;
-	let password = document.getElementById('password').value;
+//	let password = document.getElementById('password').value;
 	let role = document.getElementById('role').value;
 	let departmentId = document.getElementById('departmentId').value;
 	let email = document.getElementById('email').value;
@@ -47,7 +47,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	let date = new Date(startDate);
 
 	const MAX_USERNAME_LENGTH = 20;
-	const MAX_PASSWORD_LENGTH = 16;
+//	const MAX_PASSWORD_LENGTH = 16;
 	const STARTDATE_LENGTH = 10;
 	const EMPLOYEECODE_LENGTH = 10;
 	let validation = true;
@@ -79,18 +79,18 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	}
 
 
-	if (password === "") {
-		document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
-		validation = false;
-	} else if (password.length > MAX_PASSWORD_LENGTH) {
-		document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
-		validation = false;
-	} else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
-		document.getElementById('passwordError').innerHTML = "半角で入力してください";
-		validation = false;
-	} else {
-		document.getElementById('passwordError').innerHTML = "";
-	}
+//	if (password === "") {
+//		document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
+//		validation = false;
+//	} else if (password.length > MAX_PASSWORD_LENGTH) {
+//		document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
+//		validation = false;
+//	} else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
+//		document.getElementById('passwordError').innerHTML = "半角で入力してください";
+//		validation = false;
+//	} else {
+//		document.getElementById('passwordError').innerHTML = "";
+//	}
 
 	if (role === "") {
 		document.getElementById('roleError').innerHTML = "権限を選択してください";
@@ -133,27 +133,27 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 });
 
 // パスワード表示・非表示	
-window.addEventListener('DOMContentLoaded', function() {
-	let btn_passview = document.getElementById("btn_passview");
-	let passwordInput = document.getElementById("password");
-	let viewIcon = document.getElementById("view");
-
-	passwordInput.type = 'password'; //初期状態はパスワードが隠れている状態
-	passwordInput.style.display = ''; // スタイルをリセットして表示する
-
-	btn_passview.addEventListener("click", function() {
-		if (passwordInput.type === 'password') {
-			passwordInput.type = 'text'; //表示
-			viewIcon.classList.remove('fa-eye-slash');
-			viewIcon.classList.add('fa-eye');
-
-		} else {
-			passwordInput.type = 'password'; //非表示
-			viewIcon.classList.remove('fa-eye');
-			viewIcon.classList.add('fa-eye-slash');
-		}
-	});
-});
+//window.addEventListener('DOMContentLoaded', function() {
+//	let btn_passview = document.getElementById("btn_passview");
+//	let passwordInput = document.getElementById("password");
+//	let viewIcon = document.getElementById("view");
+//
+//	passwordInput.type = 'password'; //初期状態はパスワードが隠れている状態
+//	passwordInput.style.display = ''; // スタイルをリセットして表示する
+//
+//	btn_passview.addEventListener("click", function() {
+//		if (passwordInput.type === 'password') {
+//			passwordInput.type = 'text'; //表示
+//			viewIcon.classList.remove('fa-eye-slash');
+//			viewIcon.classList.add('fa-eye');
+//
+//		} else {
+//			passwordInput.type = 'password'; //非表示
+//			viewIcon.classList.remove('fa-eye');
+//			viewIcon.classList.add('fa-eye-slash');
+//		}
+//	});
+//});
 
 //日付の入力補助機能
 document.getElementById('startDate').addEventListener('blur', function() {

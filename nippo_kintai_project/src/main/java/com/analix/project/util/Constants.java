@@ -44,5 +44,7 @@ public interface Constants {
 	public static final int USER_COLUMN_LENGTH = 7;
 	/** ユーザー登録で新規登録するフラグ **/
 	public static final byte INSERT_FLG = 1;
+	/** ユーザー登録時初回パスワード**/
+	public static final String FIRST_PASS = "0000";
 
 }
