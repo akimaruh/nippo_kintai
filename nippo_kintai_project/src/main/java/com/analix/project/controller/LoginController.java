@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.analix.project.entity.Users;
 import com.analix.project.service.LoginService;
+import com.analix.project.util.SessionHelper;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -20,6 +21,9 @@ public class LoginController {
 
 	@Autowired
 	private LoginService loginService;
+	
+	@Autowired
+	private SessionHelper sessionHelper;
 
 	@GetMapping("/")
 	public String getLogin(Model model, HttpSession session) {
@@ -62,6 +66,9 @@ public class LoginController {
 			}
 			
 			session.setAttribute("loginUser", user);
+			
+			// セッションヘルパークラスに設定
+			sessionHelper.setUser(user);
 			
 			String role = user.getRole();
 			//ログイン完了後遷移
