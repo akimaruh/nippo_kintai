@@ -252,6 +252,17 @@
 		</foreach>
 
 	</select>
+	
+	<select id="findIdByEmployeeCodeAndEmail" resultType="integer">
+	SELECT
+	id
+	FROM users
+	WHERE 
+	employee_code = #{employeeCode}
+	AND
+	email = #{email}
+	</select>
+	
 
 
 </mapper>

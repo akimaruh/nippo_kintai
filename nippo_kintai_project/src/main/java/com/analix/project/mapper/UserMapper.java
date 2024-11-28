@@ -109,5 +109,13 @@ public interface UserMapper {
 	 * @return ID、名前、社員番号
 	 */
 	List<Users> findIdByName(@Param("usersList") List<Users> usersList);
+	
+	/**
+	 * パスワードを忘れた方用ユーザーID検索
+	 * @param employeeCode
+	 * @param email
+	 * @return id
+	 */
+	Integer findIdByEmployeeCodeAndEmail(@Param("employeeCode") Integer employeeCode,@Param("email") String email);
 
 }
