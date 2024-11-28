@@ -25,6 +25,7 @@ import com.analix.project.mapper.DepartmentMapper;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
 import com.analix.project.util.CustomDateUtil;
+import com.analix.project.util.MessageUtil;
 import com.analix.project.util.PasswordUtil;
 
 @Service
@@ -34,12 +35,15 @@ public class UserService {
 	private final DepartmentMapper departmentMapper;
 	private final CustomDateUtil customDateUtil;
 	private final PasswordUtil passwordUtil;
+	private final EmailService emailService;
 
-	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,PasswordUtil passwordUtil) {
+	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,
+			PasswordUtil passwordUtil, EmailService emailService) {
 		this.userMapper = userMapper;
 		this.departmentMapper = departmentMapper;
 		this.customDateUtil = customDateUtil;
 		this.passwordUtil = passwordUtil;
+		this.emailService = emailService;
 	}
 
 	/**
@@ -52,22 +56,22 @@ public class UserService {
 		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByEmployeeCode(inputEmployeeCode);
 		RegistUserForm registUserForm = new RegistUserForm();
-		
+
 		if (userDataBySearch != null) {
-			
+
 			registUserForm.setId(userDataBySearch.getId());
 			registUserForm.setName(userDataBySearch.getName());
-//			registUserForm.setPassword(userDataBySearch.getPassword());
+			//			registUserForm.setPassword(userDataBySearch.getPassword());
 			registUserForm.setRole(userDataBySearch.getRole());
 			registUserForm.setDepartmentId(userDataBySearch.getDepartmentId());
 			registUserForm.setEmail(userDataBySearch.getEmail());
 			registUserForm.setDepartmentName(userDataBySearch.getDepartmentName());
-			registUserForm.setEmployeeCode(userDataBySearch.getEmployeeCode());
+			registUserForm.setEmployeeCode(String.valueOf(userDataBySearch.getEmployeeCode()));
 			registUserForm.setStartDate(getStringStartDate(userDataBySearch.getStartDate()));
 		} else {
 			//ユーザーが存在しない場合新しいユーザーIDを払い出し
 			Integer NextEmployeeCode = userMapper.createNewEmployeeCode();
-			registUserForm.setEmployeeCode(NextEmployeeCode + 1);
+			registUserForm.setEmployeeCode(String.valueOf(NextEmployeeCode + 1));
 			registUserForm.setInsertFlg(Constants.INSERT_FLG);
 		}
 		return registUserForm;
@@ -101,8 +105,8 @@ public class UserService {
 		Integer id = registUserForm.getId();
 		String startDate = registUserForm.getStartDate();
 		String userName = registUserForm.getName();
-		Integer employeeCode = registUserForm.getEmployeeCode();
-		String employeeCodeString = String.valueOf(registUserForm.getEmployeeCode());
+		Integer employeeCode = Integer.parseInt(registUserForm.getEmployeeCode());
+		//		String employeeCodeString = String.valueOf(registUserForm.getEmployeeCode());
 		//"利用開始日に9999/99/99が入力されている場合
 		if (startDate.equals("9999/99/99")) {
 			//DBで保存できる最大日付へ変更
@@ -111,7 +115,7 @@ public class UserService {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		LocalDate startDateLoalDate = LocalDate.parse(startDate, formatter);
 
-//		registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(registUserForm.getPassword(), employeeCodeString));
+		//		registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(registUserForm.getPassword(), employeeCodeString));
 		registUser.setRole(registUserForm.getRole());
 		registUser.setName(userName);
 		registUser.setStartDate(startDateLoalDate);
@@ -122,12 +126,17 @@ public class UserService {
 
 		//ユーザー登録処理
 		if (registUserForm.getInsertFlg() == Constants.INSERT_FLG) {
-			if (!userMapper.userExsistByEmployeeCode(employeeCode)) {
+			if (userMapper.userExsistByEmployeeCode(employeeCode)) {
 				return "社員番号:" + employeeCode + "は既に登録されています。";
 
 			} else {
-				registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, employeeCodeString));
+				registUser.setPassword(passwordUtil.getRandomPassword());
+				System.out.println(registUser.getPassword());
 				boolean updateCheck = userMapper.insertUserData(registUser);
+				if (updateCheck) {
+					emailService.sendReissuePassword(registUser.getEmail(), registUser.getPassword(),
+							MessageUtil.mailCommonMessage());
+				}
 				return updateCheck ? userName + "を登録しました。" : userName + "の登録が失敗しました。";
 			}
 			//ユーザー更新処理
@@ -208,7 +217,7 @@ public class UserService {
 				//分割した値をセットして登録
 				UserCsvInputDto user = new UserCsvInputDto();
 				user.setEmployeeCode(csvSplit[0]);
-//				user.setPassword(csvSplit[1]);
+				//				user.setPassword(csvSplit[1]);
 				user.setName(csvSplit[1]);
 				user.setRole(csvSplit[2]);
 				user.setDepartmentId(csvSplit[3]);
@@ -283,7 +292,7 @@ public class UserService {
 		for (UserCsvInputDto userCsvInputDto : userCsvInputDtoList) {
 			Users user = new Users();
 			user.setEmployeeCode(Integer.parseInt(userCsvInputDto.getEmployeeCode()));
-//			user.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, userCsvInputDto.getEmployeeCode()));
+			//			user.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, userCsvInputDto.getEmployeeCode()));
 			user.setName(userCsvInputDto.getName());
 			user.setRole(userCsvInputDto.getRole());
 			user.setDepartmentId(Integer.parseInt(userCsvInputDto.getDepartmentId()));
@@ -316,7 +325,7 @@ public class UserService {
 						continue;
 					}
 					throw new IllegalStateException("[社員番号:" + usersCodeNameEntry.getKey() + ",名前:"
-								+ usersCodeNameEntry.getValue() + "]" + "データベースと一致しない登録済みデータがあります");
+							+ usersCodeNameEntry.getValue() + "]" + "データベースと一致しない登録済みデータがあります");
 
 				}
 			}
@@ -344,7 +353,7 @@ public class UserService {
 				user.setId(existingUser.getId());
 				updateList.add(user);
 			} else {
-				user.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, String.valueOf(user.getEmployeeCode())));
+				user.setPassword(passwordUtil.getRandomPassword());
 				insertList.add(user);
 			}
 		});
@@ -366,7 +375,15 @@ public class UserService {
 		System.out.println("importUsers入り:" + insertList);
 		if (!insertList.isEmpty()) {
 			System.out.println("Insert入り");
-			return userMapper.batchInsertUsers(insertList);
+			boolean isInsert = userMapper.batchInsertUsers(insertList);
+			if (isInsert) {
+				String mailMessage = MessageUtil.mailCommonMessage();
+				for (Users insertUser : insertList) {
+					//新規登録者に仮パスワード送信
+					emailService.sendReissuePassword(insertUser.getEmail(), insertUser.getPassword(), mailMessage);
+				}
+			}
+			return isInsert;
 		}
 		if (!updateList.isEmpty()) {
 			System.out.println("Update入り:" + updateList);

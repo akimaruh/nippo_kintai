@@ -12,17 +12,18 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class SessionTimeoutInterceptor implements HandlerInterceptor {
 
-
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {// 各Controllerの処理が始まる前に呼ばれる
-
-		if (request.getSession().getAttribute("loginUser") == null) { // 必要なセッション情報を確認
+		System.out.println("URI:" + request.getRequestURI());
+		System.out.println("URL:" + request.getRequestURL());
+		if (!request.getRequestURI().contains("/password/reissue")
+				&& request.getSession().getAttribute("loginUser") == null) { // 必要なセッション情報を確認
 			response.setStatus(HttpServletResponse.SC_FOUND);
 			response.sendRedirect("/timeout"); // 無ければトップページにリダイレクト
 			return false; // Controllerは起動しない
 		}
-		
+
 		return true;
 	}
 

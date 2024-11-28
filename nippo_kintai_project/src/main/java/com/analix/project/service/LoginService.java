@@ -7,16 +7,25 @@ import org.springframework.stereotype.Service;
 
 import com.analix.project.entity.Users;
 import com.analix.project.mapper.LoginMapper;
+import com.analix.project.util.PasswordUtil;
 
 @Service
 public class LoginService {
 
 	@Autowired
 	private LoginMapper loginMapper;
+	@Autowired
+	private PasswordUtil passwordUtil;
 
 	public Users findByIdAndPassword(String employeeCode, String password) {
-		Integer code = Integer.parseInt(employeeCode);
-		return loginMapper.findByCodeAndPassword(code, password);
+		Integer employeeCodeInteger = Integer.parseInt(employeeCode);
+		String strechedPassword = passwordUtil.getSaltedAndStrechedPassword(password, employeeCode);
+		//仮パスワードの場合
+		if (password.length() == 8) {
+			return loginMapper.findByCodeAndPassword(employeeCodeInteger, password);
+		}
+		return loginMapper.findByCodeAndPassword(employeeCodeInteger, strechedPassword);
+
 	}
 
 	// 利用開始日チェック
@@ -26,10 +35,5 @@ public class LoginService {
 		}
 		return user.getStartDate().isBefore(LocalDate.now());
 	}
-
-	//	// パスワードをハッシュ化
-	//	private String hashPassword(String password) {
-	//		 return new BCryptPasswordEncoder().encode(password);
-	//	}
 
 }

@@ -3,7 +3,6 @@ package com.analix.project.form;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -13,7 +12,10 @@ import lombok.Data;
 @Data
 @Validated
 public class RegistUserForm {
-
+	@NotNull(message = "社員コードを入力してください", groups = {SearchUserGroup.class})
+	@Size(max = 9, message = "社員コードは9桁以内で入力して下さい。",groups = { SearchUserGroup.class})
+	@Pattern(regexp = "^[0-9]*$", message = "社員コードは数字で入力して下さい。",groups = { SearchUserGroup.class})
+	private String searchEmployeeCode;
 	private Integer id;
 //	@NotBlank(message = "パスワードを入力してください", groups = { RegistUserGroup.class })
 //	@Size(max = 16, message = "16文字以内で入力してください", groups = { RegistUserGroup.class })
@@ -32,11 +34,13 @@ public class RegistUserForm {
 	@NotNull(message = "利用開始日を入力して下さい", groups = { RegistUserGroup.class })
 	@Pattern(regexp = "^\\d{4}/\\d{2}/\\d{2}$", message = "日付のフォーマットが不正です", groups = { RegistUserGroup.class })
 	private String startDate;
+	@NotBlank(message = "メールアドレスを入力してください", groups = { RegistUserGroup.class })
 	@Email(message = "メールアドレスのフォーマットが不正です", groups = { RegistUserGroup.class })
 	private String email;
-	@NotNull(message = "社員コードを入力してください", groups = { RegistUserGroup.class })
-	@Max(value = 999999999, message = "社員コードは9桁以内で入力して下さい。", groups = { SearchUserGroup.class, RegistUserGroup.class })
-	private Integer employeeCode;
+	@NotNull(message = "社員コードを入力してください", groups = {RegistUserGroup.class })
+	@Size(max = 9, message = "社員コードは9桁以内で入力して下さい。",groups = {RegistUserGroup.class })
+	@Pattern(regexp = "^[0-9]*$", message = "社員コードは数字で入力して下さい。",groups = {RegistUserGroup.class })
+	private String employeeCode;
 	//新規登録フラグ
 	private short insertFlg;
 	//更新前社員番号

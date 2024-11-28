@@ -7,22 +7,26 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 /**
  * InterceptorをSpringの設定に追加するクラス
  */
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer{
-	
+public class WebMvcConfig implements WebMvcConfigurer {
+
 	@Autowired
 	private SessionTimeoutInterceptor sessionTimeoutInterceptor;
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry
-			.addInterceptor(sessionTimeoutInterceptor) // interceptorを追加
-			.addPathPatterns("/**") // 全てのパスパターンを対象に追加
-			.excludePathPatterns("/","/login","/timeout", "/resources/**","/css/style.css"); // ログイン画面を対象から除外
-			
+				.addInterceptor(sessionTimeoutInterceptor) // interceptorを追加
+				.addPathPatterns("/**") // 全てのパスパターンを対象に追加
+				.excludePathPatterns("/", "/login", "/timeout", "/common/reissue", "/resources/**", "/css/style.css",
+						"/favicon.ico"); // ログイン画面を対象から除外
+
 	}
+
 	@Override
 	public Validator getValidator() {
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();

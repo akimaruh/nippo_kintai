@@ -2,6 +2,7 @@ package com.analix.project.dto;
 
 import org.springframework.validation.annotation.Validated;
 
+import com.analix.project.form.RegistUserGroup;
 import com.analix.project.validation.ValidDepartment;
 import com.analix.project.validation.ValidRole;
 
@@ -20,7 +21,7 @@ public class UserCsvInputDto {
 //	@Size(max = 16, message = "パスワードは半角16文字以内で入力してください。")
 //	private String password;
 	@NotBlank(message = "名前を入力してください。")
-	@Size(max = 20, message = "名前は全角20文字以内で入力してください。文字数ダメ")
+	@Size(max = 20, message = "名前は全角20文字以内で入力してください。")
 	@Pattern(regexp = "^[\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF\\u3400-\\u4DBF\\u20000-\\u2FA1F\\u3005\\u309D-\\u309E\\u30FD-\\u30FEa-zA-Z0-9０-９・ー'’\\-]+$", message = "名前は全角20文字以内で入力してください。正規表現ダメ")
 	private String name;
 	@NotBlank(message = "権限を入力してください。")
@@ -30,6 +31,7 @@ public class UserCsvInputDto {
 	@Pattern(regexp = "^[0-9]*$", message = "所属部署IDは数字で入力して下さい。")
 	@ValidDepartment
 	private String departmentId;
+	@NotBlank(message = "メールアドレスを入力してください。", groups = { RegistUserGroup.class })
 	@Email(message = "メールアドレスのフォーマットが正しくありません。")
 	private String email;
 	@NotNull(message = "利用開始日を入力して下さい。")

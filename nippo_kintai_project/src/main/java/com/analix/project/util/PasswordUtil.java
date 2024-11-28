@@ -2,15 +2,36 @@ package com.analix.project.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordUtil {
+	
 	/** パスワードポリシー */
-	public final static String PASSWORD_POLICY = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z\\-]{8,}$";
+	public final static String PASSWORD_POLICY = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z\\-]{10,16}$";
+	
 	private static int STRETCH_COUNT = 10;
-
+	
+	/**
+	 * パスワード自動生成
+	 * @return ランダムな8文字の文字列
+	 */
+	public String getRandomPassword() {
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		int length = 8;
+		Random random = new Random();
+		StringBuilder randomString = new StringBuilder(length);
+		
+		for(int i = 0; i<length; i++) {
+			int index = random.nextInt(characters.length());
+			randomString.append(characters.charAt(index));
+		}
+		return randomString.toString();
+	}
+	
+	
 	/**
 	 * salt +ハッシュ化+ストレッチングしたパスワ-ドを 取得
 	 * 
@@ -77,6 +98,8 @@ public class PasswordUtil {
 
 		return buf.toString();
 	}
+	
+	
 
 	/**
 	 * パスワードポリシーに沿っているパスワードであるかチェックする。

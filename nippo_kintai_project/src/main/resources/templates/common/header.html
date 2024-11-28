@@ -39,15 +39,12 @@
 								<button type="submit" class="btn-yellow">ログオフ</button>
 							</form>
 						</div>
+						<div class="p-2">
+							<form th:action="@{/common/startMenu}" method="get">
+								<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
+							</form>
 
-						<th:block th:if="@{/common/startMenu}">
-							<div class="p-2">
-								<form th:action="@{/common/startMenu}" method="get">
-									<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
-								</form>
-
-							</div>
-						
+						</div>
 					</div>
 				</div>
 			</div>

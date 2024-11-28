@@ -80,13 +80,14 @@ public class UserController {
 			model.addAttribute("error", "エラー内容に従って修正してください");
 			return "user/regist";
 		}
-
-		Integer inputEmployeeCode = registUserForm.getEmployeeCode();
+		
+		Integer inputEmployeeCode = Integer.parseInt(registUserForm.getSearchEmployeeCode()!="" ? registUserForm.getSearchEmployeeCode():"0");
 		RegistUserForm userData = userService.getUserDataByEmployeeCode(inputEmployeeCode);
 		Map<String, Integer> departmentMap = userService.pulldownDepartment();
 
 		if (userData.getId() == null) {
 			String error = "存在しないユーザーです";
+			userData.setEmployeeCode(registUserForm.getSearchEmployeeCode());
 			model.addAttribute("error", error);
 		}
 		model.addAttribute("departmentList", departmentMap);

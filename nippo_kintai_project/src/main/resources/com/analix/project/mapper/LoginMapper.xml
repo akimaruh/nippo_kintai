@@ -14,7 +14,7 @@
 		start_date,
 		employee_code
 		FROM users
-		WHERE employee_code = #{code} AND
+		WHERE employee_code = #{employeeCode} AND
 		password = BINARY #{password}
 	</select>
 
