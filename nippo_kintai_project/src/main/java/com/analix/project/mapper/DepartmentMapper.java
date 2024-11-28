@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.analix.project.dto.DepartmentUserDto;
 import com.analix.project.entity.Department;
+import com.analix.project.entity.UserDepartmentOrder;
 import com.analix.project.form.DepartmentForm;
 
 @Mapper
@@ -17,7 +18,12 @@ public interface DepartmentMapper {
 	 * @return
 	 */
 	public List<Department> findAllDepartmentName();
-
+	
+	/**
+	 * ユーザごとの順序付き有効部署リストを取得
+	 */
+	public List<Department> findDepartmentWithOrder(@Param("userId") Integer userId);
+	
 	/**
 	 * 部署ID全件取得
 	 * @return 有効化フラグが１の部署ID全件リスト
@@ -76,5 +82,8 @@ public interface DepartmentMapper {
 	 * @return
 	 */
 	public List<DepartmentUserDto> findUsersByDepartmentId(@Param("departmentId") Integer departmentId);
+	
+	// 部署一覧テーブルの順序を保存
+	public void saveDepartmentOrder(List<UserDepartmentOrder> orderData);
 
 }

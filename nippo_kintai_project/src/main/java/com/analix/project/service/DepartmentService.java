@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.analix.project.dto.DepartmentUserDto;
 import com.analix.project.entity.Department;
+import com.analix.project.entity.UserDepartmentOrder;
 import com.analix.project.form.DepartmentForm;
 import com.analix.project.mapper.DepartmentMapper;
 
@@ -25,6 +26,17 @@ public class DepartmentService {
 		List<Department> departmentList = departmentMapper.findAllDepartmentName();
 		return departmentList;
 	}
+	
+	/**
+	 * 「有効な部署」リスト(ユーザごとの順序付き)
+	 * @param userId
+	 * @return
+	 */
+	public List<Department> showDepartmentWithOrder(Integer userId){
+		List<Department> departmentOrderList = departmentMapper.findDepartmentWithOrder(userId);
+		return departmentOrderList;
+	}
+	
 	
 	/**
 	 * 「無効な部署」リスト
@@ -195,5 +207,11 @@ public class DepartmentService {
 				.collect(Collectors.toList());
 		return allDepartmentIdStringList;
 	}
+	
+	// 部署一覧テーブルの順序を保存
+	public void saveDepartmentOrder(List<UserDepartmentOrder> orderData) {
+		departmentMapper.saveDepartmentOrder(orderData);
+	}
+	
 
 }

@@ -90,6 +90,46 @@ pageTopBtn.addEventListener('click', () => {
 	});
 });
 
+
+const sortElement = document.getElementById('sort-table');
+Sortable.create(sortElement, {
+	handle: '.handle', // ドラッグのトリガーをセレクタで指定します
+	chosenClass: 'chosen', // ドラッグで選択中の要素に付与するクラス名
+	animation: 200, // ドラッグして並び替える時のアニメーションの速さを指定します
+	onEnd: () => {
+		// 並び替え後の順序を取得
+		const orderData = Array.from(sortElement.children).map((row, index) => {
+			return {
+				departmentId: row.getAttribute('data-department-id'), // 部署ID
+				sortOrder: index + 1, // 並び順（1から始める）
+			};
+		});
+
+		// ユーザーID取得
+		//			const userId = /*[[${session.loginUser.id}]]*/ 0;
+		console.log(userId);
+
+		// ユーザーIDをorderDataに追加
+		orderData.forEach(item => item.userId = userId);
+
+		// AJAXでサーバーに送信
+		fetch('/department/saveOrder', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(orderData),
+		}).then(response => {
+			if (response.ok) {
+				console.log('順序保存した');
+			} else {
+				console.error('順序の保存に失敗しました');
+			}
+		});
+
+	},
+});
+
 //function activecheck() {
 //	let check = window.confirm(inputDeletedDepartment.value + 'を復元します。よろしいですか？');
 //	if (check) {

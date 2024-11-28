@@ -5,9 +5,21 @@
 	<!-- 有効な部署名の検索 -->
 	<select id="findAllDepartmentName"
 		resultType="com.analix.project.entity.Department">
-		SELECT department_id,name FROM department
+		SELECT department_id, name FROM department
 		WHERE is_active = 1
 		ORDER BY department_id ASC
+	</select>
+	
+	<!-- ユーザごとの順序付き有効部署リストを取得 -->
+	<select id="findDepartmentWithOrder"
+		resultType="com.analix.project.entity.Department">
+		SELECT d.department_id, d.name, udo.sort_order
+		FROM department d
+		LEFT JOIN user_department_order udo
+			ON d.department_id = udo.department_id
+			AND udo.user_id = #{userId}
+		WHERE d.is_active = 1
+		ORDER BY udo.sort_order ASC, d.department_id ASC
 	</select>
 	
 	<!-- 部署名の有効フラグの検索 -->
@@ -92,5 +104,17 @@
 		FROM department
 		WHERE is_active = 1
 	</select>
+
+	<!-- 部署一覧テーブルの順序を保存(同じユーザーIDと部署IDの組み合わせがあったら更新) -->
+	<insert id="saveDepartmentOrder" parameterType="com.analix.project.entity.UserDepartmentOrder">
+		INSERT INTO
+		user_department_order(user_id, department_id, sort_order)
+		VALUES
+		<foreach collection="list" item="order" separator=",">
+			(#{order.userId}, #{order.departmentId}, #{order.sortOrder})
+		</foreach>
+		ON DUPLICATE KEY UPDATE
+			sort_order = VALUES (sort_order)
+	</insert>
 		
 </mapper>

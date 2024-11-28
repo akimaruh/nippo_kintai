@@ -11,31 +11,47 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.dto.DepartmentUserDto;
 import com.analix.project.entity.Department;
+import com.analix.project.entity.UserDepartmentOrder;
+import com.analix.project.entity.Users;
 import com.analix.project.form.DepartmentForm;
 import com.analix.project.form.ModifyDepartmentGroup;
 import com.analix.project.form.RegistDepartmentGroup;
 import com.analix.project.service.DepartmentService;
+import com.analix.project.util.SessionHelper;
 
 @Controller
 public class DepartmentController {
 
 	@Autowired
 	private DepartmentService departmentService;
-
+	
+	@Autowired
+	private SessionHelper sessionHelper;
 	/**
 	 * 共通メソッド(部署一覧カード表示：有効部署リスト、部署人数)
 	 * @param model
 	 */
 	public void loadDepartmentDate(Model model) {
 		// 有効部署リスト
-		List<Department> departmentList = departmentService.showDepartment();
+//		List<Department> departmentList = departmentService.showDepartment();
+//		model.addAttribute("departmentList", departmentList);
+		
+//		Users user = (Users) session.getAttribute("loginUser");
+//		Integer userId = user.getId();
+		Users user = sessionHelper.getUser();
+		System.out.println(user.getId());
+//		
+		// 有効部署リスト(ユーザーごとの順序付き)
+		List<Department> departmentList = departmentService.showDepartmentWithOrder(user.getId());
 		model.addAttribute("departmentList", departmentList);
 
 		// 部署ごとのユーザー人数を取得 Map<部署Id, 人数>
@@ -82,7 +98,7 @@ public class DepartmentController {
 			BindingResult result, Model model, RedirectAttributes redirectAttributes) {
 
 		// 共通メソッド(部署一覧カード表示)
-		loadDepartmentDate(model);
+//		loadDepartmentDate(model);
 		
 		String name = departmentForm.getName();
 		
@@ -179,10 +195,12 @@ public class DepartmentController {
 			@RequestParam("name") String name,
 			RedirectAttributes redirectAttributes, Model model) {
 		
+		model.addAttribute("action", "users");
+		
 		model.addAttribute("departmentForm", new DepartmentForm());
 		
 		// 共通メソッド(部署一覧カード表示)
-		loadDepartmentDate(model);
+//		loadDepartmentDate(model);
 		
 		// 所属ユーザー情報リストを取得
 		List<DepartmentUserDto> departmentUserList = departmentService.getUsersByDepartmentId(departmentId);
@@ -205,7 +223,7 @@ public class DepartmentController {
 	public String showInactive(Model model) {
 		model.addAttribute("departmentForm", new DepartmentForm());
 		// 共通メソッド(部署一覧カード表示)
-		loadDepartmentDate(model);
+//		loadDepartmentDate(model);
 		
 		// 廃止済み部署のデータを取得
 		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
@@ -340,6 +358,13 @@ public class DepartmentController {
 		}
 		return "redirect:/department/regist";
 
+	}
+	
+	// 部署一覧テーブルの順序を保存
+	@PostMapping("/department/saveOrder")
+	@ResponseBody
+	public void saveDepartmentOrder(@RequestBody List<UserDepartmentOrder> orderData) {
+		departmentService.saveDepartmentOrder(orderData);
 	}
 
 }
