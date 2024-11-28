@@ -22,7 +22,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry
 				.addInterceptor(sessionTimeoutInterceptor) // interceptorを追加
 				.addPathPatterns("/**") // 全てのパスパターンを対象に追加
-				.excludePathPatterns("/", "/login", "/timeout", "/common/reissue", "/resources/**", "/css/style.css",
+				.excludePathPatterns("/", "/login", "/timeout", "/password/reissue", "/resources/**", "/css/style.css",
 						"/favicon.ico"); // ログイン画面を対象から除外
 
 	}

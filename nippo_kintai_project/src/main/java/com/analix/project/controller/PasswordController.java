@@ -24,7 +24,7 @@ public class PasswordController {
 	@GetMapping("/password/reissue")
 	public String reissuePassword() {
 		System.out.println("きてるよー");
-		return "common/reissue";
+		return "password/reissue";
 	}
 
 	/**
