@@ -21,7 +21,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.analix.project.dto.DepartmentUserDto;
 import com.analix.project.entity.Department;
 import com.analix.project.entity.UserDepartmentOrder;
-import com.analix.project.entity.Users;
 import com.analix.project.form.DepartmentForm;
 import com.analix.project.form.ModifyDepartmentGroup;
 import com.analix.project.form.RegistDepartmentGroup;
@@ -33,25 +32,24 @@ public class DepartmentController {
 
 	@Autowired
 	private DepartmentService departmentService;
-	
+
 	@Autowired
 	private SessionHelper sessionHelper;
+
 	/**
 	 * 共通メソッド(部署一覧カード表示：有効部署リスト、部署人数)
 	 * @param model
 	 */
 	public void loadDepartmentDate(Model model) {
 		// 有効部署リスト
-//		List<Department> departmentList = departmentService.showDepartment();
-//		model.addAttribute("departmentList", departmentList);
-		
-//		Users user = (Users) session.getAttribute("loginUser");
-//		Integer userId = user.getId();
-		Users user = sessionHelper.getUser();
-		System.out.println(user.getId());
-//		
+		//		List<Department> departmentList = departmentService.showDepartment();
+		//		model.addAttribute("departmentList", departmentList);
+
+		// セッションヘルパークラスからuserIdを取得
+		Integer userId = sessionHelper.getUser().getId();
+
 		// 有効部署リスト(ユーザーごとの順序付き)
-		List<Department> departmentList = departmentService.showDepartmentWithOrder(user.getId());
+		List<Department> departmentList = departmentService.showDepartmentWithOrder(userId);
 		model.addAttribute("departmentList", departmentList);
 
 		// 部署ごとのユーザー人数を取得 Map<部署Id, 人数>
@@ -62,7 +60,7 @@ public class DepartmentController {
 		}
 		model.addAttribute("userCountMap", userCountMap);
 	}
-	
+
 	/**
 	 * 初期表示
 	 * @param model
@@ -70,58 +68,48 @@ public class DepartmentController {
 	 */
 	@RequestMapping(path = "/department/regist")
 	public String departmentRegist(Model model) {
-		
+
+		model.addAttribute("action", "regist");
+
 		// 共通メソッド(部署一覧カード表示)
 		loadDepartmentDate(model);
 
 		// フォームの初期化
 		model.addAttribute("departmentForm", new DepartmentForm());
-		
-		//「廃止済み部署の復元」は初期表示では非表示 (nullを渡す)
-        model.addAttribute("inactiveDepartmentList", null);
-        //「所属ユーザー」は初期表示では非表示 (nullを渡す)
-        model.addAttribute("departmentUserList", null);
-		
+
+		//		//「廃止済み部署の復元」は初期表示では非表示 (nullを渡す)
+		//        model.addAttribute("inactiveDepartmentList", null);
+		//        //「所属ユーザー」は初期表示では非表示 (nullを渡す)
+		//        model.addAttribute("departmentUserList", null);
+
 		return "/department/regist";
 	}
-	
+
 	/**
 	 * 「登録」ボタン押下
-	 * @param newName 新部署名
-	 * @param department
+	 * @param departmentForm
+	 * @param result
 	 * @param model
 	 * @param redirectAttributes
 	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/complete", method = RequestMethod.POST)
-	public String departmentComplete(@ModelAttribute("departmentForm") @Validated(RegistDepartmentGroup.class) DepartmentForm departmentForm,
+	public String departmentComplete(
+			@ModelAttribute("departmentForm") @Validated(RegistDepartmentGroup.class) DepartmentForm departmentForm,
 			BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+		
+		model.addAttribute("action", "complete");
 
 		// 共通メソッド(部署一覧カード表示)
-//		loadDepartmentDate(model);
-		
+		loadDepartmentDate(model);
+				
 		String name = departmentForm.getName();
-		
-		// 入力チェック
-//		departmentService.validationForm(department, true, true, false, false, false, result);
 
 		if (result.hasErrors()) {
 			model.addAttribute("error", "エラー内容に従って修正してください。");
 			model.addAttribute("name", name);
 			return "/department/regist";
 		}
-		
-//		if (result.hasErrors()) {
-//		    List<String> errors = new ArrayList<>();
-//
-//		    // フィールド "name" に関するエラーを追加
-//		    if (result.getFieldError("name") != null) {
-//		        errors.add(result.getFieldError("name").getDefaultMessage());
-//		    }
-//
-//		    model.addAttribute("errors", errors); // リスト形式で渡す
-//		    return "/department/regist";
-//		}
 
 		boolean isRegistComplete = departmentService.registDepartment(name);
 
@@ -140,80 +128,31 @@ public class DepartmentController {
 		return "redirect:/department/regist";
 	}
 
-//	/**
-//	 * 「登録」ボタン押下
-//	 * @param newName 新部署名
-//	 * @param department
-//	 * @param model
-//	 * @param redirectAttributes
-//	 * @return 部署登録画面
-//	 */
-//	@RequestMapping(path = "/department/regist/complete", method = RequestMethod.POST)
-//	public String departmentComplete(@ModelAttribute("department") @Validated Department department,
-//			@RequestParam("name") String name, Model model,
-//			RedirectAttributes redirectAttributes, BindingResult result) {
-//		
-//		System.out.println("登録コントローラ:" + name);
-//
-//		// 共通メソッド(部署一覧カード表示)
-//		loadDepartmentDate(model);
-//		
-//		// 入力チェック
-//		departmentService.validationForm(department, true, true, false, false, false, result);
-//
-//		if (result.hasErrors()) {
-//			model.addAttribute("error", "エラー内容に従って修正してください。");
-//			model.addAttribute("name", name);
-//			return "/department/regist";
-//		}
-//
-//		boolean isRegistComplete = departmentService.registDepartment(name);
-//
-//		if (isRegistComplete) {
-//			redirectAttributes.addFlashAttribute("message", name + "を登録しました。");
-//		} else {
-//			Byte status = departmentService.getDepartmentStatus(name);
-//			if (status == 0) {
-//				redirectAttributes.addFlashAttribute("error", "この部署は廃止されています。廃止済部署の復元から復元可能です。");
-//				redirectAttributes.addFlashAttribute("name", name);
-//			} else {
-//				redirectAttributes.addFlashAttribute("error", "この部署名は既に登録済です。");
-//				redirectAttributes.addFlashAttribute("name", name);
-//			}
-//		}
-//		return "redirect:/department/regist";
-//	}
-	
 	/**
 	 * ユーザーアイコン押下、「所属ユーザー一覧」の表示
 	 * @param departmentId
-	 * @param redirectAttributes
+	 * @param name
+	 * @param model
 	 * @return
 	 */
 	@PostMapping("/department/regist/users")
 	public String showDepartmentUsers(@RequestParam("departmentId") Integer departmentId,
-			@RequestParam("name") String name,
-			RedirectAttributes redirectAttributes, Model model) {
-		
+			@RequestParam("name") String name, Model model) {
+
 		model.addAttribute("action", "users");
-		
 		model.addAttribute("departmentForm", new DepartmentForm());
-		
-		// 共通メソッド(部署一覧カード表示)
-//		loadDepartmentDate(model);
-		
+
 		// 所属ユーザー情報リストを取得
 		List<DepartmentUserDto> departmentUserList = departmentService.getUsersByDepartmentId(departmentId);
 		model.addAttribute("departmentUserList", departmentUserList);
-		
+
 		// 部署名の表示
 		String departmentName = "【" + name + "】";
 		model.addAttribute("departmentName", departmentName);
-		
-		
+
 		return "/department/regist";
 	}
-	
+
 	/**
 	 * 「復元」ボタン押下、「廃止済み部署の復元」の表示
 	 * @param model
@@ -221,10 +160,10 @@ public class DepartmentController {
 	 */
 	@PostMapping("/department/regist/restore")
 	public String showInactive(Model model) {
+
+		model.addAttribute("action", "restore");
 		model.addAttribute("departmentForm", new DepartmentForm());
-		// 共通メソッド(部署一覧カード表示)
-//		loadDepartmentDate(model);
-		
+
 		// 廃止済み部署のデータを取得
 		List<Department> inactiveDepartmentList = departmentService.showInactiveDepartment();
 		model.addAttribute("inactiveDepartmentList", inactiveDepartmentList);
@@ -234,36 +173,35 @@ public class DepartmentController {
 
 	/**
 	 * 「変更」ボタン押下
-	 * @param newName 新部署名
-	 * @param exsistsName 登録済の部署名
+	 * @param departmentForm
+	 * @param result
+	 * @param model
 	 * @param redirectAttributes
 	 * @return 部署登録画面
 	 */
 	@RequestMapping(path = "/department/regist/update", method = RequestMethod.POST)
-	public String updateDepartment(@ModelAttribute("departmentForm") @Validated(ModifyDepartmentGroup.class) DepartmentForm departmentForm,
+	public String updateDepartment(
+			@ModelAttribute("departmentForm") @Validated(ModifyDepartmentGroup.class) DepartmentForm departmentForm,
 			BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-		
+
 		// 共通メソッド(部署一覧カード表示)
 		loadDepartmentDate(model);
-		
+
 		String newName = departmentForm.getNewName();
 		String exsistsName = departmentForm.getExsistsName();
 
 		// 入力チェック
-//		departmentService.validationForm(department, true, false, true, true, false, result);
-
-		 // 入力チェック
-	    if (result.hasErrors()) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "エラー内容に従って修正してください。"); // alert alert-dangerに表示される文字
-	        redirectAttributes.addFlashAttribute("exsistsName", exsistsName);
-	        redirectAttributes.addFlashAttribute("openModal", true);
-	        redirectAttributes.addFlashAttribute("inputNewName", newName); //入力したnewName
-	        if (result.hasFieldErrors("newName")) {
-	        	String newNameErrorMessage = result.getFieldError("newName").getDefaultMessage();
-	        	redirectAttributes.addFlashAttribute("newNameErrorMessage", newNameErrorMessage);
-	        }
-	        return "redirect:/department/regist";
-	    }
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("errorMessage", "エラー内容に従って修正してください。"); // alert alert-dangerに表示される文字
+			redirectAttributes.addFlashAttribute("exsistsName", exsistsName);
+			redirectAttributes.addFlashAttribute("openModal", true);
+			redirectAttributes.addFlashAttribute("inputNewName", newName); //入力したnewName
+			if (result.hasFieldErrors("newName")) {
+				String newNameErrorMessage = result.getFieldError("newName").getDefaultMessage();
+				redirectAttributes.addFlashAttribute("newNameErrorMessage", newNameErrorMessage);
+			}
+			return "redirect:/department/regist";
+		}
 
 		boolean isUpdate = departmentService.updateDepartment(newName, exsistsName);
 
@@ -273,10 +211,8 @@ public class DepartmentController {
 			Byte status = departmentService.getDepartmentStatus(newName);
 			if (status == 0) {
 				redirectAttributes.addFlashAttribute("error", "この部署は廃止されています。廃止済部署の復元から復元可能です。");
-//				redirectAttributes.addFlashAttribute("newName", newName);
 			} else if (status == 1) {
 				redirectAttributes.addFlashAttribute("error", "変更に失敗しました。");
-//				redirectAttributes.addFlashAttribute("newName", newName);
 			}
 		}
 		return "redirect:/department/regist";
@@ -284,8 +220,9 @@ public class DepartmentController {
 
 	/**
 	 * 「削除」ボタン押下(論理削除)
-	 * @param department 登録済の部署名
+	 * @param departmentForm
 	 * @param exsistsName
+	 * @param departmentId
 	 * @param model
 	 * @param redirectAttributes
 	 * @param result
@@ -299,9 +236,6 @@ public class DepartmentController {
 
 		// 共通メソッド(部署一覧カード表示)
 		loadDepartmentDate(model);
-		
-		// 入力チェック
-//		departmentService.validationForm(department, false, false, false, true, false, result);
 
 		if (result.hasErrors()) {
 			model.addAttribute("error", "エラー内容に従って修正してください。");
@@ -326,7 +260,7 @@ public class DepartmentController {
 
 	/**
 	 * 「有効化」ボタン押下
-	 * @param department
+	 * @param departmentForm
 	 * @param inactiveName 無効な部署名
 	 * @param model
 	 * @param redirectAttributes
@@ -337,12 +271,9 @@ public class DepartmentController {
 	public String updateDepartmentToActive(@ModelAttribute("departmentForm") @Validated DepartmentForm departmentForm,
 			@RequestParam("inactiveName") String inactiveName, Model model, RedirectAttributes redirectAttributes,
 			BindingResult result) {
-		
+
 		// 共通メソッド(部署一覧カード表示)
 		loadDepartmentDate(model);
-		
-		// 入力チェック
-//		departmentService.validationForm(department, false, false, false, false, true, result);
 
 		if (result.hasErrors()) {
 			model.addAttribute("error", "エラー内容に従って修正してください。");
@@ -359,12 +290,23 @@ public class DepartmentController {
 		return "redirect:/department/regist";
 
 	}
-	
-	// 部署一覧テーブルの順序を保存
+
+	/**
+	 * 部署一覧テーブルの順序を保存
+	 * @param orderData
+	 */
 	@PostMapping("/department/saveOrder")
 	@ResponseBody
 	public void saveDepartmentOrder(@RequestBody List<UserDepartmentOrder> orderData) {
 		departmentService.saveDepartmentOrder(orderData);
 	}
+	
+	// ユーザー一覧からユーザー管理画面に遷移
+//	@PostMapping("/user/regist")
+//	public String showUser(@RequestParam("employeeCode") Integer employeeCode, Model model) {
+//		model.addAttribute("employeeCode", employeeCode);
+//		
+//		
+//	}
 
 }

@@ -64,6 +64,16 @@ public class UserController {
 	}
 
 	/**
+	 * 共通メソッド（検索ボタン押下後）部署プルダウン、ユーザー情報をmodelに追加
+	 * @param userData
+	 * @param model
+	 */
+	public void addUserAndDepartmentToModel(RegistUserForm userData, Model model) {
+		Map<String, Integer> departmentMap = userService.pulldownDepartment();
+		model.addAttribute("departmentList", departmentMap);
+		model.addAttribute("registUserForm", userData);
+	}
+	/**
 	 * 『検索』ボタン押下後
 	 * @param name
 	 * @param model
@@ -83,18 +93,36 @@ public class UserController {
 		
 		Integer inputEmployeeCode = Integer.parseInt(registUserForm.getSearchEmployeeCode()!="" ? registUserForm.getSearchEmployeeCode():"0");
 		RegistUserForm userData = userService.getUserDataByEmployeeCode(inputEmployeeCode);
-		Map<String, Integer> departmentMap = userService.pulldownDepartment();
 
 		if (userData.getId() == null) {
 			String error = "存在しないユーザーです";
 			userData.setEmployeeCode(registUserForm.getSearchEmployeeCode());
 			model.addAttribute("error", error);
 		}
-		model.addAttribute("departmentList", departmentMap);
-		model.addAttribute("registUserForm", userData);
+
+		// 共通メソッド（部署プルダウン、ユーザー情報をmodelに追加）
+		addUserAndDepartmentToModel(userData, model);
 
 		return "user/regist";
 	}
+	
+	/**
+	 * 部署管理画面から遷移(『検索』ボタン押下してある状態）
+	 * @param employeeCode
+	 * @param model
+	 * @return
+	 */
+	@PostMapping("/regist/search/fromDepartment")
+	public String searchUserByEmployeeCode(@RequestParam("employeeCode") Integer employeeCode, Model model) {
+
+	    RegistUserForm userData = userService.getUserDataByEmployeeCode(employeeCode);
+	    
+	    // 共通メソッド（部署プルダウン、ユーザー情報をmodelに追加）
+	 	addUserAndDepartmentToModel(userData, model);
+
+	    return "user/regist";
+	}
+	
 
 	/**
 	 * 『登録』ボタン押下後

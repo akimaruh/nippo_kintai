@@ -533,6 +533,11 @@ body {
 	cursor: pointer
 }
 
+/*マウスカーソル（十字の矢印,移動）*/
+.move {
+	cursor: move;
+}
+
 
 /* テーブルの基本スタイル */
 .custom-table {

@@ -2,20 +2,20 @@
  * ページ内リンク
  */
 // 「ユーザー」アイコン押下
-const usersForms = document.querySelectorAll('.users-form');
-usersForms.forEach((usersForm) => {
-    usersForm.addEventListener('submit', function(event) {
-        usersForm.action = usersForm.action + '#所属ユーザー';
-    });
-});
-
-// 「復元」ボタン押下
-const restoreForm = document.getElementById('restore-form');
-if (restoreForm) {
-	restoreForm.addEventListener('submit', function(event) {
-		restoreForm.action = restoreForm.action + '#部署の復元';
-	});
-};
+//const usersForms = document.querySelectorAll('.users-form');
+//usersForms.forEach((usersForm) => {
+//    usersForm.addEventListener('submit', function(event) {
+//        usersForm.action = usersForm.action + '#所属ユーザー';
+//    });
+//});
+//
+//// 「復元」ボタン押下
+//const restoreForm = document.getElementById('restore-form');
+//if (restoreForm) {
+//	restoreForm.addEventListener('submit', function(event) {
+//		restoreForm.action = restoreForm.action + '#部署の復元';
+//	});
+//};
 	
 
 /**
