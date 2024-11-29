@@ -1,12 +1,81 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
-	
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/common/noLoginLayout :: layout(~{::title},~{::body/content()})}">
+
 <head>
-<meta charset="UTF-8">
-<title>パスワード再設定</title>
+	<meta charset="UTF-8">
+	<title>パスワード再設定</title>
 </head>
+
 <body>
-メールアドレス入力
-社員番号hidden
+
+	<div class="container d-flex justify-content-center mb-5 mt-5">
+		<div class="col-xl-6 col-md-6 col-12">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				<div class="card-header">
+					<h5 class="text-center">パスワードを忘れた場合</h5>
+				</div>
+				<div class="card-body">
+					<form action="/password/reissue/complete" method="post">
+
+						<!-- メッセージ -->
+						<div th:if="${message}" class="alert alert-info" style="color: white;">
+							<p th:text="${message}"></p>
+						</div>
+						<!-- /メッセージ -->
+
+						<div class="text-center">
+							<span style="color: gray;">登録したメールアドレスに仮パスワードを送信します。</span>
+						</div>
+
+						<div class="container col-12">
+							<!-- 社員番号 -->
+							<div class="col-12 mt-5 mb-3">
+								<label for="employeeCode">社員番号：</label>
+								<input type="text" id="employeeCode" name="employeeCode" oninput="checkInputs()"
+									class="form-control" />
+							</div>
+							<!-- /社員番号 -->
+
+							<!-- メールアドレス -->
+							<div class="col-12 mt-3 mb-3">
+								<label for="email">メールアドレス：</label>
+								<input type="text" id="email" name="email" oninput="checkInputs()"
+									class="form-control" />
+							</div>
+							<!-- /メールアドレス -->
+
+							<!-- ボタン -->
+							<div class="d-flex justify-content-end mb-3">
+								<button type="button" class="btn me-2" onclick="location.href='/'">キャンセル</button>
+								<button type="submit" class="btn" id="submitBtn"
+									style="background-color: rgb(255, 255, 70); color: rgb(128, 128, 128);"
+									disabled>送信</button>
+							</div>
+							<!-- /ボタン -->
+						</div>
+						
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// 送信ボタンの活性・非活性
+		function checkInputs() {
+			const employeeCodeInput = document.getElementById('employeeCode').value;
+			const emailInput = document.getElementById('email').value;
+			const submitBtn = document.getElementById('submitBtn');
+
+			if (employeeCodeInput && emailInput) {
+				submitBtn.disabled = false;
+			} else {
+				submitBtn.disabled = true;
+			}
+		}
+	</script>
+
 </body>
+
 </html>
