@@ -24,7 +24,8 @@ public class LoginService {
 		//マッパーで使えるパスワード
 		//セッションに入れてセッションの中をフィルタークラスで確認し仮パスワード作成日を確認する。
 		Users loginUser = loginMapper.findByCodeAndPassword(employeeCodeInteger, hashPassword);
-		
+		System.out.println(hashPassword);
+		System.out.println(loginUser);
 		return loginUser;  
 
 	}

@@ -45,17 +45,27 @@ public class PasswordService {
 		System.out.println(userId);
 
 		if (userId != null) {
-//			temporaryPasswordMapper.exsistTemporaryPasswordTable(userId);
 			String temporaryPass = passwordUtil.getTemporaryPassword();
+			boolean isRegist = false;
 			TemporaryPassword temporaryPassword = new TemporaryPassword();
 			temporaryPassword.setUserId(userId);
-			temporaryPassword.setTemporaryPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,employeeCodeString));
-			temporaryPassword.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
-			if (temporaryPasswordMapper.updateTemporaryPassword(temporaryPassword)) {
+			temporaryPassword
+					.setTemporaryPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass, employeeCodeString));
+			temporaryPassword
+					.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
+			//レコードにユーザーIDが存在したら該当レコードに上書きする
+			if (temporaryPasswordMapper.exsistTemporaryPasswordTable(userId)) {
+				System.out.println("更新"+temporaryPassword);
+				isRegist = temporaryPasswordMapper.updateTemporaryPassword(temporaryPassword);
+			} else {
+				System.out.println("新規"+temporaryPassword);
+				isRegist = temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
+			}
+			if (isRegist) {
 				emailService.sendReissuePassword(email, temporaryPass, MessageUtil.mailCommonMessage());
 			}
+			//不正アクセス対策のため失敗してもエラーを出さない
 		}
-
 	}
 
 	/**
@@ -67,9 +77,8 @@ public class PasswordService {
 	public boolean changePassword(Integer id, Integer employeeCode, String newPassword) {
 		String employeeCodeString = String.valueOf(employeeCode);
 		String strechedPassword = passwordUtil.getSaltedAndStrechedPassword(newPassword, employeeCodeString);
-		
+
 		boolean isUpdate = userMapper.updatePassword(id, strechedPassword);
-//		temporaryPasswordMapper. deactivateTmpPassword(id);
 		return isUpdate;
 	}
 }

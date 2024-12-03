@@ -24,10 +24,10 @@ public interface TemporaryPasswordMapper {
 	 */
 	boolean updateTemporaryPassword(@Param("temporaryPassword") TemporaryPassword temporaryPassword);
 	
-//	/**
-//	 * 仮パスワード無効化
-//	 * @param userId
-//	 * @return 反映結果
-//	 */
-//	boolean deactivateTmpPassword(@Param("userId")Integer userId);
+	/**
+	 * 仮パスワードテーブルの存在チェック
+	 * @param userId
+	 * @return true:存在する false:存在しない
+	 */
+	boolean exsistTemporaryPasswordTable (@Param("userId") Integer userId);
 }
