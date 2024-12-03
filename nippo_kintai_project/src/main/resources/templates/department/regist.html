@@ -103,8 +103,8 @@
 												<input type="hidden" name="departmentId"
 													th:value="${department.departmentId}" />
 												<input type="hidden" name="name" th:value="${department.name}" />
-												<td><button type="submit" class="btn btn-link"
-														style="padding: 0.7rem 1.2rem;">
+												<td><button type="submit" class="btn btn-secondary"
+														style="padding: 0.7rem 1.2rem; color: #7b8ab8;" th:attr="disabled=${userCountMap[department.departmentId] == 0}">
 														<i class="bi bi-people-fill"></i>
 														<span
 															class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light"

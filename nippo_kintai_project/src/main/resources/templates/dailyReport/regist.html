@@ -28,14 +28,23 @@
 				<div class="card-body">
 					<div class="mt-4">
 						<div th:if="${error}" class="alert alert-danger">
-							<p th:text="${error}"></p>
+							<p th:text="${error}" style="color: white;"></p>
 						</div>
 						<div th:if="${message}" class="alert alert-info">
-							<p th:text="${message}"></p>
+							<p th:text="${message}" style="color: white;"></p>
 						</div>
+						
+						<!-- ステータス -->
+						<div th:switch="${statusName}">
+							<p th:case="'未提出'" class="badge bg-light">未提出</p>
+							<p th:case="'提出済承認前'" class="badge bg-warning">提出済承認前</p>
+							<p th:case="'承認済'" class="badge bg-primary">承認済</p>
+						</div>
+						<!-- /ステータス -->
+						
 						<form id="dailyReport" name="dailyReportForm" method="get" action="/dailyReport/change">
 							<strong>対象日付：</strong>
-							<div class="col-xl-2 col-md-3 col-8">
+							<div class="col-xl-2 col-md-4 col-8">
 								<input type="date" name="date" class="form-control" th:value="${targetDate}"
 									id="date" />
 							</div>
@@ -52,11 +61,11 @@
 
 									<!--「提出」初期表示は非活性(作業時間、内容が入力されると活性化)-->
 									<!-- 既に提出済みの場合は非活性にする-->
-									<div class="container d-flex flex-row-reverse">
+									<div class="d-flex flex-row-reverse">
 										<button type="submit" id="submitBtn" class="btn-yellow" form="dailyReport-form"
 											th:disabled="${statusName == '承認済'}">提出</button>
 									</div>
-									<div class="container mt-3 mb-3">
+									<div class="mt-3 mb-3">
 										<form th:object="${dailyReport}" th:action="@{/dailyReport/regist/complete}"
 											method="post" id="dailyReport-form">
 

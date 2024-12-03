@@ -542,7 +542,7 @@ body {
 /* テーブルの基本スタイル */
 .custom-table {
     width: 100%;
-    min-width: 400px; /* 必要に応じて最小幅を設定 */
+    min-width: 600px; /* 必要に応じて最小幅を設定 */
 /*  	margin: 5em auto 2em;*/
     border-collapse: collapse;
     color: rgb(97, 97, 97);
@@ -661,6 +661,26 @@ body {
     font-size: 0.875em;
     margin-top: 0.25rem;
 }
+
+/* ヘッダー右側のボタンの表示設定 */
+/* PC用: アイコン非表示、名前表示 */
+.bi-person-circle {
+	display: none;
+}
+.userName {
+	display: inline;
+}
+
+/* スマホ用(画面幅が768px以下): アイコン表示、名前非表示 */
+@media screen and (max-width: 768px) {
+	.bi-person-circle {
+		display: inline;
+	}
+	.userName {
+		display: none;
+	}
+}
+
 
 /*部署管理画面のselect2レイアウト修正*/
 /*基本スタイル*/

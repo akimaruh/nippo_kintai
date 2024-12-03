@@ -65,6 +65,15 @@ http://www.thymeleaf.org
 						</div>
 						<div id="message-container" class="alert alert-info" style="display: none;"></div>
 						<!-- エラーメッセージ -->
+						
+						<!-- ステータス -->
+						<div th:switch="${status}">
+							<p th:case="null" class="badge bg-light">未申請</p>
+							<p th:case="1" class="badge bg-warning">申請中</p>
+							<p th:case="2" class="badge bg-primary">承認済</p>
+							<p th:case="3" class="badge bg-danger">却下</p>
+						</div>
+						<!-- /ステータス -->
 	
 						<!-- 表示年月日【社員権限】 -->
 						<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">
@@ -248,10 +257,10 @@ http://www.thymeleaf.org
 															<tr>
 																<th width="6%">日付</th>
 																<th width="6%">曜日</td>
-																<th width="15%">勤務状況</th>
-																<th width="15%">出勤時間</th>
-																<th width="15%">退勤時間</th>
-																<th width="43%">備考</th>
+																<th width="17%">勤務状況</th>
+																<th width="17%">出勤時間</th>
+																<th width="17%">退勤時間</th>
+																<th width="37%">備考</th>
 															</tr>
 														</thead>
 
@@ -722,6 +731,7 @@ http://www.thymeleaf.org
 
 				<div class="modal-body">
 					<div class="alert alert-warning" role="alert" id="rejectWarning">
+<!--						<i class="bi bi-exclamation-triangle-fill"></i>-->
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
 							class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
 							<path

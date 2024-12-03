@@ -1,55 +1,120 @@
 <html xmlns:th="http://www.thymeleaf.org" th:remove="tag">
 <meta charset="UTF-8" />
 <div th:fragment="layout-header" th:remove="tag">
+	<!--	<div class="header">-->
+
+	<!--		<nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: rgb(140, 202, 247);">-->
+	<!--			<div class="container d-flex justify-content-between">-->
+	<!--				<div class="row">-->
+	<!--					<div class="container-fluid">-->
+	<!--						<span class="navbar-text">-->
+	<!--							<div>-->
+	<!--								<strong>ユーザー名：</strong>-->
+	<!--								<span th:text="${session.loginUser.name}"></span>-->
+	<!--							</div>-->
+
+	<!--							<strong>社員コード：</strong>-->
+	<!--							<span th:text="${session.loginUser.employeeCode}" id="employeeCode"></span>-->
+
+	<!--							<div>-->
+	<!--								<th:block th:if="${statusName !=null || statusFlg !=null}">-->
+	<!--									<strong>ステータス：</strong>-->
+	<!--									<span th:if="${statusName !=null}">-->
+	<!--										<span th:text="${statusName}" id="statusName"></span>-->
+	<!--									</span>-->
+	<!--									<span th:if="${statusFlg !=null}">-->
+	<!--										<span th:text="${statusFlg}"></span>-->
+	<!--									</span>-->
+	<!--								</th:block>-->
+	<!--							</div>-->
+
+
+	<!--						</span>-->
+	<!--					</div>-->
+	<!--				</div>-->
+	<!--				<div class="row">-->
+	<!--					<div class="ms-auto d-flex flex-row-reverse">-->
+	<!--						<div class="p-2">-->
+	<!--							<form th:action="@{/common/logoff}" method="post">-->
+	<!--								<button type="submit" class="btn-yellow">ログオフ</button>-->
+	<!--							</form>-->
+	<!--						</div>-->
+	<!--						<div class="p-2">-->
+	<!--							<form th:action="@{/common/startMenu}" method="get">-->
+	<!--								<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
+	<!--							</form>-->
+
+	<!--						</div>-->
+	<!--					</div>-->
+	<!--				</div>-->
+	<!--			</div>-->
+	<!--		</nav>-->
+	<!--	</div>-->
+
+
 	<div class="header">
-
 		<nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: rgb(140, 202, 247);">
-			<div class="container d-flex justify-content-between">
-				<div class="row">
-					<div class="container-fluid">
-						<span class="navbar-text">
-							<div>
-								<strong>ユーザー名：</strong>
-								<span th:text="${session.loginUser.name}"></span>
+			<div class="container container-fluid">
+				<!-- 左側 -->
+				<a class="navbar-brand" href="/common/startMenu">
+					<img src="/img/nippo_kintai_icon.jpeg" width="35"><span>𝑛𝑖𝑝𝑝𝑜_𝑘𝑖𝑛𝑡𝑎𝑖</span>
+				</a>
+				<!-- /左側 -->
+
+				<!-- 右側 -->
+				<div class="d-flex ms-auto alight-items-center p-2">
+					<!-- 戻るボタン -->
+					<form th:action="@{/common/startMenu}" method="get">
+						<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow me-3" />
+					</form>
+
+					<!-- ドロップダウン -->
+					<li class="nav-item dropdown">
+						<button class="btn-yellow dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+							aria-expanded="false">
+							<i class="bi bi-person-circle icon"></i>
+							<span class="userName" th:text="${session.loginUser.name}"></span>
+						</button>
+
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="page-header-user-dropdown">
+							<div class="px-2 py-3 bg-body-light rounded-top" style="width: 200px;">
+								<div class="container">
+									社員番号:<span th:text="${session.loginUser.employeeCode}"></span><br>
+									ユーザー名:<span th:text="${session.loginUser.name}"></span>
+								</div>
+								<br>
+								<div style="height: 1px; background-color: #ddd;"></div>
 							</div>
 
-							<strong>社員コード：</strong>
-							<span th:text="${session.loginUser.employeeCode}" id="employeeCode"></span>
+							<!-- パスワード忘れ -->
+							<li><a class="dropdown-item d-flex justify-content-between align-items-center"
+									href="/password/regist">
+									パスワード再設定 <i class="fa fa-fw fa-user opacity-25"></i>
+								</a></li>
 
-							<div>
-								<th:block th:if="${statusName !=null || statusFlg !=null}">
-									<strong>ステータス：</strong>
-									<span th:if="${statusName !=null}">
-										<span th:text="${statusName}" id="statusName"></span>
-									</span>
-									<span th:if="${statusFlg !=null}">
-										<span th:text="${statusFlg}"></span>
-									</span>
-								</th:block>
-							</div>
-
-
-						</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="ms-auto d-flex flex-row-reverse">
-						<div class="p-2">
-							<form th:action="@{/common/logoff}" method="post">
-								<button type="submit" class="btn-yellow">ログオフ</button>
+							<!-- ログオフ -->
+							<li><a href="#" class="dropdown-item d-flex justify-content-between align-items-center"
+									onclick="submitLogoffForm()">
+									ログオフ <i class="fa fa-fw fa-sign-out-alt opacity-25"></i>
+								</a></li>
+							<form id="logoffForm" th:action="@{/common/logoff}" method="post" style="display: none;">
 							</form>
-						</div>
-						<div class="p-2">
-							<form th:action="@{/common/startMenu}" method="get">
-								<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />
-							</form>
-
-						</div>
-					</div>
+						</ul>
+					</li>
 				</div>
+				<!-- /右側 -->
 			</div>
 		</nav>
 	</div>
+
+	<!-- ログオフボタンをaタグでpost送信するための処理 -->
+	<script>
+		function submitLogoffForm() {
+			document.getElementById('logoffForm').submit();
+		}
+	</script>
+
+
 </div>
 
 </html>
