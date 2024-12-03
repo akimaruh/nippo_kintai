@@ -43,19 +43,26 @@ document.getElementById('newPassword').addEventListener('input', function(event)
 /**
  * 入力チェック系
  */
-// ↓完全じゃないので要修正
 // 新しいパスワードと確認用パスワードのリアルタイムチェック
-//document.getElementById('confirmPassword').addEventListener('input', function() {
-//	const newPassword = document.getElementById('newPassword').value;
-//	const confirmPassword = document.getElementById('confirmPassword').value;
-//	const confirmPasswordError = document.getElementById('confirmPasswordError');
-//
-//	if (newPassword === confirmPassword) {
-//		confirmPasswordError.textContent = ""; // エラーメッセージを消す
-//	} else {
-//		confirmPasswordError.textContent = "パスワードが一致しません"; // エラー表示
-//	}
-//});
+function checkPasswordMatch() {
+	const newPassword = document.getElementById('newPassword').value;
+	const confirmPassword = document.getElementById('confirmPassword').value;
+	const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+	if (confirmPassword == "") {
+		confirmPasswordError.textContent = "";
+		return;
+	}
+
+	if (newPassword === confirmPassword) {
+		confirmPasswordError.textContent = "";
+	} else {
+		confirmPasswordError.textContent = "パスワードが一致しません";
+	}
+}
+document.getElementById('newPassword').addEventListener('input', checkPasswordMatch);
+document.getElementById('confirmPassword').addEventListener('input', checkPasswordMatch);
+
 
 // 現在のパスワードと新しいパスワードが一致していないかチェック
 //document.getElementById('newPassword').addEventListener('input', function() {

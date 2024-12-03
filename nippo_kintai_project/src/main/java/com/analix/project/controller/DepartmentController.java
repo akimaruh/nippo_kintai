@@ -300,13 +300,5 @@ public class DepartmentController {
 	public void saveDepartmentOrder(@RequestBody List<UserDepartmentOrder> orderData) {
 		departmentService.saveDepartmentOrder(orderData);
 	}
-	
-	// ユーザー一覧からユーザー管理画面に遷移
-//	@PostMapping("/user/regist")
-//	public String showUser(@RequestParam("employeeCode") Integer employeeCode, Model model) {
-//		model.addAttribute("employeeCode", employeeCode);
-//		
-//		
-//	}
 
 }

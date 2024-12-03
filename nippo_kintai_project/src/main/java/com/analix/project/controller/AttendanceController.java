@@ -40,6 +40,7 @@ import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
 import com.analix.project.service.WebPushService;
 import com.analix.project.util.MessageUtil;
+import com.analix.project.util.SessionHelper;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -54,13 +55,14 @@ public class AttendanceController {
 	private InformationService informationService;
 	@Autowired
 	private WebPushService webPushService;
+	@Autowired
+	private SessionHelper sessionHelper;
 
 	/**
 	 * 初期表示
-	 * @param userId
-	 * @param year
-	 * @param month
 	 * @param model
+	 * @param session
+	 * @param attendanceFormList
 	 * @return
 	 */
 	@RequestMapping(path = "/attendance/regist")
@@ -100,7 +102,8 @@ public class AttendanceController {
 
 	/**
 	 * 『表示』ボタン押下後
-	 * @param yearMonth
+	 * @param year
+	 * @param month
 	 * @param model
 	 * @param session
 	 * @param attendanceFormList
@@ -125,32 +128,34 @@ public class AttendanceController {
 
 		// ヘッダー:ステータス部分
 		//ログイン時にセットしたセッションからユーザー情報を取り出す
-		Users user = (Users) session.getAttribute("loginUser");
-		Integer userId = user.getId();
+//		Users user = (Users) session.getAttribute("loginUser");
+//		Integer userId = user.getId();
+		// セッションヘルパークラスからuserIdを取得
+		Integer userId = sessionHelper.getUser().getId();
 		//		session.setAttribute("attendanceDate", targetYearMonth);
 		Integer status = attendanceService.findStatusByUserId(userId, targetYearMonthAtDay);
 		//statusの値に紐づくステータス名を設定する
-		String statusFlg;
-		if (status == null) {
-			statusFlg = "未申請";
-		} else {
-			switch (status) {
-			case 1:
-				statusFlg = "申請中";
-				break;
-			case 2:
-				statusFlg = "承認済";
-				break;
-			case 3:
-				statusFlg = "却下";
-				break;
-			default:
-				statusFlg = "未申請";
-				break;
-			}
-		}
-		//ステータス名とDB格納のステータス値どちらもフロントに渡す
-		model.addAttribute("statusFlg", statusFlg);
+//		String statusLabel;
+//		if (status == null) {
+//			statusLabel = "未申請";
+//		} else {
+//			switch (status) {
+//			case 1:
+//				statusLabel = "申請中";
+//				break;
+//			case 2:
+//				statusLabel = "承認済";
+//				break;
+//			case 3:
+//				statusLabel = "却下";
+//				break;
+//			default:
+//				statusLabel = "未申請";
+//				break;
+//			}
+//		}
+//		//ステータス名とDB格納のステータス値どちらもフロントに渡す
+//		model.addAttribute("statusLabel", statusLabel);
 		model.addAttribute("status", status);
 
 		//ユーザーIDと年月の値を渡して取得した勤怠日付と勤怠情報を勤怠フォームリストへセット
@@ -251,8 +256,11 @@ public class AttendanceController {
 	public String approveRequest(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
 		
 		//セッションからユーザー情報の受け取り
-		Users user = (Users) session.getAttribute("loginUser");
-		Integer userId = user.getId();
+//		Users user = (Users) session.getAttribute("loginUser");
+//		Integer userId = user.getId();
+		// セッションヘルパークラスからUserIdとuserName取得
+		Integer userId = sessionHelper.getUser().getId();
+		String name = sessionHelper.getUser().getName();
 		//『表示』ボタン押下時にセッションにセットした年月の値を取得する
 		YearMonth approveYearMonth = (YearMonth) session.getAttribute("yearMonth");
 		//月次勤怠テーブルの対象年月はyyyy-MM-01で格納されているので形を合わせる
@@ -271,7 +279,7 @@ public class AttendanceController {
 			String mailMessage = MessageUtil.mailCommonMessage();
 			emailService.sendRequestEmail(request, mailMessage);
 		}
-		informationService.approveRequestInsertNotifications(user.getName(), approveYearMonth);
+		informationService.approveRequestInsertNotifications(name, approveYearMonth);
 		redirectAttributes.addFlashAttribute("message", message);
 		// プッシュ通知
 		try {
@@ -420,13 +428,14 @@ public class AttendanceController {
 		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:/attendance/regist";
 	}
-		
+
 	/**
 	 * 月次申請『却下』ボタン押下後
-	 * @param userId
-	 * @param targetYearMonth
-	 * @param comment
+	 * @param monthlyForm
+	 * @param result
+	 * @param id
 	 * @param redirectAttributes
+	 * @param session
 	 * @return
 	 */
 	@PostMapping("/attendance/rejectMonthly")
@@ -497,9 +506,8 @@ public class AttendanceController {
 
 	/**
 	 * 訂正申請『承認』ボタン押下後
+	 * @param correctionForm
 	 * @param id
-	 * @param userId
-	 * @param confirmer
 	 * @param redirectAttributes
 	 * @param session
 	 * @return
@@ -540,8 +548,10 @@ public class AttendanceController {
 
 	/**
 	 * 訂正申請『却下』ボタン押下後
+	 * @param correctionForm
+	 * @param result
+	 * @param action
 	 * @param id
-	 * @param correctionReason
 	 * @param redirectAttributes
 	 * @param session
 	 * @return
