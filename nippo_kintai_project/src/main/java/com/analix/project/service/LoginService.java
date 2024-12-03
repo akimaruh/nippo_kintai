@@ -19,21 +19,22 @@ public class LoginService {
 
 	public Users findByIdAndPassword(String employeeCode, String password) {
 		Integer employeeCodeInteger = Integer.parseInt(employeeCode);
-		String strechedPassword = passwordUtil.getSaltedAndStrechedPassword(password, employeeCode);
-		//仮パスワードの場合
-		if (password.length() == 8) {
-			return loginMapper.findByCodeAndPassword(employeeCodeInteger, password);
-		}
-		return loginMapper.findByCodeAndPassword(employeeCodeInteger, strechedPassword);
+		String hashPassword = passwordUtil.getSaltedAndStrechedPassword(password, employeeCode);
+		
+		//マッパーで使えるパスワード
+		//セッションに入れてセッションの中をフィルタークラスで確認し仮パスワード作成日を確認する。
+		Users loginUser = loginMapper.findByCodeAndPassword(employeeCodeInteger, hashPassword);
+		
+		return loginUser;  
 
 	}
 
 	// 利用開始日チェック
-	public boolean isDate(Users user) {
-		if (user.getStartDate() == null) {
+	public boolean isDate(LocalDate startDate) {
+		if (startDate == null) {
 			return false;
 		}
-		return user.getStartDate().isBefore(LocalDate.now());
+		return startDate.isAfter(LocalDate.now());
 	}
 
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,9 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.analix.project.dto.UserCsvInputDto;
 import com.analix.project.entity.Department;
+import com.analix.project.entity.TemporaryPassword;
 import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
 import com.analix.project.mapper.DepartmentMapper;
+import com.analix.project.mapper.TemporaryPasswordMapper;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
 import com.analix.project.util.CustomDateUtil;
@@ -32,14 +35,17 @@ import com.analix.project.util.PasswordUtil;
 public class UserService {
 
 	private final UserMapper userMapper;
+	private final TemporaryPasswordMapper temporaryPasswordMapper;
 	private final DepartmentMapper departmentMapper;
 	private final CustomDateUtil customDateUtil;
 	private final PasswordUtil passwordUtil;
 	private final EmailService emailService;
 
-	public UserService(UserMapper userMapper, DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,
+	public UserService(UserMapper userMapper, TemporaryPasswordMapper temporaryPasswordMapper,
+			DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,
 			PasswordUtil passwordUtil, EmailService emailService) {
 		this.userMapper = userMapper;
+		this.temporaryPasswordMapper = temporaryPasswordMapper;
 		this.departmentMapper = departmentMapper;
 		this.customDateUtil = customDateUtil;
 		this.passwordUtil = passwordUtil;
@@ -61,7 +67,6 @@ public class UserService {
 
 			registUserForm.setId(userDataBySearch.getId());
 			registUserForm.setName(userDataBySearch.getName());
-			//			registUserForm.setPassword(userDataBySearch.getPassword());
 			registUserForm.setRole(userDataBySearch.getRole());
 			registUserForm.setDepartmentId(userDataBySearch.getDepartmentId());
 			registUserForm.setEmail(userDataBySearch.getEmail());
@@ -125,19 +130,31 @@ public class UserService {
 		System.out.println(employeeCode);
 
 		//ユーザー登録処理
+		//XXX:これでは新規登録するときに検索ボタン押してから登録しないと新規登録できない。
+		//TODO:インサートフラグの有無→アップデートフラグの有無に変更する
 		if (registUserForm.getInsertFlg() == Constants.INSERT_FLG) {
 			if (userMapper.userExsistByEmployeeCode(employeeCode)) {
 				return "社員番号:" + employeeCode + "は既に登録されています。";
 
 			} else {
-				registUser.setPassword(passwordUtil.getRandomPassword());
+				String temporaryPass = passwordUtil.getTemporaryPassword();
+				registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,
+						registUserForm.getEmployeeCode()));
 				System.out.println(registUser.getPassword());
-				boolean updateCheck = userMapper.insertUserData(registUser);
-				if (updateCheck) {
+				boolean insertCheck = userMapper.insertUserData(registUser);
+				Integer userId = userMapper.findIdByEmployeeCodeAndEmail(employeeCode, registUser.getEmail());
+				System.out.println(userId);
+				TemporaryPassword temporaryPassword = new TemporaryPassword();
+				temporaryPassword.setUserId(userId);
+				temporaryPassword.setTemporaryPassword(registUser.getPassword());
+				temporaryPassword.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
+				temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
+
+				if (insertCheck) {
 					emailService.sendReissuePassword(registUser.getEmail(), registUser.getPassword(),
 							MessageUtil.mailCommonMessage());
 				}
-				return updateCheck ? userName + "を登録しました。" : userName + "の登録が失敗しました。";
+				return insertCheck ? userName + "を登録しました。" : userName + "の登録が失敗しました。";
 			}
 			//ユーザー更新処理
 		} else {
@@ -353,7 +370,9 @@ public class UserService {
 				user.setId(existingUser.getId());
 				updateList.add(user);
 			} else {
-				user.setPassword(passwordUtil.getRandomPassword());
+				String temporaryPass = passwordUtil.getTemporaryPassword();
+				user.setPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,
+						String.valueOf(user.getEmployeeCode())));
 				insertList.add(user);
 			}
 		});
@@ -380,6 +399,15 @@ public class UserService {
 				String mailMessage = MessageUtil.mailCommonMessage();
 				for (Users insertUser : insertList) {
 					//新規登録者に仮パスワード送信
+
+					Integer userId = userMapper.findIdByEmployeeCodeAndEmail(insertUser.getEmployeeCode(),
+							insertUser.getEmail());
+					System.out.println(userId);
+					TemporaryPassword temporaryPassword = new TemporaryPassword();
+					temporaryPassword.setUserId(userId);
+					temporaryPassword.setTemporaryPassword(insertUser.getPassword());
+					temporaryPassword.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
+					temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
 					emailService.sendReissuePassword(insertUser.getEmail(), insertUser.getPassword(), mailMessage);
 				}
 			}

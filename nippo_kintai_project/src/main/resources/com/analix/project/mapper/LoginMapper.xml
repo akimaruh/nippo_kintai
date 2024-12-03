@@ -6,16 +6,35 @@
 	<!-- 全件取得 -->
 	<select id="findByCodeAndPassword"
 		resultType="com.analix.project.entity.Users">
-		SELECT 
-		id,
-		name,
-		role,
-		department_id,
-		start_date,
-		employee_code
+		SELECT
+		users.id,
+		users.name,
+		users.role,
+		users.department_id,
+		users.start_date,
+		users.employee_code,
+		temporary_password.expiration_date_time,
+		temporary_password.active_flg
 		FROM users
-		WHERE employee_code = #{employeeCode} AND
-		password = BINARY #{password}
+		LEFT JOIN
+		temporary_password
+		ON
+		users.id =
+		temporary_password.user_id
+		WHERE
+		users.employee_code = #{employeeCode}
+		AND (
+		(users.password = BINARY
+		#{password})
+		OR(temporary_password.temporary_password = BINARY
+		#{password}
+		AND
+		temporary_password.expiration_date_time >=
+		now()
+		AND
+		temporary_password.active_flg =1
+		)
+		)
 	</select>
 
 </mapper>

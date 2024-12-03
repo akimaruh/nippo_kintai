@@ -1,10 +1,14 @@
 package com.analix.project.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.analix.project.entity.Users;
+import com.analix.project.entity.TemporaryPassword;
+import com.analix.project.mapper.TemporaryPasswordMapper;
 import com.analix.project.mapper.UserMapper;
+import com.analix.project.util.Constants;
 import com.analix.project.util.MessageUtil;
 import com.analix.project.util.PasswordUtil;
 
@@ -16,6 +20,8 @@ public class PasswordService {
 	@Autowired
 	private UserMapper userMapper;
 	@Autowired
+	private TemporaryPasswordMapper temporaryPasswordMapper;
+	@Autowired
 	private PasswordUtil passwordUtil;
 
 	/**
@@ -24,6 +30,9 @@ public class PasswordService {
 	 * @param email
 	 */
 	public void reissuePassword(String employeeCodeString, String email) {
+		if (!employeeCodeString.matches("^[0-9]*$") || !email.contains("@")) {
+			return;
+		}
 
 		Integer employeeCode = null;
 		try {
@@ -31,14 +40,19 @@ public class PasswordService {
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		}
+
 		Integer userId = userMapper.findIdByEmployeeCodeAndEmail(employeeCode, email);
 		System.out.println(userId);
+
 		if (userId != null) {
-			Users users = new Users();
-			users.setId(userId);
-			users.setPassword(passwordUtil.getRandomPassword());
-			if (userMapper.updateUserData(users)) {
-				emailService.sendReissuePassword(email, users.getPassword(), MessageUtil.mailCommonMessage());
+//			temporaryPasswordMapper.exsistTemporaryPasswordTable(userId);
+			String temporaryPass = passwordUtil.getTemporaryPassword();
+			TemporaryPassword temporaryPassword = new TemporaryPassword();
+			temporaryPassword.setUserId(userId);
+			temporaryPassword.setTemporaryPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,employeeCodeString));
+			temporaryPassword.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
+			if (temporaryPasswordMapper.updateTemporaryPassword(temporaryPassword)) {
+				emailService.sendReissuePassword(email, temporaryPass, MessageUtil.mailCommonMessage());
 			}
 		}
 
@@ -51,13 +65,11 @@ public class PasswordService {
 	 * @param newPassword
 	 */
 	public boolean changePassword(Integer id, Integer employeeCode, String newPassword) {
-
-		Users users = new Users();
 		String employeeCodeString = String.valueOf(employeeCode);
 		String strechedPassword = passwordUtil.getSaltedAndStrechedPassword(newPassword, employeeCodeString);
-		users.setId(id);
-		users.setPassword(strechedPassword);
-		boolean isUpdate = userMapper.updateUserData(users);
+		
+		boolean isUpdate = userMapper.updatePassword(id, strechedPassword);
+//		temporaryPasswordMapper. deactivateTmpPassword(id);
 		return isUpdate;
 	}
 }

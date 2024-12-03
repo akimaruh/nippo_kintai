@@ -117,5 +117,15 @@ public interface UserMapper {
 	 * @return id
 	 */
 	Integer findIdByEmployeeCodeAndEmail(@Param("employeeCode") Integer employeeCode,@Param("email") String email);
+	
+	/**
+	 * パスワード更新
+	 * @param id
+	 * @param password
+	 * @return 反映結果
+	 */
+	boolean updatePassword(@Param("id") Integer id , @Param("password") String password);
+	
+	
 
 }

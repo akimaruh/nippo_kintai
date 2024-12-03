@@ -15,10 +15,10 @@ public class PasswordUtil {
 	private static int STRETCH_COUNT = 10;
 	
 	/**
-	 * パスワード自動生成
+	 * 仮パスワード自動生成
 	 * @return ランダムな8文字の文字列
 	 */
-	public String getRandomPassword() {
+	public String getTemporaryPassword() {
 		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		int length = 8;
 		Random random = new Random();

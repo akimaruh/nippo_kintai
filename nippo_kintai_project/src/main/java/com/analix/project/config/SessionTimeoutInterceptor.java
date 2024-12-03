@@ -1,7 +1,11 @@
 package com.analix.project.config;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import com.analix.project.entity.Users;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,13 +19,20 @@ public class SessionTimeoutInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {// 各Controllerの処理が始まる前に呼ばれる
-		System.out.println("URI:" + request.getRequestURI());
-		System.out.println("URL:" + request.getRequestURL());
-		if (!request.getRequestURI().contains("/password/reissue")
-				&& request.getSession().getAttribute("loginUser") == null) { // 必要なセッション情報を確認
+
+		Users loginUser = (Users) request.getSession().getAttribute("loginUser");
+		LocalDateTime now = LocalDateTime.now();
+		if (loginUser == null) {
+			if (!request.getRequestURI().contains("/password/reissue")) { // 必要なセッション情報を確認
+				response.setStatus(HttpServletResponse.SC_FOUND);
+				response.sendRedirect("/timeout"); // 無ければトップページにリダイレクト
+				return false; // Controllerは起動しない
+			}
+		} else if (loginUser.getExpirationDateTime() != null && loginUser.getActiveFlg() == 1
+				&& loginUser.getExpirationDateTime().isAfter(now)) {
 			response.setStatus(HttpServletResponse.SC_FOUND);
-			response.sendRedirect("/timeout"); // 無ければトップページにリダイレクト
-			return false; // Controllerは起動しない
+			response.sendRedirect("/password/change");
+			return false;
 		}
 
 		return true;

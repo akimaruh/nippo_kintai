@@ -46,5 +46,11 @@ public interface Constants {
 	public static final byte INSERT_FLG = 1;
 	/** ユーザー登録時初回パスワード**/
 	public static final String FIRST_PASS = "0000";
+	/** 仮パスワード利用期限範囲(登録時間から"TEMP_PASSWORD_EXPIRE_HOURS"時間) **/
+	public static final long TEMP_PASSWORD_EXPIRE_HOURS = 1;
+	/** 仮パスワード有効フラグ: 無効 **/
+	public static final Byte INACTIVE_FLG = 0;
+	/** 仮パスワード有効フラグ: 有効 **/
+	public static final Byte ACTIVE_FLG = 0;
 
 }

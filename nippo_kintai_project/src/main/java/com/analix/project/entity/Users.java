@@ -2,6 +2,7 @@ package com.analix.project.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +25,9 @@ public class Users implements Serializable {
 	private Integer status; // ステータスフィールドを追加
 	private String email;
 	private Integer employeeCode;
+	//TODO:エンティティに入れたくないのでsession.setAttributeの修正が完了次第これは消す。
+	private LocalDateTime expirationDateTime;
+	private Byte activeFlg;
 
 	@Override
 	public boolean equals(Object o) {

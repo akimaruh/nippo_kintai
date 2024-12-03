@@ -5,17 +5,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.entity.Users;
 import com.analix.project.service.PasswordService;
-
-import jakarta.servlet.http.HttpSession;
+import com.analix.project.util.Constants;
+import com.analix.project.util.SessionHelper;
 
 @Controller
 public class PasswordController {
-	
+
 	@Autowired
 	PasswordService passwordService;
+	@Autowired
+	SessionHelper sessionHelper;
 
 	/**
 	 * 『パスワードを忘れた方はこちら』リンク押下後
@@ -23,7 +27,6 @@ public class PasswordController {
 	 */
 	@GetMapping("/password/reissue")
 	public String reissuePassword() {
-		System.out.println("きてるよー");
 		return "password/reissue";
 	}
 
@@ -35,10 +38,15 @@ public class PasswordController {
 	 * @return 送信完了メッセージ画面
 	 */
 	@PostMapping("/password/reissue/complete")
-	public String submitMailAddress(String employeeCode, String mail, Model model) {
-		passwordService.reissuePassword(employeeCode, mail);
+	public String submitMailAddress(String employeeCode, String email, Model model) {
+		try {
+			passwordService.reissuePassword(employeeCode, email);
+		} catch (Exception e) {
+			e.getStackTrace();
+		}
 		model.addAttribute("message", "仮パスワードを送信しました。メールフォルダをご確認ください。");
-		return "password/reissue";
+
+		return "common/login";
 	}
 
 	/**
@@ -59,22 +67,35 @@ public class PasswordController {
 	 * @return 変更成功・失敗メッセージ
 	 */
 	@PostMapping("/password/change/complete")
-	public String completeChangePassword(String newPassword, String confirmPassword, Model model, HttpSession session) {
-		Users loginUser = (Users) session.getAttribute("loginUser");
+	public String completeChangePassword(@RequestParam("newPassword") String newPassword,
+			@RequestParam("confirmPassword") String confirmPassword, Model model,
+			RedirectAttributes redirectAttributes) {
+		Users loginUser = (Users) sessionHelper.getUser();
 
-		if (newPassword.equals(confirmPassword)) {
-			boolean isChange = passwordService.changePassword(loginUser.getId(), loginUser.getEmployeeCode(),
-					newPassword);
-			if (isChange) {
-				model.addAttribute("message", "パスワード変更が完了しました。");
-			} else {
-				model.addAttribute("error", "パスワード変更に失敗しました。");
-			}
+		if (newPassword == "" || confirmPassword == "") {
+			model.addAttribute("error", "パスワードを入力して下さい。");
+			return "password/regist";
+		}
+		if (!newPassword.equals(confirmPassword)) {
+			model.addAttribute("error", "パスワードが一致しません。");
+			return "password/regist";
 
 		} else {
-			model.addAttribute("error", "パスワードが一致しません。");
+
+			boolean isChange = passwordService.changePassword(loginUser.getId(), loginUser.getEmployeeCode(),
+					newPassword);
+			if (!isChange) {
+				model.addAttribute("error", "パスワード変更に失敗しました。");
+				return "password/regist";
+			} else {
+				model.addAttribute("message", "パスワード変更が完了しました。");
+
+				//セッション情報を更新
+				loginUser.setActiveFlg(Constants.INACTIVE_FLG);
+				sessionHelper.setUser(loginUser);
+			}
 		}
-		return "password/regist";
+		return "redirect:/common/startMenu";
 	}
 
 }

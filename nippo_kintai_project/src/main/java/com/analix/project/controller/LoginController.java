@@ -21,13 +21,14 @@ public class LoginController {
 
 	@Autowired
 	private LoginService loginService;
-	
+
 	@Autowired
 	private SessionHelper sessionHelper;
 
 	@GetMapping("/")
 	public String getLogin(Model model, HttpSession session) {
 
+		session.invalidate(); // セッションを無効化
 		model.addAttribute("error", false);
 		return "common/login";
 	}
@@ -35,9 +36,9 @@ public class LoginController {
 	@PostMapping("/login")
 	public String login(@RequestParam("employeeCode") String employeeCode, @RequestParam("password") String password,
 			HttpSession session, Model model) {
-
+		System.out.println("ログインボタン押下後"+(Users)session.getAttribute("loginUser") =="" ? null:(Users)session.getAttribute("loginUser"));
 		// ユーザーIDチェック
-		String employeeCodeRegex = "^[0-9]{1,16}$";
+		String employeeCodeRegex = "^[0-9]{1,9}$";
 		Pattern employeeCodePattern = Pattern.compile(employeeCodeRegex);
 		Matcher employeeCodeMatcher = employeeCodePattern.matcher(employeeCode);
 		if (!employeeCodeMatcher.matches()) {
@@ -54,46 +55,45 @@ public class LoginController {
 			return "common/login";
 		}
 
-		Users user = new Users();
-		user = loginService.findByIdAndPassword(employeeCode, password);
-		System.out.println(user);
-		if (user != null) {
-
+		Users loginUser = loginService.findByIdAndPassword(employeeCode, password);
+		//セッション用に値をセット
+		//TODO:セッションを利用するときはsessionHelperクラスをAutowiredするように修正する。
+		//TODO:sessionHelperクラスのAutowired修正が全て完了したらsession.setAttributeにloginUserクラスを代入する。
+		
+		if (loginUser != null) {
+//			Users user = new Users();
+//			user.setId(loginUser.getId());
+//			user.setEmployeeCode(loginUser.getEmployeeCode());
+//			user.setName(loginUser.getName());
+//			user.setRole(loginUser.getRole());
+//			user.setExpirationDateTime(loginUser.getExpirationDateTime());
+//			user.setStartDate(loginUser.getStartDate());
+//			System.out.println(user);
 			// 利用開始日チェック
-			if (loginService.isDate(user) == false) {
+			if (loginService.isDate(loginUser.getStartDate())) {
 				model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 				return "common/login";
 			}
-			
-			session.setAttribute("loginUser", user);
-			
-			// セッションヘルパークラスに設定
-			sessionHelper.setUser(user);
-			
-			String role = user.getRole();
+			String role =loginUser.getRole();
+			session.setAttribute("loginUser",loginUser);
+			sessionHelper.setUser(loginUser);
 			//ログイン完了後遷移
 			//権限による画面遷移の可能性を考え、現状権限で分岐する書き方で進める
 			if ("Admin".equals(role)) {
 				return "redirect:/common/startMenu";
-
 			} else if ("UnitManager".equals(role) || "Manager".equals(role) || "Regular".equals(role)) {
-				
 				return "redirect:/common/startMenu";
-
-			} else {
-				model.addAttribute("error", "ログインに失敗しました。");
-				return "common/login";
 			}
-
-		} else {
-			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
-			return "common/login";
 		}
-	}
-	@GetMapping("/timeout")
-	public String timeout(Model model,HttpSession session) {
+		model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
+		return "common/login";
 
-		model.addAttribute("message","タイムアウトしました。再ログインしてください。");
+	}
+
+	@GetMapping("/timeout")
+	public String timeout(Model model, HttpSession session) {
+		session.invalidate(); // セッションを無効化
+		model.addAttribute("message", "タイムアウトしました。再ログインしてください。");
 		return "common/login";
 	}
 
