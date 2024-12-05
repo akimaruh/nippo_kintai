@@ -369,7 +369,43 @@ function setAction(action) {
     document.getElementById('form-action').value = action;
 }
 
+// 今日の日付の行に色を付ける（社員権限）
+document.addEventListener('DOMContentLoaded', function() {
+	// 今日の日付を取得 yyyy/MM/dd形式
+	const date = new Date();
+	const today = date.toLocaleDateString('ja-JP', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	});
 
+	const rows = document.querySelectorAll('.attendance-row');
+	rows.forEach(row => {
+		// 行の日付を取得
+		const rowDate = row.getAttribute('data-date');
+
+		// 今日の日付と一致する場合
+		if (rowDate === today) {
+			row.classList.add('highlight');
+		}
+	});
+});
+
+// 土日祝に色を付ける（社員権限）
+document.addEventListener('DOMContentLoaded', function() {
+    // すべての曜日セルを取得
+    const weekCells = document.querySelectorAll('.weekdayCells');
+
+    weekCells.forEach(cell => {
+        const dayOfWeek = cell.textContent.trim();
+
+        if (dayOfWeek === '土') {
+            cell.style.color = 'rgb(135 135 255)';  // 土曜日を青色に
+        } else if (dayOfWeek === '日') {
+            cell.style.color = 'rgb(255, 93, 93)';   // 日曜日を赤色に
+        }
+    });
+});
 
 
 //// 入力内容をローカルストレージに保存

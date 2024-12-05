@@ -730,5 +730,8 @@ public class AttendanceController {
 		
 		return "redirect:/attendance/regist/display?year=" + year + "&month=" + month;
 	}
+	
+	// 祝日取得
+	
 
 }

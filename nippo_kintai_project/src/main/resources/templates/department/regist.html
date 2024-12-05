@@ -78,8 +78,8 @@
 						<div class="card-body">
 
 							<!-- テーブル -->
-							<div class="mt-2 mb-4 custom-table-responsive">
-								<table class="custom-table" id="">
+							<div class="mt-2 mb-4 table-responsive">
+								<table class="table table-hover department-table">
 									<thead>
 										<tr>
 											<th style="width: 10%;"></th>
@@ -117,7 +117,7 @@
 											<!-- /ユーザ ー-->
 
 											<!-- 変更（モーダル開く） -->
-											<td><button type="button" class="btn btn-link modify-btn"
+											<td><button type="button" class="btn modify-btn"
 													data-bs-toggle="modal" data-bs-target="#modifyModal"
 													th:data-department-name="${department.name}"
 													style="padding: 0.7rem 1.2rem;">
@@ -131,7 +131,7 @@
 													id="deleteDepartmentName">
 												<input type="hidden" name="departmentId"
 													th:value="${department.departmentId}" id="deleteDepartmentId">
-												<td><button type="submit" class="btn btn-link delete-btn"
+												<td><button type="submit" class="btn delete-btn"
 														style="padding: 0.7rem 1.2rem;"
 														th:data-department-name="${department.name}">
 														<i class="bi bi-trash3"></i>
@@ -163,17 +163,17 @@
 						<div class="card-header">所属ユーザー<span th:text="${departmentName}"></span></div>
 						<div class="card-body">
 
-							<div class="mt-2 mb-3 custom-table-responsive">
-								<table class="custom-table" id="">
+							<div class="mt-2 mb-3 table-responsive">
+								<table class="table table=hover department-table">
 									<thead>
 										<tr>
 											<th class="col-3">社員番号</th>
 											<th class="col-3">ユーザー名</th>
-											<th class="col-3">権限</th>
-											<th class="col-3 text-end">
+											<th class="col-4">権限</th>
+											<th class="col-2 text-end">
 										</tr>
 									</thead>
-									<tbody class="table-light">
+									<tbody>
 										<tr th:each="departmentUser : ${departmentUserList}">
 											<td th:text="${departmentUser.employeeCode}"></td>
 											<td th:text="${departmentUser.userName}"></td>
@@ -203,8 +203,8 @@
 						<div class="card-header">廃止済み部署の復元</div>
 						<div class="card-body">
 
-							<div class="mt-2 mb-3 custom-table-responsive">
-								<table class="custom-table" id="">
+							<div class="mt-2 mb-3 table-responsive">
+								<table class="table table-hover department-table">
 									<thead>
 										<tr>
 											<th style="width: 20%;">部署ID</th>
@@ -212,7 +212,7 @@
 											<th colspan="1" style="width: 10%;"></th>
 										</tr>
 									</thead>
-									<tbody class="table-light">
+									<tbody>
 										<tr th:each="inactiveDepartment : ${inactiveDepartmentList}"
 											style="background-color: rgb(240, 240, 240);">
 											<td th:text="${inactiveDepartment.departmentId}"></td>
