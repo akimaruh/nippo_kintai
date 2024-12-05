@@ -28,6 +28,9 @@ public class Users implements Serializable {
 	//TODO:エンティティに入れたくないのでsession.setAttributeの修正が完了次第これは消す。
 	private LocalDateTime expirationDateTime;
 	private Byte activeFlg;
+	private Integer failCount;
+	private LocalDateTime lastFailDate;
+	private LocalDateTime loginLockDate;
 
 	@Override
 	public boolean equals(Object o) {

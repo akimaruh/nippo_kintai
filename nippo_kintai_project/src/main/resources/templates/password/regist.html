@@ -1,6 +1,7 @@
 <!DOCTYPE html>
+<!--layout.htmlリプレイス時Java経由していたらヘッダーを表示しない-->
 <html lang="ja" xmlns:th="http://www.thymeleaf.org"
-	th:replace="~{/common/noLoginLayout :: layout(~{::title},~{::body/content()})}">
+	th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
 
 <head>
 	<meta charset="UTF-8">

@@ -13,6 +13,9 @@ import com.analix.project.service.PasswordService;
 import com.analix.project.util.Constants;
 import com.analix.project.util.SessionHelper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class PasswordController {
 
@@ -54,7 +57,19 @@ public class PasswordController {
 	 * @return パスワード変更画面
 	 */
 	@GetMapping("/password/change")
-	public String changePassword() {
+	public String changePassword(HttpSession session ,HttpServletRequest request,Model model) {
+		
+//		System.out.println(request.getHeader("Referer").contains(null));
+		//		System.out.println(statusCode);
+//		String layoutFragment;
+//		if(statusCode ==200) {
+//			layoutFragment = "noLoginLayout";
+//		}else {
+//			layoutFragment = "layout";
+//		}
+		model.addAttribute("layoutPattern", "noLoginLayout");
+//		System.out.println("レイアウト来てる");
+//		System.out.println("レイアウト"+layoutFragment);
 		return "password/regist";
 	}
 

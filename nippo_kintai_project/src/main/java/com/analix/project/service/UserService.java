@@ -137,9 +137,9 @@ public class UserService {
 				return "社員番号:" + employeeCode + "は既に登録されています。";
 
 			} else {
-				String temporaryPass = passwordUtil.getTemporaryPassword();
+				String temporaryPass = passwordUtil.getTemporaryPassword();//ハッシュ前仮パスワード
 				registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,
-						registUserForm.getEmployeeCode()));
+						registUserForm.getEmployeeCode()));//ハッシュ化した仮パスワードをエンティティにセット
 				System.out.println(registUser.getPassword());
 				boolean insertCheck = userMapper.insertUserData(registUser);
 				Integer userId = userMapper.findIdByEmployeeCodeAndEmail(employeeCode, registUser.getEmail());
@@ -151,7 +151,7 @@ public class UserService {
 				temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
 
 				if (insertCheck) {
-					emailService.sendReissuePassword(registUser.getEmail(), registUser.getPassword(),
+					emailService.sendReissuePassword(registUser.getEmail(), temporaryPass,
 							MessageUtil.mailCommonMessage());
 				}
 				return insertCheck ? userName + "を登録しました。" : userName + "の登録が失敗しました。";

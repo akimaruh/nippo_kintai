@@ -52,5 +52,9 @@ public interface Constants {
 	public static final Byte INACTIVE_FLG = 0;
 	/** 仮パスワード有効フラグ: 有効 **/
 	public static final Byte ACTIVE_FLG = 0;
+	/** ログイン試行回数上限 **/
+	public static final Integer LOGIN_FAILURE_LIMIT = 3;
+	/** ロック期間 */
+	public static final long LOGIN_LOCK_TIMEOUT_MINUTES = 1;
 
 }
