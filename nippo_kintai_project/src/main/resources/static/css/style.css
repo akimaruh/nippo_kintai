@@ -663,7 +663,7 @@ main {
 
 /* [ テーブル上書き編集 ] */
 .table>:not(caption)>*>* {
-	background-color: #ffffff;
+	background-color:transparent;
 	color: rgb(97, 97, 97);
 	border-bottom: 1px solid #dee2e6;
 }
@@ -699,6 +699,11 @@ main {
 	padding: 0.1rem 0.8rem;
 }
 
+/* 今日の日付の行に色をつける */
+#attendance-table .highlight {
+  background-color: rgb(255, 255, 225) !important;
+}
+
 /* マネージャー権限勤怠テーブル */
 .attendance-table {
 	width: 100%;
@@ -720,6 +725,11 @@ main {
 .department-table tbody td {
     background-color: inherit; /* tbodyの背景色を継承 */
 }
+
+
+
+
+
 
 /* /テーブル上書き編集 */
 
