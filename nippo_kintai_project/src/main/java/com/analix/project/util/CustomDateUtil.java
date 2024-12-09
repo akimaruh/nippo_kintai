@@ -1,6 +1,7 @@
 package com.analix.project.util;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
@@ -35,6 +36,19 @@ public class CustomDateUtil {
 		// 日付を解析してフォーマット
 		LocalDate date = LocalDate.parse(inputDate, inputFormatter);
 		return date;
+	}
+	
+	/**
+	 * String型→LocalTime型(HH:mm:ss)へ変換
+	 * @param inputTime
+	 * @return
+	 */
+	public LocalTime formatTime(String inputTime) {
+		// 入力形式に対応するフォーマッタ
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("H/m/s");
+		// 時刻を解析してLocalTime型にフォーマット
+		LocalTime time = LocalTime.parse(inputTime, inputFormatter);
+		return time;
 	}
 
 }

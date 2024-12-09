@@ -699,11 +699,6 @@ main {
 	padding: 0.1rem 0.8rem;
 }
 
-/* 今日の日付の行に色をつける */
-#attendance-table .highlight {
-  background-color: rgb(255, 255, 225) !important;
-}
-
 /* マネージャー権限勤怠テーブル */
 .attendance-table {
 	width: 100%;

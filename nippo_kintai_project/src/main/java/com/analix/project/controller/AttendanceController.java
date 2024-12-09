@@ -39,6 +39,7 @@ import com.analix.project.service.AttendanceService;
 import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
 import com.analix.project.service.WebPushService;
+import com.analix.project.util.JapaneseHoliday;
 import com.analix.project.util.MessageUtil;
 import com.analix.project.util.SessionHelper;
 
@@ -67,7 +68,6 @@ public class AttendanceController {
 	 */
 	@RequestMapping(path = "/attendance/regist")
 	public String attendanceRegist(Model model, HttpSession session, AttendanceFormList attendanceFormList) {
-		
 		model.addAttribute("currentPath", "/attendance/regist");
 		
 		//【社員権限】
@@ -112,7 +112,7 @@ public class AttendanceController {
 	@RequestMapping(path = "/attendance/regist/display", method = RequestMethod.GET)
 	public String attendanceDisplay(@RequestParam int year, @RequestParam int month,
 			Model model, HttpSession session, AttendanceFormList attendanceFormList) {
-		
+
 		model.addAttribute("currentPath", "/attendance/regist/display"); // これもどうにかする
 
 		//バラバラに取得した年と月を合体(yyyy-MM)
@@ -126,6 +126,11 @@ public class AttendanceController {
 		LocalDate targetYearMonthAtDay = targetYearMonth.atDay(1);
 		session.setAttribute("targetYearMonthAtDay", targetYearMonthAtDay);
 
+		// 対象年月の祝日を取得
+		List<String> holidays = JapaneseHoliday.getHoliday(targetYearMonth);
+		System.out.println(holidays);
+		model.addAttribute("holidays", holidays);
+		
 		// ヘッダー:ステータス部分
 		//ログイン時にセットしたセッションからユーザー情報を取り出す
 //		Users user = (Users) session.getAttribute("loginUser");

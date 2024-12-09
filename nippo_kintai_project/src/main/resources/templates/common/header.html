@@ -89,13 +89,19 @@
 							<!-- パスワード忘れ -->
 							<li><a class="dropdown-item d-flex justify-content-between align-items-center"
 									href="/password/regist">
-									パスワード再設定 <i class="fa fa-fw fa-user opacity-25"></i>
+									パスワード再設定<i class="fa fa-fw fa-user opacity-25"></i>
+								</a></li>
+							
+							<!-- 設定 -->
+							<li><a class="dropdown-item d-flex justify-content-between align-items-center"
+									href="/setting">
+									設定<i class="fa fa-fw fa-solid fa-gear opacity-25"></i>
 								</a></li>
 
 							<!-- ログオフ -->
 							<li><a href="#" class="dropdown-item d-flex justify-content-between align-items-center"
 									onclick="submitLogoffForm()">
-									ログオフ <i class="fa fa-fw fa-sign-out-alt opacity-25"></i>
+									ログオフ<i class="fa fa-fw fa-sign-out-alt opacity-25"></i>
 								</a></li>
 							<form id="logoffForm" th:action="@{/common/logoff}" method="post" style="display: none;">
 							</form>

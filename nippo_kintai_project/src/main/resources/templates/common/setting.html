@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
+
+<head>
+	<meta charset="UTF-8">
+	<title>設定画面</title>
+</head>
+
+<body>
+
+	<!-- 勤務時間設定 -->
+	<div class="container d-flex justify-content-center mb-3">
+		<div class="col-md-6">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				<div class="card-header">
+					<h5 class="text-center">勤務時間の設定</h5>
+				</div>
+				<div class="card-body">
+					<form th:action="@{/setting/workSchedule/save}" th:object="${workScheduleForm}" method="post">
+						<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
+	
+						<div class="row mt-3 mb-3">
+							<div class="col-5">
+								<label for="startTime">出勤時間</label>
+							</div>
+							<div class="col-7">
+								<input type="text" class="form-control" th:field="*{startTime}">
+							</div>
+						</div>
+	
+						<div class="row mb-3">
+							<div class="col-5">
+								<label for="endTime">退勤時間</label>
+							</div>
+							<div class="col-7">
+								<input type="text" class="form-control" th:field="*{endTime}">
+							</div>
+						</div>
+	
+						<div class="row mb-3">
+							<div class="col-5">
+								<label for="breakTime">休憩時間(分)</label>
+							</div>
+							<div class="col-7">
+								<input type="text" class="form-control" th:field="*{breakTime}" placeholder="例:60">
+							</div>
+						</div>
+						<div class="d-flex justify-content-end">
+							<button class="btn btn-primary">保存</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /勤務時間設定 -->
+	
+
+	<!-- 別の設定 -->
+	<div class="container d-flex justify-content-center mb-3">
+		<div class="col-md-6">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				<div class="card-header">
+					<h5 class="text-center">settei</h5>
+				</div>
+				<div class="card-body">
+<!--					<p>(^_-)-☆</p>-->
+	
+<!--					<div class="row mb-4">-->
+<!--						<div class="col-5">-->
+<!--							<label>出勤時間</label>-->
+<!--							<input type="time" class="form-control">-->
+<!--						</div>-->
+	
+<!--						<div class="col-2 d-flex align-items-center justify-content-center">-->
+<!--							<span>~</span>-->
+<!--						</div>-->
+	
+<!--						<div class="col-5">-->
+<!--							<label>退勤時間</label>-->
+<!--							<input type="time" class="form-control">-->
+<!--						</div>-->
+<!--					</div>-->
+	
+<!--					<div class="row">-->
+<!--						<div class="col-5">-->
+<!--							<label for="" class="">休憩時間(分)</label>-->
+<!--							<input type="number" class="form-control" placeholder="例: 60" min="0">-->
+<!--						</div>-->
+<!--					</div>-->
+	
+<!--					<div class="d-flex justify-content-end">-->
+<!--						<button class="btn btn-primary">保存</button>-->
+<!--					</div>-->
+				</div>
+	
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /別の設定 -->
+
+
+</body>
+
+</html>

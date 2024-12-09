@@ -167,7 +167,8 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/user/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-regular fa-address-book icon"></i>
+										<i class="bi bi-person-badge icon"></i>
+<!--										<i class="bi bi-person-lock icon"></i>-->
 										<span class="label">ユーザ<br>情報登録</span>
 									</button>
 								</form>
@@ -176,7 +177,7 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/department/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-solid fa-sitemap icon"></i>
+										<i class="bi bi-building icon"></i>
 										<span class="label">部署管理</span>
 									</button>
 								</form>
@@ -189,7 +190,7 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/attendance/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-solid fa-business-time icon"></i>
+										<i class="bi bi-calendar-check icon"></i>
 										<span class="label">勤怠承認</span>
 									</button>
 								</form>
@@ -197,7 +198,7 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/dailyReport/list}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-regular fa-pen-to-square icon"></i>
+										<i class="bi bi-clipboard-check icon"></i>
 										<span class="label">日報承認</span>
 									</button>
 								</form>
@@ -210,7 +211,7 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/attendance/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-solid fa-business-time icon"></i>
+										<i class="bi bi-calendar-check icon"></i>
 										<span class="label">勤怠登録</span>
 									</button>
 								</form>
@@ -219,7 +220,7 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/dailyReport/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="fa-regular fa-pen-to-square icon"></i>
+										<i class="bi bi-journal-text icon"></i>
 										<span class="label">日報登録</span>
 									</button>
 								</form>
@@ -231,23 +232,24 @@
 						<div class="col-xl-2 col-md-3 col-6">
 							<form th:action="@{/output/list}" method="get">
 								<button type="submit" class="custom-card-btn">
-									<i class="fa-regular fa-pen-to-square icon"></i>
+									<i class="bi bi-file-earmark-arrow-down icon"></i>
+<!--									<i class="bi bi-printer icon"></i>-->
 									<span class="label">帳票出力</span>
 								</button>
 							</form>
 						</div>
 						<!-- /その他 -->
 						
-						<!-- パスワード再設定確認　あとでけす -->
+						<!-- 設定 -->
 						<div class="col-xl-2 col-md-3 col-6">
-							<form th:action="@{/password/regist}" method="get">
+							<form th:action="@{/setting}" method="get">
 								<button type="submit" class="custom-card-btn">
-									<i class="fa-regular fa-pen-to-square icon"></i>
-									<span class="label">パスワード再設定</span>
+									<i class="bi bi-gear-fill icon"></i>
+									<span class="label">設定</span>
 								</button>
 							</form>
 						</div>
-						<!-- /パスワード再設定確認 -->
+						<!-- /設定 -->
 
 					</div>
 				</div>

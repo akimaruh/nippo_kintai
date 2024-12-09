@@ -369,43 +369,94 @@ function setAction(action) {
     document.getElementById('form-action').value = action;
 }
 
-// 今日の日付の行に色を付ける（社員権限）
-document.addEventListener('DOMContentLoaded', function() {
-	// 今日の日付を取得 yyyy/MM/dd形式
-	const date = new Date();
-	const today = date.toLocaleDateString('ja-JP', {
-		year: 'numeric',
-		month: '2-digit',
-		day: '2-digit'
-	});
 
-	const rows = document.querySelectorAll('.attendance-row');
-	rows.forEach(row => {
-		// 行の日付を取得
-		const rowDate = row.getAttribute('data-date');
+// //土日祝に色を付ける、今日の日付の行に色を付ける（社員権限）
+document.addEventListener('DOMContentLoaded', function () {
+	
+    // 今日の日付を取得 yyyy/MM/dd
+    const date = new Date();
+    const today = date.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
 
-		// 今日の日付と一致する場合
-		if (rowDate === today) {
-			row.classList.add('highlight');
-		}
-	});
-});
+    // 行全体を取得
+    const rows = document.querySelectorAll('.attendance-row');
 
-// 土日祝に色を付ける（社員権限）
-document.addEventListener('DOMContentLoaded', function() {
-    // すべての曜日セルを取得
-    const weekCells = document.querySelectorAll('.weekdayCells');
+    rows.forEach(row => {
+        // 行の日付を取得
+        const rowDate = row.getAttribute('data-date');
 
-    weekCells.forEach(cell => {
-        const dayOfWeek = cell.textContent.trim();
+        // 行の曜日を取得
+        const weekdayCell = row.querySelector('.weekdayCells');
+        const weekdayCellText = weekdayCell.textContent.trim();
 
-        if (dayOfWeek === '土') {
-            cell.style.color = 'rgb(135 135 255)';  // 土曜日を青色に
-        } else if (dayOfWeek === '日') {
-            cell.style.color = 'rgb(255, 93, 93)';   // 日曜日を赤色に
+        // 祝日(優先)、土日に色を付ける
+        if (holidays.includes(rowDate)) {
+            weekdayCell.style.color = 'red';
+        }
+        else if (weekdayCellText === '土') {
+            weekdayCell.style.color = 'rgb(135 135 255)';
+        }
+        else if (weekdayCellText === '日') {
+            weekdayCell.style.color = 'rgb(255, 93, 93)';
+        }
+
+        // 今日の日付の行に色を付ける
+        if (rowDate === today) {
+            row.style.backgroundColor = 'rgb(255, 255, 225)';
         }
     });
 });
+
+
+//// 土日祝に色を付ける（社員権限）
+//document.addEventListener('DOMContentLoaded', function() {
+//    // すべての曜日セルを取得
+//    const weekCells = document.querySelectorAll('.weekdayCells');
+//
+//    weekCells.forEach(cell => {
+//        const dayOfWeek = cell.textContent.trim();
+//
+//        if (dayOfWeek === '土') {
+//            cell.style.color = 'rgb(135 135 255)';  // 土曜日を青色に
+//        } else if (dayOfWeek === '日') {
+//            cell.style.color = 'rgb(255, 93, 93)';   // 日曜日を赤色に
+//        }
+//    });
+//});
+//
+//// 今日の日付の行に色を付ける（社員権限）
+//document.addEventListener('DOMContentLoaded', function() {
+//	// 今日の日付を取得 yyyy/MM/dd形式
+//	const date = new Date();
+//	const today = date.toLocaleDateString('ja-JP', {
+//		year: 'numeric',
+//		month: '2-digit',
+//		day: '2-digit'
+//	});
+//
+//	const rows = document.querySelectorAll('.attendance-row');
+//	rows.forEach(row => {
+//		// 行の日付を取得
+//		const rowDate = row.getAttribute('data-date');
+//
+//		// 今日の日付と一致する場合
+//		if (rowDate === today) {
+//			row.classList.add('highlight');
+//		}
+//
+////		// 祝日だったら色付ける処理
+////		holidays.forEach(holiday => {
+////			if (holiday === rowDate) {
+////				row.classList.add('highlight');
+////			}
+////		})
+//	});
+//});
+
+
 
 
 //// 入力内容をローカルストレージに保存

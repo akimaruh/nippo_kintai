@@ -11,6 +11,7 @@ import com.analix.project.entity.Department;
 import com.analix.project.entity.UserDepartmentOrder;
 import com.analix.project.form.DepartmentForm;
 import com.analix.project.mapper.DepartmentMapper;
+import com.analix.project.util.Constants;
 
 @Service
 public class DepartmentService {
@@ -181,7 +182,7 @@ public class DepartmentService {
 //	}
 	
 	public Integer getUserCountByDepartmentId(Integer departmentId) {
-		List<DepartmentUserDto> usersList = departmentMapper.findUsersByDepartmentId(departmentId);
+		List<DepartmentUserDto> usersList = departmentMapper.findUsersByDepartmentId(departmentId, Constants.CODE_VAL_ROLE_ARRAY);
 		return usersList.size(); // size()でユーザー数を取得
 	}
 	
@@ -191,7 +192,7 @@ public class DepartmentService {
 	 * @return
 	 */
 	public List<DepartmentUserDto> getUsersByDepartmentId(Integer departmentId) {
-		return departmentMapper.findUsersByDepartmentId(departmentId);
+		return departmentMapper.findUsersByDepartmentId(departmentId, Constants.CODE_VAL_ROLE_ARRAY);
 	}
 	
 	/**

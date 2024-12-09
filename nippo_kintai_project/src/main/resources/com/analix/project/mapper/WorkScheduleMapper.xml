@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.analix.project.mapper.WorkScheduleMapper">
+
+	<insert id="registWorkSchedule" useGeneratedKeys="true"
+		keyProperty="userId" parameterType="com.analix.project.entity.WorkSchedule">
+		INSERT INTO work_schedule
+		(user_id, start_time, end_time, break_time)
+		VALUES
+		(#{workSchedule.userId}, #{workSchedule.startTime}, #{workSchedule.endTime}, #{workSchedule.breakTime})
+		ON DUPLICATE KEY UPDATE
+		start_time = #{workSchedule.startTime}, end_time = #{workSchedule.endTime},
+		break_time = #{workSchedule.breakTime}
+	</insert>
+
+
+
+</mapper>

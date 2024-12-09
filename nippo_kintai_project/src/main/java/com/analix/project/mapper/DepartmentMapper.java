@@ -81,7 +81,7 @@ public interface DepartmentMapper {
 	 * @param departmentId
 	 * @return
 	 */
-	public List<DepartmentUserDto> findUsersByDepartmentId(@Param("departmentId") Integer departmentId);
+	public List<DepartmentUserDto> findUsersByDepartmentId(@Param("departmentId") Integer departmentId, @Param("roleList") List<String> roleList);
 	
 	// 部署一覧テーブルの順序を保存
 	public void saveDepartmentOrder(List<UserDepartmentOrder> orderData);
