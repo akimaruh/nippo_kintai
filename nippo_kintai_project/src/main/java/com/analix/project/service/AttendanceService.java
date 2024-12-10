@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,23 +24,24 @@ import com.analix.project.entity.Users;
 import com.analix.project.form.AttendanceCorrectionForm;
 import com.analix.project.form.AttendanceFormList;
 import com.analix.project.form.DailyAttendanceForm;
+import com.analix.project.form.WorkScheduleForm;
 import com.analix.project.mapper.AttendanceCorrectionMapper;
 import com.analix.project.mapper.AttendanceMapper;
 import com.analix.project.mapper.MonthlyAttendanceReqMapper;
 import com.analix.project.util.AttendanceUtil;
 import com.analix.project.util.CustomDateUtil;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class AttendanceService {
-	@Autowired
-	private AttendanceMapper attendanceMapper;
-	@Autowired
-	private MonthlyAttendanceReqMapper monthlyAttendanceReqMapper;
-	@Autowired
-	private CustomDateUtil customDateUtil;
-	@Autowired
-	private AttendanceCorrectionMapper attendanceCorrectionMapper;
-
+	
+	private final AttendanceMapper attendanceMapper;
+	private final MonthlyAttendanceReqMapper monthlyAttendanceReqMapper;
+	private final CustomDateUtil customDateUtil;
+	private final AttendanceCorrectionMapper attendanceCorrectionMapper;
+	private final WorkScheduleService workScheduleService;
 
 	/**
 	 * ヘッダー:ステータス部分取得
@@ -630,7 +630,7 @@ public class AttendanceService {
 	 */
 	public boolean insertStartTime(Integer userId, LocalDate today, LocalTime now) {
 		//勤怠ステータスを判別する
-		Byte status = determineStatus(userId, today, now);
+		Byte status = determineStartStatus(userId, today, now);
 		Attendance attendance = new Attendance();
 		attendance.setUserId(userId);
 		attendance.setDate(today);
@@ -653,7 +653,7 @@ public class AttendanceService {
 	 */
 	public boolean updateEndTime(Integer userId, LocalDate today, LocalTime now) {
 		//勤怠ステータスを判別する
-		Byte status = determineStatus(userId, today, now);
+		Byte status = determineEndStatus(userId, today, now);
 		Attendance attendance = new Attendance();
 		attendance.setUserId(userId);
 		attendance.setDate(today);
@@ -666,20 +666,46 @@ public class AttendanceService {
 		return isRegistEndTime;
 
 	}
-
+	
 	/**
-	 * 勤怠ステータス判別(実装予定)	
+	 * 勤怠ステータス判別(出勤)
 	 * @param userId
 	 * @param today
 	 * @param now
 	 * @return
 	 */
-	Byte determineStatus(Integer userId, LocalDate today, LocalTime now) {
-		Byte status = null;
-		//今後ユーザー毎に定時を設定できるようにユーザーIDを引数にしている。
+	Byte determineStartStatus(Integer userId, LocalDate today, LocalTime now) {
+		Byte status = 0;
+		WorkScheduleForm workSchedule = workScheduleService.getWorkSchedule(userId);
+		if (workSchedule != null) {
+			LocalTime startTime = LocalTime.of(workSchedule.getStartTimeHour(), workSchedule.getStartTimeMinute());
 
-		status = 0;
+			if (now.isAfter(startTime)) {
+				status = 3; // 遅刻
+			}
+		}
+		return status;
+	}
 
+	/**
+	 * 勤怠ステータス判別(退勤)
+	 * @param userId
+	 * @param today
+	 * @param now
+	 * @return
+	 */
+	Byte determineEndStatus(Integer userId, LocalDate today, LocalTime now) {
+		Byte status = 0;
+		WorkScheduleForm workSchedule = workScheduleService.getWorkSchedule(userId);
+		if (workSchedule != null) {
+			LocalTime endTime = LocalTime.of(workSchedule.getEndTimeHour(), workSchedule.getEndTimeMinute());
+
+			if (endTime.isAfter(now)) {
+				status = 6; // 早退
+			}
+
+			// 今後、総時間を比較して時間外労働ステータスを判定させる？(実装予定)
+		}
 		return status;
 	}
 
@@ -748,101 +774,6 @@ public class AttendanceService {
 				System.out.println(result.getFieldError().getDefaultMessage());
 			}
 		}
-//		//休日系統
-//		if (holidaySystem.contains(status)) {
-//			if (!startTime.isEmpty()) {
-//				result.addError(new FieldError("correctionForm", "startTime","休日に出勤時間は入力できません"));
-//			}
-//			if (!endTime.isEmpty()) {
-//				result.addError(new FieldError("correctionForm", "endTime","休日に退勤時間は入力できません"));
-//			}
-//		}
-//
-//		//出勤系統
-//		if (attendanceSystem.contains(status)) {
-//			//出勤時間も退勤時間も入力していない場合(以降の入力チェックが不要のためブレイク)
-//			if (startTime.isEmpty() && endTime.isEmpty()) {
-//				System.out.println("出勤系統で時間null");
-//				result.addError(new FieldError("correctionForm", "startTime", "出勤時間を入力して下さい"));
-//				result.addError(new FieldError("correctionForm", "endTime", "退勤時間を入力して下さい"));
-//			}
-//			//出勤時間または退勤時間のどちらかが空白の場合
-//			if (endTime == "" && startTime != "") {
-//				result.addError(new FieldError("correctionForm", "endTime", "退勤時間を入力して下さい"));
-//			}
-//
-//			if (startTime == "" && endTime != "") {
-//				result.addError(new FieldError("correctionForm", "startTime", "出勤時間を入力して下さい"));
-//			}
-//		}
-//		//桁数補足
-//		if (startTime != "" || endTime != "") {
-//
-//			if (startTime.matches("\\d{1}:\\d{2}")) {
-//				startTime = "0" + startTime;
-//			}
-//			if (endTime.matches("\\d{1}:\\d{2}")) {
-//				endTime = "0" + endTime;
-//			}
-//
-//			//DateTimeParseException eで同じことやっているのでコメントアウト
-//			//出勤時刻の形式が不正な場合
-//			if (startTime != "") {
-//				// HH:mm形式の時刻を検出する正規表現
-//				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
-//
-//				// パターンをコンパイル
-//				Pattern pattern = Pattern.compile(regex);
-//				Matcher matcher = pattern.matcher(startTime);
-//				if (!matcher.find()) {
-//					result.addError(new FieldError("correctionForm", "startTime", "HH:mm形式で入力して下さい"));
-//				}
-//			}
-//			//退勤時刻の形式が不正な場合
-//			if (endTime != "") {
-//				String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
-//
-//				// パターンをコンパイル
-//				Pattern pattern = Pattern.compile(regex);
-//				Matcher matcher = pattern.matcher(endTime);
-//				if (!matcher.find()) {
-//					result.addError(new FieldError("correctionForm", "endTime","HH:mm形式で入力して下さい"));
-//
-//				}
-//			}
-//
-//			LocalTime startInputTime;
-//			LocalTime endInputTime;
-//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-//
-//			//出勤時間＞退勤時間の場合
-//
-//			try {
-//				startInputTime = LocalTime.parse(startTime, formatter);
-//
-//				try {
-//					endInputTime = LocalTime.parse(endTime, formatter);
-//
-//					if (startInputTime.isAfter(endInputTime)) {
-//						result.addError(
-//								new FieldError("correctionForm", "startTime", "出勤時間は退勤時間より先になるように入力して下さい"));
-//						result.addError(
-//								new FieldError("correctionForm", "endTime", "退勤時間は出勤時間より後になるように入力して下さい"));
-//					}
-//
-//				} catch (DateTimeParseException e) {
-//
-//				}
-//
-//			} catch (DateTimeParseException e) {
-//
-//			}
-//
-//		}
-//		if ((startTime != "" && endTime != "") && status == null) {
-//			result.addError(new FieldError("correctionForm", "status", "勤怠状況を入力して下さい"));
-//
-//		}
 	}
 	
 	/**

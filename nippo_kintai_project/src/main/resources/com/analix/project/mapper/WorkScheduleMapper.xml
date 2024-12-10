@@ -2,16 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.analix.project.mapper.WorkScheduleMapper">
 
-	<insert id="registWorkSchedule" useGeneratedKeys="true"
+	<!-- データが存在するかどうか確認 -->
+	<select id="exisistsByUserId" resultType="boolean">
+		SELECT COUNT(*) > 0
+		FROM work_schedule
+		WHERE user_id = #{userId}
+	</select>
+
+	<!-- 新しいデータを登録 -->
+	<insert id="insertWorkSchedule" useGeneratedKeys="true"
 		keyProperty="userId" parameterType="com.analix.project.entity.WorkSchedule">
 		INSERT INTO work_schedule
 		(user_id, start_time, end_time, break_time)
 		VALUES
 		(#{workSchedule.userId}, #{workSchedule.startTime}, #{workSchedule.endTime}, #{workSchedule.breakTime})
-		ON DUPLICATE KEY UPDATE
+	</insert>
+	
+	<!-- 既存データを更新 -->
+	<update id="updateWorkSchedule" parameterType="com.analix.project.entity.WorkSchedule">
+		UPDATE work_schedule
+		SET
 		start_time = #{workSchedule.startTime}, end_time = #{workSchedule.endTime},
 		break_time = #{workSchedule.breakTime}
-	</insert>
+		WHERE user_id = #{workSchedule.userId}
+	</update>
+	
+	<!-- 設定したデータ取得 -->
+	<select id="findWorkSchedule" resultType="com.analix.project.entity.WorkSchedule">
+		SELECT start_time, end_time, break_time
+		FROM work_schedule
+		WHERE user_id = #{userId}
+	</select>
 
 
 
