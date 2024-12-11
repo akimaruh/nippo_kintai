@@ -10,6 +10,6 @@ public class WorkSchedule {
 	private Integer userId;
 	private LocalTime startTime;
 	private LocalTime endTime;
-	private Integer breakTime;
+	private String breakTime;
 
 }

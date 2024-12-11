@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.analix.project.entity.WorkSchedule;
 import com.analix.project.service.LoginService;
+import com.analix.project.service.WorkScheduleCacheService;
+import com.analix.project.service.WorkScheduleService;
 import com.analix.project.util.SessionHelper;
 
 import jakarta.servlet.http.HttpSession;
@@ -17,9 +20,12 @@ public class LoginController {
 
 	@Autowired
 	private LoginService loginService;
-
 	@Autowired
 	private SessionHelper sessionHelper;
+	@Autowired
+	private WorkScheduleService workScheduleService;
+	@Autowired
+	private WorkScheduleCacheService workScheduleCacheService;
 
 	@GetMapping("/")
 	public String getLogin(Model model, HttpSession session) {
@@ -31,7 +37,13 @@ public class LoginController {
 			HttpSession session, Model model) {
 		System.out.println(sessionHelper.getUser());
 		String loginResult = loginService.handleLogin(employeeCode, password);
-
+		
+		// 勤務時間をキャッシュに追加
+		WorkSchedule workSchedule = workScheduleService.getWorkScheduleEntity(sessionHelper.getUser().getId());
+		if (workSchedule != null) {
+			workScheduleCacheService.put(sessionHelper.getUser().getId(), workSchedule);
+		}
+		
 		if (loginResult.equals("error")) {
 			model.addAttribute("error", "ユーザーID、パスワードが不正、もしくはユーザーが無効です。");
 			return "common/login";
@@ -51,6 +63,8 @@ public class LoginController {
 	@GetMapping("/timeout")
 	public String timeout(Model model, HttpSession session) {
 		session.invalidate(); // セッションを無効化
+		workScheduleCacheService.remove(sessionHelper.getUser().getId()); // キャッシュから勤務時間削除
+
 		model.addAttribute("message", "タイムアウトしました。再ログインしてください。");
 		return "common/login";
 	}

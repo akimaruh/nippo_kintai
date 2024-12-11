@@ -7,54 +7,131 @@
 	<title>設定画面</title>
 </head>
 
-<body>
+<body>	
+	
+<!-- エラーメッセージ -->
+<div th:if="${error}" class="alert alert-danger">
+	<p th:text="${error}"></p>
+</div>
+<div th:if="${message}" class="alert alert-info">
+	<p th:text="${message}"></p>
+</div>
+<!-- エラーメッセージ -->
+
 
 	<!-- 勤務時間設定 -->
 	<div class="container d-flex justify-content-center mb-3">
-		<div class="col-md-6">
+		<div class="col-xl-6 col-md-6 col-12">
 			<div class="card" style="background-color: rgb(255, 255, 255);">
 				<div class="card-header">
 					<h5 class="text-center">勤務時間の設定</h5>
 				</div>
 				<div class="card-body">
-					<form th:action="@{/setting/workSchedule/save}" th:object="${workScheduleForm}" method="post">
+	
+					<!-- エラーメッセージ -->
+<!--					<div th:if="${error}" class="alert alert-danger">-->
+<!--						<p th:text="${error}"></p>-->
+<!--					</div>-->
+<!--					<div th:if="${message}" class="alert alert-info">-->
+<!--						<p th:text="${message}"></p>-->
+<!--					</div>-->
+					<!-- エラーメッセージ -->
+	
+					<form th:action="@{/setting/workSchedule/save}" th:object="${workScheduleForm}" method="post"
+						oninput="checkForm()">
 						<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
 	
 						<div class="row mt-3 mb-3">
-							<div class="col-5">
-								<label for="startTime">出勤時間</label>
+							<div class="col-xl-5 col-md-5 col-12">
+								<label for="startTimeHour">出勤時間</label>
 							</div>
-							<div class="col-7">
-								<input type="text" class="form-control" th:field="*{startTime}">
+							<div class="col-xl-3 col-md-3 col-5 px-1">
+								<select class="form-select" style="padding: 1rem;" th:field="*{startTimeHour}">
+									<option value=""></option>
+									<th:block th:each="hour : ${hours}">
+										<option th:value="${hour}" th:text="${hour}"></option>
+									</th:block>
+								</select>
+								<span class="text-danger" th:errors="*{startTimeHour}"></span>
+							</div>
+	
+							<div class="col-auto d-flex align-items-center px-1">
+								<span>:</span>
+							</div>
+	
+							<div class="col-xl-3 col-md-3 col-5 px-1">
+								<select class="form-select" style="padding: 1rem;" th:field="*{startTimeMinute}">
+									<option th:value="${hour}"></option>
+									<option value="00">00</option>
+									<option value="30">30</option>
+								</select>
+								<span class="text-danger" th:errors="*{startTimeMinute}"></span>
 							</div>
 						</div>
 	
 						<div class="row mb-3">
-							<div class="col-5">
-								<label for="endTime">退勤時間</label>
+							<div class="col-xl-5 col-md-5 col-12">
+								<label for="endTimeHour">退勤時間</label>
 							</div>
-							<div class="col-7">
-								<input type="text" class="form-control" th:field="*{endTime}">
+							<div class="col-xl-3 col-md-3 col-5 px-1">
+								<select class="form-select" style="padding: 1rem;" th:field="*{endTimeHour}">
+									<option value=""></option>
+									<th:block th:each="hour : ${hours}">
+										<option th:value="${hour}" th:text="${hour}"></option>
+									</th:block>
+								</select>
+								<span class="text-danger" th:errors="*{endTimeHour}"></span>
+							</div>
+	
+							<div class="col-auto d-flex align-items-center px-1">
+								<span>:</span>
+							</div>
+	
+							<div class="col-xl-3 col-md-3 col-5 px-1">
+								<select class="form-select" style="padding: 1rem;" th:field="*{endTimeMinute}">
+									<option value=""></option>
+									<option value="00">00</option>
+									<option value="30">30</option>
+								</select>
+								<span class="text-danger" th:errors="*{endTimeMinute}"></span>
 							</div>
 						</div>
 	
 						<div class="row mb-3">
-							<div class="col-5">
+							<div class="col-xl-5 col-md-5 col-12">
 								<label for="breakTime">休憩時間(分)</label>
 							</div>
-							<div class="col-7">
-								<input type="text" class="form-control" th:field="*{breakTime}" placeholder="例:60">
+							<div class="col-xl-6 col-md-6 col-11 px-1">
+								<input type="text" class="form-control" placeholder="例:60" th:field="*{breakTime}">
+								<span class="text-danger" th:errors="*{breakTime}"></span>
 							</div>
 						</div>
+	
 						<div class="d-flex justify-content-end">
-							<button class="btn btn-primary">保存</button>
+							<button type="submit" class="btn" id="submitBtn" disabled>保存</button>
 						</div>
+	
 					</form>
 				</div>
 			</div>
 		</div>
 	</div>
 	<!-- /勤務時間設定 -->
+	
+
+<script>
+	// 保存ボタンの活性・非活性
+	function checkForm() {
+		const form = document.querySelector('form');
+		const sbmitBtn = document.getElementById('submitBtn');
+		const inputs = form.querySelectorAll('input, select');
+
+		// すべてのフィールドが埋まっているか確認
+		const allField = Array.from(inputs).every(input => input.value !== "");
+		submitBtn.disabled = !allField;
+	}
+</script>
+
 	
 
 	<!-- 別の設定 -->
@@ -65,34 +142,24 @@
 					<h5 class="text-center">settei</h5>
 				</div>
 				<div class="card-body">
-<!--					<p>(^_-)-☆</p>-->
+
+				</div>
 	
-<!--					<div class="row mb-4">-->
-<!--						<div class="col-5">-->
-<!--							<label>出勤時間</label>-->
-<!--							<input type="time" class="form-control">-->
-<!--						</div>-->
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /別の設定 -->
 	
-<!--						<div class="col-2 d-flex align-items-center justify-content-center">-->
-<!--							<span>~</span>-->
-<!--						</div>-->
-	
-<!--						<div class="col-5">-->
-<!--							<label>退勤時間</label>-->
-<!--							<input type="time" class="form-control">-->
-<!--						</div>-->
-<!--					</div>-->
-	
-<!--					<div class="row">-->
-<!--						<div class="col-5">-->
-<!--							<label for="" class="">休憩時間(分)</label>-->
-<!--							<input type="number" class="form-control" placeholder="例: 60" min="0">-->
-<!--						</div>-->
-<!--					</div>-->
-	
-<!--					<div class="d-flex justify-content-end">-->
-<!--						<button class="btn btn-primary">保存</button>-->
-<!--					</div>-->
+	<!-- 別の設定 -->
+	<div class="container d-flex justify-content-center mb-3">
+		<div class="col-md-6">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				<div class="card-header">
+					<h5 class="text-center">settei</h5>
+				</div>
+				<div class="card-body">
+
 				</div>
 	
 				</div>
