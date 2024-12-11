@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jose4j.lang.JoseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,25 +38,22 @@ import com.analix.project.service.AttendanceService;
 import com.analix.project.service.EmailService;
 import com.analix.project.service.InformationService;
 import com.analix.project.service.WebPushService;
+import com.analix.project.util.AttendanceUtil;
 import com.analix.project.util.JapaneseHoliday;
 import com.analix.project.util.MessageUtil;
 import com.analix.project.util.SessionHelper;
 
 import jakarta.servlet.http.HttpSession;
-
+import lombok.RequiredArgsConstructor;
+@RequiredArgsConstructor //lombok使ってコンストラクタ作成省略
 @Controller
 public class AttendanceController {
-
-	@Autowired
-	public AttendanceService attendanceService;
-	@Autowired
-	private EmailService emailService;
-	@Autowired
-	private InformationService informationService;
-	@Autowired
-	private WebPushService webPushService;
-	@Autowired
-	private SessionHelper sessionHelper;
+	
+	private final AttendanceService attendanceService;
+	private final EmailService emailService;
+	private final InformationService informationService;
+	private final WebPushService webPushService;
+	private final SessionHelper sessionHelper;
 
 	/**
 	 * 初期表示
@@ -83,10 +79,10 @@ public class AttendanceController {
 		//年月の表示
 		model.addAttribute("year", year);
 		model.addAttribute("month", month);
+		
 
 		//【マネージャ権限】申請提出者一覧表示
 		List<MonthlyAttendanceReqDto> monthlyAttendanceReqList = attendanceService.getMonthlyAttendanceReq();
-		System.out.println(monthlyAttendanceReqList);
 		model.addAttribute("monthlyAttendanceReqList", monthlyAttendanceReqList);
 		
 		//【マネージャ権限】訂正リスト
@@ -125,42 +121,16 @@ public class AttendanceController {
 		//月次勤怠テーブルは対象年月をyyyy-MM-ddで格納しているためyyyy-MM-01の形になるように整形
 		LocalDate targetYearMonthAtDay = targetYearMonth.atDay(1);
 		session.setAttribute("targetYearMonthAtDay", targetYearMonthAtDay);
-
+		//勤怠状況プルダウンの内容を取得
+		model.addAttribute("statusMap",AttendanceUtil.attendanceStatus);
+		
 		// 対象年月の祝日を取得
 		List<String> holidays = JapaneseHoliday.getHoliday(targetYearMonth);
-		System.out.println(holidays);
 		model.addAttribute("holidays", holidays);
 		
-		// ヘッダー:ステータス部分
-		//ログイン時にセットしたセッションからユーザー情報を取り出す
-//		Users user = (Users) session.getAttribute("loginUser");
-//		Integer userId = user.getId();
 		// セッションヘルパークラスからuserIdを取得
 		Integer userId = sessionHelper.getUser().getId();
-		//		session.setAttribute("attendanceDate", targetYearMonth);
 		Integer status = attendanceService.findStatusByUserId(userId, targetYearMonthAtDay);
-		//statusの値に紐づくステータス名を設定する
-//		String statusLabel;
-//		if (status == null) {
-//			statusLabel = "未申請";
-//		} else {
-//			switch (status) {
-//			case 1:
-//				statusLabel = "申請中";
-//				break;
-//			case 2:
-//				statusLabel = "承認済";
-//				break;
-//			case 3:
-//				statusLabel = "却下";
-//				break;
-//			default:
-//				statusLabel = "未申請";
-//				break;
-//			}
-//		}
-//		//ステータス名とDB格納のステータス値どちらもフロントに渡す
-//		model.addAttribute("statusLabel", statusLabel);
 		model.addAttribute("status", status);
 
 		//ユーザーIDと年月の値を渡して取得した勤怠日付と勤怠情報を勤怠フォームリストへセット
@@ -168,7 +138,6 @@ public class AttendanceController {
 		//勤怠フォームリストの中が空だった場合年月が入っていないためエラー
 		if (attendanceFormList.getAttendanceFormList().contains(null)) {
 			model.addAttribute("error", "年月を入力してください");
-
 			return "/attendance/regist";
 		}
 
@@ -203,7 +172,6 @@ public class AttendanceController {
 		// 却下【訂正理由】表示（訂正リスト）
 		List<AttendanceCorrection> rejectedCorrectionList = attendanceService.findRejectedByUserIdAndYearMonth(userId, targetYearMonth);
 		model.addAttribute("rejectedCorrectionList", rejectedCorrectionList);
-		
 		return "/attendance/regist";
 	}
 
@@ -236,6 +204,7 @@ public class AttendanceController {
 			model.addAttribute("attendanceFormList", attendanceFormList);
 			model.addAttribute("year", year);
 			model.addAttribute("month", month);
+			model.addAttribute("statusMap",AttendanceUtil.attendanceStatus);
 			model.addAttribute("error", "エラー内容に従って修正してください");
 
 			return "/attendance/regist";
@@ -280,7 +249,6 @@ public class AttendanceController {
 		List<MonthlyAttendanceReqDto> requests = attendanceService.getMonthlyAttendanceReqByUserId(userId,
 				approveYearMonthAtDay);
 		for (MonthlyAttendanceReqDto request : requests) {
-			System.out.println("Sending request: " + request);
 			String mailMessage = MessageUtil.mailCommonMessage();
 			emailService.sendRequestEmail(request, mailMessage);
 		}
@@ -449,7 +417,6 @@ public class AttendanceController {
 
 		// sessionからmonthlyDtoを取得
 		MonthlyAttendanceReqDto monthlyDto = (MonthlyAttendanceReqDto) session.getAttribute("monthlyDto");
-		System.out.println("却下Dto" + monthlyDto);
 		Integer userId = monthlyDto.getUserId();
 		String name = monthlyDto.getName();
 		String yearMonthStr = monthlyDto.getYearMonthStr();
@@ -700,7 +667,6 @@ public class AttendanceController {
 		int month = targetYearMonth.getMonthValue();
 		
 		// エラーがなければ
-		System.out.println("申請モーダル：" + correctionForm);
 		String message = attendanceService.registCorrection(correctionForm);
 		response.put("success", true);
 		response.put("message", message);
@@ -735,8 +701,6 @@ public class AttendanceController {
 		
 		return "redirect:/attendance/regist/display?year=" + year + "&month=" + month;
 	}
-	
-	// 祝日取得
 	
 
 }

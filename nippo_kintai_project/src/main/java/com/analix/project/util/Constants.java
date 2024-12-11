@@ -42,8 +42,10 @@ public interface Constants {
 	public static final int DISPLAY_WORK_QTY = 5;
 	/** ユーザーテーブルのカラム数 **/
 	public static final int USER_COLUMN_LENGTH = 7;
-	/** ユーザー登録で新規登録するフラグ **/
-	public static final byte INSERT_FLG = 1;
+	/** ユーザー登録で更新登録するフラグ **/
+	public static final Byte INSERT_FLG = 1;
+	/** ユーザー登録で更新登録するフラグ **/
+	public static final Byte UPDATE_FLG = 2;
 	/** ユーザー登録時初回パスワード**/
 	public static final String FIRST_PASS = "0000";
 	/** 仮パスワード利用期限範囲(登録時間から"TEMP_PASSWORD_EXPIRE_HOURS"時間) **/

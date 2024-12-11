@@ -58,6 +58,8 @@
 								<div class="col-xl-7 col-md-7 col-sm-12">
 									<input type="text" class="form-control" th:value="*{searchEmployeeCode}" name="searchEmployeeCode"
 										id="search-employeeCode" />
+										<span class="text-danger" th:errors="*{searchEmployeeCode}"></span>
+									<span id="searchEmployeeCodeError" class="text-danger"></span>
 								</div>
 								<div class="col-xl-2 col-md-2 col-sm-12">
 									<input type="submit" value="検索" class="btn-yellow" />
@@ -172,9 +174,9 @@
 							<!-- ボタン -->
 							<div class="d-flex justify-content-end">
 								<label for="import-file" class="btn-yellow me-2" id="import-btn">インポート</label>
-								<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" />
+								<input type="submit" name="completeUserRegistForm" value="登録" class="btn-yellow" th:disabled="*{registFlg ==null}"/>
 								<input type="hidden" name="id" th:value="*{id}" />
-								<input type="hidden" name="insertFlg" th:value="*{insertFlg != null ? insertFlg : 0}" />
+								<input type="hidden" name="registFlg" th:value="*{registFlg}" />
 							</div>
 							<!-- /ボタン -->
 				

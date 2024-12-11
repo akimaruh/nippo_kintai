@@ -1,29 +1,26 @@
 //検索フォームのバリデーションチェック
 //document.getElementById('search-form').addEventListener('submit', function(event) {
 //
-//	let name = document.getElementById('').value;
-//	const MAX_USERNAME_LENGTH = 21;
-//
-//
+//	let searchEmployeeCode = document.getElementById('searchEmployeeCode').value;
+//	const SEARCH_EMPLOYEECODE_LENGTH = 10;
 //	let validation = true;
-
-//	if (name === "") {
-//		document.getElementById('nameError').innerHTML = "名前を入力してください";
+//
+//	if (searchEmployeeCode === "") {
+//		document.getElementById('searchEmployeeCodeError').innerHTML = "社員番号を入力してください";
 //		validation = false;
-//	} else if (name.length > MAX_USERNAME_LENGTH) {
-//		document.getElementById('nameError').innerHTML = "全角20文字以内で入力してください";
+//	} else if (searchEmployeeCode.length >= SEARCH_EMPLOYEECODE_LENGTH) {
+//		document.getElementById('searchEmployeeCodeError').innerHTML = "10桁以内で入力してください";
 //		validation = false;
-//	} else if (!/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFFa-zA-Z]+$/.test(name)) {
-//		document.getElementById('nameError').innerHTML = "漢字、全角カタカナ、半角英字のみ入力可能です";
+//	} else if (!/^[0-9]+$/.test(searchEmployeeCode)) {
+//		document.getElementById('searchEmployeeCodeError').innerHTML = "数字のみ入力可能です";
 //		validation = false;
 //	} else {
-//		document.getElementById('nameError').innerHTML = "";
-//	}
-//	if (!validation) {
+//		document.getElementById('searchEmployeeCodeError').innerHTML = "";
+//	} if (!validation) {
 //		event.preventDefault();
-//		validation = false;
+//
 //	}
-
+//
 //});
 
 ////検索フォーム内の社員番号を登録フォームにコピー
@@ -38,7 +35,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 
 	let name = document.getElementById('name').value;
 	let employeeCode = document.getElementById('employee').value;
-//	let password = document.getElementById('password').value;
+	//	let password = document.getElementById('password').value;
 	let role = document.getElementById('role').value;
 	let departmentId = document.getElementById('departmentId').value;
 	let email = document.getElementById('email').value;
@@ -47,7 +44,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	let date = new Date(startDate);
 
 	const MAX_USERNAME_LENGTH = 20;
-//	const MAX_PASSWORD_LENGTH = 16;
+	//	const MAX_PASSWORD_LENGTH = 16;
 	const STARTDATE_LENGTH = 10;
 	const EMPLOYEECODE_LENGTH = 10;
 	let validation = true;
@@ -64,7 +61,7 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 	} else {
 		document.getElementById('nameError').innerHTML = "";
 	}
-	
+
 	if (employeeCode === "") {
 		document.getElementById('employeeCodeError').innerHTML = "社員番号を入力してください";
 		validation = false;
@@ -78,19 +75,18 @@ document.getElementById('regist-form').addEventListener('submit', function(event
 		document.getElementById('employeeError').innerHTML = "";
 	}
 
-
-//	if (password === "") {
-//		document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
-//		validation = false;
-//	} else if (password.length > MAX_PASSWORD_LENGTH) {
-//		document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
-//		validation = false;
-//	} else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
-//		document.getElementById('passwordError').innerHTML = "半角で入力してください";
-//		validation = false;
-//	} else {
-//		document.getElementById('passwordError').innerHTML = "";
-//	}
+	//	if (password === "") {
+	//		document.getElementById('passwordError').innerHTML = "パスワードを入力してください";
+	//		validation = false;
+	//	} else if (password.length > MAX_PASSWORD_LENGTH) {
+	//		document.getElementById('passwordError').innerHTML = "16文字以内で入力してください";
+	//		validation = false;
+	//	} else if (!/^[0-9a-zA-Z\-\s]*$/.test(password)) {
+	//		document.getElementById('passwordError').innerHTML = "半角で入力してください";
+	//		validation = false;
+	//	} else {
+	//		document.getElementById('passwordError').innerHTML = "";
+	//	}
 
 	if (role === "") {
 		document.getElementById('roleError').innerHTML = "権限を選択してください";
@@ -202,8 +198,8 @@ document.getElementById('startDate').addEventListener('blur', function() {
 // テキストボックスのレスポンシブ調整
 function adjustContainerClass() {
 	const containers = document.querySelectorAll('.responsiveContainer');
-	
-	containers.forEach(container => { 
+
+	containers.forEach(container => {
 		if (window.innerWidth < 576) {
 			container.classList.remove('container'); // スマホサイズでは削除
 		} else {
@@ -212,10 +208,10 @@ function adjustContainerClass() {
 	});
 }
 
-    adjustContainerClass();
-    window.addEventListener('resize', adjustContainerClass);
-    
-    
+adjustContainerClass();
+window.addEventListener('resize', adjustContainerClass);
+
+
 // ボタン押下で画面上部に遷移
 const pageTopBtn = document.getElementById('pageTopBtn');
 pageTopBtn.addEventListener('click', () => {

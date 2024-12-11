@@ -41,8 +41,8 @@ public class RegistUserForm {
 	@Size(max = 9, message = "社員コードは9桁以内で入力して下さい。",groups = {RegistUserGroup.class })
 	@Pattern(regexp = "^[0-9]*$", message = "社員コードは数字で入力して下さい。",groups = {RegistUserGroup.class })
 	private String employeeCode;
-	//新規登録フラグ
-	private short insertFlg;
+	//更新登録フラグ
+	private Byte RegistFlg;
 	//更新前社員番号
 	private Integer beforeEmployeeCode;
 

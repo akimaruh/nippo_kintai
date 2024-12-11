@@ -32,7 +32,7 @@ public class AttendanceUtil {
 	    /**
 	     * 勤怠状況変換用util
 	     */
-	    private static final Map<Byte,String> attendanceStatus = new HashMap<>();
+	    public static final Map<Byte,String> attendanceStatus = new HashMap<>();
 	    static {
 	    	attendanceStatus.put((byte) 0,"通常出勤");
 	    	attendanceStatus.put((byte) 1,"休日");

@@ -1,4 +1,4 @@
-//申請承認後用勤務状況
+//申請承認後用勤務状況(マネージャ権限)
 var statusList = {
 	0: "通常出勤",
 	1: "休日",
@@ -14,7 +14,7 @@ var statusList = {
 	11: "代替休日",
 
 };
-
+//勤怠訂正モーダル表示で勤怠状況プルダウンを作成・選択項目反映
 function populateStatusDropdown() {
 	var dropdowns = document.getElementsByClassName('status-dropdown');
 	for (var i = 0; i < dropdowns.length; i++) {
@@ -61,43 +61,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 入力チェック
 const form = document.getElementById('display-form');
-if(form){
+if (form) {
 	form.addEventListener('submit', function(event) {
 
-//document.getElementById('display-form').addEventListener('submit', function(event) {
-	let year = document.getElementById('id_year').value;
-	let month = document.getElementById('id_month').value;
-	let validation = true;
+		//document.getElementById('display-form').addEventListener('submit', function(event) {
+		let year = document.getElementById('id_year').value;
+		let month = document.getElementById('id_month').value;
+		let validation = true;
 
-	if (year === "") {
-		document.getElementById('yearError').innerHTML = "年を入力してください";
-		validation = false;
-	} else if (year.length !== 4 || isNaN(year)) {
-		document.getElementById('yearError').innerHTML = "yyyyのフォーマットで入力してください";
-		validation = false;
-	} else {
-		document.getElementById('yearError').innerHTML = "";
-	}
+		if (year === "") {
+			document.getElementById('yearError').innerHTML = "年を入力してください";
+			validation = false;
+		} else if (year.length !== 4 || isNaN(year)) {
+			document.getElementById('yearError').innerHTML = "yyyyのフォーマットで入力してください";
+			validation = false;
+		} else {
+			document.getElementById('yearError').innerHTML = "";
+		}
 
-	if (month === "") {
-		document.getElementById('monthError').innerHTML = "月を入力してください";
-		validation = false;
-	} else if (isNaN(month) || month < 1 || month > 12) {
-		document.getElementById('monthError').innerHTML = "MMのフォーマットで入力してください";
-		validation = false;
-	} else {
-		document.getElementById('monthError').innerHTML = "";
-	}
+		if (month === "") {
+			document.getElementById('monthError').innerHTML = "月を入力してください";
+			validation = false;
+		} else if (isNaN(month) || month < 1 || month > 12) {
+			document.getElementById('monthError').innerHTML = "MMのフォーマットで入力してください";
+			validation = false;
+		} else {
+			document.getElementById('monthError').innerHTML = "";
+		}
 
-	if (!validation) {
-		event.preventDefault();
-	}
-});
+		if (!validation) {
+			event.preventDefault();
+		}
+	});
 }
 
 // 【訂正モーダル】モーダルの表示、「申請」ボタン押下でフォーム送信
 document.addEventListener('DOMContentLoaded', function() {
-	
+
 	// 成功メッセージの表示処理
 	const message = localStorage.getItem('message');
 	if (message) {
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		messageContainer.style.display = 'block';
 		localStorage.removeItem('message');
 	}
-	
+
 	// 勤怠表の行を取得
 	const rows = document.querySelectorAll('.attendance-row');
 
@@ -141,17 +141,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		let remarks = document.getElementById('correctionRemarks').value;
 		let correctionReason = document.getElementById('correctionCorrectionReason').value;
 		let status = Number(document.getElementById('correctionStatus').value); // 数値に変換
-		
+
 		const MAX_REMARKS_LENGTH = 20;
 		const MAX_REASON_LENGTH = 20;
-		
+
 		// エラーメッセージと該当フォームに赤枠つける
 		function showError(inputId, errorMessage) {
 			document.getElementById(inputId + 'Error').innerHTML = errorMessage;
 			document.getElementById(inputId).classList.add("form-control-alt", "is-invalid");
 			document.getElementById('correctionAlert').classList.add("alert", "alert-danger");
 		}
-		
+
 		// エラーメッセージをクリアし、赤枠を削除
 		function clearErrors() {
 			const errorFields = ['correctionStartTime', 'correctionEndTime', 'correctionRemarks', 'correctionCorrectionReason', 'correctionStatus'];
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				isValid = false;
 			}
 
-		// 出勤系統
+			// 出勤系統
 		} else if (attendanceSystem.includes(status)) {
 			// 出勤時間
 			if (!startTime) {
@@ -211,9 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (remarks.length > MAX_REMARKS_LENGTH) {
 			showError('correctionRemarks', '${MAX_REMARKS_LENGTH}字以内で入力して下さい。');
 			isValid = false;
-//		} else if (!/^[^\x00-\x7F]*$/.test(remarks)) {
-//			showError('correctionRemarks', '全角で入力して下さい。');
-//			isValid = false;
+			//		} else if (!/^[^\x00-\x7F]*$/.test(remarks)) {
+			//			showError('correctionRemarks', '全角で入力して下さい。');
+			//			isValid = false;
 		}
 
 		// 訂正理由
@@ -276,69 +276,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 【却下モーダル】モーダルの表示、「却下」ボタン押下でフォーム送信
 document.addEventListener('DOMContentLoaded', function() {
-    const rejectModalBtn = document.getElementById('rejectModalBtn');
-    const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
-    const rejectBtn = document.getElementById('reject-btn');
-    const rejectForm = document.getElementById('reject-form');
-    const rejectWarning = document.getElementById("rejectWarning");
-    const modalErrorMessage = document.getElementById("modalErrorMessage");
-    // 月次
-    const commentReasonInput = document.getElementById("commentReasonInput");
-    const rejectCommentError = document.getElementById("rejectCommentError");
-    // 訂正
-    const rejectionReasonInput = document.getElementById("rejectionReasonInput");
-    const rejectionReasonError = document.getElementById("rejectionReasonError");
+	const rejectModalBtn = document.getElementById('rejectModalBtn');
+	const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+	const rejectBtn = document.getElementById('reject-btn');
+	const rejectForm = document.getElementById('reject-form');
+	const rejectWarning = document.getElementById("rejectWarning");
+	const modalErrorMessage = document.getElementById("modalErrorMessage");
+	// 月次
+	const commentReasonInput = document.getElementById("commentReasonInput");
+	const rejectCommentError = document.getElementById("rejectCommentError");
+	// 訂正
+	const rejectionReasonInput = document.getElementById("rejectionReasonInput");
+	const rejectionReasonError = document.getElementById("rejectionReasonError");
 
-    // モーダル表示
-    if (rejectModalBtn) {
-        rejectModalBtn.addEventListener('click', function() {
-            rejectModal.show();
-        });
-    }
+	// モーダル表示
+	if (rejectModalBtn) {
+		rejectModalBtn.addEventListener('click', function() {
+			rejectModal.show();
+		});
+	}
 
-    // フォーム送信
-    rejectBtn.addEventListener('click', function() {
-        rejectForm.submit();
-    });
+	// フォーム送信
+	rejectBtn.addEventListener('click', function() {
+		rejectForm.submit();
+	});
 
-    // 入力チェック エラー時にモーダル再表示
-    if (document.querySelector("[data-open-modal]")) {
-        const openModal = document.querySelector("[data-open-modal]").dataset.openModal;
-        const modalError = document.querySelector("[data-modal-error]").dataset.modalError;
+	// 入力チェック エラー時にモーダル再表示
+	if (document.querySelector("[data-open-modal]")) {
+		const openModal = document.querySelector("[data-open-modal]").dataset.openModal;
+		const modalError = document.querySelector("[data-modal-error]").dataset.modalError;
 
-        // rejectionReasonErrorやcommentReasonErrorのエラーメッセージを表示
-        // 月次
-        if (rejectCommentError) {
-            rejectCommentError.innerHTML = errorMessages['comment'] ?? '';
-        }
-        // 訂正
-        if (rejectionReasonError) {
-            rejectionReasonError.innerHTML = errorMessages['rejectionReason'] ?? '';
-        }
+		// rejectionReasonErrorやcommentReasonErrorのエラーメッセージを表示
+		// 月次
+		if (rejectCommentError) {
+			rejectCommentError.innerHTML = errorMessages['comment'] ?? '';
+		}
+		// 訂正
+		if (rejectionReasonError) {
+			rejectionReasonError.innerHTML = errorMessages['rejectionReason'] ?? '';
+		}
 
-        // モーダル再表示時の処理
-        if (openModal === "true") {
+		// モーダル再表示時の処理
+		if (openModal === "true") {
 			// 月次
-            if (commentReasonInput) {
-                const commentValue = commentReasonInput.value;
-                commentReasonInput.value = commentValue;
-            }
-            // 訂正
-            if (rejectionReasonInput) {
-                const rejectionReasonValue = rejectionReasonInput.value;
-                rejectionReasonInput.value = rejectionReasonValue;
-            }
-           
-            // モーダル表示
-            rejectModal.show();
+			if (commentReasonInput) {
+				const commentValue = commentReasonInput.value;
+				commentReasonInput.value = commentValue;
+			}
+			// 訂正
+			if (rejectionReasonInput) {
+				const rejectionReasonValue = rejectionReasonInput.value;
+				rejectionReasonInput.value = rejectionReasonValue;
+			}
 
-            // モーダルエラーメッセージを表示
-            modalErrorMessage.textContent = modalError;
+			// モーダル表示
+			rejectModal.show();
 
-            // 警告メッセージを非表示にする
-            rejectWarning.style.display = "none";
-        }
-    }
+			// モーダルエラーメッセージを表示
+			modalErrorMessage.textContent = modalError;
+
+			// 警告メッセージを非表示にする
+			rejectWarning.style.display = "none";
+		}
+	}
 });
 
 
@@ -366,48 +366,62 @@ document.addEventListener('DOMContentLoaded', function() {
 //});
 // 【承認ボタン】月次/訂正のformaction動的変更
 function setAction(action) {
-    document.getElementById('form-action').value = action;
+	document.getElementById('form-action').value = action;
 }
 
-
 // //土日祝に色を付ける、今日の日付の行に色を付ける（社員権限）
-document.addEventListener('DOMContentLoaded', function () {
-	
-    // 今日の日付を取得 yyyy/MM/dd
-    const date = new Date();
-    const today = date.toLocaleDateString('ja-JP', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
+document.addEventListener('DOMContentLoaded', function() {
 
-    // 行全体を取得
-    const rows = document.querySelectorAll('.attendance-row');
+	// 今日の日付を取得 yyyy/MM/dd
+	const date = new Date();
+	const today = date.toLocaleDateString('ja-JP', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	});
 
-    rows.forEach(row => {
-        // 行の日付を取得
-        const rowDate = row.getAttribute('data-date');
+	// 行全体を取得
+	const rows = document.querySelectorAll('.attendance-row');
 
-        // 行の曜日を取得
-        const weekdayCell = row.querySelector('.weekdayCells');
-        const weekdayCellText = weekdayCell.textContent.trim();
+	rows.forEach(row => {
+		// 行の日付を取得
+		const rowDate = row.getAttribute('data-date');
+		let rowStatus = row.getAttribute('data-status');
 
-        // 祝日(優先)、土日に色を付ける
-        if (holidays.includes(rowDate)) {
-            weekdayCell.style.color = 'red';
-        }
-        else if (weekdayCellText === '土') {
-            weekdayCell.style.color = 'rgb(135 135 255)';
-        }
-        else if (weekdayCellText === '日') {
-            weekdayCell.style.color = 'rgb(255, 93, 93)';
-        }
+		// 行の曜日を取得
+		const weekdayCell = row.querySelector('.weekdayCells');
+		const weekdayCellText = weekdayCell.textContent.trim();
 
-        // 今日の日付の行に色を付ける
-        if (rowDate === today) {
-            row.style.backgroundColor = 'rgb(255, 255, 225)';
-        }
-    });
+		// 祝日(優先)、土日に色を付ける
+		if (holidays.includes(rowDate)) {
+			weekdayCell.style.color = 'red';
+		}
+		else if (weekdayCellText === '土') {
+			weekdayCell.style.color = 'rgb(135 135 255)';
+		}
+		else if (weekdayCellText === '日') {
+			weekdayCell.style.color = 'rgb(255, 93, 93)';
+		}
+
+		//勤怠状況の土日祝日のプルダウンを設定
+		let status = row.querySelector('.attendance-status');
+		const weekendStatus = "2";
+		const holidayStatus = "3";
+		if (rowStatus == null) {
+
+			if (holidays.includes(rowDate)) {
+				status[holidayStatus].selected = true;
+			}
+			if (weekdayCellText === '土' || weekdayCellText === '日') {
+				status[weekendStatus].selected = true;
+			}
+		}
+
+		// 今日の日付の行に色を付ける
+		if (rowDate === today) {
+			row.style.backgroundColor = 'rgb(255, 255, 225)';
+		}
+	});
 });
 
 
@@ -509,84 +523,29 @@ function goBack() {
 	window.history.back();
 }
 
-//↓元々書いてあったやつ
-//document.addEventListener('DOMContentLoaded', function () {
-//    const calendarBody = document.getElementById('calendar-body');
-//
-//
-//    let currentMonth = new Date().getMonth();
-//    let currentYear = new Date().getFullYear();
-//
-//    function generateCalendar(month, year) {
-//        calendarBody.innerHTML = ''; // カレンダーをリセット
-//        let daysInMonth = new Date(2024, 7 + 1, 0).getDate();
-//
-//        // カレンダーの行を生成
-//        for (let date = 1; date <= daysInMonth; date++) {
-//            let row = document.createElement('tr');
-//
-//            // 日付セル
-//            let dateCell = document.createElement('td');
-//            dateCell.appendChild(document.createTextNode(`${year}-${month + 1}-${date}`));
-//            row.appendChild(dateCell);
-//
-//            // 曜日セル
-//            let dayOfWeek = new Date(year, month, date).getDay();
-//            let dayOfWeekCell = document.createElement('td');
-//            dayOfWeekCell.appendChild(document.createTextNode(['日', '月', '火', '水', '木', '金', '土'][dayOfWeek]));
-//            row.appendChild(dayOfWeekCell);
-//
-//            // 勤務状況セル
-//            let workStatusCell = document.createElement('td');
-//            let workStatusInput = document.createElement('input');
-//            workStatusInput.type = 'text';
-//            workStatusCell.appendChild(workStatusInput);
-//            row.appendChild(workStatusCell);
-//
-//            // 出勤時間セル
-//            let startTimeCell = document.createElement('td');
-//            let startTimeInput = document.createElement('input');
-//            startTimeInput.type = 'time';
-//            startTimeCell.appendChild(startTimeInput);
-//            row.appendChild(startTimeCell);
-//
-//            // 退勤時間セル
-//            let endTimeCell = document.createElement('td');
-//            let endTimeInput = document.createElement('input');
-//            endTimeInput.type = 'time';
-//            endTimeCell.appendChild(endTimeInput);
-//            row.appendChild(endTimeCell);
-//
-//            // 備考セル
-//            let noteCell = document.createElement('td');
-//            let noteInput = document.createElement('input');
-//            noteInput.type = 'text';
-//            noteCell.appendChild(noteInput);
-//            row.appendChild(noteCell);
-//
-//            calendarBody.appendChild(row);
-//        }
-//    }
-//
-//    prevMonthButton.addEventListener('click', function () {
-//        if (currentMonth === 0) {
-//            currentMonth = 11;
-//            currentYear--;
-//        } else {
-//            currentMonth--;
-//        }
-//        generateCalendar(currentMonth, currentYear);
-//    });
-//
-//    nextMonthButton.addEventListener('click', function () {
-//        if (currentMonth === 11) {
-//            currentMonth = 0;
-//            currentYear++;
-//        } else {
-//            currentMonth++;
-//        }
-//        generateCalendar(currentMonth, currentYear);
-//    });
-//
-//    generateCalendar(currentMonth, currentYear);
-//});
+//『<』ボタン押下後前月へ遷移
+function prevMonth(year, month) {
+	let newMonth = month - 1;
+	let newYear = year;
+	if (newMonth < 1) {
+		newYear = newYear - 1;
+		newMonth = 12;
+	}
+	submitYearMonth(newYear, newMonth)
+}
+//『>』ボタン押下後翌月へ遷移
+function nextMonth(year, month) {
+	let newMonth = month + 1;
+	let newYear = year;
+	if (newMonth > 12) {
+		newYear = newYear + 1;
+		newMonth = 1;
+	}
+	submitYearMonth(newYear, newMonth)
+}
+//HTMLの対象年月日を上書きして表示ボタン押下
+function submitYearMonth(newYear, newMonth) {
+	document.getElementById('id_year').value = newYear;
+	document.getElementById('id_month').value = newMonth;
+	document.getElementById('display-form').submit();
+}

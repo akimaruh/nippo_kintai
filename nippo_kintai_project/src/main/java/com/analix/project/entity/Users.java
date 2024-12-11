@@ -31,6 +31,7 @@ public class Users implements Serializable {
 	private Integer failCount;
 	private LocalDateTime lastFailDate;
 	private LocalDateTime loginLockDate;
+	private String tmpPassword;
 
 	@Override
 	public boolean equals(Object o) {

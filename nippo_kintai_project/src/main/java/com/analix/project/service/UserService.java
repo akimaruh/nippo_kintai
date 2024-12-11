@@ -31,6 +31,8 @@ import com.analix.project.util.CustomDateUtil;
 import com.analix.project.util.MessageUtil;
 import com.analix.project.util.PasswordUtil;
 
+import lombok.RequiredArgsConstructor;
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
@@ -41,24 +43,31 @@ public class UserService {
 	private final PasswordUtil passwordUtil;
 	private final EmailService emailService;
 
-	public UserService(UserMapper userMapper, TemporaryPasswordMapper temporaryPasswordMapper,
-			DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,
-			PasswordUtil passwordUtil, EmailService emailService) {
-		this.userMapper = userMapper;
-		this.temporaryPasswordMapper = temporaryPasswordMapper;
-		this.departmentMapper = departmentMapper;
-		this.customDateUtil = customDateUtil;
-		this.passwordUtil = passwordUtil;
-		this.emailService = emailService;
-	}
+//	public UserService(UserMapper userMapper, TemporaryPasswordMapper temporaryPasswordMapper,
+//			DepartmentMapper departmentMapper, CustomDateUtil customDateUtil,
+//			PasswordUtil passwordUtil, EmailService emailService) {
+//		this.userMapper = userMapper;
+//		this.temporaryPasswordMapper = temporaryPasswordMapper;
+//		this.departmentMapper = departmentMapper;
+//		this.customDateUtil = customDateUtil;
+//		this.passwordUtil = passwordUtil;
+//		this.emailService = emailService;
+//	}
 
 	/**
 	 * ユーザー名で検索
 	 * @param name
 	 * @return registUserForm
 	 */
-	public RegistUserForm getUserDataByEmployeeCode(Integer inputEmployeeCode) {
-
+	public RegistUserForm getUserDataByEmployeeCode(String employeeCodeString) {
+		Integer inputEmployeeCode = null;
+		Integer defaultEmployeeCode = 0;
+		if (employeeCodeString != null && employeeCodeString != "") {
+			inputEmployeeCode = Integer.parseInt(employeeCodeString);
+		} else {
+			inputEmployeeCode = defaultEmployeeCode;
+		}
+		
 		//DBでユーザー検索
 		Users userDataBySearch = userMapper.findUserDataByEmployeeCode(inputEmployeeCode);
 		RegistUserForm registUserForm = new RegistUserForm();
@@ -73,11 +82,12 @@ public class UserService {
 			registUserForm.setDepartmentName(userDataBySearch.getDepartmentName());
 			registUserForm.setEmployeeCode(String.valueOf(userDataBySearch.getEmployeeCode()));
 			registUserForm.setStartDate(getStringStartDate(userDataBySearch.getStartDate()));
+			registUserForm.setRegistFlg(Constants.UPDATE_FLG);
 		} else {
 			//ユーザーが存在しない場合新しいユーザーIDを払い出し
 			Integer NextEmployeeCode = userMapper.createNewEmployeeCode();
 			registUserForm.setEmployeeCode(String.valueOf(NextEmployeeCode + 1));
-			registUserForm.setInsertFlg(Constants.INSERT_FLG);
+			registUserForm.setRegistFlg(Constants.INSERT_FLG);
 		}
 		return registUserForm;
 	}
@@ -132,24 +142,25 @@ public class UserService {
 		//ユーザー登録処理
 		//XXX:これでは新規登録するときに検索ボタン押してから登録しないと新規登録できない。
 		//TODO:インサートフラグの有無→アップデートフラグの有無に変更する
-		if (registUserForm.getInsertFlg() == Constants.INSERT_FLG) {
+		if (registUserForm.getRegistFlg() == Constants.INSERT_FLG) {
 			if (userMapper.userExsistByEmployeeCode(employeeCode)) {
 				return "社員番号:" + employeeCode + "は既に登録されています。";
 
 			} else {
+				//ユーザー新規登録
 				String temporaryPass = passwordUtil.getTemporaryPassword();//ハッシュ前仮パスワード
 				registUser.setPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,
 						registUserForm.getEmployeeCode()));//ハッシュ化した仮パスワードをエンティティにセット
-				System.out.println(registUser.getPassword());
 				boolean insertCheck = userMapper.insertUserData(registUser);
+				//仮パスワード登録のためユーザーIDを取得
 				Integer userId = userMapper.findIdByEmployeeCodeAndEmail(employeeCode, registUser.getEmail());
-				System.out.println(userId);
 				TemporaryPassword temporaryPassword = new TemporaryPassword();
 				temporaryPassword.setUserId(userId);
 				temporaryPassword.setTemporaryPassword(registUser.getPassword());
-				temporaryPassword.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
-				temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
-
+				temporaryPassword
+						.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
+				insertCheck = temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
+				//登録が成功したら登録ユーザー宛てに仮パスワードを送る
 				if (insertCheck) {
 					emailService.sendReissuePassword(registUser.getEmail(), temporaryPass,
 							MessageUtil.mailCommonMessage());
@@ -309,7 +320,6 @@ public class UserService {
 		for (UserCsvInputDto userCsvInputDto : userCsvInputDtoList) {
 			Users user = new Users();
 			user.setEmployeeCode(Integer.parseInt(userCsvInputDto.getEmployeeCode()));
-			//			user.setPassword(passwordUtil.getSaltedAndStrechedPassword(Constants.FIRST_PASS, userCsvInputDto.getEmployeeCode()));
 			user.setName(userCsvInputDto.getName());
 			user.setRole(userCsvInputDto.getRole());
 			user.setDepartmentId(Integer.parseInt(userCsvInputDto.getDepartmentId()));
@@ -371,13 +381,17 @@ public class UserService {
 				updateList.add(user);
 			} else {
 				String temporaryPass = passwordUtil.getTemporaryPassword();
-				user.setPassword(passwordUtil.getSaltedAndStrechedPassword(temporaryPass,
-						String.valueOf(user.getEmployeeCode())));
+				String hashedPassword=passwordUtil.getSaltedAndStrechedPassword(temporaryPass,
+						String.valueOf(user.getEmployeeCode()));
+				user.setTmpPassword(temporaryPass);
+				user.setPassword(hashedPassword);
 				insertList.add(user);
 			}
 		});
 		classifiedLists.put("insert", insertList);
 		classifiedLists.put("update", updateList);
+		
+		
 
 		return classifiedLists;
 
@@ -391,33 +405,34 @@ public class UserService {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public boolean importUsers(List<Users> insertList, List<Users> updateList) {
+		boolean isRegist = false;
 		System.out.println("importUsers入り:" + insertList);
 		if (!insertList.isEmpty()) {
 			System.out.println("Insert入り");
-			boolean isInsert = userMapper.batchInsertUsers(insertList);
-			if (isInsert) {
+			isRegist = userMapper.batchInsertUsers(insertList);
+			if (isRegist) {
 				String mailMessage = MessageUtil.mailCommonMessage();
 				for (Users insertUser : insertList) {
 					//新規登録者に仮パスワード送信
-
+					//仮パスワード登録のためユーザーIDを取得
 					Integer userId = userMapper.findIdByEmployeeCodeAndEmail(insertUser.getEmployeeCode(),
 							insertUser.getEmail());
 					System.out.println(userId);
 					TemporaryPassword temporaryPassword = new TemporaryPassword();
 					temporaryPassword.setUserId(userId);
 					temporaryPassword.setTemporaryPassword(insertUser.getPassword());
-					temporaryPassword.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
+					temporaryPassword
+							.setExpirationDateTime(LocalDateTime.now().plusHours(Constants.TEMP_PASSWORD_EXPIRE_HOURS));
 					temporaryPasswordMapper.insertTemporaryPassword(temporaryPassword);
-					emailService.sendReissuePassword(insertUser.getEmail(), insertUser.getPassword(), mailMessage);
+					emailService.sendReissuePassword(insertUser.getEmail(), insertUser.getTmpPassword(), mailMessage);
 				}
 			}
-			return isInsert;
 		}
 		if (!updateList.isEmpty()) {
 			System.out.println("Update入り:" + updateList);
-			return userMapper.batchUpdateUsers(updateList);
+			isRegist = userMapper.batchUpdateUsers(updateList);
 		}
-		return false;
+		return isRegist;
 	}
 
 }

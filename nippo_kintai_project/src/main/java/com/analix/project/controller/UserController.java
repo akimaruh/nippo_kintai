@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,21 +29,15 @@ import com.analix.project.form.SearchUserGroup;
 import com.analix.project.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor //lombok使ってコンストラクタ作成省略
 @Controller
 @RequestMapping("/user")
 public class UserController {
 
-	@Autowired
-	UserService userService;
-	@Autowired
-	SmartValidator validator;
-	//	private final UserService userService;
-	//
-	//	public UserController(UserService userService) {
-	//		this.userService = userService;
-
-	//	}
+	private final UserService userService;
+	private final SmartValidator validator;
 
 	/**
 	 * 初期表示
@@ -71,8 +64,10 @@ public class UserController {
 	public void addUserAndDepartmentToModel(RegistUserForm userData, Model model) {
 		Map<String, Integer> departmentMap = userService.pulldownDepartment();
 		model.addAttribute("departmentList", departmentMap);
+
 		model.addAttribute("registUserForm", userData);
 	}
+
 	/**
 	 * 『検索』ボタン押下後
 	 * @param name
@@ -85,14 +80,12 @@ public class UserController {
 			BindingResult result, Model model) {
 
 		if (result.hasErrors()) {
-			System.out.println(result.getFieldError());
 			model.addAttribute("registUserForm", registUserForm);
 			model.addAttribute("error", "エラー内容に従って修正してください");
 			return "user/regist";
 		}
-		
-		Integer inputEmployeeCode = Integer.parseInt(registUserForm.getSearchEmployeeCode()!="" ? registUserForm.getSearchEmployeeCode():"0");
-		RegistUserForm userData = userService.getUserDataByEmployeeCode(inputEmployeeCode);
+
+		RegistUserForm userData = userService.getUserDataByEmployeeCode(registUserForm.getSearchEmployeeCode());
 
 		if (userData.getId() == null) {
 			String error = "存在しないユーザーです";
@@ -105,7 +98,7 @@ public class UserController {
 
 		return "user/regist";
 	}
-	
+
 	/**
 	 * 部署管理画面から遷移(『検索』ボタン押下してある状態）
 	 * @param employeeCode
@@ -113,16 +106,15 @@ public class UserController {
 	 * @return
 	 */
 	@PostMapping("/regist/search/fromDepartment")
-	public String searchUserByEmployeeCode(@RequestParam("employeeCode") Integer employeeCode, Model model) {
+	public String searchUserByEmployeeCode(@RequestParam("employeeCode") String employeeCode, Model model) {
 
-	    RegistUserForm userData = userService.getUserDataByEmployeeCode(employeeCode);
-	    
-	    // 共通メソッド（部署プルダウン、ユーザー情報をmodelに追加）
-	 	addUserAndDepartmentToModel(userData, model);
+		RegistUserForm userData = userService.getUserDataByEmployeeCode(employeeCode);
 
-	    return "user/regist";
+		// 共通メソッド（部署プルダウン、ユーザー情報をmodelに追加）
+		addUserAndDepartmentToModel(userData, model);
+
+		return "user/regist";
 	}
-	
 
 	/**
 	 * 『登録』ボタン押下後
@@ -168,8 +160,6 @@ public class UserController {
 	@PostMapping(path = "/regist/import")
 	public String previewImportUsers(@RequestParam("importFile") MultipartFile importFile,
 			RedirectAttributes redirectAttributes, Model model, @ModelAttribute RegistUserListForm registUserListForm) {
-		System.out.println(importFile.getContentType().toUpperCase());
-		System.out.println(importFile.getContentType().toUpperCase().contains("CSV"));
 		Map<String, List<String>> errorMessageMap = new LinkedHashMap<>();
 
 		try {
