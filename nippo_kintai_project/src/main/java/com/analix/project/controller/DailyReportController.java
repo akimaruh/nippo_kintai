@@ -68,7 +68,7 @@ public class DailyReportController {
 
 		return "/dailyReport/regist";
 	}
-
+	
 	/**
 	 * 基本表示内容をモデルに追加
 	 * @param model
@@ -84,7 +84,7 @@ public class DailyReportController {
 		// ステータスの取得
 		String statusName = dailyReportService.findStatusByUserId(userId, targetDate);
 		//作業プルダウンのデータ取得
-		Map<String, Integer> workMap = dailyReportService.pulldownWork();
+		Map<String, Integer> workMap = dailyReportService.pulldownWork(userId);
 
 		model.addAttribute("statusName", statusName);
 		model.addAttribute("dailyReport", dailyReportForm);
@@ -126,6 +126,7 @@ public class DailyReportController {
 
 		//日報取得
 		dailyReportForm = dailyReportService.getDailyReport(userId, targetDate);
+		System.out.println("dailyReportForm" + dailyReportForm);
 		// モデルにデータを追加
 		addModelAttributes(model, dailyReportForm, userId, targetDate);
 

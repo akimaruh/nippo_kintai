@@ -1,14 +1,11 @@
 package com.analix.project.service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.analix.project.dto.DailyReportDetailDto;
 import com.analix.project.dto.DailyReportDto;
-import com.analix.project.dto.DailyReportSummaryDto;
+import com.analix.project.dto.UserWorkVisibilityDto;
 import com.analix.project.entity.DailyReport;
 import com.analix.project.entity.DailyReportDetail;
 import com.analix.project.entity.Users;
-import com.analix.project.entity.Work;
 import com.analix.project.form.DailyReportDetailForm;
 import com.analix.project.form.DailyReportForm;
 import com.analix.project.mapper.DailyReportMapper;
@@ -86,6 +82,7 @@ public class DailyReportService {
 				dailyReportDetailForm.setWorkId(dailyReportDetailDto.getWorkId());
 				dailyReportDetailForm.setTime(dailyReportDetailDto.getTime());
 				dailyReportDetailForm.setContent(dailyReportDetailDto.getContent());
+				dailyReportDetailForm.setWorkName(dailyReportDetailDto.getWorkName());
 				dailyReportDetailFormList.add(dailyReportDetailForm);
 			}
 		}
@@ -197,20 +194,19 @@ public class DailyReportService {
 		LocalDate today = LocalDate.now();
 		List<Users> unSubmitterList = dailyReportMapper.dailyReportUnsubmittedPersonList(today);
 		return unSubmitterList;
-
 	}
-
+	
 	/**
 	 * 作業入力プルダウン用リスト
 	 * @return 作業リスト
 	 */
-	public Map<String, Integer> pulldownWork() {
-		List<Work> workList = workMapper.findAllWorkName();
+	public Map<String, Integer> pulldownWork(Integer userId) {
+		List<UserWorkVisibilityDto> workList = workMapper.findVisibleWorkByUserId(userId);
 		Map<String, Integer> workMap = new LinkedHashMap<>();
 
-		for (Work row : workList) {
-			String workName = row.getWorkName();
-			Integer workId = row.getWorkId();
+		for (UserWorkVisibilityDto work : workList) {
+			Integer workId = work.getWorkId();
+			String workName = work.getWorkName();
 			workMap.put(workName, workId);
 		}
 		return workMap;
@@ -290,55 +286,6 @@ public class DailyReportService {
 		dailyReport.setStatus(Constants.CODE_VAL_APPROVED);
 		System.out.println(dailyReport);
 		return dailyReportMapper.updateDailyReportStatus(dailyReport);
-	}
-
-	/**
-	 * 帳票出力用１か月の日報取得
-	 * @param userId
-	 * @param targetYearMonth
-	 * @return
-	 */
-	public List<DailyReportDto> getDailyReportListForOutput(Integer userId, YearMonth targetYearMonth) {
-		List<DailyReportDto> dailyReportDtoList = dailyReportMapper.dailyReportListForAMonth(userId, targetYearMonth);
-		List<Map<String, Object>> timePerDayMapList = dailyReportMapper.getTimePerDate(userId, targetYearMonth);
-
-		Map<LocalDate, Integer> timeMap = timePerDayMapList.stream()
-				.collect(Collectors.toMap(
-						map -> LocalDate.parse(map.get("date").toString()), // dateをLocalDateに変換
-						map -> ((BigDecimal) map.get("total_time")).intValue(), // total_timeをIntegerとして取得
-						Integer::sum // 重複キーの合計を取る
-				));
-		// dailyReportDtoListをStreamを使って処理
-		return dailyReportDtoList.stream()
-				.peek(report -> {
-					// 日付に基づいて作業時間を設定
-					Integer workTime = timeMap.get(report.getDate());
-					if (workTime != null) {
-						report.setTimePerDay(workTime);
-					}
-				})
-				.collect(Collectors.toList()); // 統合リストを作成
-	}
-
-	/**
-	 * 帳票出力用１か月の総作業時間取得
-	 * @param userId
-	 * @param targetYearMonth
-	 * @return
-	 */
-	public DailyReportSummaryDto getMonthlyDailyReportSummary(Integer userId, YearMonth targetYearMonth) {
-		DailyReportSummaryDto dailyReportSummaryDto = new DailyReportSummaryDto();
-		dailyReportSummaryDto.setTimePerMonth(dailyReportMapper.getTimePerMonth(userId, targetYearMonth));
-		List<Map<String, Object>> workTimeByProcessMapList = dailyReportMapper.getWorkTimeByProcess(userId,
-				targetYearMonth);
-		LinkedHashMap<String, Integer> workTimeByProcessMap = workTimeByProcessMapList.stream()
-				.collect(Collectors.toMap(
-						map -> map.get("workName").toString(),
-						map -> ((BigDecimal) map.get("time")).intValue(),
-						Integer::sum,LinkedHashMap::new));
-		dailyReportSummaryDto.setWorkTimeByProcessMapList(workTimeByProcessMap);
-		return dailyReportSummaryDto;
-
 	}
 
 }
