@@ -14,12 +14,12 @@
 			<div class="card" style="background-color: rgb(255, 255, 255);">
 
 				<div class="card-body">
-					<form th:action="@{/output/dailyReportOutput}" method="get" id="output-form">
+					<form th:action="@{/output/dailyReportOutput}" method="post" id="output-form">
 						<div class="col-12">
 							<div class="col-12 mt-3 mb-3">
 								<span>ユーザー検索：</span>
 								<input type="text" class="form-control" name="userKeyword" th:value="${userKeyword}"
-									id="user-search" />
+									id="user-search" autocomplete="off"/>
 							</div>
 
 							<div class="col-12 mt-3 mb-3">
@@ -35,15 +35,15 @@
 							<div class="col-12 mt-3 mb-5">
 								<span>対象年月：</span>
 								<input type="month" class="col-6 form-control" name="targetYearMonth"
-									th:value="${targetYearMonth}" />
+									th:value="${targetYearMonth}" id="targetYearMonth" />
 							</div>
 						</div>
 					</form>
 
 					<div class="me-2">
-						<button class="btn btn-secondary mt-2" form="output-form" disabled>勤怠帳票</button>
-						<button class="btn btn-secondary mt-2" form="output-form" disabled>勤怠日報帳票</button>
-						<button class="btn btn-secondary mt-2" form="output-form" disabled>日報帳票</button>
+						<button class="btn btn-secondary mt-2" form="output-form" name="action" value="attendance" disabled>勤怠帳票</button>
+						<button class="btn btn-secondary mt-2" form="output-form" name="action" value="attendanceDailyReport" disabled>勤怠日報帳票</button>
+						<button class="btn btn-secondary mt-2" form="output-form" name="action" value="dailyReport" disabled>日報帳票</button>
 						<p th:text="${error}" class="text-danger" th:if="${error}"></p>
 					</div>
 

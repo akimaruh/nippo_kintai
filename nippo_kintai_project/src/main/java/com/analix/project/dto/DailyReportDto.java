@@ -16,7 +16,6 @@ public class DailyReportDto {
 	private Integer status;
 	/*日報詳細*/
 	private List<DailyReportDetailDto> dailyReportDetailDtoList;
-	
 	/*ユーザ名*/
 	private String userName;
 	/*1日の作業時間*/

@@ -21,37 +21,6 @@ http://www.thymeleaf.org
 		const holidays = /*[[${holidays}]]*/ {}; // 対象年月の祝日リスト
 	</script>
 
-	<!-- ヘッダー -->
-	<!--	<div class="container mt-3 mb-3">-->
-	<!--		<div class="d-flex align-items-center gap-5">-->
-	<!--			<div>-->
-	<!--				<strong>ユーザー名：</strong>-->
-	<!--				<span th:text="${session.loginUser.name}"></span>-->
-	<!--			</div>-->
-	<!--			<div>-->
-	<!--				<strong>ユーザーID：</strong>-->
-	<!--				<span th:text="${session.loginUser.id}"></span>-->
-	<!--			</div>-->
-	<!--			<span th:if="${session.loginUser.role =='Regular'|| session.loginUser.role == 'UnitManager'}">-->
-	<!--				<div>-->
-	<!--					<strong>ステータス：</strong>-->
-	<!--					<span th:text="${statusFlg}"></span>-->
-	<!--				</div>-->
-	<!--			</span>-->
-
-	<!--			<div class="ms-auto d-flex gap-2">-->
-	<!--				<a href="/common/startMenu">-->
-	<!--					<input type="submit" name="startMenuBack" value="戻る" class="btn-yellow" />-->
-	<!--				</a>-->
-
-	<!--				<form th:action="@{/common/logoff}" method="post">-->
-	<!--					<button type="submit" class="btn-yellow">ログオフ</button>-->
-	<!--				</form>-->
-	<!--			</div>-->
-	<!--		</div>-->
-	<!--	</div>-->
-	<!-- ヘッダー -->
-
 	<!-- 全権限共通カード -->
 	<div class="mt-5 mb-5 d-flex justify-content-center">
 		<div class="col-xl-12 col-md-12 col-12">
@@ -275,158 +244,110 @@ http://www.thymeleaf.org
 																	th:onclick="nextMonth([[${year}]],[[${month}]]);">&gt;</button>
 															</div>
 														</th:block>
-														<table class="table table-hover" id="attendance-table"
-															role="grid" aria-describedby="attendance-table_info">
-															<thead>
-																<tr>
-																	<th width="6%">日付</th>
-																	<th width="6%">曜日</th>
-																	<th width="17%">勤務状況</th>
-																	<th width="17%">出勤時間</th>
-																	<th width="17%">退勤時間</th>
-																	<th width="37%">備考</th>
-																</tr>
-															</thead>
-
-															<tbody>
-																<th:block
-																	th:each="dailyAttendanceForm, stat: *{attendanceFormList}">
-																	<th:block>
-																		<input type="hidden" name="sessionUserId"
-																			th:value="${session.loginUser.id}" />
-																		<input type="hidden"
-																			th:name="|attendanceFormList[${stat.index}].date|"
-																			th:value="${dailyAttendanceForm.date}">
-																		<input type="hidden"
-																			th:name="|attendanceFormList[${stat.index}].userId|"
-																			th:value="${dailyAttendanceForm.userId != null ? dailyAttendanceForm.userId : ''}" />
-																		<input type="hidden"
-																			th:name="|attendanceFormList[${stat.index}].id|"
-																			th:value="${dailyAttendanceForm.id != null ? dailyAttendanceForm.id : null}" />
-																	</th:block>
-
-																	<tr class="attendance-row"
-																		th:classappend="${status == 2} ? 'pointer'"
-																		th:data-date="${#temporals.format(dailyAttendanceForm.date, 'yyyy/MM/dd')}"
-																		th:data-week="${#temporals.format(dailyAttendanceForm.date, 'EEE')}"
-																		th:data-status="${status}">
-
-																		<td class="w-10"
-																			th:text="${#temporals.format(dailyAttendanceForm.date, 'M/d')}">
-																		</td>
-
-																		<td class="w-10 weekdayCells"
-																			th:text="${#temporals.format(dailyAttendanceForm.date, 'EEE')}">
-																		</td>
-
-																		<!-- util使うバージョン(一応残しておきます)-->
-																		<!-- <td class="w-10"-->
-																		<!-- th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendanceForm.date.dayOfWeek)}">-->
-																		<!-- </td>-->
-																		<td class="w-10">
-																			<select
-																				class="form-select attendance-status"
-																				th:field="*{attendanceFormList[__${stat.index}__].status}"
-																				th:errorclass="is-invalid"
-																				th:disabled="${status == 1 || status == 2}">
-																				<option value=""></option>
-																				<option th:each="atStatus: ${statusMap}"
-																					th:value="${atStatus.key}"
-																					th:text="${atStatus.value}">
-																				</option>
-																			</select>
-
-																			<!--																				<option value="0"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 0}">-->
-																			<!--																					通常出勤-->
-																			<!--																				</option>-->
-																			<!--																				<option value="1"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 1}">-->
-																			<!--																					休日-->
-																			<!--																				</option>-->
-																			<!--																				<option value="2"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 2}">-->
-																			<!--																					祝日-->
-																			<!--																				</option>-->
-																			<!--																				<option value="3"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 3}">-->
-																			<!--																					遅刻-->
-																			<!--																				</option>-->
-																			<!--																				<option value="4"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 4}">-->
-																			<!--																					有給-->
-																			<!--																				</option>-->
-																			<!--																				<option value="5"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 5}">-->
-																			<!--																					欠勤-->
-																			<!--																				</option>-->
-																			<!--																				<option value="6"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 6}">-->
-																			<!--																					早退-->
-																			<!--																				</option>-->
-																			<!--																				<option value="7"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 7}">-->
-																			<!--																					時間外勤務-->
-																			<!--																				</option>-->
-																			<!--																				<option value="8"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 8}">-->
-																			<!--																					振替出勤-->
-																			<!--																				</option>-->
-																			<!--																				<option value="9"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 9}">-->
-																			<!--																					振替休日-->
-																			<!--																				</option>-->
-																			<!--																				<option value="10"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 10}">-->
-																			<!--																					代替出勤-->
-																			<!--																				</option>-->
-																			<!--																				<option value="11"-->
-																			<!--																					th:selected="${dailyAttendanceForm.status == 11}">-->
-																			<!--																					代替休日-->
-																			<!--																				</option>-->
-																			</select>
-																			<span class="invalid-feedback"
-																				id="status-errors"
-																				th:errors="*{attendanceFormList[__${stat.index}__].status}"></span>
-																		</td>
-
-																		<td class="w-10">
-																			<input type="text" class="form-control"
-																				th:errorclass="is-invalid"
-																				th:name="|attendanceFormList[${stat.index}].startTime|"
-																				th:value="${dailyAttendanceForm.startTime}"
-																				th:disabled="${status == 1 || status == 2}" />
-																			<span class="invalid-feedback"
-																				id="startTime-errors"
-																				th:errors="*{attendanceFormList[__${stat.index}__].startTime}"></span>
-																		</td>
-
-																		<td class="w-10">
-																			<input type="text" class="form-control"
-																				th:errorclass="is-invalid"
-																				th:name="|attendanceFormList[${stat.index}].endTime|"
-																				th:value="${dailyAttendanceForm.endTime}"
-																				th:disabled="${status == 1 || status == 2}" />
-																			<span class="invalid-feedback"
-																				id="endTime-errors"
-																				th:errors="*{attendanceFormList[__${stat.index}__].endTime}"></span>
-																		</td>
-
-																		<td class="w-10">
-																			<input type="text" class="form-control"
-																				th:errorclass="is-invalid"
-																				th:name="|attendanceFormList[${stat.index}].remarks|"
-																				th:value="${dailyAttendanceForm.remarks}"
-																				th:disabled="${status == 1 || status == 2}" />
-																			<span class="error invalid-feedback"
-																				id="remarks-errors"
-																				th:errors="*{attendanceFormList[__${stat.index}__].remarks}"></span>
-																		</td>
+														<div class="scroll-container">
+															<table class="table table-hover" id="attendance-table"
+																role="grid" aria-describedby="attendance-table_info">
+																<thead class="sticky-top bg-white">
+																	<tr>
+																		<th width="6%">日付</th>
+																		<th width="6%">曜日</th>
+																		<th width="17%">勤務状況</th>
+																		<th width="17%">出勤時間</th>
+																		<th width="17%">退勤時間</th>
+																		<th width="37%">備考</th>
 																	</tr>
-																</th:block>
-															</tbody>
-														</table>
+																</thead>
 
+																<tbody>
+																	<th:block
+																		th:each="dailyAttendanceForm, stat: *{attendanceFormList}">
+																		<th:block>
+																			<input type="hidden" name="sessionUserId"
+																				th:value="${session.loginUser.id}" />
+																			<input type="hidden"
+																				th:name="|attendanceFormList[${stat.index}].date|"
+																				th:value="${dailyAttendanceForm.date}">
+																			<input type="hidden"
+																				th:name="|attendanceFormList[${stat.index}].userId|"
+																				th:value="${dailyAttendanceForm.userId != null ? dailyAttendanceForm.userId : ''}" />
+																			<input type="hidden"
+																				th:name="|attendanceFormList[${stat.index}].id|"
+																				th:value="${dailyAttendanceForm.id != null ? dailyAttendanceForm.id : null}" />
+																		</th:block>
+
+																		<tr class="attendance-row"
+																			th:classappend="${status == 2} ? 'pointer'"
+																			th:data-date="${#temporals.format(dailyAttendanceForm.date, 'yyyy/MM/dd')}"
+																			th:data-week="${#temporals.format(dailyAttendanceForm.date, 'EEE')}"
+																			th:data-status="${status}">
+
+																			<td class="w-10"
+																				th:text="${#temporals.format(dailyAttendanceForm.date, 'M/d')}">
+																			</td>
+
+																			<td class="w-10 weekdayCells"
+																				th:text="${#temporals.format(dailyAttendanceForm.date, 'EEE')}">
+																			</td>
+
+																			<!-- util使うバージョン(一応残しておきます)-->
+																			<!-- <td class="w-10"-->
+																			<!-- th:text="${T(com.analix.project.util.AttendanceUtil).getJapaneseDayOfWeek(dailyAttendanceForm.date.dayOfWeek)}">-->
+																			<!-- </td>-->
+																			<td class="w-10">
+																				<select
+																					class="form-select attendance-status"
+																					th:field="*{attendanceFormList[__${stat.index}__].status}"
+																					th:errorclass="is-invalid"
+																					th:disabled="${status == 1 || status == 2}">
+																					<option value=""></option>
+																					<option
+																						th:each="atStatus: ${statusMap}"
+																						th:value="${atStatus.key}"
+																						th:text="${atStatus.value}">
+																					</option>
+																				</select>
+																				<span class="invalid-feedback"
+																					id="status-errors"
+																					th:errors="*{attendanceFormList[__${stat.index}__].status}"></span>
+																			</td>
+
+																			<td class="w-10">
+																				<input type="text" class="form-control"
+																					th:errorclass="is-invalid"
+																					th:name="|attendanceFormList[${stat.index}].startTime|"
+																					th:value="${dailyAttendanceForm.startTime}"
+																					th:disabled="${status == 1 || status == 2}" />
+																				<span class="invalid-feedback"
+																					id="startTime-errors"
+																					th:errors="*{attendanceFormList[__${stat.index}__].startTime}"></span>
+																			</td>
+
+																			<td class="w-10">
+																				<input type="text" class="form-control"
+																					th:errorclass="is-invalid"
+																					th:name="|attendanceFormList[${stat.index}].endTime|"
+																					th:value="${dailyAttendanceForm.endTime}"
+																					th:disabled="${status == 1 || status == 2}" />
+																				<span class="invalid-feedback"
+																					id="endTime-errors"
+																					th:errors="*{attendanceFormList[__${stat.index}__].endTime}"></span>
+																			</td>
+
+																			<td class="w-10">
+																				<input type="text" class="form-control"
+																					th:errorclass="is-invalid"
+																					th:name="|attendanceFormList[${stat.index}].remarks|"
+																					th:value="${dailyAttendanceForm.remarks}"
+																					th:disabled="${status == 1 || status == 2}" />
+																				<span class="error invalid-feedback"
+																					id="remarks-errors"
+																					th:errors="*{attendanceFormList[__${stat.index}__].remarks}"></span>
+																			</td>
+																		</tr>
+																	</th:block>
+																</tbody>
+															</table>
+														</div>
 													</div>
 												</div>
 											</form>
@@ -655,8 +576,6 @@ http://www.thymeleaf.org
 					</div>
 					</th:block>
 					<!-- 「承認申請者」押下後終わり -->
-
-
 				</div>
 			</div>
 		</div>

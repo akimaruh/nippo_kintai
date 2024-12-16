@@ -7,7 +7,6 @@
 		rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
 		crossorigin="anonymous" />
 
-	<!--	<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&amp;" rel="stylesheet" />
@@ -20,29 +19,21 @@
 	<div class="container">
 		<div class="header">
 			<span th:text="'対象年月：'+${targetYearMonth}"></span>
-			<span th:text="'ユーザーID:'+${userId}"></span>
-			<span th:text="'ユーザー名:'+${userName}"></span>
+			<span th:text="'社員番号:'+${userData.employeeCode}"></span>
+			<span th:text="'ユーザー名:'+${userData.name}"></span>
 		</div>
 
 		<th:block th:if="${useBootstrap}">
-			<input type="submit" class="btn btn-primary mt-2" id="excel-button" value="Excel" form="excel"/>
+			<input type="submit" class="btn btn-primary mt-2" id="excel-button" value="Excel" form="excel" />
 			<input type="submit" class="btn btn-primary mt-2" id="pdf-button" value="PDF" form="pdf" />
 			<input type="button" class="btn btn-primary mt-2" value="戻る" onclick="history.back();" />
 			<form th:action="@{http://localhost:8080/output/dailyReportOutput/pdf}" method="post" target="_blank"
 				id="pdf">
-				<input type="hidden" name="userId" th:value="${userId}" />
-				<input type="hidden" name="userName" th:value="${userName}" />
-				<input type="hidden" name="targetYearMonth" th:value="${targetYearMonth}" />
+				<input type="hidden" name="userId" th:value="${userData.id}" />
 				<input type="hidden" name="image" id="hiddenImageField" />
 			</form>
-			<form th:action="@{http://localhost:8080/output/dailyReportOutput/excel}" method="post" target="_blank" name="dailyReportExcelOutputForm" id="excel">
-<!--				<input type="hidden" name="userId" th:value="${userId}" />-->
-<!--				<input type="hidden" name="userName" th:value="${userName}" />-->
-<!--				<input type="hidden" name="targetYearMonth" th:value="${targetYearMonth}" />-->
-				
-				<!--				<input type="hidden" name="image" id="hiddenImageField" />-->
-<!--				<input type="hidden" name="dailyReportDtoList" th:value="${generateList}" />-->
-<!--				<input type="hidden" name="dailyReportSummaryDto" th:value="${dailyReportSummary}" />-->
+			<form th:action="@{http://localhost:8080/output/dailyReportOutput/excel}" method="post" target="_blank"
+				name="dailyReportExcelOutputForm" id="excel">
 			</form>
 
 		</th:block>
@@ -130,13 +121,6 @@
 									<th>時間④</th>
 									<th>作業⑤</th>
 									<th>時間⑤</th>
-
-									<!--									<th>作業⑥</th>-->
-									<!--									<th>時間⑥</th>-->
-									<!--									<th>作業⑦</th>-->
-									<!--									<th>時間⑦</th>-->
-									<!--									<th>作業⑧</th>-->
-									<!--									<th>時間⑧</th>-->
 									<th>総作業時間</th>
 								</tr>
 							</thead>
@@ -144,7 +128,7 @@
 								<th:block th:each="dailyReport:${generateList}">
 									<tr>
 										<td>[[*{#temporals.format(dailyReport.date, 'M/d')}]]</td>
-										<td>[[${#temporals.format(dailyReport.date, 'EEE')}]]</td>
+										<td>[[*{#temporals.format(dailyReport.date, 'EEE')}]]</td>
 										<th:block th:each="i : ${#numbers.sequence(0, 4)}">
 											<td
 												th:text="${(i < dailyReport.dailyReportDetailDtoList.size()) ? dailyReport.dailyReportDetailDtoList[i].workName : ''}">
