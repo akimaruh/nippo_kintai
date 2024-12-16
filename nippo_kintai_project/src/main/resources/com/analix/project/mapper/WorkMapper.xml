@@ -2,10 +2,70 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.analix.project.mapper.WorkMapper">
 
-	<!-- 有効な部署名の検索 -->
+	<!-- 作業名取得 -->
 	<select id="findAllWorkName"
 		resultType="com.analix.project.entity.Work">
 		SELECT work_id,work_name FROM work
 		ORDER BY work_id ASC
 	</select>
+	
+	<!-- 表示設定込みの作業リスト -->
+	<select id="findAllWorkByUserId" resultType="com.analix.project.dto.UserWorkVisibilityDto">
+		SELECT w.work_id, w.work_name, uwv.is_visible
+		FROM work w
+		LEFT JOIN user_work_visibility uwv
+		ON w.work_id = uwv.work_id
+		AND uwv.user_id = #{userId}
+		ORDER BY w.work_id ASC
+	</select>
+	
+	<!-- [表示]作業リスト -->
+	<select id="findVisibleWorkByUserId" resultType="com.analix.project.dto.UserWorkVisibilityDto">
+		SELECT w.work_id, w.work_name, uwv.is_visible
+		FROM work w
+		LEFT JOIN user_work_visibility uwv
+		ON w.work_id = uwv.work_id
+		AND uwv.user_id = #{userId}
+		WHERE uwv.is_visible = 1
+		ORDER BY w.work_id ASC
+	</select>
+	
+	<!-- 作業名追加 -->
+	<insert id="registWork" parameterType="String">
+		INSERT INTO work(work_name)
+		VALUES(#{workName})
+	</insert>
+	
+	<!-- 同じ作業名があるか確認 -->
+	<select id="exisistsByWorkName" resultType="boolean">
+		SELECT COUNT(*) > 0
+		FROM work
+		WHERE work_name = #{workName}
+	</select>
+	
+	<!-- 表示設定したデータが存在するかどうか確認 -->
+	<select id="exisistsByUserIdAndWorkId" resultType="boolean">
+		SELECT COUNT(*) > 0
+		FROM user_work_visibility
+		WHERE user_id = #{userId} AND work_id = #{workId}
+	</select>
+	
+	<!-- 表示設定したデータの登録処理 -->
+	<insert id="insertWorkVisibility" parameterType="com.analix.project.entity.UserWorkVisibility">
+		INSERT INTO
+		user_work_visibility(user_id, work_id, is_visible, created_at, updated_at)
+		VALUES
+		(#{userWorkVisibility.userId}, #{userWorkVisibility.workId}, #{userWorkVisibility.isVisible}, NOW(), NOW())
+	</insert>
+	
+	<!-- 表示設定したデータの更新処理 -->
+	<update id="updateWorkVisibility" parameterType="com.analix.project.entity.UserWorkVisibility">
+		UPDATE user_work_visibility
+		SET is_visible = #{userWorkVisibility.isVisible},
+		updated_at = NOW()
+		WHERE user_id = #{userWorkVisibility.userId} AND work_id = #{userWorkVisibility.workId}
+	</update>
+	
+		
+	
 	</mapper>

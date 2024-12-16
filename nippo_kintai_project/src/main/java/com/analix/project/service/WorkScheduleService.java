@@ -4,6 +4,7 @@ import java.time.LocalTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -17,9 +18,10 @@ public class WorkScheduleService {
 
 	@Autowired
 	SessionHelper sessionHelper;
-
 	@Autowired
 	private WorkScheduleMapper workScheduleMapper;
+	@Autowired
+	private WorkScheduleCacheService workScheduleCacheService;
 
 	/**
 	 * データが存在するかどうか確認
@@ -35,7 +37,7 @@ public class WorkScheduleService {
 	 * @param workSchedule
 	 * @return ture成功 false失敗
 	 */
-	public boolean saveWorkSchedule(WorkSchedule workSchedule) {
+	public boolean insertWorkSchedule(WorkSchedule workSchedule) {
 		return workScheduleMapper.insertWorkSchedule(workSchedule);
 	}
 
@@ -80,9 +82,54 @@ public class WorkScheduleService {
 	public WorkSchedule getWorkScheduleEntity(Integer userId) {
 		return workScheduleMapper.findWorkSchedule(userId);
 	}
+	
+	/**
+	 * 保存ボタン押下
+	 * @param workScheduleForm
+	 * @return ture成功 false失敗
+	 */
+	public boolean saveWorkSchedule(WorkScheduleForm workScheduleForm) {
+
+		// Integer型のHourとMinuteをLocalTime型に変換
+		LocalTime formattedStartTime = LocalTime.of(workScheduleForm.getStartTimeHour(),
+				workScheduleForm.getStartTimeMinute());
+		LocalTime formattedEndTime = LocalTime.of(workScheduleForm.getEndTimeHour(),
+				workScheduleForm.getEndTimeMinute());
+
+		// formからentityに入れなおし
+		WorkSchedule schedule = new WorkSchedule();
+		schedule.setUserId(workScheduleForm.getUserId());
+		schedule.setStartTime(formattedStartTime);
+		schedule.setEndTime(formattedEndTime);
+		schedule.setBreakTime(workScheduleForm.getBreakTime());
+		
+		boolean isSuccsess = saveOrUpdateSchedule(schedule);
+
+		return isSuccsess;
+
+	}
+	
+	//既存データがあれば更新、なければ登録
+	@Transactional
+	public boolean saveOrUpdateSchedule(WorkSchedule schedule) {
+		boolean isSuccess;
+		if (existsByUserId(schedule.getUserId())) {
+			isSuccess = updateWorkSchedule(schedule);
+		} else {
+			isSuccess = insertWorkSchedule(schedule);
+		}
+		
+		// 成功していたらキャッシュの更新もする
+		if (isSuccess) {
+			workScheduleCacheService.put(schedule.getUserId(), schedule);
+		}
+		
+		return isSuccess;
+	}
+	
 
 	/**
-	 * 入力チェック
+	 * 保存時入力チェック
 	 * @param workScheduleForm
 	 * @param result
 	 */
@@ -107,15 +154,14 @@ public class WorkScheduleService {
 
 				result.addError(
 						new FieldError("workScheduleForm", "endTimeHour", "退勤時間は出勤時間より後になるように入力してください。"));
-			}
-			
-			// 退勤可能時間が退勤時間より早い場合のエラーチェック
-			if (endTime.isBefore(adjustedEndTime)) {
-				result.addError(
-						new FieldError("workScheduleForm", "endTimeHour", "退勤時間は出勤時間と休憩時間を加えた時間より後に設定してください。"));
+			} else {
+				// 出勤時間が退勤時間より早い場合、退勤可能時間のエラーチェック
+				if (endTime.isBefore(adjustedEndTime)) {
+					result.addError(
+							new FieldError("workScheduleForm", "endTimeHour", "退勤時間は出勤時間と休憩時間を加えた時間より後に設定してください。"));
+				}
 			}
 		}
-
 	}
 
 }

@@ -133,7 +133,7 @@ main {
     border: 1px solid rgb(190, 198, 220);  /* 枠線 */
     border-radius: 8px;                    /* 角の丸み */
     margin: 10px 0px 10px 0px;                      /* 上下のマージン */
-    padding: 40px;                         /* 内側余白 */
+    padding: 40px 20px;                         /* 内側余白 */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影 */
     text-align: center;                    /* 中央寄せ */
     transition: transform 0.2s;            /* ホバー時のアニメーション */
@@ -699,6 +699,13 @@ main {
 	padding: 0.1rem 0.8rem;
 }
 
+/*勤怠表テーブル*/
+.scroll-container {
+	/* テーブル全体のサイズ */
+	height: 50vh;
+	overflow-y: scroll;
+}
+
 /* マネージャー権限勤怠テーブル */
 .attendance-table {
 	width: 100%;
@@ -721,14 +728,25 @@ main {
     background-color: inherit; /* tbodyの背景色を継承 */
 }
 
-
-
-
-
-
+/*勤怠表テーブル*/
+.scroll-container {
+	/* テーブル全体のサイズ */
+	height: 50vh;
+	overflow-y: scroll;
+}
 /* /テーブル上書き編集 */
 
-
+/* 設定画面のスクロールスパイ */
+.fixed-nav {
+	position: fixed;
+	top: 15vh;
+}
+/* 768px以下のときには非表示 */
+@media (max-width: 768px) {
+	.fixed-nav {
+		display: none;
+	}
+}
 
 /*部署管理画面のselect2レイアウト修正*/
 /*基本スタイル*/

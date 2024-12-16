@@ -132,7 +132,7 @@
 
 																<td><select class="form-select"
 																		th:field="*{dailyReportFormDetailList[__${stat.index}__].workId}">
-																		<option value=""></option>
+																		<option th:value="${dailyReportDetail.workId}" th:text="${dailyReportDetail.workName}"></option>
 																		<option th:each="work : ${workMap}"
 																			th:value="${work.value}"
 																			th:text="${work.key}">

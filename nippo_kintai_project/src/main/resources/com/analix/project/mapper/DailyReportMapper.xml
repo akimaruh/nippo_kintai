@@ -122,7 +122,8 @@
 		report_detail_id,
 		daily_report_detail.work_id,
 		daily_report_detail.time,
-		daily_report_detail.content
+		daily_report_detail.content,
+		work.work_name
 		FROM daily_report
 		INNER JOIN
 		daily_report_detail
@@ -132,6 +133,11 @@
 		AND daily_report.date
 		=
 		daily_report_detail.date
+		INNER JOIN
+		work
+		ON
+		daily_report_detail.work_id =
+		work.work_id
 		WHERE daily_report.user_id = #{userId}
 		AND
 		daily_report.date = #{targetDate}

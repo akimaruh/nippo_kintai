@@ -5,167 +5,324 @@
 <head>
 	<meta charset="UTF-8">
 	<title>設定画面</title>
+<!--	<div id="top"></div>-->
 </head>
 
-<body>	
-	
-<!-- エラーメッセージ -->
-<div th:if="${error}" class="alert alert-danger">
-	<p th:text="${error}"></p>
-</div>
-<div th:if="${message}" class="alert alert-info">
-	<p th:text="${message}"></p>
-</div>
-<!-- エラーメッセージ -->
+<body>
 
+<!--	 エラーメッセージ -->
+<!--	<div th:if="${error}" class="alert alert-danger">-->
+<!--		<p th:text="${error}"></p>-->
+<!--	</div>-->
+<!--	<div th:if="${message}" class="alert alert-info">-->
+<!--		<p th:text="${message}"></p>-->
+<!--	</div>-->
+<!--	 エラーメッセージ -->
 
-	<!-- 勤務時間設定 -->
-	<div class="container d-flex justify-content-center mb-3">
-		<div class="col-xl-6 col-md-6 col-12">
-			<div class="card" style="background-color: rgb(255, 255, 255);">
-				<div class="card-header">
-					<h5 class="text-center">勤務時間の設定</h5>
+	<th:block
+		th:if="${(session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager' || session.loginUser.role == 'Manager')}">
+		<div class="col-2">
+			<nav id="navbar-example3" class="flex-column fixed-nav">
+				<nav class="nav nav-pills flex-column">
+					<!--				<a class="nav-link" href="#top">top</a>-->
+					<a class="nav-link my-1" href="#attendance">勤怠</a>
+					<a class="nav-link my-1" href="#daylyReport">日報</a>
+				</nav>
+			</nav>
+		</div>
+	</th:block>
+
+	<div data-bs-spy="scroll" data-bs-target="#navbar-example3" data-bs-smooth-scroll="true" tabindex="0">
+
+		<!-- 勤怠設定 -->
+		<div id="attendance">
+			<th:block
+				th:if="${(session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager' || session.loginUser.role == 'Manager')}">
+				<div class="container d-flex justify-content-center">
+					<div class="col-xl-6 col-md-7 col-12">
+						<span><i class="bi bi-calendar-check icon"></i> 勤怠</span>
+					</div>
 				</div>
-				<div class="card-body">
-	
-					<!-- エラーメッセージ -->
-<!--					<div th:if="${error}" class="alert alert-danger">-->
-<!--						<p th:text="${error}"></p>-->
-<!--					</div>-->
-<!--					<div th:if="${message}" class="alert alert-info">-->
-<!--						<p th:text="${message}"></p>-->
-<!--					</div>-->
-					<!-- エラーメッセージ -->
-	
-					<form th:action="@{/setting/workSchedule/save}" th:object="${workScheduleForm}" method="post"
-						oninput="checkForm()">
-						<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
-	
-						<div class="row mt-3 mb-3">
-							<div class="col-xl-5 col-md-5 col-12">
-								<label for="startTimeHour">出勤時間</label>
+			</th:block>
+
+			<!-- 勤務時間設定 -->
+			<th:block
+				th:if="${(session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager' || session.loginUser.role == 'Manager')}">
+				<div class="container d-flex justify-content-center mb-3">
+					<div class="col-xl-6 col-md-7 col-12">
+						<div class="card" style="background-color: rgb(255, 255, 255);">
+							<div class="card-header">
+								<h5 class="text-center">勤務時間の設定</h5>
 							</div>
-							<div class="col-xl-3 col-md-3 col-5 px-1">
-								<select class="form-select" style="padding: 1rem;" th:field="*{startTimeHour}">
-									<option value=""></option>
-									<th:block th:each="hour : ${hours}">
-										<option th:value="${hour}" th:text="${hour}"></option>
-									</th:block>
-								</select>
-								<span class="text-danger" th:errors="*{startTimeHour}"></span>
-							</div>
-	
-							<div class="col-auto d-flex align-items-center px-1">
-								<span>:</span>
-							</div>
-	
-							<div class="col-xl-3 col-md-3 col-5 px-1">
-								<select class="form-select" style="padding: 1rem;" th:field="*{startTimeMinute}">
-									<option th:value="${hour}"></option>
-									<option value="00">00</option>
-									<option value="30">30</option>
-								</select>
-								<span class="text-danger" th:errors="*{startTimeMinute}"></span>
+							<div class="card-body">
+								
+								<!-- エラーメッセージ -->
+								<div th:if="${workError}" class="alert alert-danger">
+									<p th:text="${workError}"></p>
+								</div>
+								<div th:if="${workMessage}" class="alert alert-info">
+									<p th:text="${workMessage}"></p>
+								</div>
+								<!-- エラーメッセージ -->
+							
+								<form th:action="@{/setting/workSchedule/save}" th:object="${workScheduleForm}" method="post" oninput="checkForm()">
+									<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
+							
+									<div class="row mt-3 mb-3">
+										<div class="col-xl-5 col-md-5 col-5">
+											<label for="startTimeHour">出勤時間</label>
+										</div>
+										<div class="col-xl-3 col-md-3 col-3 px-1">
+											<select class="form-select" style="padding: 1rem;"
+												th:field="*{startTimeHour}">
+												<option value=""></option>
+												<th:block th:each="hour : ${hours}">
+													<option th:value="${hour}" th:text="${hour}"></option>
+												</th:block>
+											</select>
+											<span class="text-danger" th:errors="*{startTimeHour}"></span>
+										</div>
+										<div class="col-auto d-flex align-items-center px-1">
+											<span>:</span>
+										</div>
+										<div class="col-xl-3 col-md-3 col-3 px-1">
+											<select class="form-select" style="padding: 1rem;"
+												th:field="*{startTimeMinute}">
+												<option th:value="${hour}"></option>
+												<option value="00">00</option>
+												<option value="30">30</option>
+											</select>
+											<span class="text-danger" th:errors="*{startTimeMinute}"></span>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<div class="col-xl-5 col-md-5 col-5">
+											<label for="endTimeHour">退勤時間</label>
+										</div>
+										<div class="col-3 px-1">
+											<select class="form-select" style="padding: 1rem;"
+												th:field="*{endTimeHour}">
+												<option value=""></option>
+												<th:block th:each="hour : ${hours}">
+													<option th:value="${hour}" th:text="${hour}"></option>
+												</th:block>
+											</select>
+											<span class="text-danger" th:errors="*{endTimeHour}"></span>
+										</div>
+										<div class="col-auto d-flex align-items-center px-1">
+											<span>:</span>
+										</div>
+										<div class="col-3 px-1">
+											<select class="form-select" style="padding: 1rem;"
+												th:field="*{endTimeMinute}">
+												<option value=""></option>
+												<option value="00">00</option>
+												<option value="30">30</option>
+											</select>
+											<span class="text-danger" th:errors="*{endTimeMinute}"></span>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<div class="col-5">
+											<label for="breakTime">休憩時間(分)</label>
+										</div>
+										<div class="col-6 px-1">
+											<input type="text" class="form-control" placeholder="例:60"
+												th:field="*{breakTime}">
+											<span class="text-danger" th:errors="*{breakTime}"></span>
+										</div>
+									</div>
+
+									<div class="d-flex justify-content-end">
+										<button type="submit" class="btn" id="submitBtn" disabled>保存</button>
+									</div>
+
+								</form>
 							</div>
 						</div>
-	
-						<div class="row mb-3">
-							<div class="col-xl-5 col-md-5 col-12">
-								<label for="endTimeHour">退勤時間</label>
-							</div>
-							<div class="col-xl-3 col-md-3 col-5 px-1">
-								<select class="form-select" style="padding: 1rem;" th:field="*{endTimeHour}">
-									<option value=""></option>
-									<th:block th:each="hour : ${hours}">
-										<option th:value="${hour}" th:text="${hour}"></option>
-									</th:block>
-								</select>
-								<span class="text-danger" th:errors="*{endTimeHour}"></span>
-							</div>
-	
-							<div class="col-auto d-flex align-items-center px-1">
-								<span>:</span>
-							</div>
-	
-							<div class="col-xl-3 col-md-3 col-5 px-1">
-								<select class="form-select" style="padding: 1rem;" th:field="*{endTimeMinute}">
-									<option value=""></option>
-									<option value="00">00</option>
-									<option value="30">30</option>
-								</select>
-								<span class="text-danger" th:errors="*{endTimeMinute}"></span>
-							</div>
-						</div>
-	
-						<div class="row mb-3">
-							<div class="col-xl-5 col-md-5 col-12">
-								<label for="breakTime">休憩時間(分)</label>
-							</div>
-							<div class="col-xl-6 col-md-6 col-11 px-1">
-								<input type="text" class="form-control" placeholder="例:60" th:field="*{breakTime}">
-								<span class="text-danger" th:errors="*{breakTime}"></span>
-							</div>
-						</div>
-	
-						<div class="d-flex justify-content-end">
-							<button type="submit" class="btn" id="submitBtn" disabled>保存</button>
-						</div>
-	
-					</form>
+					</div>
+				</div>
+				<!-- /勤務時間設定 -->
+		</div>
+		<!-- /勤怠設定 -->
+
+
+		<!-- 日報設定 -->
+		<div id="daylyReport">
+			<th:block th:if="${(session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager' || session.loginUser.role == 'Manager')}">
+			<div class="container d-flex justify-content-center mt-5">
+				<div class="col-xl-6 col-md-7 col-12">
+					<i class="bi bi-clipboard-check icon"></i>
+					<span>日報</span>
 				</div>
 			</div>
+			</th:block>
+
+			<!-- 作業内容の設定【社員】 -->
+			<th:block th:if="${(session.loginUser.role == 'Regular' || session.loginUser.role == 'UnitManager')}">
+				<div class="container d-flex justify-content-center mb-3">
+					<div class="col-xl-6 col-md-7 col-12">
+						<div class="card" style="background-color: rgb(255, 255, 255);">
+							<div class="card-header">
+								<h5 class="text-center">作業内容の設定</h5>
+							</div>
+
+							<div class="card-body">
+							
+								<!-- エラーメッセージ -->
+								<div th:if="${dailyReportError}" class="alert alert-danger">
+									<p th:text="${dailyReportError}"></p>
+								</div>
+								<div th:if="${dailyReportMessage}" class="alert alert-info">
+									<p th:text="${dailyReportMessage}"></p>
+								</div>
+								<!-- エラーメッセージ -->
+								
+								<form th:action="@{/setting/work/save}" method="post" th:object="${workListForm}">
+									<div class="container">
+										<div class="mt-2 mb-4 table-responsive">
+											<table class="table table-hover">
+												<thead>
+													<tr>
+														<th>作業ID</th>
+														<th>作業名</th>
+														<th class="text-center">非表示/表示</th>
+													</tr>
+												</thead>
+												<tbody class="table-light">
+													<tr th:each="work, stat : *{workVisibilityList}">
+														<td th:text="${work.workId}"></td>
+														<td th:text="${work.workName}"></td>
+														<td>
+															<div
+																class="form-check form-switch d-flex justify-content-center align-items-center">
+																<input class="form-check-input" type="checkbox" role="switch"
+																	th:checked="${work.isVisible == 1}"
+																	th:name="|workVisibilityList[${stat.index}].isVisible|" value="1">
+																<input type="hidden"
+																	th:name="|workVisibilityList[${stat.index}].workId|"
+																	th:value="${work.workId}">
+															</div>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+
+										</div>
+
+									</div>
+
+									<div class="d-flex justify-content-end">
+										<button type="submit" class="btn">保存</button>
+									</div>
+
+								</form>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</th:block>
+			<!-- /作業内容の設定【社員】 -->
+
+			<!-- 作業内容の設定【マネージャー】 -->
+			<th:block th:if="${session.loginUser.role == 'Manager'}">
+				<div class="container d-flex justify-content-center mb-3">
+					<div class="col-xl-6 col-md-7 col-12">
+						<div class="card" style="background-color: rgb(255, 255, 255);">
+							<div class="card-header">
+								<h5 class="text-center">作業名の追加</h5>
+							</div>
+							<div class="card-body">
+								<form th:action="@{/setting/work/regist}" method="post" th:object="${workListForm}">
+									<div class="container">
+										<div class="mt-2 table-responsive">
+											<table class="table table-hover">
+												<thead>
+													<tr>
+														<th>作業ID</th>
+														<th>作業名</th>
+													</tr>
+												</thead>
+												<tbody class="table-light">
+													<tr th:each="work, stat : *{workVisibilityList}">
+														<td th:text="${work.workId}"></td>
+														<td th:text="${work.workName}"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+
+										<div class="row mt-3 mb-4">
+											<div class="col-2">
+												<button type="button" class="btn btn-sm" id="plusBtn">+</button>
+											</div>
+											<div class="col-9" id="inputForm" style="display: none;">
+												<input type="text" name="workName" class="form-control"
+													th:value="${workName}">
+											</div>
+										</div>
+
+										<div class="d-flex justify-content-end">
+											<button type="submit" class="btn" id="workSubmitBtn"
+												style="display: none;">登録</button>
+										</div>
+
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</th:block>
 		</div>
+		<!-- /別の設定 -->
+
 	</div>
-	<!-- /勤務時間設定 -->
-	
+	<!-- 日報設定 -->
 
-<script>
-	// 保存ボタンの活性・非活性
-	function checkForm() {
-		const form = document.querySelector('form');
-		const sbmitBtn = document.getElementById('submitBtn');
-		const inputs = form.querySelectorAll('input, select');
 
-		// すべてのフィールドが埋まっているか確認
-		const allField = Array.from(inputs).every(input => input.value !== "");
-		submitBtn.disabled = !allField;
-	}
-</script>
 
-	
+
+	<script>
+		// 保存ボタンの活性・非活性
+		function checkForm() {
+			const form = document.querySelector('form');
+			const sbmitBtn = document.getElementById('submitBtn');
+			const inputs = form.querySelectorAll('input, select');
+
+			// すべてのフィールドが埋まっているか確認
+			const allField = Array.from(inputs).every(input => input.value !== "");
+			submitBtn.disabled = !allField;
+		}
+
+		// 【マネージャー権限】+ボタン押下で入力欄と登録ボタン表示
+		const plusBtn = document.getElementById('plusBtn');
+		const inputForm = document.getElementById('inputForm');
+		const workSubmitBtn = document.getElementById('workSubmitBtn');
+
+		plusBtn.addEventListener('click', function () {
+			inputForm.style.display = "block";
+			workSubmitBtn.style.display = "block";
+		})
+	</script>
 
 	<!-- 別の設定 -->
-	<div class="container d-flex justify-content-center mb-3">
-		<div class="col-md-6">
-			<div class="card" style="background-color: rgb(255, 255, 255);">
-				<div class="card-header">
-					<h5 class="text-center">settei</h5>
-				</div>
-				<div class="card-body">
+	<!--	<div class="container d-flex justify-content-center mb-3">-->
+	<!--		<div class="col-md-6">-->
+	<!--			<div class="card" style="background-color: rgb(255, 255, 255);">-->
+	<!--				<div class="card-header">-->
+	<!--					<h5 class="text-center">settei</h5>-->
+	<!--				</div>-->
+	<!--				<div class="card-body">-->
 
-				</div>
-	
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- /別の設定 -->
-	
-	<!-- 別の設定 -->
-	<div class="container d-flex justify-content-center mb-3">
-		<div class="col-md-6">
-			<div class="card" style="background-color: rgb(255, 255, 255);">
-				<div class="card-header">
-					<h5 class="text-center">settei</h5>
-				</div>
-				<div class="card-body">
+	<!--				</div>-->
 
-				</div>
-	
-				</div>
-			</div>
-		</div>
-	</div>
+	<!--			</div>-->
+	<!--		</div>-->
+	<!--	</div>-->
 	<!-- /別の設定 -->
 
 
