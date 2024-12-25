@@ -35,8 +35,8 @@
 			<form th:action="@{http://localhost:8080/output/dailyReportOutput/excel}" method="post" target="_blank"
 				name="dailyReportExcelOutputForm" id="excel">
 			</form>
-
 		</th:block>
+
 		<div class="col-10">
 			<div class="content">
 				<div class="row">
@@ -46,60 +46,8 @@
 						</canvas>
 						<script th:src="@{https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js}"></script>
 						<script th:inline="javascript">
-
-							const workTimeByProcessMapList = /*[[${dailyReportSummary.workTimeByProcessMapList}]]*/{};
+							const workTimeByProcessMapList = /*[[*{monthlyDailyReport.dailyReportSummaryDto.workTimeByProcessMapList}]]*/{};
 							console.log(workTimeByProcessMapList);
-
-							// labelsとdataを取得するための配列
-							const labels = [];
-							const data = [];
-							for (const [key, value] of Object.entries(workTimeByProcessMapList)) {
-								labels.push(key); // 作業工程名をlabelsに追加
-								data.push(value);  // 作業時間をdataに追加
-							}
-							var pieData = {
-								labels: labels,
-								datasets: [{
-									label: '作業割合',
-									data: data,
-									hoverOffset: 4
-								}]
-							};
-							window.onload = function () {
-								var ctx = document.getElementById("myChart").getContext("2d");
-								var myPieChart = new Chart(ctx, {
-									type: 'pie',
-									data: pieData,
-									options: {
-										responsive: true,
-										plugins: {
-											legend: {
-												position: 'left',
-											},
-											tooltip: {
-												callbacks: {
-													label: function (context) {
-														let label = context.label || '';
-														if (label) {
-															label += ': ';
-														}
-														label += context.raw; // 値を表示
-														return label;
-													}
-												}
-											}
-										}
-									}
-								});
-								const exportButton = document.getElementById('pdf-button');
-								// 画像表示用のimgタグを作成
-								const chartImage = document.getElementById('chartImage');
-								exportButton.addEventListener('click', () => {
-									let imageURL = myPieChart.toBase64Image();
-									console.log(imageURL);
-									document.getElementById('hiddenImageField').value = imageURL; // Base64データを隠しフィールドに設定	
-								});
-							};
 						</script>
 					</div>
 				</div>
@@ -125,20 +73,22 @@
 								</tr>
 							</thead>
 							<tbody class="table-group-divider">
-								<th:block th:each="dailyReport:${generateList}">
-									<tr>
-										<td>[[*{#temporals.format(dailyReport.date, 'M/d')}]]</td>
-										<td>[[*{#temporals.format(dailyReport.date, 'EEE')}]]</td>
-										<th:block th:each="i : ${#numbers.sequence(0, 4)}">
-											<td
-												th:text="${(i < dailyReport.dailyReportDetailDtoList.size()) ? dailyReport.dailyReportDetailDtoList[i].workName : ''}">
-											</td>
-											<td
-												th:text="${(i < dailyReport.dailyReportDetailDtoList.size()) ? dailyReport.dailyReportDetailDtoList[i].time : ''}">
-											</td>
-										</th:block>
-										<td>[[*{dailyReport.timePerDay}]]</td>
-									</tr>
+								<th:block th:object="${monthlyDailyReport}">
+									<th:block th:each="dailyReportDto:*{dailyReportDtoList}">
+										<tr>
+											<td th:text="${#temporals.format(dailyReportDto.date, 'M/d')}"></td>
+											<td th:text="${#temporals.format(dailyReportDto.date, 'EEE')}"></td>
+											<th:block th:each="i : ${#numbers.sequence(0, 4)}">
+												<td
+													th:text="${(i < dailyReportDto.dailyReportDetailDtoList.size()) ? dailyReportDto.dailyReportDetailDtoList[i].workName : ''}">
+												</td>
+												<td
+													th:text="${(i < dailyReportDto.dailyReportDetailDtoList.size()) ? dailyReportDto.dailyReportDetailDtoList[i].time : ''}">
+												</td>
+											</th:block>
+											<td th:text="${dailyReportDto.timePerDay}"></td>
+										</tr>
+									</th:block>
 								</th:block>
 							</tbody>
 						</table>
@@ -148,29 +98,32 @@
 			<!--				集計結果表-->
 			<div class="row">
 				<div class="table-responsive table-responsive-xl">
-					<table class="table table-bordered sortabletable dataTable no-footer " id="user-table" role="grid"
-						aria-describedby="user-table_info">
-						<thead>
-							<tr>
-								<th:block th:each="entry:${dailyReportSummary.workTimeByProcessMapList}">
-									<th><span th:text="${entry.key}"></span></th>
-								</th:block>
-								<th>総作業時間</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th:block th:each="entry:${dailyReportSummary.workTimeByProcessMapList}">
-									<td> <span th:text="${entry.value}"></span></td>
-								</th:block>
-								<td><span th:text="${dailyReportSummary.timePerMonth}"></span></td>
-							</tr>
-						</tbody>
-					</table>
+					<th:block th:object="${monthlyDailyReport}">
+						<table class="table table-bordered sortabletable dataTable no-footer " id="user-table"
+							role="grid" aria-describedby="user-table_info">
+							<thead>
+								<tr>
+									<th:block th:each="entry:*{dailyReportSummaryDto.workTimeByProcessMapList}">
+										<th><span th:text="${entry.key}"></span></th>
+									</th:block>
+									<th>総作業時間</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th:block th:each="entry:*{dailyReportSummaryDto.workTimeByProcessMapList}">
+										<td> <span th:text="${entry.value}"></span></td>
+									</th:block>
+									<td><span th:text="*{dailyReportSummaryDto.timePerMonth}"></span></td>
+								</tr>
+							</tbody>
+						</table>
+					</th:block>
 				</div>
 			</div>
 		</div>
 	</div>
+	<script th:if="${useBootstrap}" th:src="@{/js/chart.js}"></script>
 </body>
 
 </html>

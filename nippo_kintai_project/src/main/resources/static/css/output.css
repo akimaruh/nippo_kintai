@@ -1,42 +1,37 @@
-/*// <uniquifier>: Use a unique and descriptive class name*/
-/*// <weight>: Use a value from 100 to 900*/
-
-/*.noto-sans-jp-<uniquifier> {*/
-/*	font-family: "Noto Sans JP", sans-serif;*/
-/*	font-optical-sizing: auto;*/
-/*	font-weight: <weight>;*/
-/*	font-style: normal;*/
-/*}*/
-
 @page {
-	size: A4;
-	margin: 10;
+	size: A4 landscape;
+	
+	/*	margin: 10px;*/
 }
 
-/*ページを横向きにする*/
-
+@page: right {
+	@bottom-right {
+		content: counter(page);
+	}
+}
 body {
 	/*	font-display: swap;*/
 	font-family: 'Noto Sans JP', sans-serif;
+	page-break-inside: avoid;
 }
 
 .container {
-	width: 90%;
-	margin: 10px auto;
-	padding: 10px;
+	/*	width: 100%;*/
+		margin: 10px auto;
+	padding: 10%;
 	/*	border: 1px solid #333;*/
 	/*	border-radius: 10px;*/
 }
 
 .header {
 	text-align: left;
-	margin-bottom: 10px;
-	
+		margin-bottom: 5px;
+
 }
 
 .content {
-	line-height: 1.6;
-	transform: scale(0.9);
+	/*	line-height: 1.6;*/
+	transform: scaleX(0.95);
 	/*0.9倍に縮小*/
 
 }

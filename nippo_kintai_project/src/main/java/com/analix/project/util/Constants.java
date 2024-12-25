@@ -38,6 +38,12 @@ public interface Constants {
 	public static final String[] DAILY_REPORT_HEADERNAME_ARRAY = { "日付", "曜日", "作業①", "時間①", "作業②", "時間②", "作業③", "時間③",
 			"作業④", "時間④",
 			"作業⑤", "時間⑤", "総作業時間" };
+	/** 帳票ヘッダーカラム名 ： 勤怠帳票 残業時間部分 **/
+	public static final String TOTAL_OVERTIME = "総残業時間";
+	/** 帳票ヘッダーカラム名 ： 勤怠帳票 総労働集計部分 **/
+	public static final String[] ATTENDANCE_SUMMARY_HEADERNAME_ARRAY = { "総労働日数", "総労働時間" };
+	/** 帳票ヘッダーカラム名 ： 勤怠帳票 勤怠表部分 **/
+	public static final String[] ATTENDANCE_HEADERNAME_ARRAY = { "日付", "曜日", "勤怠状況", "出勤時間", "退勤時間", "備考" };
 	/** 帳票に表示する１日の作業の最大種類数 **/
 	public static final int DISPLAY_WORK_QTY = 5;
 	/** ユーザーテーブルのカラム数 **/
@@ -46,14 +52,12 @@ public interface Constants {
 	public static final Byte INSERT_FLG = 1;
 	/** ユーザー登録で更新登録するフラグ **/
 	public static final Byte UPDATE_FLG = 2;
-	/** ユーザー登録時初回パスワード**/
-	public static final String FIRST_PASS = "0000";
 	/** 仮パスワード利用期限範囲(登録時間から"TEMP_PASSWORD_EXPIRE_HOURS"時間) **/
 	public static final long TEMP_PASSWORD_EXPIRE_HOURS = 1;
 	/** 仮パスワード有効フラグ: 無効 **/
 	public static final Byte INACTIVE_FLG = 0;
 	/** 仮パスワード有効フラグ: 有効 **/
-	public static final Byte ACTIVE_FLG = 0;
+	public static final Byte ACTIVE_FLG = 1;
 	/** ログイン試行回数上限 **/
 	public static final Integer LOGIN_FAILURE_LIMIT = 3;
 	/** ロック期間 */

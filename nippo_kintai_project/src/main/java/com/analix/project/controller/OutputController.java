@@ -3,8 +3,6 @@ package com.analix.project.controller;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -18,8 +16,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.analix.project.dto.MonthlyAttendanceDto;
 import com.analix.project.dto.MonthlyDailyReportDto;
 import com.analix.project.entity.Users;
-import com.analix.project.service.DailyReportService;
 import com.analix.project.service.OutputService;
+import com.analix.project.util.AttendanceUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -29,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class OutputController {
 
-	private final DailyReportService dailyReportService;
 	private final OutputService outputService;
 
 	/**
@@ -67,43 +64,56 @@ public class OutputController {
 		Users selectedUserData = outputService.getselectedUserData(userId);
 		Integer employeeCode = selectedUserData == null ? null : selectedUserData.getEmployeeCode();
 		MonthlyDailyReportDto monthlyDailyReportDto = new MonthlyDailyReportDto();
-		List<MonthlyAttendanceDto> attendanceList = new ArrayList<>();
-
-		if (action == "dailyReport") {
+		MonthlyAttendanceDto monthlyAttendanceDto = new MonthlyAttendanceDto();
+		outputService.createAttendanceOutput(userId, targetYearMonth);
+		//『日報帳票』ボタン押下時
+		if (action.equals("dailyReport")) {
 			monthlyDailyReportDto = outputService.getDailyReportListForOutput(userId, targetYearMonth);
 			if (monthlyDailyReportDto == null) {
-				storeErrorModel(targetYearMonth,employeeCode,model);
+				storeErrorModel(targetYearMonth, employeeCode, model);
 				return "/output/list";
 			}
-//			DailyReportSummaryDto dailyReportSummaryDto = monthlyDailyReportDto.getDailyReportSummaryDto();
 			session.setAttribute("monthlyDailyReport", monthlyDailyReportDto);
-//			session.setAttribute("dailyReportDtoList", monthlyDailyReportDto.getDailyReportDtoList());
-//			session.setAttribute("dailyReportSummaryDto", dailyReportSummaryDto);
 			model.addAttribute("monthlyDailyReport", monthlyDailyReportDto);
-			//model.addAttribute("generateList", monthlyDailyReportDto.getDailyReportDtoList());
-			//model.addAttribute("dailyReportSummary", dailyReportSummaryDto);
-		}
-		if (action == "attendance") {
+			storeNormallyModel(targetYearMonth, selectedUserData, model, session);
+			return "/output/dailyReportOutput";
 
 		}
-		if (action == "attendanceDailyReport") {
+		//『勤怠帳票』ボタン押下時
+		if (action.equals("attendance")) {
+			monthlyAttendanceDto = outputService.createAttendanceOutput(userId, targetYearMonth);
+			if (monthlyAttendanceDto == null) {
+				storeErrorModel(targetYearMonth, employeeCode, model);
+				return "/output/list";
+			}
+			Map<Byte, String> statusMap = AttendanceUtil.attendanceStatusForOutput;
+			session.setAttribute("monthlyAttendance", monthlyAttendanceDto);
+			model.addAttribute("statusMap", statusMap);
+			model.addAttribute("monthlyAttendance", monthlyAttendanceDto);
+			storeNormallyModel(targetYearMonth, selectedUserData, model, session);
+			return "/output/attendanceOutput";
 
 		}
-
-		//Excel出力で利用するためセッション格納
-
-		session.setAttribute("targetYearMonth", targetYearMonth);
-		session.setAttribute("userData", selectedUserData);
-
-		//pdf出力時セッションのパラメータをThymeleafで反映できないためモデルに格納
-
-		model.addAttribute("targetYearMonth", targetYearMonth);
-		model.addAttribute("userData", selectedUserData);
-		model.addAttribute("useBootstrap", true); // Bootstrapを使用する場合
-		return "/output/dailyReportOutput";
-
+		//『日報勤怠帳票押下時』
+		if (action.equals("attendanceDailyReport")) {
+			if (monthlyDailyReportDto == null) {
+				storeErrorModel(targetYearMonth, employeeCode, model);
+				return "/output/list";
+			}
+			session.setAttribute("monthlyAttendance", monthlyAttendanceDto);
+			model.addAttribute("monthlyAttendance", monthlyAttendanceDto);
+			storeNormallyModel(targetYearMonth, selectedUserData, model, session);
+		}
+		storeErrorModel(targetYearMonth, employeeCode, model);
+		return "/output/list";
 	}
 
+	/**
+	 * 該当帳票無しの場合の共通部分取得
+	 * @param targetYearMonth
+	 * @param employeeCode
+	 * @param model
+	 */
 	public void storeErrorModel(YearMonth targetYearMonth, Integer employeeCode, Model model) {
 
 		model.addAttribute("error", "登録された日報がありません");
@@ -113,7 +123,27 @@ public class OutputController {
 	}
 
 	/**
-	 * 『Excel』ボタン押下後
+	 * 該当帳票有りの場合の共通部分取得
+	 * @param targetYearMonth
+	 * @param selectedUserData
+	 * @param model
+	 * @param session
+	 */
+	public void storeNormallyModel(YearMonth targetYearMonth, Users selectedUserData, Model model,
+			HttpSession session) {
+		//Excel出力で利用するためセッション格納
+		session.setAttribute("targetYearMonth", targetYearMonth);
+		session.setAttribute("userData", selectedUserData);
+
+		//pdf出力時セッションのパラメータをThymeleafで反映できないためモデルに格納
+		model.addAttribute("targetYearMonth", targetYearMonth);
+		model.addAttribute("userData", selectedUserData);
+		model.addAttribute("useBootstrap", true); // Bootstrapを使用する場合
+
+	}
+
+	/**
+	 * (日報帳票)『Excel』ボタン押下後
 	 * @param model
 	 * @param response
 	 * @param session
@@ -121,12 +151,22 @@ public class OutputController {
 	 * @throws IOException
 	 */
 	@PostMapping(path = "/output/dailyReportOutput/excel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	public void output(Model model, HttpServletResponse response, HttpSession session) throws IOException {
-		outputService.downloadExcel(response, session);
-		session.removeAttribute("dailyReportDtoList");
-		session.removeAttribute("dailyReportSummaryDto");
-		session.removeAttribute("targetYearMonth");
-		session.removeAttribute("userData");
+	public void dailyReportEcxelOutput(Model model, HttpServletResponse response, HttpSession session)
+			throws IOException {
+		outputService.dailyReportExcelSetAndOutput(response, session);
+	}
+
+	/**
+	 * 
+	 * @param model
+	 * @param response
+	 * @param session
+	 * @throws IOException
+	 */
+	@PostMapping(path = "/output/attendanceOutput/excel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public void attendanceEcxelOutput(Model model, HttpServletResponse response, HttpSession session)
+			throws IOException {
+		outputService.attendanceExcelSetAndOutput(response, session);
 	}
 
 }

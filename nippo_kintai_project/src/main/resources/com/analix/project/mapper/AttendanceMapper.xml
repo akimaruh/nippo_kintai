@@ -103,27 +103,128 @@
 	</update>
 
 	<select id="todaysStartTimeExistCheck" resultType="boolean">
-		 SELECT EXISTS (
-        SELECT 1 
-        FROM attendance 
-        WHERE user_id = #{userId} 
-        AND date = #{today} 
-        AND start_time != ''
-    );
+		SELECT EXISTS
+		(
+		SELECT 1
+		FROM attendance
+		WHERE user_id = #{userId}
+		AND date = #{today}
+		AND start_time != ''
+		);
 	</select>
-	
-	<!-- 訂正申請承認後-->
-	<update id="updateAttendanceFromCorrection" parameterType="Integer">
+
+	<!-- 訂正申請承認後 -->
+	<update id="updateAttendanceFromCorrection"
+		parameterType="Integer">
 		UPDATE attendance a
 		JOIN attendance_correction ac
-		ON a.user_id = ac.user_id
+		ON
+		a.user_id = ac.user_id
 		AND a.date = ac.date
 		SET
 		a.status = ac.status,
 		a.start_time = ac.start_time,
 		a.end_time = ac.end_time,
-		a.remarks = ac.remarks
+		a.remarks =
+		ac.remarks
 		WHERE ac.id = #{id}
 	</update>
+
+<!-- 勤怠と訂正テーブルを結合して取得（年月/日付） -->
+<resultMap id="AttendanceInfoDtoMap" type="com.analix.project.dto.AttendanceInfoDto">
+<!-- currentAttendance のマッピング -->
+<result property="currentAttendance.date" column="attendanceDate" />
+<result property="currentAttendance.status" column="attendanceStatus" />
+<result property="currentAttendance.startTime" column="attendanceStartTime" />
+<result property="currentAttendance.endTime" column="attendanceEndTime" />
+<result property="currentAttendance.remarks" column="attendanceRemarks" />
+<!-- correctedAttendance のマッピング -->
+<result property="correctedAttendance.date" column="correctionDate" />
+<result property="correctedAttendance.status" column="correctionStatus" />
+<result property="correctedAttendance.startTime" column="correctionStartTime" />
+<result property="correctedAttendance.endTime" column="correctionEndTime" />
+<result property="correctedAttendance.remarks" column="correctionRemarks" />
+<result property="correctionRejectionReason" column="correctionRejectionReason" />
+<result property="correctionReason" column="correctionReason" />
+<result property="correctionConfirmer" column="correctionConfirmer" />
+<result property="correctionId" column="correctionId" />
+</resultMap>
+<select id="findAttendanceWithCorrectons" resultMap="AttendanceInfoDtoMap">
+    	SELECT 
+    	a.date AS attendanceDate,
+        a.status AS attendanceStatus,
+        a.start_time AS attendanceStartTime,
+       	a.end_time AS attendanceEndTime,
+       	a.remarks AS attendanceRemarks,
+		ac.date AS correctionDate,
+        ac.status AS correctionStatus,
+        ac.start_time AS correctionStartTime,
+        ac.end_time AS correctionEndTime,
+        ac.remarks AS correctionRemarks,
+        ac.rejection_reason AS correctionRejectionReason,
+        ac.correction_reason AS correctionReason,
+        ac.confirmer AS correctionConfirmer,
+        ac.id AS correctionId
+    	FROM attendance a
+   	 	LEFT JOIN attendance_correction ac
+    	ON a.user_id = ac.user_id
+    	AND a.date = ac.date
+   		WHERE
+        a.user_id = #{userId}
+<if test="targetDate != null">
+        AND a.date = #{targetDate}
+</if>
+<if test="targetYearMonth != null">
+        AND DATE_FORMAT(a.date, '%Y-%m') = #{targetYearMonth}
+</if>
+</select>
+
+	<!-- 帳票出力 -->
+	<select id="daysTimeRetrieveByStatus" resultType="hashmap">
+		SELECT
+		status,
+		SUM(
+		CASE 
+		WHEN 480 > TIMESTAMPDIFF(MINUTE, start_time,
+		end_time) THEN TIMESTAMPDIFF(MINUTE, start_time,
+		end_time)
+		ELSE
+		TIMESTAMPDIFF(MINUTE, start_time,
+		end_time)-60 
+		END
+		) AS totalTimeMinutes,
+		COUNT(*) AS totalDays
+		FROM
+		attendance
+		WHERE
+		user_id = #{userId}
+		AND
+		DATE_FORMAT(date, '%Y-%m') = #{targetYearMonth}
+		GROUP BY
+		status
+		ORDER BY
+		status
+	</select>
+
+	<select id="everyWeekOvertimeHoursRetrieve" resultType="hashmap">
+		SELECT
+		YEARWEEK(date, 1) AS week,
+		SUM(
+		CASE
+		WHEN TIMESTAMPDIFF(MINUTE, start_time, end_time) > 480 THEN TIMESTAMPDIFF(MINUTE, start_time,
+		end_time) - 480 - 60
+		ELSE 0
+		END
+		) AS overtimeMinutes
+		FROM
+		attendance
+		WHERE
+		user_id =
+		#{userId}
+		AND
+		DATE_FORMAT(date, '%Y-%m') = #{targetYearMonth}
+		GROUP BY
+		YEARWEEK(date, 1)
+	</select>
 
 </mapper>

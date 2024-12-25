@@ -3,6 +3,7 @@ package com.analix.project.util;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.YearMonth;
+import java.util.Arrays;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -28,23 +29,29 @@ public class ExcelUtil {
 	/* エクセル縦軸文字を数値に変換 */
 	public static final String MAX_COL_STR = CellReference.convertNumToColString(ExcelUtil.MAX_COL_NUM - 1);
 	/* ワークブック初期化 */
-	private Workbook wb = null;
+	//	private static Workbook wb = null;
 	static int rowIndex = 0;
 
 	/**
-	 * Excelワークブック名の作成
+	 * Excelワークブックの作成
 	 * @param outputName
 	 * @param targetName
 	 * @param loginUser
 	 * @return ワークブック名
+	 * @throws IOException 
 	 */
-	public String createWorkbookName(String outputName, YearMonth targetYearMonth, Users userData) {
-		String targetYearMonthForFile = targetYearMonth.toString().replaceAll("-", "");
-		String wbName = outputName + targetYearMonthForFile + "_" + userData.getDepartmentName() + "_"
-				+ userData.getName()
-				+ ".xlsx";
-		return wbName;
-	}
+	//	public void createWorkbook(String outputName, YearMonth targetYearMonth, Users userData, WorkbookDto workbookDto,
+	//			HttpServletResponse response) throws IOException {
+	//		Workbook wb = new XSSFWorkbook();
+	//		Sheet sheet = wb.createSheet(outputName);
+	//		String targetYearMonthForFile = targetYearMonth.toString().replaceAll("-", "");
+	//		String wbName = outputName + targetYearMonthForFile + "_" + userData.getDepartmentName() + "_"
+	//				+ userData.getName()
+	//				+ ".xlsx";
+	//		workbookDto.setWbName(wbName);
+	//		workbookDto.setWb(wb);
+	//		ExcelUtil.downloadBook(workbookDto, response);
+	//	}
 
 	/**
 	 * Excelファイルのダウンロード
@@ -53,6 +60,13 @@ public class ExcelUtil {
 	 * @throws IOException
 	 */
 	public static void downloadBook(WorkbookDto workbookDto, HttpServletResponse response) throws IOException {
+
+		String targetYearMonthForFile = workbookDto.getTargetYearMonth().toString().replaceAll("-", "");
+		String wbName = workbookDto.getWbName() + targetYearMonthForFile + "_"
+				+ workbookDto.getUserData().getDepartmentName() + "_"
+				+ workbookDto.getUserData().getName()
+				+ ".xlsx";
+		workbookDto.setWbName(wbName);
 
 		//ワークブック名を基にファイル名をセット
 		String fileNameSjis = new String(workbookDto.getWbName().getBytes("Shift_JIS"), "ISO-8859-1").replace(" ",
@@ -67,11 +81,9 @@ public class ExcelUtil {
 			// Excel出力
 			workbookDto.getWb().write(stream);
 
-			//			return true;
 		} catch (Exception e) {
-			//失敗メッセージを出せるように後々return=true;に変更
+
 			e.printStackTrace();
-			//			return false;
 		} finally {
 			rowIndex = 0;
 			workbookDto.getWb().close();
@@ -85,17 +97,21 @@ public class ExcelUtil {
 	 * @param targetYearMonth
 	 * @param sheetName
 	 */
-	public void setHeaderRow(Workbook workbook, Users userData, YearMonth targetYearMonth,
+	public static void setHeaderRow(Workbook workbook, Users userData, YearMonth targetYearMonth,
 			String sheetName) {
 		Sheet sheet = workbook.getSheet(sheetName);
-		Row headerRow;
+		Row headerRow = sheet.createRow(rowIndex);
 		String[] labels = { "社員コード：", "ユーザー名：", "対象年月：" };
 		String[] values = {
 				userData.getEmployeeCode().toString(), // ユーザーID
 				userData.getName(), // ユーザー名
 				targetYearMonth.toString() // 対象年月
 		};
-		for (int i = 0; i < labels.length; i++) {
+		headerRow = sheet.createRow(rowIndex++);
+		//社員コードを数値にするため先に設定
+		headerRow.createCell(0).setCellValue(labels[0]);
+		headerRow.createCell(1).setCellValue(userData.getEmployeeCode());
+		for (int i = 1; i < labels.length; i++) {
 			headerRow = sheet.createRow(rowIndex++);
 			headerRow.createCell(0).setCellValue(labels[i]);
 			headerRow.createCell(1).setCellValue(values[i]);
@@ -103,7 +119,12 @@ public class ExcelUtil {
 
 	}
 
-	public CellStyle setDefaultStyle(Workbook workbook) {
+	/**
+	 * エクセルデフォルトのスタイル設定
+	 * @param workbook
+	 * @return
+	 */
+	public static CellStyle setDefaultStyle(Workbook workbook) {
 		// データのスタイル
 		CellStyle bodyStyle = workbook.createCellStyle();
 		bodyStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -120,7 +141,7 @@ public class ExcelUtil {
 	 * @param Object[]型bodyArray 
 	 * @param workbook
 	 */
-	public void setRow(Object[] headerArray, Object[] bodyArray, Workbook workbook, String sheetName) {
+	public static void setRow(Object[] headerArray, Object[] bodyArray, Workbook workbook, String sheetName) {
 
 		Sheet sheet = workbook.getSheet(sheetName);
 		Row headerRow = sheet.createRow(rowIndex++);
@@ -153,8 +174,8 @@ public class ExcelUtil {
 	 * @param Object[][]型bodyArray
 	 * @param workbook
 	 */
-	public void setRow(Object[] headerArray, Object[][] bodyArray, Workbook workbook, String sheetName) {
-
+	public static void setRow(Object[] headerArray, Object[][] bodyArray, Workbook workbook, String sheetName) {
+		System.out.println("bodyArray:" + Arrays.deepToString(bodyArray));
 		Sheet sheet = workbook.getSheet(sheetName);
 		Row headerRow = sheet.createRow(rowIndex++);
 		for (int i = 0; i < headerArray.length; i++) {
@@ -167,6 +188,7 @@ public class ExcelUtil {
 			cell.setCellStyle(setDefaultStyle(workbook));
 		}
 		for (Object[] rowData : bodyArray) {
+			System.out.println("rowData:" + Arrays.toString(rowData));
 			Row bodyRow = sheet.createRow(rowIndex++);
 			for (int i = 0; i < rowData.length; i++) {
 				Cell cell = bodyRow.createCell(i);
@@ -176,6 +198,7 @@ public class ExcelUtil {
 					cell.setCellValue((Integer) rowData[i]);
 				}
 				cell.setCellStyle(setDefaultStyle(workbook));
+
 			}
 		}
 		rowIndex++;
