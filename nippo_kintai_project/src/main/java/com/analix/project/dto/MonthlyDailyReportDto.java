@@ -9,6 +9,6 @@ public class MonthlyDailyReportDto {
 	/*1カ月の日報リスト*/
 	private List<DailyReportDto> dailyReportDtoList;
 	/*日報サマリ*/
-	private  DailyReportSummaryDto dailyReportSummaryDto;
+	private DailyReportSummaryDto dailyReportSummaryDto;
 
 }

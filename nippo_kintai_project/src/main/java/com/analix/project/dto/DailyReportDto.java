@@ -20,5 +20,7 @@ public class DailyReportDto {
 	private String userName;
 	/*1日の作業時間*/
 	private Integer timePerDay;
+//	/*日報サマリ*/
+//	private  DailyReportSummaryDto dailyReportSummaryDto;
 
 }
