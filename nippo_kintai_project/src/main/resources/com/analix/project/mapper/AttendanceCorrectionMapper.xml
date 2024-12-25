@@ -15,21 +15,20 @@
 		application_date = #{correction.applicationDate}, confirmer = NULL, reject_flg = 0
 	</insert>
 	
-	<!-- 全件取得 -->
+	<!-- 訂正申請情報をリストで取得 マネージャ―権限初期表示-->
 	<select id="findAllAttendanceCorrection"
 		resultType="com.analix.project.entity.AttendanceCorrection">
 		SELECT
 		users.name AS user_name,
-		ac.id,
-		ac.user_id, ac.status, ac.date, ac.start_time, ac.end_time,
-		ac.remarks, ac.correction_reason, ac.rejection_reason, ac.application_date, ac.confirmer, ac.reject_flg
+		ac.id, ac.date, ac.application_date,
+		ac.confirmer, ac.reject_flg
 		FROM
 		attendance_correction ac
 		JOIN
 		users ON ac.user_id = users.id
 	</select>
 	
-	<!-- 訂正idからデータ（ユーザーId、申請者、対象日付、申請日）取得-->
+	<!-- 訂正idからデータ（ユーザーId、申請者、対象日付、申請日）取得 マネージャ権限リンク押下後Dtoにいれる-->
 	<select id="findCorrectionDataById"
 		resultType="com.analix.project.dto.AttendanceCorrectionDto">
 		SELECT
@@ -42,27 +41,19 @@
 		ac.id = #{id}
 	</select>
 	
-	<!-- userIdとdateを条件に検索して取得-->
-	<select id="findAttendanceByUserIdAndDate"
-		resultType="com.analix.project.entity.AttendanceCorrection">
-		SELECT * FROM attendance_correction
-		WHERE user_id = #{userId} AND date = #{date}
-	</select>
-	
-	<!-- 却下リスト取得（ユーザーIDと年月と却下フラグ1を条件に却下された訂正リスト取得）-->
-	<select id="findRejectedAttendanceByUserIdAndYearMonth"
-		resultType="com.analix.project.entity.AttendanceCorrection">
-		SELECT * FROM attendance_correction
-		WHERE user_id = #{userId}
-		AND DATE_FORMAT(date, '%Y-%m') = #{yearMonth}
-		AND reject_flg = 1
-		ORDER BY date ASC
-	</select>
-	
+	<!-- userIdとdateを条件に検索して取得 マネージャ権限訂正内容中身-->
+<!--	<select id="findAttendanceByUserIdAndDate"-->
+<!--		resultType="com.analix.project.entity.AttendanceCorrection">-->
+<!--		SELECT * FROM attendance_correction-->
+<!--		WHERE user_id = #{userId} AND date = #{date}-->
+<!--	</select>-->
+
 	<!-- 申請中リスト取得（ユーザーIDと年月と却下フラグ0と確認者nullを条件）-->
 	<select id="findReqestedCorrectionByUserIdAndYearMonth"
 		resultType="com.analix.project.entity.AttendanceCorrection">
-		SELECT * FROM attendance_correction
+		SELECT
+		status, date, start_time, end_time, remarks, correction_reason
+		FROM attendance_correction
 		WHERE user_id = #{userId}
 		AND DATE_FORMAT(date, '%Y-%m') = #{yearMonth}
 		AND confirmer IS NULL
@@ -70,7 +61,17 @@
 		ORDER BY date ASC
 	</select>
 	
-	<!-- 訂正申請却下後 -->
+	<!-- 却下リスト取得（ユーザーIDと年月と却下フラグ1を条件に却下された訂正リスト取得）-->
+<!--	<select id="findRejectedAttendanceByUserIdAndYearMonth"-->
+<!--		resultType="com.analix.project.entity.AttendanceCorrection">-->
+<!--		SELECT * FROM attendance_correction-->
+<!--		WHERE user_id = #{userId}-->
+<!--		AND DATE_FORMAT(date, '%Y-%m') = #{yearMonth}-->
+<!--		AND reject_flg = 1-->
+<!--		ORDER BY date ASC-->
+<!--	</select>-->
+	
+	<!-- 訂正申請却下 -->
 	<update id="updateRejectCorrection" parameterType="com.analix.project.form.AttendanceCorrectionForm">
 		UPDATE attendance_correction
 		SET reject_flg = 1, rejection_reason = #{correctionForm.rejectionReason},
@@ -78,32 +79,18 @@
 		WHERE id = #{correctionForm.id}
 	</update>
 	
-	<!-- 承認申請承認後 -->
+	<!-- 承認申請承認 -->
 	<update id="updateApproveCorrection" parameterType="Map">
 		UPDATE attendance_correction
 		SET confirmer = #{confirmer}
 		WHERE id = #{id}
 	</update>
 	
-	<!-- 却下理由【訂正申請】×ボタン押下(却下フラグ0に更新) -->
-	<update id="updateRejectFlg">
+	<!-- 却下理由【訂正申請】×ボタン押下(却下理由をnullに更新) -->
+	<update id="updateRejectionReason">
 		UPDATE attendance_correction
-		SET reject_flg = 0
+		SET rejection_reason = null
 		WHERE id = #{correctionId}
 	</update>
-	
-	<!-- 指定されたページの訂正情報を取得 -->
-<!--	<select id="findCorrections"-->
-<!--		resultType="com.analix.project.entity.AttendanceCorrection">-->
-<!--		SELECT * FROM attendance_correction-->
-<!--		WHERE user_id = #{userId}-->
-<!--		LIMIT #{limit} OFFSET #{offset}-->
-<!--	</select>-->
-
-	<!-- 訂正申請の総件数を取得 -->
-<!--	<select id="countCorrections" resultType="Integer">-->
-<!--		SELECT COUNT(*) FROM attendance_correction-->
-<!--		WHERE user_id = #{userId}-->
-<!--	</select>-->
 
 </mapper>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="
+http://www.thymeleaf.org
+" th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+	<link th:href="@{/css/style.css}" rel="stylesheet">
+
+	<title>勤怠承認画面</title>
+</head>
+
+<body>
+	<script th:inline="javascript">
+		let statusMap =/*[[${statusMap}]]*/ {};
+		let correctionForm = /*[[${correctionForm}]]*/ {};
+		const errorMessages = /*[[${errorMessages}]]*/ {};
+		const holidays = /*[[${holidays}]]*/ {}; // 対象年月の祝日リスト
+	</script>
+
+	<!-- カード外枠 -->
+	<div class="mt-5 mb-5 d-flex justify-content-center">
+		<div class="card col-xl-12 col-md-12 col-12">
+			<div class="card-body mt-4">
+
+				<!-- エラーメッセージ -->
+				<div th:if="${error}" class="alert alert-danger">
+					<p th:text="${error}"></p>
+				</div>
+				<div th:if="${message}" class="alert alert-info">
+					<p th:text="${message}"></p>
+				</div>
+				<!-- エラーメッセージ -->
+
+				<!-- ボタン【マネージャ権限】 -->
+				<div class="d-flex justify-content-between">
+					<a href="/attendance/approve">
+						<input type="submit" value="←戻る" class="btn-yellow"
+							th:if="${attendanceList != null || attendanceInfo != null}" />
+					</a>
+					<div>
+						<button type="submit" class="btn-yellow" data-bs-toggle="modal" data-bs-target="#rejectModal"
+							id="rejectModalBtn"
+							th:disabled="${attendanceList == null && attendanceInfo == null}">却下</button>
+						<button type="submit" id="approve-btn" form="approve-form" class="btn-yellow mx-2"
+							onclick="setAction('approve')"
+							th:disabled="${attendanceList == null && attendanceInfo == null}">承認</button>
+					</div>
+				</div>
+				<!-- /ボタン【マネージャ権限】 -->
+
+				<!-- 月次承認申請 -->
+				<th:block th:if="${(action == 'initial' || action == 'monthly')}">
+					<div class="mt-4 mb-4 border col-xl-12 col-md-12 col-12">
+						<div class="card" style="background-color: white;">
+							<div class="card-body">
+								<div class="table-responsive">
+									<table class="table table-hover attendance-table" role="grid"
+										aria-describedby="user-table_info">
+										<thead>
+											<tr>
+												<th width="35%">月次申請者</th>
+												<th width="35%">対象年月</th>
+												<th width="30%">申請日</th>
+											</tr>
+										</thead>
+										<tbody>
+											<th:block th:each="monthlyReq : ${monthlyAttendanceReqList}"
+												th:if="${monthlyReq.status == 1}">
+												<tr>
+													<td>
+														<a th:href="@{/attendance/approveRequests/monthlyId={id}(id=${monthlyReq.id})}">[[${monthlyReq.name}]]</a>
+													</td>
+													<td th:text="${#temporals.format(monthlyReq.targetYearMonth, 'yyyy/MM')}"></td>
+													<td th:text="${#temporals.format(monthlyReq.date, 'yyyy/MM/dd')}"></td>
+												</tr>
+											</th:block>
+											<th:block th:if="${action == 'monthly'}">
+												<tr>
+													<td th:text="${monthlyDto.name}"></td>
+													<td th:text="${monthlyDto.yearMonthStr}"></td>
+													<td th:text="${monthlyDto.formattedDate}"></td>
+												</tr>
+											</th:block>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</th:block>
+				<!-- /月次承認申請 -->
+
+				<!-- 訂正承認申請 -->
+				<th:block th:if="${(action == 'initial' || action == 'correction')}">
+					<div class="mt-4 mb-5 border col-xl-12 col-md-12 col-12">
+						<div class="card" style="background-color: white;">
+							<div class="card-body">
+								<div class="table-responsive">
+									<table class="table table-hover attendance-table" role="grid"
+										aria-describedby="user-table_info">
+										<thead>
+											<tr>
+												<th width="35%">訂正申請者</th>
+												<th width="35%">対象年月日</th>
+												<th width="30%">申請日</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="correctionList : ${attendanceCorrectionList}"
+												th:if="${correctionList.rejectFlg == 0 && correctionList.confirmer == null}">
+												<td>
+													<a th:href="@{/attendance/correctionRequests/correctionId={id}(id=${correctionList.id})}"
+														name="attendanceCorrectionForm">[[${correctionList.userName}]]</a>
+												</td>
+												<td th:text="${#temporals.format(correctionList.date, 'yyyy/MM/dd')}">
+												</td>
+												<td
+													th:text="${#temporals.format(correctionList.applicationDate, 'yyyy/MM/dd')}">
+												</td>
+
+											<tr th:if="${action == 'correction'}">
+												<td th:text="${correctionDto.userName}"></td>
+												<td th:text="${correctionDto.formattedDate}"></td>
+												<td th:text="${correctionDto.formattedApplicationDate}"></td>
+											</tr>
+
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</th:block>
+				<!-- /訂正承認申請 -->
+
+				<!-- 訂正理由 -->
+<!--				<th:block th:if="${action == 'correction'}">-->
+<!--					<div class="card bg-light mt-3 mb-3">-->
+<!--						<div class="card-header d-flex justify-between align-items-center">-->
+<!--							<strong>訂正理由【訂正申請】</strong>-->
+<!--						</div>-->
+<!--						<div class="card-body">-->
+<!--							<span th:text="${correction.correctionReason}"></span>-->
+<!--							<br>-->
+<!--							<th:block th:each="attendance : ${attendanceList}">-->
+<!--								<th:block-->
+<!--									th:if="${attendance.date != null && #temporals.format(attendance.date, 'yyyy/MM/dd') == correctionDto.formattedDate}">-->
+<!--									<span style="color: gray;"-->
+<!--										th:text="'訂正前：[' + ${T(com.analix.project.util.AttendanceUtil).getAttendanceStatus(attendance.status)} + '][' +-->
+<!--																	${(attendance.startTime != null && attendance.endTime != null) ? attendance.startTime + '~' + attendance.endTime : ' - '} + -->
+<!--																	'][備考:' + (${attendance.remarks != null && attendance.remarks.trim() != '' ? attendance.remarks : 'なし'}) + ']'"></span>-->
+<!--								</th:block>-->
+<!--							</th:block>-->
+				
+<!--						</div>-->
+<!--					</div>-->
+<!--				</th:block>-->
+				<!-- /訂正理由 -->
+
+				<!-- 「承認申請者」押下後 -->
+				<th:block th:if="${action != 'initial'}">
+					<th:block th:if="${action == 'correction'}">
+						<span>【 訂正前 】</span>
+					</th:block>
+					<div class="mt-2 mb-3 border col-xl-12 col-md-12 col-12">
+						<div class="card" style="background-color: white;">
+							<div class="card-body">
+								<div class="table-responsive">
+									<form id="approve-form" method="post"
+										th:action="${action == 'monthly' ? '/attendance/approveMonthly' : '/attendance/approveCorrection'}">
+										<input type="hidden" name="action" id="form-action" />
+										<table class="table table-hover attendance-table" role="grid"
+											aria-describedby="attendance-table_info">
+											<thead>
+												<tr>
+													<th class="col-1">日付</th>
+													<th class="col-1">曜日</th>
+													<th class="col-2">勤務状況</th>
+													<th class="col-2">出勤時間</th>
+													<th class="col-2">退勤時間</th>
+													<th class="col-3">備考</th>
+												</tr>
+											</thead>
+				
+											<!-- 月次 -->
+											<th:block th:if="${action == 'monthly'}">
+												<tbody>
+													<th:block th:each="attendanceReq,stat : ${attendanceList}">
+														<tr class="attendance-row"
+															th:data-date="${#temporals.format(attendanceReq.date, 'yyyy/MM/dd')}">
+															<td th:text="${#temporals.format(attendanceReq.date, 'M/d')}">
+															</td>
+															<td class="weekdayCells" th:text="${#temporals.format(attendanceReq.date, 'EEE')}">
+															</td>
+															<td id="status-${attendanceReq.id}" th:text="${attendanceReq.status}">
+															</td>
+															<td
+																th:text="${attendanceReq.startTime != null ? #temporals.format(attendanceReq.startTime, 'HH:mm') : '-'}">
+															</td>
+															<td
+																th:text="${attendanceReq.endTime != null ? #temporals.format(attendanceReq.endTime, 'HH:mm') : '-'}">
+															</td>
+															<td th:text="${attendanceReq.remarks}"></td>
+														</tr>
+													</th:block>
+												</tbody>
+											</th:block>
+											<!-- /月次 -->
+				
+											<!-- 訂正 -->
+											<th:block th:if="${action == 'correction'}">
+												<tbody>
+													<tr class="attendance-row"
+														th:data-date="${#temporals.format(attendanceInfo.currentAttendance.date, 'yyyy/MM/dd')}">
+														<input type="hidden" name="id" th:value="${attendanceInfo.correctionId}" />
+														<td
+															th:text="${#temporals.format(attendanceInfo.currentAttendance.date, 'M/d')}">
+														</td>
+														<td class="weekdayCells"
+															th:text="${#temporals.format(attendanceInfo.currentAttendance.date, 'EEE')}">
+														</td>
+														<td id="status-${correction.id}"
+															th:text="${attendanceInfo.currentAttendance.status}">
+														</td>
+														<td
+															th:text="${attendanceInfo.currentAttendance.startTime != null ? #temporals.format(attendanceInfo.currentAttendance.startTime, 'HH:mm') : '-'}">
+														</td>
+														<td
+															th:text="${attendanceInfo.currentAttendance.endTime != null ? #temporals.format(attendanceInfo.currentAttendance.endTime, 'HH:mm') : '-'}">
+														</td>
+														<td th:text="${attendanceInfo.currentAttendance.remarks != '' ? attendanceInfo.correctedAttendance.remarks : '-'}"></td>
+													</tr>
+												</tbody>
+											</th:block>
+											<!-- /訂正 -->
+				
+										</table>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</th:block>
+				<!-- 「承認申請者」押下後終わり -->
+				
+				
+				<!-- 「承認申請者」押下後（訂正） -->
+				<th:block th:if="${action == 'correction'}">
+					<div class="d-flex justify-content-center">
+						<i class="bi bi-caret-down-fill"></i>
+					</div>
+				
+					<span>【 訂正内容 】</span>
+					<div class="mt-2 mb-3 border col-xl-12 col-md-12 col-12">
+						<div class="card" style="background-color: white;">
+							<div class="card-body">
+								<div class="table-responsive">
+									<input type="hidden" name="action" id="form-action" />
+									<table class="table table-hover attendance-table" role="grid"
+										aria-describedby="attendance-table_info">
+										<thead>
+											<tr>
+												<th class="col-1">日付</th>
+												<th class="col-1">曜日</th>
+												<th class="col-2">勤務状況</th>
+												<th class="col-2">出勤時間</th>
+												<th class="col-2">退勤時間</th>
+												<th class="col-3">備考</th>
+											</tr>
+										</thead>
+				
+										<tbody>
+											<tr class="attendance-row"
+												th:data-date="${#temporals.format(attendanceInfo.currentAttendance.date, 'yyyy/MM/dd')}">
+												<!-- <input type="hidden" name="id" th:value="${correction.id}" />-->
+												<td th:text="${#temporals.format(attendanceInfo.correctedAttendance.date, 'M/d')}">
+												</td>
+												<td class="weekdayCells" th:text="${#temporals.format(attendanceInfo.correctedAttendance.date, 'EEE')}">
+												</td>
+												<td id="status-${correction.id}" th:text="${attendanceInfo.correctedAttendance.status}">
+												</td>
+												<td
+													th:text="${attendanceInfo.correctedAttendance.startTime != null ? #temporals.format(attendanceInfo.correctedAttendance.startTime, 'HH:mm') : '-'}">
+												</td>
+												<td
+													th:text="${attendanceInfo.correctedAttendance.endTime != null ? #temporals.format(attendanceInfo.correctedAttendance.endTime, 'HH:mm') : '-'}">
+												</td>
+												<td
+													th:text="${attendanceInfo.correctedAttendance.remarks != '' ? attendanceInfo.correctedAttendance.remarks : '-'}">
+												</td>
+											</tr>
+										</tbody>
+				
+									</table>
+									訂正理由：<span th:text="${attendanceInfo.correctionReason}"></span>
+								</div>
+				
+							</div>
+						</div>
+					</div>
+				</th:block>
+				<!-- 「承認申請者」押下後（訂正）終わり -->
+
+			</div>
+		</div>
+	</div>
+	<!-- カード外側 -->
+
+
+	<!-- 却下ボタン押下時モーダル -->
+	<div class="modal fade" id="rejectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="rejectModalBtn" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">却下</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+						onclick="location.href=window.location.href"></button>
+				</div>
+
+				<div class="modal-body">
+					<div class="alert alert-warning" role="alert" id="rejectWarning">
+						<i class="bi bi-exclamation-triangle-fill"></i>
+						<th:block th:if="${action == 'monthly'}">
+							<span th:text="${modalMessage}"></span>
+						</th:block>
+
+						<th:block th:if="${action == 'correction'}">
+							<span th:text="${modalMessage}"></span>
+						</th:block>
+					</div>
+					<p id="modalErrorMessage" class="alert alert-danger" role="alert" th:if="${modalError}">
+						[[${modalError}]]</p>
+
+					<!-- 却下フォーム -->
+					<form id="reject-form" method="post"
+						th:action="@{/attendance/{action}(action=${action == 'monthly' ? 'rejectMonthly' : 'rejectCorrection'})}">
+
+						<input type="hidden" name="action" th:value="${action}" />
+
+						<!-- 月次申請 -->
+						<th:block th:if="${action == 'monthly'}">
+							<input type="hidden" name="id" th:value="${id}" />
+							<div class="container mb-3 row">
+								<label class="col-sm-4 col-form-label">・却下理由：</label>
+								<div class="col-sm-8">
+									<textarea class="form-control" rows="3" name="comment" id="commentReasonInput"
+										th:text="${correction}"></textarea>
+									<span id="rejectCommentError" class="text-danger"></span>
+								</div>
+							</div>
+						</th:block>
+						<!-- /月次申請 -->
+
+						<!-- 訂正申請 -->
+						<th:block th:if="${action == 'correction'}">
+							<input type="hidden" name="userId" th:value="${correctionDto.userId}" />
+							<input type="hidden" name="id" th:value="${attendanceInfo.correctionId}" />
+							<input type="hidden" name="date" th:value="${correctionDto.date}" />
+							<div class="container mb-3 row">
+								<label class="col-sm-4 col-form-label">・却下理由：</label>
+								<div class="col-sm-8">
+									<textarea class="form-control" rows="3" name="rejectionReason"
+										id="rejectionReasonInput" th:text="${rejectionReason}"></textarea>
+									<span id="rejectionReasonError" class="text-danger"></span>
+								</div>
+							</div>
+						</th:block>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-primary" form="reject-form" id="reject-btn"
+						data-action="${action}">却下</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						onclick="location.href=window.location.href">閉じる</button>
+				</div>
+				</form>
+				<!-- /却下フォーム -->
+			</div>
+		</div>
+	</div>
+	<!-- /却下ボタン押下時モーダル -->
+	<!-- エラーメッセージやモーダル表示判定用の属性 -->
+	<input type="hidden" th:data-open-modal="${openModal}" th:data-modal-error="${modalError}">
+
+
+	<!-- BootstrapのJavaScriptとPopper.js -->
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+	<!--	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>-->
+
+	<!-- 自分のJavaScript -->
+	<script th:src="@{/js/attendance.js}"></script>
+	<!--	<script th:src="@{/pushApi/sw.js}"></script>-->
+
+</body>
+
+</html>

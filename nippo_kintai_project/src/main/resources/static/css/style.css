@@ -727,13 +727,6 @@ main {
 .department-table tbody td {
     background-color: inherit; /* tbodyの背景色を継承 */
 }
-
-/*勤怠表テーブル*/
-.scroll-container {
-	/* テーブル全体のサイズ */
-	height: 50vh;
-	overflow-y: scroll;
-}
 /* /テーブル上書き編集 */
 
 /* 設定画面のスクロールスパイ */

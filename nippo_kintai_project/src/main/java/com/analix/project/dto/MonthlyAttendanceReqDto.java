@@ -20,20 +20,20 @@ public class MonthlyAttendanceReqDto {
 	private Integer status;
 	/** 氏名 */
 	private String name;
-	/** メール */
-	private String email;
-	
-	private String role;
 	/** 却下理由 */
 	private String comment;
+	
+	/** メール */
+//	private String email;
+	
+//	private String role;
 
 	
 	// フォーマット済み日付フィールド
 	private YearMonth formattedYearMonth; // yyyy-MM
 	private String YearMonthStr; // yyyy/MM 表示用
 	
-	private String formattedDate; // yyyy/MM/dd ひょうじよう
-//	private LocalDate targetYearMonthAtDay; // yyyy-MM-01 承認のとこ
+	private String formattedDate; // yyyy/MM/dd 表示用
 
 	
 	

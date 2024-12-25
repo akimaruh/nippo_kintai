@@ -29,10 +29,10 @@ public class CreateUrlUtil {
 			pass = "";
 			break;
 		case "月次申請提出":
-			pass = "/attendance/regist";
+			pass = "/attendance/approve";
 			break;
 		case "訂正申請提出":
-			pass = "/attendance/regist";
+			pass = "/attendance/approve";
 			break;
 		case "システム障害":
 			pass = "";

@@ -188,7 +188,7 @@
 						<!-- マネージャ -->
 						<th:block th:if="${session.loginUser.role=='Manager'}">
 							<div class="col-xl-2 col-md-3 col-6">
-								<form th:action="@{/attendance/regist}" method="get">
+								<form th:action="@{/attendance/approve}" method="get">
 									<button type="submit" class="custom-card-btn">
 										<i class="bi bi-calendar-check icon"></i>
 										<span class="label">勤怠承認</span>

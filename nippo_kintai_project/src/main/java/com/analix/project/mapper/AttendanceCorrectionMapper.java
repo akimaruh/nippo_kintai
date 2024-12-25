@@ -1,6 +1,5 @@
 package com.analix.project.mapper;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -15,20 +14,21 @@ import com.analix.project.form.AttendanceCorrectionForm;
 public interface AttendanceCorrectionMapper {
 	
 	/**
-	 * 勤怠訂正登録
+	 * 勤怠訂正登録(既存データがあれば上書き)
 	 * @param attendanceCorrection
 	 */
 	public void registAttendanceCorrection(@Param("correction") AttendanceCorrection correction);
-	
+
 	/**
-	 * 全件取得 correctionテーブル+ usersテーブルのname
+	 * 訂正申請情報をすべて取得
+	 * @return 訂正申請+ユーザー名リスト
 	 */
 	public List<AttendanceCorrection> findAllAttendanceCorrection();
 	
 	/**
-	 * 訂正idからデータ（ユーザーId、申請者、対象日付、申請日）取得
+	 * 訂正idからデータ取得
 	 * @param id 訂正id
-	 * @return 
+	 * @return ユーザーId、申請者、対象日付、申請日
 	 */
 	public AttendanceCorrectionDto findCorrectionDataById(@Param("id") Integer id);
 	
@@ -38,7 +38,7 @@ public interface AttendanceCorrectionMapper {
 	 * @param date
 	 * @return
 	 */
-	public AttendanceCorrection findAttendanceByUserIdAndDate(@Param("userId") Integer userId, @Param("date") LocalDate date);
+//	public AttendanceCorrection findAttendanceByUserIdAndDate(@Param("userId") Integer userId, @Param("date") LocalDate date);
 
 	/**
 	 * 対象者の申請中の訂正申請リスト
@@ -54,10 +54,10 @@ public interface AttendanceCorrectionMapper {
 	 * @param targetYearMonthAtDay
 	 * @return 却下リスト
 	 */
-	public List<AttendanceCorrection> findRejectedAttendanceByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("yearMonth") YearMonth targetYearMonth);
+//	public List<AttendanceCorrection> findRejectedAttendanceByUserIdAndYearMonth(@Param("userId") Integer userId, @Param("yearMonth") YearMonth targetYearMonth);
 	
 	/**
-	 * 訂正申請却下後(却下理由、確認者、却下フラグ1に更新)
+	 * 訂正申請却下(却下理由、確認者、却下フラグ1に更新)
 	 * @param correctionForm
 	 * @return ture:却下成功 false:却下失敗
 	 */
@@ -70,12 +70,11 @@ public interface AttendanceCorrectionMapper {
 	 */
 	public Integer updateApproveCorrection(@Param("confirmer") String confirmer, @Param("id") Integer id);
 	
-
 	/**
-	 * 却下理由【訂正申請】×ボタン押下(却下フラグ0に更新)
+	 * 却下理由【訂正申請】×ボタン押下(却下理由をnullに更新)
 	 * @param correctionId
 	 */
-	public void updateRejectFlg(@Param("correctionId") Integer correctionId);
+	public void updateRejectionReason(@Param("correctionId") Integer correctionId);
 	
 
 }

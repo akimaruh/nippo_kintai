@@ -1,22 +1,28 @@
 package com.analix.project.service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jose4j.lang.JoseException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+import com.analix.project.dto.AttendanceCommonDto;
 import com.analix.project.dto.AttendanceCorrectionDto;
+import com.analix.project.dto.AttendanceInfoDto;
 import com.analix.project.dto.MonthlyAttendanceReqDto;
 import com.analix.project.entity.Attendance;
 import com.analix.project.entity.AttendanceCorrection;
@@ -28,8 +34,11 @@ import com.analix.project.form.WorkScheduleForm;
 import com.analix.project.mapper.AttendanceCorrectionMapper;
 import com.analix.project.mapper.AttendanceMapper;
 import com.analix.project.mapper.MonthlyAttendanceReqMapper;
+import com.analix.project.util.AttendanceMessageUtil;
 import com.analix.project.util.AttendanceUtil;
 import com.analix.project.util.CustomDateUtil;
+import com.analix.project.util.MessageUtil;
+import com.analix.project.util.SessionHelper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,9 +51,13 @@ public class AttendanceService {
 	private final CustomDateUtil customDateUtil;
 	private final AttendanceCorrectionMapper attendanceCorrectionMapper;
 	private final WorkScheduleService workScheduleService;
+	private final EmailService emailService;
+	private final InformationService informationService;
+	private final WebPushService webPushService;
+	private final SessionHelper sessionHelper;
 
 	/**
-	 * ヘッダー:ステータス部分取得
+	 * ステータス取得
 	 * @param userId
 	 * @param targetYearMonthAtDay
 	 * @return 月次勤怠承認テーブルのステータス
@@ -131,52 +144,86 @@ public class AttendanceService {
 	 * @Param targetYearMonthAtDay
 	 * @return メッセージ
 	 */
-	public String insertMonthlyAttendanceReq(Integer userId, LocalDate targetYearMonthAtDay) {
+	public String insertMonthlyAttendanceReq(YearMonth approveYearMonth) {
 
-		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId,
-				targetYearMonthAtDay);
+		// セッションヘルパークラスからUserIdとuserName取得
+		Integer userId = sessionHelper.getUser().getId();
+		String userName = sessionHelper.getUser().getName();
+		//月次勤怠テーブルの対象年月はyyyy-MM-01で格納されているので形を合わせる
+		LocalDate approveYearMonthAtDay = approveYearMonth.atDay(1);
 
-		if (applicationStatus == null) {
+//		Integer applicationStatus = monthlyAttendanceReqMapper.findStatusByUserIdAndYearMonth(userId,
+//				approveYearMonthAtDay);
+		
+		// 存在確認
+		boolean exsists = monthlyAttendanceReqMapper.exsistsMonthlyAttendanceReq(userId, approveYearMonthAtDay);
+		
+		// 処理が失敗した場合
+		boolean isSuccess = false;
+		String message = "承認申請に失敗しました";
+		
+		if (!exsists) {
+			// 存在しない場合はinsert
 			MonthlyAttendanceReqDto monthlyDto = new MonthlyAttendanceReqDto();
 			monthlyDto.setUserId(userId);
-			monthlyDto.setTargetYearMonth(targetYearMonthAtDay);
+			monthlyDto.setTargetYearMonth(approveYearMonthAtDay);
 			monthlyDto.setDate(LocalDate.now());
 			monthlyDto.setStatus(1);
-
-			monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
-
-		} else if (applicationStatus == 3) {
-			// statusを1(承認待ち)に更新
-			monthlyAttendanceReqMapper.updateStatusWaiting(userId, targetYearMonthAtDay);
+			isSuccess = monthlyAttendanceReqMapper.insertMonthlyAttendanceReq(monthlyDto);
+		} else {
+			// 存在する場合はstatusを1(申請中)に更新
+			LocalDate date = LocalDate.now();
+			isSuccess = monthlyAttendanceReqMapper.updateStatusToPendingByUserIdAndYearMonth(userId, approveYearMonthAtDay, date);
 		}
 
-		return "承認申請が完了しました。";
+		// 処理が成功した場合
+		if (isSuccess) {
+			message = "承認申請が完了しました。";
+
+			// メール送信
+			MonthlyAttendanceReqDto requests = getMonthlyAttendanceReqByUserIdAndYearMonth(userId, approveYearMonthAtDay);
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendRequestEmail(requests, mailMessage);
+
+			// お知らせ
+			informationService.approveRequestInsertNotifications(userName, approveYearMonth);
+			// プッシュ通知
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】勤怠承認申請\",\"body\":\"承認申請があります。\"}";
+				webPushService.sendRequestPush(payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("承認申請:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+		return message;
 	}
 
 	/**
-	 * 承認申請取得
-	 * @return 承認申請リスト
+	 * 月次申請取得
+	 * @return 月次申請リスト(月次申請情報+ユーザー名)
 	 */
 	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReq() {
 		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReq();
 	}
 	
 	/**
+	 * 対象年月の月次申請情報取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return 月次申請情報+ユーザー名
+	 */
+	public MonthlyAttendanceReqDto getMonthlyAttendanceReqByUserIdAndYearMonth(Integer userId, LocalDate targetYearMonth) {
+		return monthlyAttendanceReqMapper.findMonthlyAttendanceReqByUserIdAndYearMonth(userId, targetYearMonth);
+	}
+	
+	/**
 	 * 訂正申請取得
-	 * @return 承認申請リスト
+	 * @return 訂正申請リスト（月次申請情報+ユーザー名）
 	 */
 	public List<AttendanceCorrection> getAttendanceCorrection() {
 		return attendanceCorrectionMapper.findAllAttendanceCorrection();
-	}
-
-	/**
-	 * 承認申請リスト(usersテーブルと結合)
-	 * @param userId
-	 * @param targetYearMonth
-	 * @return 承認申請リスト
-	 */
-	public List<MonthlyAttendanceReqDto> getMonthlyAttendanceReqByUserId(Integer userId, LocalDate targetYearMonth) {
-		return monthlyAttendanceReqMapper.findAllMonthlyAttendanceReqByUserId(userId, targetYearMonth);
 	}
 	
 	/**
@@ -216,26 +263,147 @@ public class AttendanceService {
 		
 		return correctionDto;
 	}
-
+	
 	/**
-	 * 月次申請承認 statusを2に更新
-	 * @param userId
-	 * @param targetYearMonthAtDay
-	 * @return true:承認成功 false:失敗
+	 * 月次申請『承認』ボタン押下後
+	 * @param monthlyDto
+	 * @return メッセージ
 	 */
-	public boolean updateStatusApprove(Integer userId, LocalDate targetYearMonthAtDay) {
-		return monthlyAttendanceReqMapper.updateApproveStatus(userId, targetYearMonthAtDay);
+	public String approveMonthly(MonthlyAttendanceReqDto monthlyDto) {
+		Integer userId = monthlyDto.getUserId();
+		String name = monthlyDto.getName();
+		String yearMonthStr = monthlyDto.getYearMonthStr();
+		YearMonth formattedYearMonth = monthlyDto.getFormattedYearMonth();
+		LocalDate targetYearMonthAtDay = formattedYearMonth.atDay(1);
+
+		// 承認処理
+		boolean isApprove = monthlyAttendanceReqMapper.updateApproveStatus(userId, targetYearMonthAtDay);
+		String message;
+
+		if (isApprove) {
+			message = name + "の" + yearMonthStr + "における承認申請が承認されました。";
+
+			// メール送信
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendApproveEmail(userId, yearMonthStr, mailMessage);
+			// お知らせ
+			informationService.approveInsertNotifications(userId, formattedYearMonth);
+			// プッシュ通知送信
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が承認されました。\"}";
+				webPushService.sendApprovePush(userId, payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("承認:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else {
+			message = "承認に失敗しました。";
+		}
+
+		return message;
 	}
-
+	
 	/**
-	 * 月次申請却下 却下理由、statusを3に更新
-	 * @param userId
-	 * @param targetYearMonthAtDay
+	 * 月次申請『却下』ボタン押下後
+	 * @param monthlyDto
 	 * @param comment
-	 * @return
+	 * @return メッセージ
 	 */
-	public boolean updateStatusReject(Integer userId, LocalDate targetYearMonthAtDay, String comment) {
-		return monthlyAttendanceReqMapper.updateRejectStatusAndComment(userId, targetYearMonthAtDay, comment);
+	public String rejectMonthly(MonthlyAttendanceReqDto monthlyDto, String comment) {
+		Integer userId = monthlyDto.getUserId();
+		String name = monthlyDto.getName();
+		String yearMonthStr = monthlyDto.getYearMonthStr();
+		YearMonth formattedYearMonth = monthlyDto.getFormattedYearMonth();
+		LocalDate targetYearMonthAtDay = formattedYearMonth.atDay(1);
+		
+		// 却下処理
+		boolean isReject = monthlyAttendanceReqMapper.updateRejectStatusAndComment(userId, targetYearMonthAtDay, comment);
+		String message;
+
+		if (isReject) {
+			message = name + "の" + yearMonthStr + "における承認申請が却下されました。";
+			// メール送信
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendRejectEmail(userId, yearMonthStr, mailMessage);
+			// お知らせ
+			informationService.rejectInsertNotifications(userId, formattedYearMonth);
+			// プッシュ通知送信
+			try {
+				String payload = "{\"title\":\"【日報勤怠アプリ】\",\"body\":\"申請が却下されました。再度申請を行ってください。\"}";
+				webPushService.sendRejectPush(userId, payload);
+			} catch (GeneralSecurityException | IOException | JoseException e) {
+				System.out.println("却下:通知送信中にエラーが発生しました: " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else {
+			message = "却下に失敗しました。";
+		}
+		
+		return message;
+	}
+	
+	/**
+	 * 訂正申請『承認』ボタン押下後
+	 * @param correctionDto
+	 * @param id
+	 * @param confirmer
+	 * @return メッセージ
+	 */
+	public String approveCorrection(AttendanceCorrectionDto correctionDto, Integer id, String confirmer) {
+		Integer userId = correctionDto.getUserId();
+		String formattedDate = correctionDto.getFormattedDate();
+		YearMonth targetYearMonth = YearMonth.of(correctionDto.getDate().getYear(), correctionDto.getDate().getMonth());
+
+		// 承認処理
+		boolean isApprove = updateApproveCorrection(id, confirmer);
+		String message;
+
+		if (isApprove) {
+			message = correctionDto.getUserName() + "の" + formattedDate + "に訂正申請が承認されました。";
+			// メール送信
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendCorrectionApproveEmail(userId, formattedDate, mailMessage);
+			// お知らせ
+			informationService.correctionApproveInsertNotifications(userId, formattedDate, targetYearMonth);
+
+		} else {
+			message = "承認に失敗しました。";
+		}
+		return message;
+
+	}
+	
+	/**
+	 * 訂正申請『却下』ボタン押下後
+	 * @param correctionDto
+	 * @param correctionForm
+	 * @param confirmer
+	 * @return メッセージ
+	 */
+	public String rejectCorrection(AttendanceCorrectionDto correctionDto, AttendanceCorrectionForm correctionForm,
+			String confirmer) {
+		Integer userId = correctionDto.getUserId();
+		String formattedDate = correctionDto.getFormattedDate();
+		YearMonth targetYearMonth = YearMonth.of(correctionDto.getDate().getYear(), correctionDto.getDate().getMonth());
+		correctionForm.setConfirmer(confirmer);
+
+		// 訂正申請却下処理
+		boolean isReject = attendanceCorrectionMapper.updateRejectCorrection(correctionForm);
+		String message;
+
+		if (isReject) {
+			message = correctionDto.getUserName() + "の" + formattedDate + "における訂正申請が却下されました。";
+			// メール
+			String mailMessage = MessageUtil.mailCommonMessage();
+			emailService.sendCorrectionRejectEmail(userId, formattedDate, mailMessage);
+			// お知らせ
+			informationService.correctionRejectInsertNotifications(userId, formattedDate, targetYearMonth);
+
+		} else {
+			message = "却下に失敗しました。";
+		}
+
+		return message;
 	}
 	
 	/**
@@ -248,17 +416,6 @@ public class AttendanceService {
 		boolean isAttendanceUpdate = attendanceMapper.updateAttendanceFromCorrection(id) > 0;
 		boolean isCorrectionUpdate = attendanceCorrectionMapper.updateApproveCorrection(confirmer, id) > 0;
 		return isAttendanceUpdate && isCorrectionUpdate;
-	}
-	
-	/**
-	 * 訂正申請却下 却下理由、削除フラグ、確認者更新
-	 * @param confirmer
-	 * @param rejectionReason
-	 * @param id
-	 * @return true:却下成功 false:失敗
-	 */
-	public boolean updateRejectCorrection(AttendanceCorrectionForm correctionForm) {
-		return attendanceCorrectionMapper.updateRejectCorrection(correctionForm);
 	}
 	
 	/**
@@ -277,58 +434,123 @@ public class AttendanceService {
 	 * @param date 対象の日付（年月日）
 	 * @return 訂正申請者の勤怠情報
 	 */
-	public AttendanceCorrection findCorrectionByUserIdAndDate(Integer userId, LocalDate date){
-		return attendanceCorrectionMapper.findAttendanceByUserIdAndDate(userId, date);
-	}
+//	public AttendanceCorrection findCorrectionByUserIdAndDate(Integer userId, LocalDate date){
+//		return attendanceCorrectionMapper.findAttendanceByUserIdAndDate(userId, date);
+//	}
+	
+	
+//	/**
+//	 * 対象の却下された訂正申請リスト取得
+//	 * @param userId
+//	 * @param targetYearMonth 対象の年月
+//	 * @return 訂正申請者の却下勤怠リスト
+//	 */
+//	public List<AttendanceCorrection> findRejectedByUserIdAndYearMonth2(Integer userId, YearMonth targetYearMonth){
+//		return attendanceCorrectionMapper.findRejectedAttendanceByUserIdAndYearMonth(userId, targetYearMonth);
+//	}
 	
 	
 	/**
-	 * 対象の却下された訂正申請リスト取得
+	 * 対象日付の勤怠情報と訂正情報を1件取得
 	 * @param userId
-	 * @param targetYearMonth 対象の年月
-	 * @return 訂正申請者の却下勤怠リスト
+	 * @param targetYearMonth
+	 * @param date
+	 * @return 1件取得
 	 */
-	public List<AttendanceCorrection> findRejectedByUserIdAndYearMonth(Integer userId, YearMonth targetYearMonth){
-		return attendanceCorrectionMapper.findRejectedAttendanceByUserIdAndYearMonth(userId, targetYearMonth);
+	public AttendanceInfoDto getAttendanceWithCorrecton(Integer userId, YearMonth targetYearMonth, LocalDate date) {
+		List<AttendanceInfoDto> attendanceInfoList = attendanceMapper.findAttendanceWithCorrectons(userId, targetYearMonth, date);
+		if (!attendanceInfoList.isEmpty()) {
+			return attendanceInfoList.get(0); // 最初の1件を返す
+		}
+		return null; // 結果がない場合
+	}
+	
+	/**
+	 * 対象年月の勤怠情報と訂正内容と表示メッセージ取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return AttendanceInfoDtoのリスト
+	 */
+	public List<AttendanceInfoDto> getAttendanceInfoList(Integer userId, YearMonth targetYearMonth, LocalDate date) {
+
+		List<AttendanceInfoDto> attendanceInfoList = attendanceMapper.findAttendanceWithCorrectons(userId, targetYearMonth, date);
+		for (AttendanceInfoDto dto : attendanceInfoList) {
+			
+			// attendance
+			AttendanceCommonDto currentAttendance = new AttendanceCommonDto();
+			if (dto.getCurrentAttendance() != null) {
+				currentAttendance.setDate(dto.getCurrentAttendance().getDate());
+				currentAttendance.setStatus(dto.getCurrentAttendance().getStatus());
+				currentAttendance.setStartTime(dto.getCurrentAttendance().getStartTime());
+				currentAttendance.setEndTime(dto.getCurrentAttendance().getEndTime());
+				currentAttendance.setRemarks(dto.getCurrentAttendance().getRemarks());
+			}
+			dto.setCurrentAttendance(currentAttendance);
+			
+			// correction
+			AttendanceCommonDto correctedAttendance = new AttendanceCommonDto();
+			if (dto.getCorrectedAttendance() != null) {
+				correctedAttendance.setDate(dto.getCorrectedAttendance().getDate());
+				correctedAttendance.setStatus(dto.getCorrectedAttendance().getStatus());
+				correctedAttendance.setStartTime(dto.getCorrectedAttendance().getStartTime());
+				correctedAttendance.setEndTime(dto.getCorrectedAttendance().getEndTime());
+				correctedAttendance.setRemarks(dto.getCorrectedAttendance().getRemarks());
+			}
+			dto.setCorrectedAttendance(correctedAttendance);
+			
+			String attendanceMessage = AttendanceMessageUtil.formatAttendanceMessage(currentAttendance);
+			dto.setAttendanceMessage(attendanceMessage);
+
+			if (dto.getCorrectionReason() != null && !dto.getCorrectionReason().trim().isEmpty()) {
+				String correctionReason = dto.getCorrectionReason();
+				String correctionMessage = AttendanceMessageUtil.formatCorrectionMessage(correctedAttendance, correctionReason);
+				dto.setCorrectionMessage(correctionMessage);
+			}
+		}
+		return attendanceInfoList;
 	}
 	
 	/**
 	 * 対象の申請中の訂正申請リスト取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return
 	 */
 	public List<AttendanceCorrection> findRequestedByUserIdAndYearMonth(Integer userId, YearMonth targetYearMonth){
 		return attendanceCorrectionMapper.findReqestedCorrectionByUserIdAndYearMonth(userId, targetYearMonth);
+	}	
+
+	/**
+	 * 訂正内容のメッセージを作成して日付をキーにしたマップに格納
+	 * (訂正申請中アコーディオン表示で使用)
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return LinkedHashMap＜日付, メッセージ＞
+	 */
+	public LinkedHashMap<LocalDate, String> getCorrectionMessageMap(Integer userId, YearMonth targetYearMonth) {
+		List<AttendanceCorrection> requestedCorrectionList = findRequestedByUserIdAndYearMonth(userId, targetYearMonth);
+		LinkedHashMap<LocalDate, String> correctionMessageMap = new LinkedHashMap<>();
+
+		for (AttendanceCorrection correction : requestedCorrectionList) {
+			AttendanceCommonDto commonDto = new AttendanceCommonDto();
+			commonDto.setDate(correction.getDate());
+			commonDto.setStatus(correction.getStatus());
+			commonDto.setStartTime(correction.getStartTime());
+			commonDto.setEndTime(correction.getEndTime());
+			commonDto.setRemarks(correction.getRemarks());
+
+			String message = AttendanceMessageUtil.formatCorrectionMessage(commonDto, correction.getCorrectionReason());
+			correctionMessageMap.put(correction.getDate(), message);
+		}
+		return correctionMessageMap;
 	}
 	
-	
-//	/**
-//	 * 対象のユーザーidとページ番号に基づいて訂正情報を取得
-//	 * @param userId
-//	 * @param page ページ番号(0から始まる)
-//	 * @param pageSize 1ページ当たりの項目数
-//	 * @return 訂正情報のリスト
-//	 */
-//	public List<AttendanceCorrection> getCorrectionsByUserId(Integer userId, Integer page, Integer pageSize){
-//		// オフセットを計算(ページ番号 * 1ページ当たりの件数)
-//		Integer offset = page * pageSize;
-//		return attendanceCorrectionMapper.findCorrections(userId, offset, pageSize);
-//	}
-//	
-//	/**
-//	 * 対象のユーザーIDの訂正申請の総件数を取得
-//	 * @param userId
-//	 * @return 訂正申請の総件数
-//	 */
-//	public Integer countCorrectionsByUserId(Integer userId) {
-//		return attendanceCorrectionMapper.countCorrections(userId);
-//	}
-	
-	
 	/**
-	 * 却下理由【訂正申請】×ボタン押下(却下フラグ0に更新)
+	 * 却下理由【訂正申請】×ボタン押下(却下理由をnullに更新)
 	 * @param correctionId
 	 */
-	public void updateRejectFlg(Integer correctionId) {
-		attendanceCorrectionMapper.updateRejectFlg(correctionId);
+	public void updateRejectionReason(Integer correctionId) {
+		attendanceCorrectionMapper.updateRejectionReason(correctionId);
 	}
 
 	/**
@@ -717,8 +939,8 @@ public class AttendanceService {
 		String endTime = correctionForm.getEndTime();
 		String remarks = correctionForm.getRemarks();
 		Byte status = correctionForm.getStatus();
-		List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
-		List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
+//		List<Byte> attendanceSystem = AttendanceUtil.getAttendanceSystem();
+//		List<Byte> holidaySystem = AttendanceUtil.getHolidaySystem();
 		
 		System.out.println("フォームの中身" + correctionForm);
 		System.out.println("開始時間: " + startTime);
@@ -777,8 +999,9 @@ public class AttendanceService {
 	}
 	
 	/**
-	 * 勤怠訂正モーダルの申請ボタン押下後
+	 *  勤怠訂正モーダルの申請ボタン押下後
 	 * @param correctionForm
+	 * @return
 	 */
 	public String registCorrection(AttendanceCorrectionForm correctionForm) {
 		AttendanceCorrection correction = new AttendanceCorrection();
@@ -786,8 +1009,6 @@ public class AttendanceService {
 		correction.setStatus(correctionForm.getStatus());
 
 		// 日付 2024/01/01から2024-01-01へ変換してdateを設定
-		System.out.println("コレクションフォーム" + correctionForm);
-		System.out.println("ゲットdate" + correctionForm.getDate());
 		String formattedDate = correctionForm.getDate().replace("/", "-");
 		correction.setDate(LocalDate.parse(formattedDate));
 		
@@ -837,8 +1058,5 @@ public class AttendanceService {
 		// 時間と分を再度結合して返す
 		return timeParts[0] + ":" + timeParts[1];
 	}
-
-
-	
 
 }

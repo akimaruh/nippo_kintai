@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// 備考
 		if (remarks.length > MAX_REMARKS_LENGTH) {
-			showError('correctionRemarks', '${MAX_REMARKS_LENGTH}字以内で入力して下さい。');
+			showError('correctionRemarks', '備考は' + MAX_REMARKS_LENGTH + '字以内で入力して下さい。');
 			isValid = false;
 			//		} else if (!/^[^\x00-\x7F]*$/.test(remarks)) {
 			//			showError('correctionRemarks', '全角で入力して下さい。');
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			showError('correctionCorrectionReason', '訂正理由を入力して下さい。');
 			isValid = false;
 		} else if (correctionReason.length > MAX_REASON_LENGTH) {
-			showError('correctionCorrectionReason', '${MAX_REASON_LENGTH}字以内で入力して下さい。');
+			showError('correctionCorrectionReason', '訂正理由は' + MAX_REASON_LENGTH + '字以内で入力して下さい。');
 			isValid = false;
 		}
 
@@ -369,7 +369,7 @@ function setAction(action) {
 	document.getElementById('form-action').value = action;
 }
 
-// //土日祝に色を付ける、今日の日付の行に色を付ける（社員権限）
+//土日祝に色を付ける、今日の日付の行に色を付ける（社員権限）
 document.addEventListener('DOMContentLoaded', function() {
 
 	// 今日の日付を取得 yyyy/MM/dd
@@ -405,15 +405,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		//勤怠状況の土日祝日のプルダウンを設定
 		let status = row.querySelector('.attendance-status');
-		const weekendStatus = "2";
-		const holidayStatus = "3";
-		if (rowStatus == null) {
+		if (status !== null) {
+			const weekendStatus = "2";
+			const holidayStatus = "3";
+			if (rowStatus == null) {
 
-			if (holidays.includes(rowDate)) {
-				status[holidayStatus].selected = true;
-			}
-			if (weekdayCellText === '土' || weekdayCellText === '日') {
-				status[weekendStatus].selected = true;
+				if (holidays.includes(rowDate)) {
+					status[holidayStatus].selected = true;
+				}
+				if (weekdayCellText === '土' || weekdayCellText === '日') {
+					status[weekendStatus].selected = true;
+				}
 			}
 		}
 

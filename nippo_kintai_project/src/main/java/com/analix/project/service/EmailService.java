@@ -28,8 +28,6 @@ public class EmailService {
 	@Autowired
 	private UserMapper userMapper;
 	@Autowired
-	private AttendanceService attendanceService;
-	@Autowired
 	private DailyReportService dailyReportService;
 	@Autowired
 	private MessageUtil messageUtil;
