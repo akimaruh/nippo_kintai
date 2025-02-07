@@ -16,15 +16,54 @@
 </head>
 
 <body>
-
+	
 	<div class="container">
-		<div class="header">
-			<span th:text="'対象年月：'+${targetYearMonth}"></span>
-			<span th:text="'社員番号:'+${userData.employeeCode}"></span>
-			<span th:text="'ユーザー名:'+${userData.name}"></span>
+
+		<div class="title mt-3">
+			<h3>勤怠帳票</h3>
 		</div>
+		
+		<th:block th:if="${!useBootstrap}">
+		<div class="row2" style="text-align: center;">
+			<div class="header-left">
+				<table class="table">
+					<tbody>
+						<tr>
+							<th scope="row">対象年月</th>
+							<td>
+								<div th:text="${targetYearMonth}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">社員番号</th>
+							<td>
+								<div th:text="${userData.employeeCode}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">ユーザー名</th>
+							<td>
+								<div th:text="${userData.name}"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		
+			<div class="header-right">
+				<div class="memo-box">
+					<div>メモ</div>
+				</div>
+			</div>
+		</div>
+		</th:block>
+					
 
 		<th:block th:if="${useBootstrap}">
+			<span th:text="'対象年月:'+${targetYearMonth}"></span>
+			<span th:text="'社員番号:'+${userData.employeeCode}"></span>
+			<span th:text="'ユーザー名:'+${userData.name}"></span><br>
+			
 			<input type="submit" class="btn btn-primary mt-2" id="excel-button" value="Excel" form="excel" />
 			<input type="submit" class="btn btn-primary mt-2" id="pdf-button" value="PDF" form="pdf" />
 			<input type="button" class="btn btn-primary mt-2" value="戻る" onclick="history.back();" />
@@ -39,12 +78,12 @@
 
 		</th:block>
 		<th:block th:object="${monthlyAttendance}">
-			<div class="col-10">
+			<div class="clear">
 				<div class="content">
 					<!--					<div class="row">-->
 					<!--						<div style="width: auto">-->
 					<!--				集計結果表-->
-					<div class="row">
+					<div class="row mt-5">
 						<div class="table-responsive table-responsive-xl">
 							<table class="table table-bordered sortabletable dataTable no-footer " id="user-table"
 								role="grid" aria-describedby="user-table_info">
@@ -124,9 +163,9 @@
 								role="grid" aria-describedby="user-table_info">
 								<thead>
 									<tr>
-										<th width="10%">日付</th>
+										<th width="5%">日付</th>
 										<th width="5%">曜日</th>
-										<th width="15%">勤務状況</th>
+										<th width="10%">勤務状況</th>
 										<th width="10%">出勤時間</th>
 										<th width="10%">退勤時間</th>
 										<th width="20%">備考</th>
@@ -137,8 +176,8 @@
 										<td th:text="${#temporals.format(dailyAttendanceDto.date, 'M/d')}"></td>
 										<td th:text="${#temporals.format(dailyAttendanceDto.date, 'EEE')}"></td>
 										<td th:text="${dailyAttendanceDto.statusName}"></td>
-										<td th:text="${dailyAttendanceDto.startTime}"></td>
-										<td th:text="${dailyAttendanceDto.endTime}"></td>
+										<td th:text="${dailyAttendanceDto.startTimeStr}"></td>
+										<td th:text="${dailyAttendanceDto.endTimeStr}"></td>
 										<td th:text="${dailyAttendanceDto.remarks}"></td>
 									</tr>
 								</tbody>

@@ -1,5 +1,6 @@
 package com.analix.project.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,12 +24,17 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.analix.project.dto.UserCsvInputDto;
+import com.analix.project.dto.UserSearchDto;
+import com.analix.project.entity.Department;
+import com.analix.project.entity.Users;
 import com.analix.project.form.RegistUserForm;
 import com.analix.project.form.RegistUserGroup;
 import com.analix.project.form.RegistUserListForm;
 import com.analix.project.form.SearchUserGroup;
+import com.analix.project.service.DepartmentService;
 import com.analix.project.service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +45,7 @@ public class UserController {
 
 	private final UserService userService;
 	private final SmartValidator validator;
+	private final DepartmentService departmentService;
 
 	/**
 	 * 初期表示
@@ -100,12 +108,12 @@ public class UserController {
 	}
 
 	/**
-	 * 部署管理画面から遷移(『検索』ボタン押下してある状態）
+	 * 別画面から遷移(『検索』ボタン押下してある状態）
 	 * @param employeeCode
 	 * @param model
 	 * @return
 	 */
-	@PostMapping("/regist/search/fromDepartment")
+	@PostMapping("/regist/employeeSearch")
 	public String searchUserByEmployeeCode(@RequestParam("employeeCode") String employeeCode, Model model) {
 
 		RegistUserForm userData = userService.getUserDataByEmployeeCode(employeeCode);
@@ -189,7 +197,7 @@ public class UserController {
 			}
 			if (!errorMessageMap.isEmpty()) {
 				redirectAttributes.addFlashAttribute("errorMessageMap", errorMessageMap);
-				return "redirect:/user/regist";
+				return "redirect:/user/allCreate";
 			}
 			//入力チェックエラーがなければモーダルウィンドウを開く
 			redirectAttributes.addFlashAttribute("usersList", userCsvInputDtoList);
@@ -198,7 +206,7 @@ public class UserController {
 			redirectAttributes.addFlashAttribute("error", e.getMessage());
 		}
 
-		return "redirect:/user/regist";
+		return "redirect:/user/allCreate";
 	}
 
 	/**
@@ -234,4 +242,70 @@ public class UserController {
 
 	}
 
+//ユーザー一覧画面
+	//ユーザー一覧画面初期表示
+	@GetMapping("/list")
+	public String showUserList(Model model, HttpSession session) {
+		List<Users> userList = userService.getUserList();
+		model.addAttribute("userList", userList);
+		
+		Map<String, Integer> departmentMap = userService.pulldownDepartment();
+		model.addAttribute("departmentList", departmentMap);
+		session.setAttribute("departmentMap", departmentMap);
+		
+		model.addAttribute("userSearchDto", new UserSearchDto());
+		return "user/list";
+	}
+
+	//検索ボタン押下
+	@GetMapping("/list/search")
+	public String searchUsers(UserSearchDto userSearchDto, Model model, HttpSession session) {
+		//すべてnullまたは空なら全リスト表示
+		if ((userSearchDto.getKeyword() == null || userSearchDto.getKeyword().isEmpty()) &&
+				(userSearchDto.getEmployeeCode() == null || userSearchDto.getEmployeeCode().isEmpty()) &&
+				(userSearchDto.getUserName() == null || userSearchDto.getUserName().isEmpty()) &&
+				(userSearchDto.getDepartment() == null || userSearchDto.getDepartment().isEmpty()) &&
+				(userSearchDto.getRole() == null || userSearchDto.getRole().isEmpty())) {
+			return "redirect:/user/list";
+		}
+
+		//入力内容に基づいたリスト表示
+		List<Users> userList = userService.getSearchUserList(userSearchDto);
+		model.addAttribute("userList", userList);
+		
+		//部署プルダウン
+		Map<String, Integer> departmentMap = userService.pulldownDepartment();
+		model.addAttribute("departmentList", departmentMap);
+		
+		model.addAttribute("userSearchDto", userSearchDto);
+		
+		//検索条件表示
+		String searchConditions = userService.generateSearchConditions(userSearchDto);
+		model.addAttribute("searchConditions", searchConditions);
+		
+		return "user/list";
+	}
+
+	
+//ユーザー一括登録画面
+	//一括登録画面初期表示
+	@GetMapping("/allCreate")
+	public String showAllCreate() {
+		return "user/allCreate";
+	}
+	
+	//テンプレートダウンロードについて押下
+	@GetMapping("/allCreateDownload")
+	public String showAllCreateDownload(Model model) {
+		//部署リスト
+		List<Department> departmentList = departmentService.showDepartment();
+		model.addAttribute("departmentList", departmentList);
+		return "user/allCreateDownload";
+	}
+	
+	//テンプレートダウンロード
+	@PostMapping("/downloadTemplate")
+	public void downloadTemplate(HttpServletResponse response) throws IOException {
+		 userService.ExcelOutput(response);
+	}
 }

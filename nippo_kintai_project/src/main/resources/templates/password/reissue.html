@@ -16,7 +16,7 @@
 					<h5 class="text-center">パスワードを忘れた場合</h5>
 				</div>
 				<div class="card-body">
-					<form action="/password/reissue/complete" method="post">
+					<form th:action="@{/password/reissue/complete}" method="post">
 
 						<!-- メッセージ -->
 						<div th:if="${message}" class="alert alert-info" style="color: white;">

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 import org.springframework.stereotype.Component;
 
@@ -49,6 +51,22 @@ public class CustomDateUtil {
 		// 時刻を解析してLocalTime型にフォーマット
 		LocalTime time = LocalTime.parse(inputTime, inputFormatter);
 		return time;
+	}
+	
+	//LocalTime型→String型(HH:mm)へ変換
+	public String convertLocalTimeToString(LocalTime time) {
+		if (time == null) {
+			return "";
+		}
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+		String timeStr = time.format(timeFormatter);
+		return timeStr;
+	}
+	
+	//日付から1文字の曜日を取得
+	public static String getDayOfWeekInJapanese(LocalDate date) {
+		return date.getDayOfWeek().getDisplayName(TextStyle.NARROW, Locale.JAPAN);
+		
 	}
 
 }

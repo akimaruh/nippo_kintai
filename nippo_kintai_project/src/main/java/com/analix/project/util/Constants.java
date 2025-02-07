@@ -32,8 +32,8 @@ public interface Constants {
 	public static final String CODE_VAL_ATTENDANCE_OUTPUT = "勤怠帳票";
 	/** 帳票名 : 日報帳票**/
 	public static final String CODE_VAL_DAILY_REPORT_OUTPUT = "日報帳票";
-	/** 帳票名 : 日報勤怠帳票**/
-	public static final String CODE_VAL_ATTENDANCE_DAILY_REPORT_OUTPUT = "日報勤怠帳票";
+	/** 帳票名 : 勤怠日報帳票**/
+	public static final String CODE_VAL_ATTENDANCE_REPORT_OUTPUT = "日報勤怠帳票";
 	/** 帳票ヘッダーカラム名 ： 日報帳票 日毎集計部分 **/
 	public static final String[] DAILY_REPORT_HEADERNAME_ARRAY = { "日付", "曜日", "作業①", "時間①", "作業②", "時間②", "作業③", "時間③",
 			"作業④", "時間④",
@@ -46,6 +46,12 @@ public interface Constants {
 	public static final String[] ATTENDANCE_HEADERNAME_ARRAY = { "日付", "曜日", "勤怠状況", "出勤時間", "退勤時間", "備考" };
 	/** 帳票に表示する１日の作業の最大種類数 **/
 	public static final int DISPLAY_WORK_QTY = 5;
+	/** 帳票ヘッダーカラム名 ： 勤怠日報帳票 勤怠+日報表部分 **/
+	public static final String[] ATTENDANCE_REPORT_HEADERNAME_ARRAY = { "日付", "曜日", "勤務状況", "出勤時間", "退勤時間", "作業", "作業時間", "作業内容" };
+
+	/** ユーザー一括登録CSVヘッダーカラム名 **/
+	public static final String[] USER_HEADER_ARRAY = {"社員番号", "ユーザー名", "権限", "所属部署ID", "利用開始日", "メールアドレス"};
+	
 	/** ユーザーテーブルのカラム数 **/
 	public static final int USER_COLUMN_LENGTH = 7;
 	/** ユーザー登録で更新登録するフラグ **/

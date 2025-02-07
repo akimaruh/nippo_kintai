@@ -42,9 +42,9 @@
 						</div>
 						<!-- /ステータス -->
 						
-						<form id="dailyReport" name="dailyReportForm" method="get" action="/dailyReport/change">
+						<form id="dailyReport" name="dailyReportForm" method="get" th:action="@{/dailyReport/change}">
 							<strong>対象日付：</strong>
-							<div class="col-xl-2 col-md-4 col-8">
+							<div class="col-xl-3 col-md-4 col-8">
 								<input type="date" name="date" class="form-control" th:value="${targetDate}"
 									id="date" />
 							</div>

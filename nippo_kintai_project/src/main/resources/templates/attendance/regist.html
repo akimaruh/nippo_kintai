@@ -50,7 +50,7 @@ http://www.thymeleaf.org
 				<!-- ボタン【社員権限】 -->
 				<div class="d-flex flex-row-reverse">
 					<th:block th:if="${action != 'initial'}">
-						<form action="/attendance/approveRequestComplete" id="approve-form" method="post">
+						<form th:action="@{/attendance/approveRequestComplete}" id="approve-form" method="post">
 							<input type="hidden" name="yearMonth" id="ApproveYearMonth" />
 							<button type="submit" class="btn-yellow" id="request-btn"
 								th:disabled="${(status == 1 || status == 2) || (status == null && (registCheck == false || registCheck == null))}">承認申請</button>
@@ -158,7 +158,7 @@ http://www.thymeleaf.org
 								<strong>却下【訂正申請】<span
 										th:text="'：' + ${attendance.correctedAttendance.date}"></span></strong>
 								<span style="color: gray;" th:text="'（確認者：' + ${attendance.correctionConfirmer} + '）'"></span>
-								<form action="/attendance/removeRejectedCorrection" method="post" class="mb-0 ms-auto">
+								<form th:action="@{/attendance/removeRejectedCorrection}" method="post" class="mb-0 ms-auto">
 									<input type="hidden" name="correctionId" th:value="${attendance.correctionId}" />
 									<button type="submit" class="btn-close" aria-label="Close"></button>
 								</form>
@@ -283,7 +283,7 @@ http://www.thymeleaf.org
 															</td>
 
 															<td class="w-10">
-																<input type="text" class="form-control"
+																<input type="time" class="form-control"
 																	th:errorclass="is-invalid"
 																	th:name="|attendanceFormList[${stat.index}].startTime|"
 																	th:value="${dailyAttendanceForm.startTime}"
@@ -293,7 +293,7 @@ http://www.thymeleaf.org
 															</td>
 
 															<td class="w-10">
-																<input type="text" class="form-control"
+																<input type="time" class="form-control"
 																	th:errorclass="is-invalid"
 																	th:name="|attendanceFormList[${stat.index}].endTime|"
 																	th:value="${dailyAttendanceForm.endTime}"
@@ -354,7 +354,7 @@ http://www.thymeleaf.org
 					</div>
 
 					<div th:if="${status == 2}">
-						<form id="correction-form" action="/attendance/correction" method="post">
+						<form id="correction-form" th:action="@{/attendance/correction}" method="post">
 							<!-- hiddenフィールド -->
 							<input type="hidden" id="correction-userId" name="userId"
 								th:value="${session.loginUser.id}" />
@@ -375,12 +375,12 @@ http://www.thymeleaf.org
 							<div class="container mb-3 row">
 								<label for="correction-start-time" class="col-sm-4 col-form-label">・勤務時間：</label>
 								<div class="col-sm-3">
-									<input type="text" id="correctionStartTime" name="startTime" class="form-control"
+									<input type="time" id="correctionStartTime" name="startTime" class="form-control"
 										placeholder="HH:mm" required>
 								</div>
 								<div class="col-sm-2 text-center">~</div>
 								<div class="col-sm-3">
-									<input type="text" id="correctionEndTime" name="endTime" class="form-control"
+									<input type="time" id="correctionEndTime" name="endTime" class="form-control"
 										placeholder="HH:mm">
 								</div>
 							</div>

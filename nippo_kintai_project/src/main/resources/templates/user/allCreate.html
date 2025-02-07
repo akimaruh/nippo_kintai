@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/common/layout :: layout(~{::title},~{::body/content()})}">
+
+<head>
+	<meta charset="UTF-8">
+	<title>ユーザー一括登録</title>
+</head>
+
+<body>
+
+	<!-- パンくずリスト -->
+	<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+		<ol class="breadcrumb" style="background-color: rgb(246, 246, 246); box-shadow:none;">
+			<li class="breadcrumb-item"><a href="/common/startMenu" class="text-primary">Home</a></li>
+			<li class="breadcrumb-item"><a href="/user/list" class="text-primary">一覧</a></li>
+			<li class="breadcrumb-item active" aria-current="page">ユーザー一括登録</li>
+		</ol>
+	</nav>
+	<!-- /パンくずリスト -->
+
+	<div class="container d-flex justify-content-center mt-3 mb-5">
+		<div class="col-md-6 col-12">
+			<div class="card" style="background-color: rgb(255, 255, 255);">
+				<div class="card-header text-center">ユーザー一括登録</div>
+
+				<div class="card-body">
+					<!-- エラー、メッセージ -->
+					<div th:if="${error}" class="alert alert-danger">
+						<p th:text="${error}" style="color: white;"></p>
+					</div>
+					<div th:if="${errorMessageMap}" class="alert alert-danger">
+						<th:block th:each="errorMessages :${errorMessageMap}">
+							<span th:text="${errorMessages.key}" style="color: white;"></span>
+							<th:block th:each="errorMessage: ${errorMessages.value}">
+								<span th:text="${errorMessage}" style="color: white;"></span>
+							</th:block>
+							<br>
+						</th:block>
+					</div>
+
+					<div th:if="${message}" class="alert alert-info">
+						<p th:text="${message}"></p>
+					</div>
+
+					<div id="error" class="alert alert-danger" style="display: none; color: white;"></div>
+					<div id="succsess" class="alert alert-info" style="display: none; color: white;"></div>
+					<!-- /エラー、メッセージ -->
+
+					<div class="mt-3 text-center">
+						<form th:action="@{/user/allCreateDownload}">
+							<button type="submit" class="btn w-100 d-flex justify-content-between align-items-center">
+								<span class="mx-auto">テンプレートダウンロード</span>
+								<i class="bi bi-chevron-double-right"></i>
+							</button>
+						</form>
+					</div>
+
+					<form th:action="@{/user/regist/import}" id="inportForm" method="post"
+						enctype="multipart/form-data">
+						<div class="mt-4 text-center">
+							<label for="fileUpload" class="btn btn-secondary w-100">ファイルを選択</label>
+							<input type="file" id="fileUpload" name="importFile" style="display: none;" />
+							<p id="fileName">ファイルが選択されていません</p>
+						</div>
+
+						<div class="mt-4 mb-3 text-center">
+							<button type="submit" class="btn btn-secondary w-100 disabled"
+								id="uploadBtn">アップロード</button>
+						</div>
+					</form>
+
+					<div class="mt-4 mb-3 text-center">
+						<a href="/user/list" style="color: #0d6efd;">ユーザー一覧に戻る</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- CSV入力確認モーダルのHTML -->
+	<div class="modal fade" id="usersModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel">CSV読み込み一覧</h5>
+				</div>
+				<div class="modal-body">
+					<p id="modalErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
+
+					<div class="mt-2 mb-4 table-responsive">
+						<table class="table table-hover table-bordered" id="usersTbl">
+							<thead style="background-color: white; ">
+								<tr>
+									<th width="10%">インポート</th>
+									<th width="10%">社員コード</th>
+									<th width="10%">ユーザー名</th>
+									<th width="10%">部署ID</th>
+									<th width="10%">権限</th>
+									<th width="10%">email</th>
+									<th width="10%">利用開始日</th>
+								</tr>
+							</thead>
+							<tbody style="background-color: white; " id="users-tbody">
+								<!-- リストが空の場合のデフォルト行 -->
+								<th:block th:each="user,stat : ${usersList}">
+									<tr>
+										<td class="selectFlg"><input type="checkbox"
+												th:name="|usersList.[${stat.index}].import-checkbox|"></td>
+										<td class="employeeCode">[[${user.employeeCode}]]</td>
+										<td class="name">[[${user.name}]]</td>
+										<td class="departmentId">[[${user.departmentId}]]</td>
+										<td class="role">[[${user.role}]]</td>
+										<td class="email">[[${user.email}]]</td>
+										<td class="startDate">[[${user.startDate}]]</td>
+									<tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
+						id="selective-import">インポート</button>
+					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
+						id="all-import">全件インポート</button>
+
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+						onclick="location.href='/user/allCreate'">キャンセル</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /CSV入力確認モーダルのHTML -->
+
+	<!-- エラーメッセージやモーダル表示判定用の属性 -->
+	<input type="hidden" th:data-open-modal="${openModal}" th:data-modal-error="${modalError}">
+
+
+<script th:src="@{/js/userList.js}"></script>
+</body>
+
+</html>

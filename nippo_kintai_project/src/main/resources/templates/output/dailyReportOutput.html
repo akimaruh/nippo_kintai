@@ -17,13 +17,52 @@
 
 <body>
 	<div class="container">
-		<div class="header">
-			<span th:text="'対象年月：'+${targetYearMonth}"></span>
-			<span th:text="'社員番号:'+${userData.employeeCode}"></span>
-			<span th:text="'ユーザー名:'+${userData.name}"></span>
+
+		<div class="title mt-3">
+			<h3>日報帳票</h3>
 		</div>
+		
+		<th:block th:if="${!useBootstrap}">
+		<div class="row2" style="text-align: center;">
+			<div class="header-left">
+				<table class="table">
+					<tbody>
+						<tr>
+							<th scope="row">対象年月</th>
+							<td>
+								<div th:text="${targetYearMonth}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">社員番号</th>
+							<td>
+								<div th:text="${userData.employeeCode}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">ユーザー名</th>
+							<td>
+								<div th:text="${userData.name}"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		
+			<div class="header-right">
+				<div class="memo-box">
+					<div>メモ</div>
+				</div>
+			</div>
+		</div>
+		</th:block>
 
 		<th:block th:if="${useBootstrap}">
+			
+			<span th:text="'対象年月:'+${targetYearMonth}"></span>
+			<span th:text="'社員番号:'+${userData.employeeCode}"></span>
+			<span th:text="'ユーザー名:'+${userData.name}"></span><br>
+			
 			<input type="submit" class="btn btn-primary mt-2" id="excel-button" value="Excel" form="excel" />
 			<input type="submit" class="btn btn-primary mt-2" id="pdf-button" value="PDF" form="pdf" />
 			<input type="button" class="btn btn-primary mt-2" value="戻る" onclick="history.back();" />
@@ -37,9 +76,9 @@
 			</form>
 		</th:block>
 
-		<div class="col-10">
+		<div class="col-12">
 			<div class="content">
-				<div class="row">
+				<div class="row clear">
 					<div style="width: auto">
 						<canvas id="myChart">
 							<img th:src="${image}" alt="Image" />

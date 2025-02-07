@@ -226,5 +226,43 @@
 		GROUP BY
 		YEARWEEK(date, 1)
 	</select>
+	
+	<!--日報勤怠取得-->
+	<resultMap id="attendanceReportMap" type="com.analix.project.dto.AttendanceReportDto">
+		<result property="date" column="date" />
+		<result property="status" column="status" />
+		<result property="startTime" column="start_time" />
+		<result property="endTime" column="end_time" />
+
+		<collection property="dailyReportDetailDtoList"
+			ofType="com.analix.project.dto.DailyReportDetailDto">
+				<result property="workName" column="work_name" />
+				<result property="time" column="time" />
+				<result property="content" column="content" />
+		</collection>
+	</resultMap>
+	
+	<select id="findAttendanceReport" resultMap="attendanceReportMap">
+		SELECT
+		attendance.date,
+		attendance.status,
+		attendance.start_time,
+		attendance.end_time,
+		work.work_name,
+		daily_report_detail.time,
+		daily_report_detail.content
+		
+		FROM attendance
+		LEFT JOIN daily_report_detail
+		ON attendance.user_id = daily_report_detail.user_id
+		AND attendance.date = daily_report_detail.date
+		
+		LEFT JOIN work
+		ON daily_report_detail.work_id = work.work_id
+		
+		WHERE
+		attendance.user_id = #{userId}
+		AND DATE_FORMAT(attendance.date, '%Y-%m') = #{targetYearMonth}
+	</select>
 
 </mapper>

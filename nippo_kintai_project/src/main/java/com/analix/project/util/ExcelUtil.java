@@ -1,6 +1,8 @@
 package com.analix.project.util;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.time.YearMonth;
 import java.util.Arrays;
@@ -8,7 +10,9 @@ import java.util.Arrays;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
@@ -89,7 +93,36 @@ public class ExcelUtil {
 			workbookDto.getWb().close();
 		}
 	}
+	
+	/**
+	 * CSVファイルのダウンロード
+	 * @param fileName
+	 * @param headers
+	 * @param response
+	 * @throws IOException
+	 */
+	public static void downloadCSV(String fileName, String[] headers, HttpServletResponse response) throws IOException {
+		String fileNameCsv = fileName + ".csv";
 
+		// ファイル名をShift-JISとUTF-8でエンコード
+		String fileNameSjis = new String(fileNameCsv.getBytes("Shift_JIS"), "ISO-8859-1").replace(" ", "%20");
+		String fileNameUtf8 = URLEncoder.encode(fileNameCsv, "UTF-8").replace("+", "%20");
+
+		//レスポンスのヘッダー設定
+		response.setContentType("text/csv");
+		response.setCharacterEncoding("UTF-8");
+		response.addHeader("Content-Disposition",
+				"attachment; filename=" + fileNameSjis + ";filename*=utf-8''" + fileNameUtf8);
+
+		//CSV書き込み処理
+		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "UTF-8"))) {
+			writer.write("\uFEFF");
+			writer.write(String.join(",", headers));
+			writer.newLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * ヘッダー行生成
 	 * @param workbook
@@ -107,16 +140,47 @@ public class ExcelUtil {
 				userData.getName(), // ユーザー名
 				targetYearMonth.toString() // 対象年月
 		};
-		headerRow = sheet.createRow(rowIndex++);
+		
+		// 左寄せのスタイル設定
+		CellStyle leftAlignStyle = workbook.createCellStyle();
+		leftAlignStyle.setAlignment(HorizontalAlignment.LEFT);
+		
 		//社員コードを数値にするため先に設定
+		headerRow = sheet.createRow(rowIndex++);
 		headerRow.createCell(0).setCellValue(labels[0]);
 		headerRow.createCell(1).setCellValue(userData.getEmployeeCode());
+		headerRow.getCell(1).setCellStyle(leftAlignStyle);
+		
 		for (int i = 1; i < labels.length; i++) {
 			headerRow = sheet.createRow(rowIndex++);
 			headerRow.createCell(0).setCellValue(labels[i]);
 			headerRow.createCell(1).setCellValue(values[i]);
 		}
-
+		
+		// 空白行を追加
+		sheet.createRow(rowIndex++);
+	}
+	
+	/**
+	 * テーブルヘッダーのスタイル設定
+	 * @param workbook
+	 * @return
+	 */
+	public static CellStyle setHeaderStyle(Workbook workbook) {
+		// ヘッダーのスタイル
+		CellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		headerStyle.setBorderTop(BorderStyle.THIN);
+		headerStyle.setBorderBottom(BorderStyle.THIN);
+		headerStyle.setBorderLeft(BorderStyle.THIN);
+		headerStyle.setBorderRight(BorderStyle.THIN);
+		
+		// 背景色の設定
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
+		return headerStyle;
 	}
 
 	/**
@@ -133,6 +197,11 @@ public class ExcelUtil {
 		bodyStyle.setBorderBottom(BorderStyle.THIN);
 		bodyStyle.setBorderLeft(BorderStyle.THIN);
 		bodyStyle.setBorderRight(BorderStyle.THIN);
+		
+		// 背景色の設定
+		bodyStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		bodyStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
 		return bodyStyle;
 	}
 
@@ -143,7 +212,7 @@ public class ExcelUtil {
 	 */
 	public static void setRow(Object[] headerArray, Object[] bodyArray, Workbook workbook, String sheetName) {
 
-		Sheet sheet = workbook.getSheet(sheetName);
+		Sheet sheet = workbook.getSheet(sheetName);		
 		Row headerRow = sheet.createRow(rowIndex++);
 		for (int i = 0; i < headerArray.length; i++) {
 			Cell cell = headerRow.createCell(i);
@@ -152,7 +221,7 @@ public class ExcelUtil {
 			} else if (headerArray[i] instanceof Integer) {
 				cell.setCellValue((Integer) headerArray[i]);
 			}
-			cell.setCellStyle(setDefaultStyle(workbook));
+			cell.setCellStyle(setHeaderStyle(workbook));
 		}
 		Row bodyRow = sheet.createRow(rowIndex++);
 		for (int i = 0; i < bodyArray.length; i++) {
@@ -177,6 +246,10 @@ public class ExcelUtil {
 	public static void setRow(Object[] headerArray, Object[][] bodyArray, Workbook workbook, String sheetName) {
 		System.out.println("bodyArray:" + Arrays.deepToString(bodyArray));
 		Sheet sheet = workbook.getSheet(sheetName);
+		
+		// 列の幅
+		int columnWidth = 11 * 256;
+		
 		Row headerRow = sheet.createRow(rowIndex++);
 		for (int i = 0; i < headerArray.length; i++) {
 			Cell cell = headerRow.createCell(i);
@@ -185,7 +258,8 @@ public class ExcelUtil {
 			} else if (headerArray[i] instanceof Integer) {
 				cell.setCellValue((Integer) headerArray[i]);
 			}
-			cell.setCellStyle(setDefaultStyle(workbook));
+			cell.setCellStyle(setHeaderStyle(workbook));
+			sheet.setColumnWidth(i, columnWidth);
 		}
 		for (Object[] rowData : bodyArray) {
 			System.out.println("rowData:" + Arrays.toString(rowData));

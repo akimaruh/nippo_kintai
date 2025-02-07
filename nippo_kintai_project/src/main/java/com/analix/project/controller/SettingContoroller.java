@@ -149,7 +149,7 @@ public class SettingContoroller {
 
 		boolean isSuccess = workService.insertWork(workName);
 		if (isSuccess) {
-			redirectAttributes.addFlashAttribute("dailyReportMessage", "登録しました。");
+			redirectAttributes.addFlashAttribute("dailyReportMessage", workName + "を追加しました。");
 		} else {
 			redirectAttributes.addFlashAttribute("dailyReportError", "登録に失敗しました。");
 		}

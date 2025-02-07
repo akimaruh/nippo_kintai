@@ -167,9 +167,19 @@
 							<div class="col-xl-2 col-md-3 col-6">
 								<form th:action="@{/user/regist}" method="get">
 									<button type="submit" class="custom-card-btn">
-										<i class="bi bi-person-badge icon"></i>
+										<i class="bi bi-person-fill-gear icon"></i>
 <!--										<i class="bi bi-person-lock icon"></i>-->
 										<span class="label">ユーザ<br>情報登録</span>
+									</button>
+								</form>
+							</div>
+							
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/user/list}" method="get">
+									<button type="submit" class="custom-card-btn">
+<!--										<i class="bi bi-person-badge icon"></i>-->
+									<i class="bi bi-person-lines-fill icon"></i>
+										<span class="label">ユーザ<br>一覧</span>
 									</button>
 								</form>
 							</div>
@@ -179,6 +189,15 @@
 									<button type="submit" class="custom-card-btn">
 										<i class="bi bi-building icon"></i>
 										<span class="label">部署管理</span>
+									</button>
+								</form>
+							</div>
+							
+							<div class="col-xl-2 col-md-3 col-6">
+								<form th:action="@{/department/regist}" method="get">
+									<button type="submit" class="custom-card-btn">
+										<i class="bi bi-question-circle-fill icon"></i>
+										<span class="label">ヘルプ画面</span>
 									</button>
 								</form>
 							</div>
@@ -294,42 +313,45 @@
 						<h5 class="modal-title" id="modalLabel">日報提出</h5>
 					</div>
 					<div class="modal-body">
-						<p id="modalErrorMessage" class="alert alert-danger" role="alert" th:if="${modalError}">[[${modalError}]]</p> <!-- メッセージを表示 -->
-
-						<table class="table" id="dailyReportTbl">
-							<thead style="background-color: white; ">
-								<tr>
-									<th width="25%">作業</th>
-									<th width="15%">作業時間(h)</th>
-									<th width="60%">作業内容</th>
-								</tr>
-							</thead>
-							<tbody style="background-color: white; " id="dailyReport-tbody">
-								<!-- リストが空の場合のデフォルト行 -->
-								<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
-								<tr>
-									<td><select name="workId" class="form-select" th:value="${workId}"
-											id="workIdInputForm">
-											<option value="">
-											</option>
-											<option th:each="work : ${workMap}" th:value="${work.value}"
-												th:text="${work.key}">
-											</option>
-										</select>
-										 <span id="workIdError" class="text-danger"></span>
-									</td>
-									<td>
-										<input type="number" class="form-control" name="time" min="0" th:value="${time}"
-											id="timeInputForm" />
+						<p id="modalErrorMessage" class="alert alert-danger" role="alert" th:if="${modalError}">
+							[[${modalError}]]</p> <!-- メッセージを表示 -->
+	
+						<div class="table-responsive">
+							<table class="table" id="dailyReportTbl">
+								<thead style="background-color: white; ">
+									<tr>
+										<th width="25%">作業</th>
+										<th width="15%">作業時間(h)</th>
+										<th width="60%">作業内容</th>
+									</tr>
+								</thead>
+								<tbody style="background-color: white; " id="dailyReport-tbody">
+									<!-- リストが空の場合のデフォルト行 -->
+									<input type="hidden" name="userId" th:value="${session.loginUser.id}" />
+									<tr>
+										<td><select name="workId" class="form-select" th:value="${workId}"
+												id="workIdInputForm">
+												<option value="">
+												</option>
+												<option th:each="work : ${workMap}" th:value="${work.value}"
+													th:text="${work.key}">
+												</option>
+											</select>
+											<span id="workIdError" class="text-danger"></span>
+										</td>
+										<td>
+											<input type="number" class="form-control" name="time" min="0" th:value="${time}"
+												id="timeInputForm" />
 											<span id="timeError" class="text-danger"></span>
-									</td>
-									<td><input type="text" class="form-control" name="content" th:value="${content}"
-											id="contentInputForm" />
+										</td>
+										<td><input type="text" class="form-control" name="content" th:value="${content}"
+												id="contentInputForm" />
 											<span id="contentError" class="text-danger"></span>
-									</td>
-								</tr>
-							</tbody>
-						</table>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="submit" class="btn btn-primary" data-bs-dismiss="modal">提出</button>

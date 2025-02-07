@@ -33,6 +33,7 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -43,6 +44,17 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<!-- spring security -->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-security</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.thymeleaf.extras</groupId>-->
+<!--			<artifactId>thymeleaf-extras-springsecurity6</artifactId>-->
+<!--		</dependency>-->
+		<!-- ここまで -->
 
 		<!--		 H2データベースの依存関係 -->
 		<!--		<dependency>-->

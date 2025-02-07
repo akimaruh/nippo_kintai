@@ -3,6 +3,8 @@ package com.analix.project.controller;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.analix.project.dto.AttendanceReportDto;
 import com.analix.project.dto.MonthlyAttendanceDto;
 import com.analix.project.dto.MonthlyDailyReportDto;
 import com.analix.project.entity.Users;
@@ -65,6 +68,7 @@ public class OutputController {
 		Integer employeeCode = selectedUserData == null ? null : selectedUserData.getEmployeeCode();
 		MonthlyDailyReportDto monthlyDailyReportDto = new MonthlyDailyReportDto();
 		MonthlyAttendanceDto monthlyAttendanceDto = new MonthlyAttendanceDto();
+		List<AttendanceReportDto> attendanceReportDtoList = new ArrayList<>();
 		outputService.createAttendanceOutput(userId, targetYearMonth);
 		//『日報帳票』ボタン押下時
 		if (action.equals("dailyReport")) {
@@ -94,16 +98,20 @@ public class OutputController {
 			return "/output/attendanceOutput";
 
 		}
-		//『日報勤怠帳票押下時』
-		if (action.equals("attendanceDailyReport")) {
-			if (monthlyDailyReportDto == null) {
+		//『勤怠日報帳票』ボタン押下時
+		if (action.equals("attendanceReport")) {
+			attendanceReportDtoList = outputService.getAttendanceReportOutput(userId, targetYearMonth);
+			if (attendanceReportDtoList == null) {
 				storeErrorModel(targetYearMonth, employeeCode, model);
 				return "/output/list";
 			}
-			session.setAttribute("monthlyAttendance", monthlyAttendanceDto);
-			model.addAttribute("monthlyAttendance", monthlyAttendanceDto);
+			
+			session.setAttribute("attendanceReportDtoList", attendanceReportDtoList);
+			model.addAttribute("attendanceReportDtoList", attendanceReportDtoList);
 			storeNormallyModel(targetYearMonth, selectedUserData, model, session);
+			return "/output/attendanceReportOutput";
 		}
+		
 		storeErrorModel(targetYearMonth, employeeCode, model);
 		return "/output/list";
 	}
@@ -157,7 +165,7 @@ public class OutputController {
 	}
 
 	/**
-	 * 
+	 * (勤怠帳票)『Excel』ボタン押下後
 	 * @param model
 	 * @param response
 	 * @param session
@@ -168,5 +176,19 @@ public class OutputController {
 			throws IOException {
 		outputService.attendanceExcelSetAndOutput(response, session);
 	}
+	
+	/**
+	 * (勤怠日報帳票)『Excel』ボタン押下後
+	 * @param model
+	 * @param response
+	 * @param session
+	 * @throws IOException
+	 */
+	@PostMapping(path = "/output/attendanceReportOutput/excel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public void attendanceReportExcelOutput(Model model, HttpServletResponse response, HttpSession session)
+			throws IOException {
+		outputService.attendanceReportExcelSetAndOutput(response, session);
+	}
+	
 
 }

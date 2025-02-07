@@ -1,7 +1,7 @@
 package com.analix.project.dto;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import com.analix.project.entity.Attendance;
 import com.analix.project.util.AttendanceUtil;
@@ -17,9 +17,13 @@ public class DailyAttendanceDto {
 	/*勤怠状況-日本語*/
 	private String statusName;
 	private LocalDate date;
-	private LocalTime startTime;
-	private LocalTime endTime;
 	private String remarks;
+	
+	private String startTimeStr;
+	private String endTimeStr;
+	
+//	private LocalTime startTime;
+//	private LocalTime endTime;
 
 	/*エンティティからDTOへ詰め替え
 	ステータスコードからステータス名に変換してセット*/
@@ -30,9 +34,16 @@ public class DailyAttendanceDto {
 		dailyAttendanceDto.setStatus(attendance.getStatus());
 		dailyAttendanceDto.setStatusName(AttendanceUtil.getAttendanceStatus(attendance.getStatus()));
 		dailyAttendanceDto.setDate(attendance.getDate());
-		dailyAttendanceDto.setStartTime(attendance.getStartTime());
-		dailyAttendanceDto.setEndTime(attendance.getEndTime());
 		dailyAttendanceDto.setRemarks(attendance.getRemarks());
+		
+		//フォーマット処理（LocalTime型HH:mm:ss→String型HH:mm）
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+		dailyAttendanceDto.setStartTimeStr(attendance.getStartTime() != null ? attendance.getStartTime().format(timeFormatter) : "");
+		dailyAttendanceDto.setEndTimeStr(attendance.getEndTime() != null ? attendance.getEndTime().format(timeFormatter) : "");
+		
+//		dailyAttendanceDto.setStartTime(attendance.getStartTime());
+//		dailyAttendanceDto.setEndTime(attendance.getEndTime());
+
 		return dailyAttendanceDto;
 	}
 }

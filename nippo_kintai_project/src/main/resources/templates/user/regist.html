@@ -14,12 +14,19 @@
 
 <body>
 
+	<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+		<ol class="breadcrumb" style="background-color: rgb(246, 246, 246); box-shadow:none;">
+			<li class="breadcrumb-item"><a href="/common/startMenu" class="text-primary">Home</a></li>
+			<li class="breadcrumb-item"><a href="/user/list" class="text-primary">一覧</a></li>
+			<li class="breadcrumb-item active" aria-current="page">ユーザ登録/編集</li>
+		</ol>
+	</nav>
 	
 
-	<div class="d-flex justify-content-center mb-5 mt-5" id="regist">
-		<div class="card col-xl-6 col-md-10 col-12">
+	<div class="container d-flex justify-content-center mb-5 mt-3" id="regist">
+		<div class="card col-xl-8 col-md-10 col-12">
 			<div class="card-header">
-				<h3 class="text-center">ユーザー管理</h3>
+				<h5 class="text-center">ユーザー管理</h5>
 			</div>
 			<div class="card-body">
 		
@@ -44,24 +51,30 @@
 				<div id="error" class="alert alert-danger" style="display: none; color: white;"></div>
 				<div id="succsess" class="alert alert-info" style="display: none; color: white;"></div>
 				<!-- /エラー -->
-		
+				
+				<div class="d-flex justify-content-end">
+					<form th:action="@{/user/list}" method="get">
+						<button type="submit" class="btn-pink" style="font-weight: 100;">ユーザ一覧</button>
+					</form>
+				</div>
+
 				<!-- 検索フォーム -->
-				<div class="card mb-3" style="background-color: rgb(255, 255, 255);">
+				<div class="card mt-3 mb-3" style="background-color: rgb(255, 255, 255);">
 					<div class="card-header">検索</div>
 					<div class="card-body">
 						<form th:action="@{/user/regist/search}" th:method="post" name="registUserForm" id="search-form"
 							th:object="${registUserForm}">
 							<div class="mb-1 mt-1 row">
-								<div class="col-xl-3 col-md-3 col-sm-12">
+								<div class="col-xl-3 col-md-3 col-12">
 									<label for="search-employeeCode">社員番号：</label>
 								</div>
-								<div class="col-xl-7 col-md-7 col-sm-12">
+								<div class="col-xl-7 col-md-6 col-8">
 									<input type="text" class="form-control" th:value="*{searchEmployeeCode}" name="searchEmployeeCode"
 										id="search-employeeCode" />
 										<span class="text-danger" th:errors="*{searchEmployeeCode}"></span>
 									<span id="searchEmployeeCodeError" class="text-danger"></span>
 								</div>
-								<div class="col-xl-2 col-md-2 col-sm-12">
+								<div class="col-xl-2 col-md-3 col-4">
 									<input type="submit" value="検索" class="btn-yellow" />
 								</div>
 							</div>
@@ -219,35 +232,37 @@
 				<div class="modal-body">
 					<p id="modalErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
 	
-					<table class="table table-hover table-bordered" id="usersTbl">
-						<thead style="background-color: white; ">
-							<tr>
-								<th width="10%">インポート</th>
-								<th width="10%">社員コード</th>
-								<th width="10%">ユーザー名</th>
-								<th width="10%">部署ID</th>
-								<th width="10%">権限</th>
-								<th width="10%">email</th>
-								<th width="10%">利用開始日</th>
-							</tr>
-						</thead>
-						<tbody style="background-color: white; " id="users-tbody">
-							<!-- リストが空の場合のデフォルト行 -->
+					<div class="mt-2 mb-4 table-responsive">
+						<table class="table table-hover table-bordered" id="usersTbl">
+							<thead style="background-color: white; ">
+								<tr>
+									<th width="10%">インポート</th>
+									<th width="10%">社員コード</th>
+									<th width="10%">ユーザー名</th>
+									<th width="10%">部署ID</th>
+									<th width="10%">権限</th>
+									<th width="10%">email</th>
+									<th width="10%">利用開始日</th>
+								</tr>
+							</thead>
+							<tbody style="background-color: white; " id="users-tbody">
+								<!-- リストが空の場合のデフォルト行 -->
 	
-							<th:block th:each="user,stat : ${usersList}">
-								<tr>
-									<td class="selectFlg"><input type="checkbox"
-											th:name="|usersList.[${stat.index}].import-checkbox|"></td>
-									<td class="employeeCode">[[${user.employeeCode}]]</td>
-									<td class="name">[[${user.name}]]</td>
-									<td class="departmentId">[[${user.departmentId}]]</td>
-									<td class="role">[[${user.role}]]</td>
-									<td class="email">[[${user.email}]]</td>
-									<td class="startDate">[[${user.startDate}]]</td>
-								<tr>
-							</th:block>
-						</tbody>
-					</table>
+								<th:block th:each="user,stat : ${usersList}">
+									<tr>
+										<td class="selectFlg"><input type="checkbox"
+												th:name="|usersList.[${stat.index}].import-checkbox|"></td>
+										<td class="employeeCode">[[${user.employeeCode}]]</td>
+										<td class="name">[[${user.name}]]</td>
+										<td class="departmentId">[[${user.departmentId}]]</td>
+										<td class="role">[[${user.role}]]</td>
+										<td class="email">[[${user.email}]]</td>
+										<td class="startDate">[[${user.startDate}]]</td>
+									<tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal"

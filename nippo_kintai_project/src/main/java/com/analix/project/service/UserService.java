@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.analix.project.dto.UserCsvInputDto;
+import com.analix.project.dto.UserSearchDto;
 import com.analix.project.entity.Department;
 import com.analix.project.entity.TemporaryPassword;
 import com.analix.project.entity.Users;
@@ -28,9 +30,11 @@ import com.analix.project.mapper.TemporaryPasswordMapper;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.Constants;
 import com.analix.project.util.CustomDateUtil;
+import com.analix.project.util.ExcelUtil;
 import com.analix.project.util.MessageUtil;
 import com.analix.project.util.PasswordUtil;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
@@ -233,9 +237,16 @@ public class UserService {
 			line = br.readLine();
 			//行がNULL（CSVの値がなくなる）になるまで処理を繰り返す
 			lineLabel: while ((line = br.readLine()) != null) {
-				System.out.println("line:" + line);
+		
 				//Stringのsplitメソッドを使用してカンマごとに分割して配列にいれる
 				String[] csvSplit = line.split(",", Constants.USER_COLUMN_LENGTH);
+				
+				//CSVの要素数が不足している場合は空文字の補完
+				while (csvSplit.length < 6) {
+					csvSplit = Arrays.copyOf(csvSplit, csvSplit.length + 1);
+					csvSplit[csvSplit.length -1] = "";
+				}
+				
 				for (int i = 0; i < csvSplit.length; i++) {
 					//社員番号を入力していない行は飛ばす
 					if (csvSplit[0] == "") {
@@ -434,5 +445,44 @@ public class UserService {
 		}
 		return isRegist;
 	}
+	
+    //ユーザー一覧画面表示用
+    public List<Users> getUserList() {
+    	return userMapper.findUserList();
+    }
+    
+    //ユーザー一覧画面検索結果表示
+    public List<Users> getSearchUserList(UserSearchDto userSearchDto) {
+    	return userMapper.searchUsersByKeyword(userSearchDto);
+    }
+    
+    //ユーザー一覧画面検索条件表示
+	public String generateSearchConditions(UserSearchDto userSearchDto) {
+		List<String> searchConditionList = Arrays.asList(
+			userSearchDto.getKeyword() != null && !userSearchDto.getKeyword().isEmpty()
+					? "キーワード:" + userSearchDto.getKeyword() : null,
+			userSearchDto.getEmployeeCode() != null && !userSearchDto.getEmployeeCode().isEmpty()
+					? "社員番号:" + userSearchDto.getEmployeeCode() : null,
+			userSearchDto.getUserName() != null && !userSearchDto.getUserName().isEmpty()
+					? "ユーザー名:" + userSearchDto.getUserName() : null,
+			userSearchDto.getDepartment() != null && !userSearchDto.getDepartment().isEmpty()
+					? "所属部署:" + userSearchDto.getDepartment() : null,
+			userSearchDto.getRole() != null && !userSearchDto.getRole().isEmpty() 
+					? "権限:" + userSearchDto.getRole() : null);
+
+		String searchConditions = searchConditionList.stream()
+				.filter(e -> e != null)
+				.collect(Collectors.joining(" | "));
+
+		return searchConditions;
+	}
+    
+    //一括登録エクセルのフォーマットダウンロード
+    public void ExcelOutput(HttpServletResponse response) throws IOException {
+    	String fileName = "ユーザーCSVファイルテンプレート";
+    	String[] headers = Constants.USER_HEADER_ARRAY;
+
+    	ExcelUtil.downloadCSV(fileName, headers, response);
+    }
 
 }

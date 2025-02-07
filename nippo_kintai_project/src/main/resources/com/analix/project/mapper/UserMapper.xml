@@ -274,8 +274,44 @@
 		WHERE
 		users.id = #{id}
 	</update>
-
-
+	
+	
+	<select id="findUserList" resultType="com.analix.project.entity.Users">
+		SELECT users.name, users.role, users.employee_code,
+		department.name AS department_name
+		FROM users
+		JOIN department
+		ON users.department_id = department.department_id
+	</select>
+	
+	<select id="searchUsersByKeyword" parameterType="com.analix.project.dto.UserSearchDto" resultType="com.analix.project.entity.Users">
+		SELECT users.name, users.role, users.employee_code,
+		department.name AS department_name
+		FROM users
+		JOIN department
+		ON users.department_id = department.department_id
+		<where>
+			<if test="keyword != null and keyword != ''">
+				(users.name LIKE CONCAT('%', #{keyword}, '%')
+				OR users.role LIKE CONCAT('%', #{keyword}, '%')
+				OR users.employee_code LIKE CONCAT('%', #{keyword}, '%')
+				OR department.name LIKE CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="userName != null and userName != ''">
+				AND users.name LIKE CONCAT('%', #{userName}, '%')
+			</if>
+			<if test="role != null and role != ''">
+				AND users.role = #{role}
+			</if>
+			<if test="employeeCode != null and employeeCode != ''">
+				AND users.employee_code LIKE CONCAT('%', #{employeeCode}, '%')
+			</if>
+			<if test="department != null and department != ''">
+				AND department.name = #{department}
+			</if>
+		</where>
+		ORDER BY users.employee_code ASC
+	</select>
 
 
 </mapper>

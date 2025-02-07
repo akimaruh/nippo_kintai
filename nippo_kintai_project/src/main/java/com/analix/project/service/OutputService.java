@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 
 import com.analix.project.Builder.ExcelReportBuilder;
+import com.analix.project.dto.AttendanceReportDto;
 import com.analix.project.dto.AttendanceSummaryDto;
 import com.analix.project.dto.DailyAttendanceDto;
 import com.analix.project.dto.DailyReportDetailDto;
@@ -36,6 +37,7 @@ import com.analix.project.mapper.DailyReportMapper;
 import com.analix.project.mapper.UserMapper;
 import com.analix.project.util.AttendanceUtil;
 import com.analix.project.util.Constants;
+import com.analix.project.util.CustomDateUtil;
 import com.analix.project.util.ExcelUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,6 +48,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class OutputService {
 	private final AttendanceUtil attendanceUtil;
+	private final CustomDateUtil customDateUtil;
 	private final UserMapper userMapper;
 	private final DailyReportMapper dailyReportMapper;
 	private final AttendanceMapper attendanceMapper;
@@ -86,7 +89,7 @@ public class OutputService {
 		Object[] workTimeArray = linkedHashMap.values().toArray();
 		//Excel用に配列に詰めなおし
 		String[] dailyReportHeaderNameArray = Constants.DAILY_REPORT_HEADERNAME_ARRAY;
-		String[][] dailyReportBodyArray = convertForDailyReportBodyArray(dailyReportDtoList);
+		Object[][] dailyReportBodyArray = convertForDailyReportBodyArray(dailyReportDtoList);
 
 		Workbook workbook = new ExcelReportBuilder(outputName)
 				.setHeaderRow(userData, targetYearMonth)
@@ -99,6 +102,12 @@ public class OutputService {
 
 	}
 
+	/**
+	 * (勤怠帳票)ワークブックDTOにデータをセット
+	 * @param response
+	 * @param session
+	 * @throws IOException
+	 */
 	public void attendanceExcelSetAndOutput(HttpServletResponse response, HttpSession session) throws IOException {
 
 		Users userData = (Users) session.getAttribute("userData");
@@ -146,6 +155,11 @@ public class OutputService {
 
 	}
 
+	/**
+	 * (勤怠帳票)データをExcel用の配列に変換
+	 * @param dailyAttendanceDtoList
+	 * @return 変換後配列
+	 */
 	public String[][] convertForAttendanceBodyArray(List<DailyAttendanceDto> dailyAttendanceDtoList) {
 		ArrayList<ArrayList<String>> dailyAttendanceBodyArrayList = new ArrayList<>();
 		for (DailyAttendanceDto dailyAttendance : dailyAttendanceDtoList) {
@@ -157,11 +171,10 @@ public class OutputService {
 					.add(dailyAttendance.getDate().getDayOfWeek().getDisplayName(TextStyle.NARROW, Locale.JAPAN));
 
 			dailyAttendanceBodyArray.add(dailyAttendance.getStatusName());
-			dailyAttendanceBodyArray
-					.add(dailyAttendance.getStartTime() == null ? "" : dailyAttendance.getStartTime().toString());
-			dailyAttendanceBodyArray
-					.add(dailyAttendance.getEndTime() == null ? "" : dailyAttendance.getEndTime().toString());
-			dailyAttendanceBodyArray.add(dailyAttendance.getRemarks() == null ? "" : dailyAttendance.getRemarks());
+			dailyAttendanceBodyArray.add(dailyAttendance.getStartTimeStr());
+			dailyAttendanceBodyArray.add(dailyAttendance.getEndTimeStr());
+			dailyAttendanceBodyArray.add(dailyAttendance.getRemarks());
+//			dailyAttendanceBodyArray.add(dailyAttendance.getRemarks() == null ? "" : dailyAttendance.getRemarks());
 			dailyAttendanceBodyArrayList.add(dailyAttendanceBodyArray);
 		}
 		String[][] bodyArray = dailyAttendanceBodyArrayList.stream().map(u -> u.toArray(new String[0]))
@@ -175,11 +188,11 @@ public class OutputService {
 	 * @param dailyReportDtoList
 	 * @return 変換後配列
 	 */
-	private String[][] convertForDailyReportBodyArray(List<DailyReportDto> dailyReportDtoList) {
-		ArrayList<ArrayList<String>> dailyReportBodyArrayList = new ArrayList<>();
+	private Object[][] convertForDailyReportBodyArray(List<DailyReportDto> dailyReportDtoList) {
+		ArrayList<ArrayList<Object>> dailyReportBodyArrayList = new ArrayList<>();
 		for (DailyReportDto dailyReportDto : dailyReportDtoList) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d");
-			ArrayList<String> dailyReportBodyArray = new ArrayList<>();
+			ArrayList<Object> dailyReportBodyArray = new ArrayList<>();
 			dailyReportBodyArray.add(dailyReportDto.getDate().format(formatter));
 			dailyReportBodyArray
 					.add(dailyReportDto.getDate().getDayOfWeek().getDisplayName(TextStyle.NARROW, Locale.JAPAN));
@@ -189,20 +202,99 @@ public class OutputService {
 				if (i < dailyReportDto.getDailyReportDetailDtoList().size()) {
 					DailyReportDetailDto dailyReportDetailDto = dailyReportDto.getDailyReportDetailDtoList().get(i);
 					dailyReportBodyArray.add(dailyReportDetailDto.getWorkName());
-					dailyReportBodyArray.add(dailyReportDetailDto.getTime().toString());
+					dailyReportBodyArray.add(dailyReportDetailDto.getTime());
 				} else {
 					dailyReportBodyArray.add("");
 					dailyReportBodyArray.add("");
 				}
 			}
-			dailyReportBodyArray.add(dailyReportDto.getTimePerDay().toString());
+			dailyReportBodyArray.add(dailyReportDto.getTimePerDay());
 			dailyReportBodyArrayList.add(dailyReportBodyArray);
 		}
 		// 2次元配列に変換
-		String[][] bodyArray = dailyReportBodyArrayList.stream()
-				.map(u -> u.toArray(new String[0]))
-				.toArray(String[][]::new);
+		Object[][] bodyArray = dailyReportBodyArrayList.stream()
+				.map(u -> u.toArray(new Object[0]))
+				.toArray(Object[][]::new);
 
+		return bodyArray;
+	}
+	
+	/**
+	 * （勤怠日報帳票）ワークブックDTOにデータをセット
+	 * @param response
+	 * @param session
+	 * @throws IOException
+	 */
+	public void attendanceReportExcelSetAndOutput(HttpServletResponse response, HttpSession session) throws IOException {
+		
+		Users userData = (Users) session.getAttribute("userData");
+		YearMonth targetYearMonth = (YearMonth) session.getAttribute("targetYearMonth");
+		String outputName = Constants.CODE_VAL_ATTENDANCE_REPORT_OUTPUT;
+		
+		List<AttendanceReportDto> attendanceReportDtoList = (List<AttendanceReportDto>) session.getAttribute("attendanceReportDtoList");
+
+		// 勤怠+日報表
+		Object[] attendanceReportHeaderNameArray = Constants.ATTENDANCE_REPORT_HEADERNAME_ARRAY;
+		Object[][] attendanceReportBodyArray = convertForAttendanceReportBodyArray(attendanceReportDtoList);
+
+		Workbook workbook = new ExcelReportBuilder(outputName)
+				.setHeaderRow(userData, targetYearMonth)
+				.addRows(attendanceReportHeaderNameArray, attendanceReportBodyArray)
+				.addDecorations()
+				.build();
+		
+		setDataToWorkbookDto(workbook, outputName, userData, targetYearMonth, response);
+	}
+	
+	/**
+	 *  (勤怠日報帳票) データをExcel用の配列に変換
+	 * @param attendanceReportDtoList
+	 * @return 変換後配列
+	 */
+	private Object[][] convertForAttendanceReportBodyArray(List<AttendanceReportDto> attendanceReportDtoList) {
+		ArrayList<ArrayList<Object>> attendanceReportBodyArrayList = new ArrayList<>();
+
+		for (AttendanceReportDto attendanceReportDto : attendanceReportDtoList) {
+			// 勤怠
+			ArrayList<Object> attendanceReportBodyArray = new ArrayList<>();
+			attendanceReportBodyArray.add(attendanceReportDto.getDate().format(DateTimeFormatter.ofPattern("M/d")));
+			attendanceReportBodyArray.add(CustomDateUtil.getDayOfWeekInJapanese(attendanceReportDto.getDate()));
+			attendanceReportBodyArray.add(attendanceReportDto.getStatusName());
+			attendanceReportBodyArray.add(attendanceReportDto.getStartTimeStr());
+			attendanceReportBodyArray.add(attendanceReportDto.getEndTimeStr());
+
+			// 日報
+			List<DailyReportDetailDto> dailyReports = attendanceReportDto.getDailyReportDetailDtoList();
+
+			// 日報なし：勤怠情報だけを1行として追加する
+			if (dailyReports.isEmpty()) {
+				ArrayList<Object> emptyDailyReportBodyArray = new ArrayList<>(attendanceReportBodyArray);
+				emptyDailyReportBodyArray.add("");
+				emptyDailyReportBodyArray.add("");
+				emptyDailyReportBodyArray.add("");
+				attendanceReportBodyArrayList.add(emptyDailyReportBodyArray);
+
+			// 日報あり：日報情報ごとに新しい行を作成
+			} else {
+				for (DailyReportDetailDto dailyReportDetailDto : dailyReports) {
+					// 日報情報の行を作成
+					ArrayList<Object> dailyReportBodyArray = new ArrayList<>(attendanceReportBodyArray);
+					dailyReportBodyArray.add(dailyReportDetailDto.getWorkName());
+					dailyReportBodyArray.add(dailyReportDetailDto.getTime());
+					dailyReportBodyArray.add(dailyReportDetailDto.getContent());
+
+					attendanceReportBodyArrayList.add(dailyReportBodyArray);
+
+					// その後の行では勤怠情報を空にする
+					attendanceReportBodyArray = new ArrayList<>(Arrays.asList("", "", "", "", ""));
+				}
+			}
+		}
+
+		// 2次元配列に変換
+		Object[][] bodyArray = attendanceReportBodyArrayList.stream()
+				.map(row -> row.toArray(new Object[0]))
+				.toArray(Object[][]::new);
 		return bodyArray;
 	}
 
@@ -261,6 +353,7 @@ public class OutputService {
 		monthlyDailyReportDto.setDailyReportDtoList(timePerDayIntegratedDailyReportList);
 		//サマリ結果を追加
 		monthlyDailyReportDto.setDailyReportSummaryDto(getMonthlyDailyReportSummary(userId, targetYearMonth));
+		System.out.println("monthlyDailyReportDto:" + monthlyDailyReportDto);
 		return monthlyDailyReportDto;
 
 	}
@@ -293,7 +386,6 @@ public class OutputService {
 	 */
 	public MonthlyAttendanceDto createAttendanceOutput(Integer userId, YearMonth targetYearMonth) {
 		List<Attendance> attendanceList = attendanceMapper.findAllDailyAttendance(userId, targetYearMonth);
-		System.out.println(attendanceList);
 		if (attendanceList.isEmpty()) {
 			return null;
 		}
@@ -447,7 +539,26 @@ public class OutputService {
 		System.out.println(minutes);
 		//分は2桁分0埋め
 		String minutesZeroFill = StringUtils.leftPad(String.valueOf(minutes), 2, "0");
+		System.out.println(hours + ":" + minutesZeroFill);
 		return hours + ":" + minutesZeroFill;
 
+	}
+
+	/**
+	 * 勤怠日報帳票出力用１か月の勤怠+日報リスト取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return
+	 */
+	public List<AttendanceReportDto> getAttendanceReportOutput(Integer userId, YearMonth targetYearMonth) {
+		List<AttendanceReportDto> attendanceList = attendanceMapper.findAttendanceReport(userId, targetYearMonth);
+
+		// statusName、startTimeStr、endTimeStrを追加
+		List<AttendanceReportDto> attendanceReportDtoList = attendanceList.stream()
+				.peek(attendance -> attendance.setStatusName(AttendanceUtil.getAttendanceStatus(attendance.getStatus())))
+				.peek(attendance -> attendance.setStartTimeStr(customDateUtil.convertLocalTimeToString(attendance.getStartTime())))
+				.peek(attendance -> attendance.setEndTimeStr(customDateUtil.convertLocalTimeToString(attendance.getEndTime())))
+				.collect(Collectors.toList());
+		return attendanceReportDtoList;
 	}
 }

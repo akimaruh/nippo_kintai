@@ -1,67 +1,52 @@
-//package com.analix.project.config;
+package com.analix.project.config;
 //
 //import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 //import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.security.web.SecurityFilterChain;
 //
-//@Configuration // このクラスは設定クラスである
-//@EnableWebSecurity // Webセキュリティを有効にする
+//
+//@Configuration
+//@EnableWebSecurity
+//@EnableMethodSecurity
 //public class SecurityConfig {
 //
 //	@Bean
-//	public PasswordEncoder passwordEncoder() { // パスワードエンコーダー(パスワードのハッシュ化)を提供するメソッド
-//		return new MessageDigestPasswordEncoder("SHA-256"); // SHA-256を使用するPasswordEncoderを返す
-//	}
-//
-//	@Bean
 //	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
 //		http.formLogin(login -> login
-//                .loginPage("/") // ログインページのパス
-//                .loginProcessingUrl("/login")
-//                .defaultSuccessUrl("/") // ログイン成功後の遷移先を設定
-//                .failureUrl("/?error=true")   // ログイン失敗後の遷移先を設定
-//                .permitAll()
-//                
-//		).logout(
-//				 logout -> logout
-//				 
-//				 .logoutUrl("/logout")
-//				 .logoutSuccessUrl("/login")
-//				 
-//		).authorizeHttpRequests(auth -> auth
-//				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-//				.requestMatchers("/login").permitAll() // /loginへのアクセスは全て許可
-//				.requestMatchers("/attendance/regist").permitAll()
-//				.requestMatchers("/user/regist").permitAll()
-//				.requestMatchers("/user/regist").hasAnyRole("Admin")
-//				.requestMatchers("/attendance/regist").hasAnyRole("UnitManager", "Manager", "Regular")
+//				//ログインフォームの送信先URL
+//				.loginProcessingUrl("/")
+//				//ログイン画面として表示されるURL
+//				.loginPage("/login")
+//				//ログイン成功後のリダイレクトURL
+//				.defaultSuccessUrl("/common/startMenu", true)
+//				//ログイン失敗時のリダイレクトURL
+////				.failureForwardUrl("/login?error")
+//				//ログイン関連のURLへのアクセス許可
+//				.permitAll()
+//
+//		).logout(logout -> logout
+//				//ログアウトのURL
+//				.logoutUrl("/common/logoff")
+//				//ログアウト成功後のリダイレクト先
+//				.logoutSuccessUrl("/")
+//				.permitAll()
 //				
-////				.requestMatchers("/user/regist").hasAnyRole("ADMIN")
-////				.requestMatchers("/attendance/regist").hasAnyRole("Regular")
-//                
-//                
-////                .requestMatchers("/manager/employeeList").hasAnyRole("ADMIN")
-////                .requestMatchers("/manager/employeeList-edit").hasAnyRole("ADMIN")
-////                .requestMatchers("/manager/team-create").hasAnyRole("ADMIN", "USER")
-////                .requestMatchers("/manager/team-detail").hasAnyRole("ADMIN", "USER")
-////                .requestMatchers("/manager/team-edit").hasAnyRole("ADMIN", "USER")
-////                .requestMatchers("/manager/teamlist").hasAnyRole("ADMIN", "USER")
-////                .requestMatchers("/manager/teams/**").hasAnyRole("ADMIN", "USER")
-////                .requestMatchers("/manager/assignment/**").hasAnyRole("ADMIN", "USER")
-////                .requestMatchers("/member/**").hasRole("USER")
-////                .requestMatchers("/member/**").hasRole("USER")
-////                .requestMatchers("/manager/home/**").hasRole("USER")
-////                .requestMatchers("/manager/report-search").hasRole("USER")
-//                .anyRequest().authenticated() // その他のリクエストは認証が必要
-//                
-//        ).exceptionHandling(ex -> ex.accessDeniedPage("/"));
-//		
+//		).authorizeHttpRequests(authz -> authz
+//				//スタティックリソースへのアクセスを許可
+//				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+//				//これらのURLへのアクセスを許可
+//				.requestMatchers("/", "/login", "/timeout", "/password/**", "/common/**", "/**").permitAll()
+//				//それ以外のリクエストには認証が必要
+//				.anyRequest().authenticated()
+//				);
+//
 //		return http.build();
 //	}
-
+//	
 //}
+//

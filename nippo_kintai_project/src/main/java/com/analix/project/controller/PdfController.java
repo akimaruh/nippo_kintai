@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import com.analix.project.dto.AttendanceReportDto;
 import com.analix.project.dto.MonthlyAttendanceDto;
 import com.analix.project.dto.MonthlyDailyReportDto;
 import com.analix.project.entity.Users;
@@ -132,4 +134,33 @@ public class PdfController {
 		String pdfFileName = "attendanceOutput_" + targetYearMonth;
 		return generatePdfFile(templatePath, variables, pdfFileName);
 	}
+	
+	/**
+	 * (勤怠日報帳票）HTMLをPDF化
+	 * @param model
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@PostMapping("/output/attendanceReportOutput/pdf")
+	public ResponseEntity<InputStreamResource> generatePdf(Model model, HttpSession session) throws IOException {
+
+		// 固有のデータを取得
+		Users userData = (Users) session.getAttribute("userData");
+		YearMonth targetYearMonth = (YearMonth) session.getAttribute("targetYearMonth");
+		List<AttendanceReportDto> attendanceReportDtoList = (List<AttendanceReportDto>) session.getAttribute("attendanceReportDtoList");
+		
+		// テンプレート用データをセットアップ
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("attendanceReportDtoList", attendanceReportDtoList);
+		variables.put("userData", userData);
+		variables.put("targetYearMonth", targetYearMonth);
+		variables.put("useBootstrap", false);
+		
+		// 共通メソッドに渡す
+		String templatePath = "attendanceReportOutput";
+		String pdfFileName = "attendanceReportOutput_" + targetYearMonth;
+		return generatePdfFile(templatePath, variables, pdfFileName);
+	}
+
 }

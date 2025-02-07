@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.analix.project.dto.AttendanceInfoDto;
+import com.analix.project.dto.AttendanceReportDto;
 import com.analix.project.entity.Attendance;
 import com.analix.project.entity.Users;
 
@@ -98,7 +100,7 @@ public interface AttendanceMapper {
 	public List<Map<String, Object>> everyWeekOvertimeHoursRetrieve(@Param("userId") Integer userId,
 			@Param("targetYearMonth") YearMonth targetYearMonth);
 
-/**
+	/**
 	 * 勤怠情報と訂正情報を取得（年月or日付）
 	 * @param userId
 	 * @param targetYearMonth 対象年月
@@ -107,4 +109,12 @@ public interface AttendanceMapper {
 	 */
 	public List<AttendanceInfoDto> findAttendanceWithCorrectons(@Param("userId") Integer userId, 
 		@Param("targetYearMonth") YearMonth targetYearMonth, @Param("targetDate") LocalDate targetDate);
+
+	/**
+	 * 勤怠+日報情報リスト取得
+	 * @param userId
+	 * @param targetYearMonth
+	 * @return AttendanceReportDtoリスト
+	 */
+	public List<AttendanceReportDto> findAttendanceReport(@Param("userId") Integer userId, @Param("targetYearMonth") YearMonth targetYearMonth);
 }

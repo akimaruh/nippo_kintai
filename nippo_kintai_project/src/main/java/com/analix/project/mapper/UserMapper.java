@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.analix.project.dto.UserSearchDto;
 import com.analix.project.entity.Users;
 
 /**
@@ -126,6 +127,18 @@ public interface UserMapper {
 	 */
 	boolean updatePassword(@Param("id") Integer id , @Param("password") String password);
 	
+	/**
+	 * ユーザー一覧画面表示用（全件）
+	 * @return
+	 */
+	public List<Users> findUserList();
 	
+
+	/**
+	 * ユーザー一覧画面表示用（キーワード検索 + 詳細検索）
+	 * @param userSearchDto
+	 * @return
+	 */
+	public List<Users> searchUsersByKeyword(UserSearchDto userSearchDto);
 
 }
